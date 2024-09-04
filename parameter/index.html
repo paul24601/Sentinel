@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Injection Molding Parameter Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container my-5">
+    <h1 class="text-center">Injection Molding Parameters</h1>
+    <form>
+
+        <!-- Date and Machine Information -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="date" class="form-label">Date</label>
+                <input type="date" class="form-control" id="date" name="date">
+            </div>
+            <div class="col-md-4">
+                <label for="machine" class="form-label">Machine</label>
+                <input type="text" class="form-control" id="machine" name="machine">
+            </div>
+            <div class="col-md-4">
+                <label for="category" class="form-label">Category</label>
+                <input type="text" class="form-control" id="category" name="category">
+            </div>
+        </div>
+
+        <!-- IRN and Time -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="irn" class="form-label">IRN</label>
+                <input type="text" class="form-control" id="irn" name="irn">
+            </div>
+            <div class="col-md-4">
+                <label for="time" class="form-label">Time</label>
+                <input type="time" class="form-control" id="time" name="time">
+            </div>
+            <div class="col-md-4">
+                <label for="runNumber" class="form-label">Run Number</label>
+                <input type="text" class="form-control" id="runNumber" name="runNumber">
+            </div>
+        </div>
+
+        <!-- Product Details -->
+        <h3 class="mt-5">Product Description</h3>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="prodDesc" class="form-label">Product Description</label>
+                <input type="text" class="form-control" id="prodDesc" name="prodDesc">
+            </div>
+            <div class="col-md-6">
+                <label for="prodNum" class="form-label">Product Number</label>
+                <input type="text" class="form-control" id="prodNum" name="prodNum">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="cavity" class="form-label"># of Cavity (Active)</label>
+                <input type="number" class="form-control" id="cavity" name="cavity">
+            </div>
+            <div class="col-md-4">
+                <label for="grossWeight" class="form-label">Gross Weight</label>
+                <input type="text" class="form-control" id="grossWeight" name="grossWeight">
+            </div>
+            <div class="col-md-4">
+                <label for="color" class="form-label">Color</label>
+                <input type="text" class="form-control" id="color" name="color">
+            </div>
+        </div>
+
+        <!-- Material Details -->
+        <h3 class="mt-5">Material Details</h3>
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label for="material1" class="form-label">Material 1</label>
+                <input type="text" class="form-control" id="material1" name="material1">
+            </div>
+            <div class="col-md-3">
+                <label for="materialBrand1" class="form-label">Material Brand 1</label>
+                <input type="text" class="form-control" id="materialBrand1" name="materialBrand1">
+            </div>
+            <div class="col-md-3">
+                <label for="mixture1" class="form-label">% Mixture 1</label>
+                <input type="number" class="form-control" id="mixture1" name="mixture1">
+            </div>
+            <div class="col-md-3">
+                <label for="dryingTime" class="form-label">Drying Time (HH:MM:SS)</label>
+                <input type="time" class="form-control" id="dryingTime" name="dryingTime" step="1">
+            </div>
+        </div>
+        <!-- Repeat for other materials as needed -->
+        
+        <!-- Mold and Operation Details -->
+        <h3 class="mt-5">Mold and Operation Details</h3>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="moldCode" class="form-label">Mold Code</label>
+                <input type="text" class="form-control" id="moldCode" name="moldCode">
+            </div>
+            <div class="col-md-6">
+                <label for="operationType" class="form-label">Operation Type</label>
+                <input type="text" class="form-control" id="operationType" name="operationType">
+            </div>
+        </div>
+
+        <!-- Temperature Zones -->
+        <h3 class="mt-5">Temperature Zones</h3>
+        <div class="row mb-3">
+            <div class="col-md-2">
+                <label for="barrelZone0" class="form-label">Barrel Heater Zone 0</label>
+                <input type="text" class="form-control" id="barrelZone0" name="barrelZone0">
+            </div>
+            <div class="col-md-2">
+                <label for="mhcZone1" class="form-label">MHC Zone 1</label>
+                <input type="text" class="form-control" id="mhcZone1" name="mhcZone1">
+            </div>
+            <!-- Add other zones similarly -->
+        </div>
+
+        <!-- Speed, Pressure, Position -->
+        <h3 class="mt-5">Speed, Pressure, Position</h3>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="position1MO" class="form-label">Position 1 MO</label>
+                <input type="text" class="form-control" id="position1MO" name="position1MO">
+            </div>
+            <div class="col-md-4">
+                <label for="speed1MO" class="form-label">Speed 1 MO</label>
+                <input type="text" class="form-control" id="speed1MO" name="speed1MO">
+            </div>
+            <div class="col-md-4">
+                <label for="pressure1MO" class="form-label">Pressure 1 MO</label>
+                <input type="text" class="form-control" id="pressure1MO" name="pressure1MO">
+            </div>
+        </div>
+        <!-- Add other positions, speeds, and pressures as needed -->
+
+        <!-- Screw Parameters -->
+        <h3 class="mt-5">Screw Parameters</h3>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="screwRPM1" class="form-label">Screw RPM 1</label>
+                <input type="text" class="form-control" id="screwRPM1" name="screwRPM1">
+            </div>
+            <div class="col-md-4">
+                <label for="screwSpeed1" class="form-label">Screw Speed 1</label>
+                <input type="text" class="form-control" id="screwSpeed1" name="screwSpeed1">
+            </div>
+            <div class="col-md-4">
+                <label for="plastPressure1" class="form-label">Plasticizing Pressure 1</label>
+                <input type="text" class="form-control" id="plastPressure1" name="plastPressure1">
+            </div>
+        </div>
+        <!-- Repeat for other screw parameters as needed -->
+
+        <!-- Remarks and Attachments -->
+        <h3 class="mt-5">Remarks and Attachments</h3>
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <label for="remarks" class="form-label">Remarks</label>
+                <textarea class="form-control" id="remarks" name="remarks" rows="4"></textarea>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <label for="attachment" class="form-label">Attachment Picture/Video</label>
+                <input type="file" class="form-control" id="attachment" name="attachment">
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="row mb-3">
+            <div class="col-md-12 text-center">
+                <button type="submit" class="btn btn-primary">Submit Parameters</button>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
