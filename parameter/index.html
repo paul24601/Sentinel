@@ -1,186 +1,358 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Injection Molding Parameter Form</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Include Bootstrap DateTimePicker CSS -->
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css">
+
+
 </head>
+
 <body>
 
-<div class="container my-5">
-    <h1 class="text-center">Injection Molding Parameters</h1>
-    <form>
+    <div class="container my-5">
+        <div class="card">
+            <div class="card-header bg-primary text-light text-center">
+                <h2>Injection Molding Parameters</h2>
+            </div>
+            <div class="card-body">
+                <form>
 
-        <!-- Date and Machine Information -->
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <label for="date" class="form-label">Date</label>
-                <input type="date" class="form-control" id="date" name="date">
-            </div>
-            <div class="col-md-4">
-                <label for="machine" class="form-label">Machine</label>
-                <input type="text" class="form-control" id="machine" name="machine">
-            </div>
-            <div class="col-md-4">
-                <label for="category" class="form-label">Category</label>
-                <input type="text" class="form-control" id="category" name="category">
-            </div>
-        </div>
+                    <!-- Section 1: Product and Machine Information -->
+                    <h4>
+                        <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapseProductMachine"
+                            role="button" aria-expanded="false" aria-controls="collapseProductMachine">
+                            Product and Machine Information
+                            <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
+                        </a>
+                    </h4>
+                    <div class="collapse show" id="collapseProductMachine">
+                        <div class="row mb-3 row-cols-1 row-cols-sm-3">
+                            <div class="col">
+                                <label for="date" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="date">
+                            </div>
+                            <div class="col">
+                                <label for="time" class="form-label">Time</label>
+                                <input type="time" class="form-control" id="time">
+                            </div>
+                            <div class="col">
+                                <label for="machine" class="form-label">Machine</label>
+                                <input type="text" class="form-control" id="machine" placeholder="Enter Machine Name">
+                            </div>
+                            <div class="col">
+                                <label for="runNo" class="form-label">Run No.</label>
+                                <input type="text" class="form-control" id="runNo" placeholder="Enter Run Number">
+                            </div>
+                            <div class="col">
+                                <label for="category" class="form-label">Category</label>
+                                <input type="text" class="form-control" id="category" placeholder="Enter Category">
+                            </div>
+                            <div class="col">
+                                <label for="IRN" class="form-label">IRN</label>
+                                <input type="text" class="form-control" id="IRN" placeholder="Enter IRN">
+                            </div>
+                        </div>
+                    </div>
 
-        <!-- IRN and Time -->
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <label for="irn" class="form-label">IRN</label>
-                <input type="text" class="form-control" id="irn" name="irn">
-            </div>
-            <div class="col-md-4">
-                <label for="time" class="form-label">Time</label>
-                <input type="time" class="form-control" id="time" name="time">
-            </div>
-            <div class="col-md-4">
-                <label for="runNumber" class="form-label">Run Number</label>
-                <input type="text" class="form-control" id="runNumber" name="runNumber">
-            </div>
-        </div>
+                    <!-- Section 2: Product Details -->
+                    <h4>
+                        <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapseProductDetails"
+                            role="button" aria-expanded="false" aria-controls="collapseProductDetails">
+                            Product Details
+                            <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
+                        </a>
+                    </h4>
+                    <div class="collapse show" id="collapseProductDetails">
+                        <div class="row mb-3 row-cols-1 row-cols-md-3 row-cols-sm-2">
+                            <div class="col">
+                                <label for="product" class="form-label">Product</label>
+                                <input type="text" class="form-control" id="product" placeholder="Enter Product">
+                            </div>
+                            <div class="col">
+                                <label for="color" class="form-label">Color</label>
+                                <input type="text" class="form-control" id="color" placeholder="Enter Color">
+                            </div>
+                            <div class="col">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="name" placeholder="Enter Name">
+                            </div>
+                            <div class="col">
+                                <label for="prodNo" class="form-label">Product Number</label>
+                                <input type="text" class="form-control" id="prodNo" placeholder="Product Number">
+                            </div>
+                            <div class="col">
+                                <label for="cavity" class="form-label">Number of Cavity (Active)</label>
+                                <input type="number" class="form-control" id="cavity" placeholder="Number of Cavity">
+                            </div>
+                            <div class="col">
+                                <label for="grossWeight" class="form-label">Gross Weight</label>
+                                <input type="text" class="form-control" id="grossWeight" placeholder="Gross Weight (g)">
+                            </div>
+                        </div>
+                    </div>
 
-        <!-- Product Details -->
-        <h3 class="mt-5">Product Description</h3>
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="prodDesc" class="form-label">Product Description</label>
-                <input type="text" class="form-control" id="prodDesc" name="prodDesc">
-            </div>
-            <div class="col-md-6">
-                <label for="prodNum" class="form-label">Product Number</label>
-                <input type="text" class="form-control" id="prodNum" name="prodNum">
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <label for="cavity" class="form-label"># of Cavity (Active)</label>
-                <input type="number" class="form-control" id="cavity" name="cavity">
-            </div>
-            <div class="col-md-4">
-                <label for="grossWeight" class="form-label">Gross Weight</label>
-                <input type="text" class="form-control" id="grossWeight" name="grossWeight">
-            </div>
-            <div class="col-md-4">
-                <label for="color" class="form-label">Color</label>
-                <input type="text" class="form-control" id="color" name="color">
-            </div>
-        </div>
+                    <!-- Section 3: Material Composition -->
+                    <h4>
+                        <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapseMaterialComposition"
+                            role="button" aria-expanded="false" aria-controls="collapseMaterialComposition">
+                            Material Composition
+                            <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
+                        </a>
+                    </h4>
+                    <!-- materials -->
+                    <div class="collapse show" id="collapseMaterialComposition">
+                        <!-- Drying -->
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="dryingtime" class="form-label">Drying Time</label>
+                                <input type="text" class="form-control" id="dryingtime"
+                                    placeholder="Select Drying Time">
+                            </div>
+                            <div class="col">
+                                <label for="dryingtemp" class="form-label">Drying Temperature</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="dryingtemp"
+                                        placeholder="Enter Temperature" min="0" max="300" step="0.1">
+                                    <span class="input-group-text">°C</span>
+                                </div>
+                            </div>
+                        </div>
 
-        <!-- Material Details -->
-        <h3 class="mt-5">Material Details</h3>
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <label for="material1" class="form-label">Material 1</label>
-                <input type="text" class="form-control" id="material1" name="material1">
-            </div>
-            <div class="col-md-3">
-                <label for="materialBrand1" class="form-label">Material Brand 1</label>
-                <input type="text" class="form-control" id="materialBrand1" name="materialBrand1">
-            </div>
-            <div class="col-md-3">
-                <label for="mixture1" class="form-label">% Mixture 1</label>
-                <input type="number" class="form-control" id="mixture1" name="mixture1">
-            </div>
-            <div class="col-md-3">
-                <label for="dryingTime" class="form-label">Drying Time (HH:MM:SS)</label>
-                <input type="time" class="form-control" id="dryingTime" name="dryingTime" step="1">
-            </div>
-        </div>
-        <!-- Repeat for other materials as needed -->
-        
-        <!-- Mold and Operation Details -->
-        <h3 class="mt-5">Mold and Operation Details</h3>
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="moldCode" class="form-label">Mold Code</label>
-                <input type="text" class="form-control" id="moldCode" name="moldCode">
-            </div>
-            <div class="col-md-6">
-                <label for="operationType" class="form-label">Operation Type</label>
-                <input type="text" class="form-control" id="operationType" name="operationType">
-            </div>
-        </div>
+                        <!-- Material 1 -->
+                        <h6>Material 1</h6>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="type1" class="form-label">Type 1</label>
+                                <input type="text" class="form-control" id="type1" placeholder="Enter Type 1">
+                            </div>
+                            <div class="col">
+                                <label for="brand1" class="form-label">Brand 1</label>
+                                <input type="text" class="form-control" id="brand1" placeholder="Enter Brand 1">
+                            </div>
+                            <div class="col">
+                                <label for="mix1" class="form-label">Mixture 1</label>
+                                <input type="number" class="form-control" id="mix1" placeholder="% Mixture 1">
+                            </div>
+                        </div>
 
-        <!-- Temperature Zones -->
-        <h3 class="mt-5">Temperature Zones</h3>
-        <div class="row mb-3">
-            <div class="col-md-2">
-                <label for="barrelZone0" class="form-label">Barrel Heater Zone 0</label>
-                <input type="text" class="form-control" id="barrelZone0" name="barrelZone0">
-            </div>
-            <div class="col-md-2">
-                <label for="mhcZone1" class="form-label">MHC Zone 1</label>
-                <input type="text" class="form-control" id="mhcZone1" name="mhcZone1">
-            </div>
-            <!-- Add other zones similarly -->
-        </div>
+                        <h6>Material 2</h6>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="type2" class="form-label">Type 2</label>
+                                <input type="text" class="form-control" id="type2" placeholder="Enter Type 2">
+                            </div>
+                            <div class="col">
+                                <label for="brand2" class="form-label">Brand 2</label>
+                                <input type="text" class="form-control" id="brand2" placeholder="Enter Brand 2">
+                            </div>
+                            <div class="col">
+                                <label for="mix2" class="form-label">Mixture 3</label>
+                                <input type="number" class="form-control" id="mix2" placeholder="% Mixture 2">
+                            </div>
+                        </div>
 
-        <!-- Speed, Pressure, Position -->
-        <h3 class="mt-5">Speed, Pressure, Position</h3>
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <label for="position1MO" class="form-label">Position 1 MO</label>
-                <input type="text" class="form-control" id="position1MO" name="position1MO">
-            </div>
-            <div class="col-md-4">
-                <label for="speed1MO" class="form-label">Speed 1 MO</label>
-                <input type="text" class="form-control" id="speed1MO" name="speed1MO">
-            </div>
-            <div class="col-md-4">
-                <label for="pressure1MO" class="form-label">Pressure 1 MO</label>
-                <input type="text" class="form-control" id="pressure1MO" name="pressure1MO">
+                        <h6>Material 3</h6>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="type3" class="form-label">Type 3</label>
+                                <input type="text" class="form-control" id="type3" placeholder="Enter Type 3">
+                            </div>
+                            <div class="col">
+                                <label for="brand3" class="form-label">Brand 3</label>
+                                <input type="text" class="form-control" id="brand3" placeholder="Enter Brand 3">
+                            </div>
+                            <div class="col">
+                                <label for="mix3" class="form-label">Mixture 3</label>
+                                <input type="number" class="form-control" id="mix3" placeholder="% Mixture 3">
+                            </div>
+                        </div>
+
+                        <h6>Material 4</h6>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="type4" class="form-label">Type 4</label>
+                                <input type="text" class="form-control" id="type4" placeholder="Enter Type 4">
+                            </div>
+                            <div class="col">
+                                <label for="brand4" class="form-label">Brand 4</label>
+                                <input type="text" class="form-control" id="brand4" placeholder="Enter Brand 4">
+                            </div>
+                            <div class="col">
+                                <label for="mix4" class="form-label">Mixture 4</label>
+                                <input type="number" class="form-control" id="mix4" placeholder="% Mixture 4">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Colorant Details -->
+                    <h4>Colorant Details</h4>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="colorant1" class="form-label">Colorant Code 1</label>
+                            <input type="text" class="form-control" id="colorant1" placeholder="Enter Colorant Code 1">
+                        </div>
+                        <div class="col">
+                            <label for="color" class="form-label">Color</label>
+                            <input type="text" class="form-control" id="color" placeholder="Enter Color">
+                        </div>
+                        <div class="col">
+                            <label for="dosage1" class="form-label">Dosage</label>
+                            <input type="text" class="form-control" id="dosage1" placeholder="Dosage (g)">
+                        </div>
+                    </div>
+
+                    <!-- Section 5: Mold and Operation Specifications -->
+                    <h4>Mold and Operation Specifications</h4>
+                    <div class="mb-3">
+                        <label for="mold" class="form-label">Mold Type</label>
+                        <input type="text" class="form-control" id="mold" placeholder="Enter Mold Type">
+                    </div>
+
+                    <!-- Section 6: Temperature Settings -->
+                    <h4>Temperature Settings</h4>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="nozzleTemp" class="form-label">Nozzle Temp (°C)</label>
+                            <input type="number" class="form-control" id="nozzleTemp" placeholder="Nozzle Temperature">
+                        </div>
+                        <div class="col">
+                            <label for="zone1Temp" class="form-label">Zone 1 Temp (°C)</label>
+                            <input type="number" class="form-control" id="zone1Temp" placeholder="Zone 1 Temperature">
+                        </div>
+                        <div class="col">
+                            <label for="zone2Temp" class="form-label">Zone 2 Temp (°C)</label>
+                            <input type="number" class="form-control" id="zone2Temp" placeholder="Zone 2 Temperature">
+                        </div>
+                    </div>
+
+                    <!-- Section 7: Cycle Time Breakdown -->
+                    <h4>Cycle Time Breakdown</h4>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="cycleTime" class="form-label">Cycle Time (s)</label>
+                            <input type="number" class="form-control" id="cycleTime" placeholder="Cycle Time">
+                        </div>
+                        <div class="col">
+                            <label for="coolingTime" class="form-label">Cooling Time (s)</label>
+                            <input type="number" class="form-control" id="coolingTime" placeholder="Cooling Time">
+                        </div>
+                    </div>
+
+                    <!-- Section 8: Mold Open and Close Settings -->
+                    <h4>Mold Open and Close Settings</h4>
+                    <div class="mb-3">
+                        <label for="moldOpen" class="form-label">Mold Open Speed</label>
+                        <input type="number" class="form-control" id="moldOpen" placeholder="Mold Open Speed">
+                    </div>
+
+                    <!-- Section 9: Injection Parameters -->
+                    <h4>Injection Parameters</h4>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="injectionPressure" class="form-label">Injection Pressure (bar)</label>
+                            <input type="number" class="form-control" id="injectionPressure"
+                                placeholder="Injection Pressure">
+                        </div>
+                        <div class="col">
+                            <label for="injectionSpeed" class="form-label">Injection Speed (mm/s)</label>
+                            <input type="number" class="form-control" id="injectionSpeed" placeholder="Injection Speed">
+                        </div>
+                    </div>
+
+                    <!-- Section 10: Holding Parameters -->
+                    <h4>Holding Parameters</h4>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="holdingPressure" class="form-label">Holding Pressure (bar)</label>
+                            <input type="number" class="form-control" id="holdingPressure"
+                                placeholder="Holding Pressure">
+                        </div>
+                        <div class="col">
+                            <label for="holdingTime" class="form-label">Holding Time (s)</label>
+                            <input type="number" class="form-control" id="holdingTime" placeholder="Holding Time">
+                        </div>
+                    </div>
+
+                    <!-- Section 11: Air Blow and Ejector Settings -->
+                    <h4>Air Blow and Ejector Settings</h4>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="airBlow" class="form-label">Air Blow (s)</label>
+                            <input type="number" class="form-control" id="airBlow" placeholder="Air Blow Time">
+                        </div>
+                        <div class="col">
+                            <label for="ejectorSpeed" class="form-label">Ejector Speed</label>
+                            <input type="number" class="form-control" id="ejectorSpeed" placeholder="Ejector Speed">
+                        </div>
+                    </div>
+
+                    <!-- Section 12: Core Pull Settings -->
+                    <h4>Core Pull Settings</h4>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="corePullSpeed" class="form-label">Core Pull Speed</label>
+                            <input type="number" class="form-control" id="corePullSpeed" placeholder="Core Pull Speed">
+                        </div>
+                        <div class="col">
+                            <label for="corePullPressure" class="form-label">Core Pull Pressure (bar)</label>
+                            <input type="number" class="form-control" id="corePullPressure"
+                                placeholder="Core Pull Pressure">
+                        </div>
+                    </div>
+
+                    <!-- Section 13: Additional Information -->
+                    <h4>Additional Information</h4>
+                    <div class="mb-3">
+                        <label for="additionalInfo" class="form-label">Additional Info</label>
+                        <textarea class="form-control" id="additionalInfo" rows="4"
+                            placeholder="Enter any additional info"></textarea>
+                    </div>
+
+                    <!-- Section 14: Personnel -->
+                    <h4>Personnel</h4>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="operator" class="form-label">Operator Name</label>
+                            <input type="text" class="form-control" id="operator" placeholder="Enter Operator Name">
+                        </div>
+                        <div class="col">
+                            <label for="inspector" class="form-label">Inspector Name</label>
+                            <input type="text" class="form-control" id="inspector" placeholder="Enter Inspector Name">
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary mt-4">Submit</button>
+                </form>
             </div>
         </div>
-        <!-- Add other positions, speeds, and pressures as needed -->
+    </div>
 
-        <!-- Screw Parameters -->
-        <h3 class="mt-5">Screw Parameters</h3>
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <label for="screwRPM1" class="form-label">Screw RPM 1</label>
-                <input type="text" class="form-control" id="screwRPM1" name="screwRPM1">
-            </div>
-            <div class="col-md-4">
-                <label for="screwSpeed1" class="form-label">Screw Speed 1</label>
-                <input type="text" class="form-control" id="screwSpeed1" name="screwSpeed1">
-            </div>
-            <div class="col-md-4">
-                <label for="plastPressure1" class="form-label">Plasticizing Pressure 1</label>
-                <input type="text" class="form-control" id="plastPressure1" name="plastPressure1">
-            </div>
-        </div>
-        <!-- Repeat for other screw parameters as needed -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Include Moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <!-- Include Bootstrap DateTimePicker JS -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
 
-        <!-- Remarks and Attachments -->
-        <h3 class="mt-5">Remarks and Attachments</h3>
-        <div class="row mb-3">
-            <div class="col-md-12">
-                <label for="remarks" class="form-label">Remarks</label>
-                <textarea class="form-control" id="remarks" name="remarks" rows="4"></textarea>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-md-12">
-                <label for="attachment" class="form-label">Attachment Picture/Video</label>
-                <input type="file" class="form-control" id="attachment" name="attachment">
-            </div>
-        </div>
-
-        <!-- Submit Button -->
-        <div class="row mb-3">
-            <div class="col-md-12 text-center">
-                <button type="submit" class="btn btn-primary">Submit Parameters</button>
-            </div>
-        </div>
-
-    </form>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(function () {
+            $('#dryingtime').datetimepicker({
+                format: 'HH:mm:ss',  // 24-hour format with seconds
+                useCurrent: false     // Do not set the current time by default
+            });
+        });
+    </script>
 </body>
+
 </html>
