@@ -8,10 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Include Bootstrap DateTimePicker CSS -->
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css">
-
+    <!-- Include flatpickr CSS and JS (from a CDN or local files) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 </head>
 
@@ -337,20 +335,19 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Include jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Include Moment.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
-    <!-- Include Bootstrap DateTimePicker JS -->
-    <script
-        src="https://cdn.jsdelivr.net/npm/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <script>
-        $(function () {
-            $('#dryingtime').datetimepicker({
-                format: 'HH:mm:ss',  // 24-hour format with seconds
-                useCurrent: false     // Do not set the current time by default
-            });
+        // Initialize flatpickr with time picker including seconds
+        flatpickr("#dryingtime", {
+            enableTime: true,        // Enable time selection
+            noCalendar: true,        // Disable the calendar (only time picker)
+            time_24hr: true,         // Use 24-hour format
+            enableSeconds: true,     // Enable seconds selection
+            dateFormat: "H:i:S",     // Set the date format to HH:MM:SS
+            defaultHour: 0,          // Default hour value (optional)
+            defaultMinute: 0,        // Default minute value (optional)
+            defaultSeconds: 0        // Default seconds value (optional)
         });
     </script>
 </body>
