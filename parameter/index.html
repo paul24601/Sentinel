@@ -14,7 +14,6 @@
 </head>
 
 <body>
-
     <div class="container my-5">
         <div class="card">
             <div class="card-header bg-primary text-light text-center">
@@ -22,7 +21,6 @@
             </div>
             <div class="card-body">
                 <form>
-
                     <!-- Section 1: Product and Machine Information -->
                     <h4>
                         <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapseProductMachine"
@@ -191,30 +189,94 @@
                     </div>
 
                     <!-- Section 4: Colorant Details -->
-                    <h4>Colorant Details</h4>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="colorant1" class="form-label">Colorant Code 1</label>
-                            <input type="text" class="form-control" id="colorant1" placeholder="Enter Colorant Code 1">
+                    <h4>
+                        <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapseColorantDetails"
+                            role="button" aria-expanded="false" aria-controls="collapseColorantDetails">
+                            Colorant Details
+                            <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
+                        </a>
+                    </h4>
+                    <!-- colorants -->
+                    <div class="collapse show" id="collapseColorantDetails">
+                        <div class="row mb-3">                            
+                            <div class="col">
+                                <label for="colorant" class="form-label">Colorant</label>
+                                <input type="text" class="form-control" id="colorant"
+                                    placeholder="Enter Colorant">
+                            </div>                            
+                            <div class="col">
+                                <label for="color" class="form-label">Color</label>
+                                <input type="text" class="form-control" id="color"
+                                    placeholder="Enter Colorant Color">
+                            </div>
+                            <div class="col">
+                                <label for="colorant-dosage" class="form-label">Colorant Dosage</label>
+                                <input type="text" class="form-control" id="colorant-dosage" placeholder="Enter Colorant Dosage">
+                            </div>
                         </div>
-                        <div class="col">
-                            <label for="color" class="form-label">Color</label>
-                            <input type="text" class="form-control" id="color" placeholder="Enter Color">
-                        </div>
-                        <div class="col">
-                            <label for="dosage1" class="form-label">Dosage</label>
-                            <input type="text" class="form-control" id="dosage1" placeholder="Dosage (g)">
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="colorant-stabilizer" class="form-label">Colorant Stabilizer</label>
+                                <input type="text" class="form-control" id="colorant-stabilizer" placeholder="Enter Colorant Stabilizer">
+                            </div>
+                            <div class="col">
+                                <label for="colorant-stabilizer-dosage" class="form-label">Colorant Stabilizer Dosage (grams)</label>
+                                <input type="text" class="form-control" id="colorant-stabilizer-dosage" placeholder="Enter Colorant Stabilizer Dosage (grams) ">
+                            </div>
                         </div>
                     </div>
 
                     <!-- Section 5: Mold and Operation Specifications -->
-                    <h4>Mold and Operation Specifications</h4>
-                    <div class="mb-3">
-                        <label for="mold" class="form-label">Mold Type</label>
-                        <input type="text" class="form-control" id="mold" placeholder="Enter Mold Type">
+                    <h4>                        
+                        <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapseMoldandOperationSpecs"
+                            role="button" aria-expanded="false" aria-controls="collapseMoldandOperationSpecs">
+                            Mold and Operation Specifications
+                            <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
+                        </a>
+                    </h4>
+                    <div class="collapse show" id="collapseMoldandOperationSpecs">
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="mold-code" class="form-label">Mold Type</label>
+                                <input type="text" class="form-control" id="mold-code" placeholder="Enter Mold Code">
+                            </div>
+                            <div class="col">
+                                <label for="clamping-force" class="form-label">Clamping Force</label>
+                                <input type="text" class="form-control" id="clamping-force" placeholder="Enter Clamping Force">
+                            </div>
+                        </div>
+                        <div class="row mb-3">                            
+                            <div class="col">
+                                <label for="operation-type" class="form-label">Operation</label>
+                                <input type="text" class="form-control" id="operation-type" placeholder="Enter Type of Operation">
+                            </div>
+                        </div>
+                        <div class="row mb-3">                            
+                            <div class="col">
+                                <label for="cooling-media" class="form-label">Cooling Media</label>
+                                <input type="text" class="form-control" id="cooling-media" placeholder="Enter Cooling Media">
+                            </div>                            
+                            <div class="col">
+                                <label for="heating-media" class="form-label">Heating Media</label>
+                                <input type="text" class="form-control" id="heating-media" placeholder="Enter Heating Media">
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Section 6: Temperature Settings -->
+                    <!-- Section 6: Timer Parameters -->
+                    <h4>Cycle Time Breakdown</h4>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="cycleTime" class="form-label">Cycle Time (s)</label>
+                            <input type="number" class="form-control" id="cycleTime" placeholder="Cycle Time">
+                        </div>
+                        <div class="col">
+                            <label for="coolingTime" class="form-label">Cooling Time (s)</label>
+                            <input type="number" class="form-control" id="coolingTime" placeholder="Cooling Time">
+                        </div>
+                    </div>
+
+                    <!-- Section 7: Temperature Settings -->
                     <h4>Temperature Settings</h4>
                     <div class="row mb-3">
                         <div class="col">
@@ -231,19 +293,6 @@
                         </div>
                     </div>
 
-                    <!-- Section 7: Cycle Time Breakdown -->
-                    <h4>Cycle Time Breakdown</h4>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="cycleTime" class="form-label">Cycle Time (s)</label>
-                            <input type="number" class="form-control" id="cycleTime" placeholder="Cycle Time">
-                        </div>
-                        <div class="col">
-                            <label for="coolingTime" class="form-label">Cooling Time (s)</label>
-                            <input type="number" class="form-control" id="coolingTime" placeholder="Cooling Time">
-                        </div>
-                    </div>
-
                     <!-- Section 8: Mold Open and Close Settings -->
                     <h4>Mold Open and Close Settings</h4>
                     <div class="mb-3">
@@ -256,8 +305,7 @@
                     <div class="row mb-3">
                         <div class="col">
                             <label for="injectionPressure" class="form-label">Injection Pressure (bar)</label>
-                            <input type="number" class="form-control" id="injectionPressure"
-                                placeholder="Injection Pressure">
+                            <input type="number" class="form-control" id="injectionPressure" placeholder="Injection Pressure">
                         </div>
                         <div class="col">
                             <label for="injectionSpeed" class="form-label">Injection Speed (mm/s)</label>
@@ -270,8 +318,7 @@
                     <div class="row mb-3">
                         <div class="col">
                             <label for="holdingPressure" class="form-label">Holding Pressure (bar)</label>
-                            <input type="number" class="form-control" id="holdingPressure"
-                                placeholder="Holding Pressure">
+                            <input type="number" class="form-control" id="holdingPressure" placeholder="Holding Pressure">
                         </div>
                         <div class="col">
                             <label for="holdingTime" class="form-label">Holding Time (s)</label>
@@ -301,8 +348,7 @@
                         </div>
                         <div class="col">
                             <label for="corePullPressure" class="form-label">Core Pull Pressure (bar)</label>
-                            <input type="number" class="form-control" id="corePullPressure"
-                                placeholder="Core Pull Pressure">
+                            <input type="number" class="form-control" id="corePullPressure" placeholder="Core Pull Pressure">
                         </div>
                     </div>
 
@@ -329,6 +375,7 @@
 
                     <!-- Submit Button -->
                     <button type="submit" class="btn btn-primary mt-4">Submit</button>
+                
                 </form>
             </div>
         </div>
