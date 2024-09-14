@@ -288,19 +288,37 @@
                     <h4>
                         <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapseCycleTime"
                             role="button" aria-expanded="false" aria-controls="collapseCycleTime">
-                            Cycle Time Breakdown
+                            Timer Parameters
                             <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
                         </a>
                     </h4>
                     <div class="collapse show" id="collapseCycleTime">
                         <div class="row mb-3">
                             <div class="col">
-                                <label for="cycleTime" class="form-label">Cycle Time (s)</label>
-                                <input type="number" class="form-control" id="cycleTime" placeholder="Cycle Time">
+                                <label for="fillingTime" class="form-label">Filling Time (s)</label>
+                                <input type="number" class="form-control" id="fillingTime" placeholder="Filling Time">
+                            </div>
+                            <div class="col">
+                                <label for="holdingTime" class="form-label">Holding Time (s)</label>
+                                <input type="number" class="form-control" id="holdingTime" placeholder="Holding Time">
+                            </div>
+                            <div class="col">
+                                <label for="moldOpenCloseTime" class="form-label">Mold Open-Close Time (s)</label>
+                                <input type="number" class="form-control" id="moldOpenCloseTime" placeholder="Mold Open-Close Time">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="chargingTime" class="form-label">Charging Time (s)</label>
+                                <input type="number" class="form-control" id="chargingTime" placeholder="Charging Time">
                             </div>
                             <div class="col">
                                 <label for="coolingTime" class="form-label">Cooling Time (s)</label>
                                 <input type="number" class="form-control" id="coolingTime" placeholder="Cooling Time">
+                            </div>
+                            <div class="col">
+                                <label for="cycleTime" class="form-label">Cycle Time (s)</label>
+                                <input type="number" class="form-control" id="cycleTime" placeholder="Cycle Time">
                             </div>
                         </div>
                     </div>
@@ -314,37 +332,243 @@
                         </a>
                     </h4>
                     <div class="collapse show" id="collapseTempSettings">
-                        <div class="row mb-3">
-                            <div class="col">
-                                <label for="nozzleTemp" class="form-label">Nozzle Temp (°C)</label>
-                                <input type="number" class="form-control" id="nozzleTemp"
-                                    placeholder="Nozzle Temperature">
+                       <!-- Barrel Heater Temperature Zones -->
+                        <h6>
+                            <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapseBarrelHeater"
+                                role="button" aria-expanded="false" aria-controls="collapseBarrelHeater">
+                                Barrel Heater Temperature Zones
+                                <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
+                            </a>
+                        </h6>
+                        <div class="collapse show" id="collapseBarrelHeater">
+                            <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-3 row-col-lg-6 g-3">
+                                <!-- Barrel Heater Inputs -->
+                                <div class="col">
+                                    <label for="barrelHeaterZone0" class="form-label">Barrel Heater Zone 0 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone0"
+                                        placeholder="Barrel Heater Zone 0 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone1" class="form-label">Barrel Heater Zone 1 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone1"
+                                        placeholder="Barrel Heater Zone 1 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone2" class="form-label">Barrel Heater Zone 2 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone2"
+                                        placeholder="Barrel Heater Zone 2 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone3" class="form-label">Barrel Heater Zone 3 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone3"
+                                        placeholder="Barrel Heater Zone 3 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone4" class="form-label">Barrel Heater Zone 4 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone4"
+                                        placeholder="Barrel Heater Zone 4 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone5" class="form-label">Barrel Heater Zone 5 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone5"
+                                        placeholder="Barrel Heater Zone 5 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone6" class="form-label">Barrel Heater Zone 6 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone6"
+                                        placeholder="Barrel Heater Zone 6 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone7" class="form-label">Barrel Heater Zone 7 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone7"
+                                        placeholder="Barrel Heater Zone 7 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone8" class="form-label">Barrel Heater Zone 8 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone8"
+                                        placeholder="Barrel Heater Zone 8 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone9" class="form-label">Barrel Heater Zone 9 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone9"
+                                        placeholder="Barrel Heater Zone 9 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone10" class="form-label">Barrel Heater Zone 10 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone10"
+                                        placeholder="Barrel Heater Zone 10 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone11" class="form-label">Barrel Heater Zone 11 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone11"
+                                        placeholder="Barrel Heater Zone 11 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone12" class="form-label">Barrel Heater Zone 12 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone12"
+                                        placeholder="Barrel Heater Zone 12 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone13" class="form-label">Barrel Heater Zone 13 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone13"
+                                        placeholder="Barrel Heater Zone 13 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone14" class="form-label">Barrel Heater Zone 14 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone14"
+                                        placeholder="Barrel Heater Zone 14 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone15" class="form-label">Barrel Heater Zone 15 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone15"
+                                        placeholder="Barrel Heater Zone 15 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone16" class="form-label">Barrel Heater Zone 16 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone16"
+                                        placeholder="Barrel Heater Zone 16 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="MTCSetting" class="form-label">MTC Setting</label>
+                                    <input type="number" class="form-control" id="MTCSetting"
+                                        placeholder="MTC Setting">
+                                </div>
                             </div>
-                            <div class="col">
-                                <label for="zone1Temp" class="form-label">Zone 1 Temp (°C)</label>
-                                <input type="number" class="form-control" id="zone1Temp"
-                                    placeholder="Zone 1 Temperature">
-                            </div>
-                            <div class="col">
-                                <label for="zone2Temp" class="form-label">Zone 2 Temp (°C)</label>
-                                <input type="number" class="form-control" id="zone2Temp"
-                                    placeholder="Zone 2 Temperature">
+                        </div>
+                        <!-- Mold Heater Controller Temperatures -->
+                        <h6>
+                            <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapseMoldHeater"
+                                role="button" aria-expanded="false" aria-controls="collapseMoldHeater">
+                                Mold Heater Controller Temperatures
+                                <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
+                            </a>
+                        </h6>
+                        <div class="collapse show" id="collapseMoldHeater">
+                            <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-3 row-col-lg-6 g-3">
+                                <div class="col">
+                                    <label for="barrelHeaterZone0" class="form-label">Barrel Heater Zone 0 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone0"
+                                        placeholder="Barrel Heater Zone 0 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone1" class="form-label">Barrel Heater Zone 1 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone1"
+                                        placeholder="Barrel Heater Zone 1 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone2" class="form-label">Barrel Heater Zone 2 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone2"
+                                        placeholder="Barrel Heater Zone 2 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone3" class="form-label">Barrel Heater Zone 3 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone3"
+                                        placeholder="Barrel Heater Zone 3 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone4" class="form-label">Barrel Heater Zone 4 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone4"
+                                        placeholder="Barrel Heater Zone 4 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone5" class="form-label">Barrel Heater Zone 5 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone5"
+                                        placeholder="Barrel Heater Zone 5 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone6" class="form-label">Barrel Heater Zone 6 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone6"
+                                        placeholder="Barrel Heater Zone 6 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone7" class="form-label">Barrel Heater Zone 7 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone7"
+                                        placeholder="Barrel Heater Zone 7 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone8" class="form-label">Barrel Heater Zone 8 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone8"
+                                        placeholder="Barrel Heater Zone 8 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone9" class="form-label">Barrel Heater Zone 9 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone9"
+                                        placeholder="Barrel Heater Zone 9 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone10" class="form-label">Barrel Heater Zone 10 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone10"
+                                        placeholder="Barrel Heater Zone 10 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone11" class="form-label">Barrel Heater Zone 11 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone11"
+                                        placeholder="Barrel Heater Zone 11 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone12" class="form-label">Barrel Heater Zone 12 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone12"
+                                        placeholder="Barrel Heater Zone 12 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone13" class="form-label">Barrel Heater Zone 13 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone13"
+                                        placeholder="Barrel Heater Zone 13 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone14" class="form-label">Barrel Heater Zone 14 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone14"
+                                        placeholder="Barrel Heater Zone 14 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone15" class="form-label">Barrel Heater Zone 15 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone15"
+                                        placeholder="Barrel Heater Zone 15 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="barrelHeaterZone16" class="form-label">Barrel Heater Zone 16 (°C)</label>
+                                    <input type="number" class="form-control" id="barrelHeaterZone16"
+                                        placeholder="Barrel Heater Zone 16 (°C)">
+                                </div>
+                                <div class="col">
+                                    <label for="MTCSetting" class="form-label">MTC Setting</label>
+                                    <input type="number" class="form-control" id="MTCSetting"
+                                        placeholder="MTC Setting">
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Section 8: Mold Open and Close Settings -->
+                    <!-- Section 8: Molding Settings -->
                     <h4>
-                        <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapseMoldOpen" role="button"
-                            aria-expanded="false" aria-controls="collapseMoldOpen">
-                            Mold Open and Close Settings
+                        <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapseMoldingSettings" role="button"
+                            aria-expanded="false" aria-controls="collapseMoldingSettings">
+                            Molding Settings
                             <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
                         </a>
                     </h4>
-                    <div class="collapse show" id="collapseMoldOpen">
-                        <div class="mb-3">
-                            <label for="moldOpen" class="form-label">Mold Open Speed</label>
-                            <input type="number" class="form-control" id="moldOpen" placeholder="Mold Open Speed">
+                    <div class="collapse show" id="collapseMoldingSettings">
+                        <h6>Mold Open</h6>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="moldOpen" class="form-label">Mold Open Speed</label>
+                                <input type="number" class="form-control" id="moldOpen" placeholder="Mold Open Speed">
+                            </div>
+                            <div class="col">
+                                <label for="moldOpen" class="form-label">Mold Open Speed</label>
+                                <input type="number" class="form-control" id="moldOpen" placeholder="Mold Open Speed">
+                            </div>
+                        </div>
+                        <h6>Mold Close</h6>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="moldOpen" class="form-label">Mold Open Speed</label>
+                                <input type="number" class="form-control" id="moldOpen" placeholder="Mold Open Speed">
+                            </div>
+                            <div class="col">
+                                <label for="moldOpen" class="form-label">Mold Open Speed</label>
+                                <input type="number" class="form-control" id="moldOpen" placeholder="Mold Open Speed">
+                            </div>
                         </div>
                     </div>
 
