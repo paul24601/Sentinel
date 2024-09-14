@@ -1,7 +1,3 @@
-Sure! Here's a simple README file for the Sentinel repository:
-
----
-
 # Sentinel
 
 ## Overview
@@ -32,13 +28,3 @@ Contributions are welcome! Please fork the repository and create a pull request 
 
 ## License
 This project is licensed under the MIT License.
-
----
-
-Feel free to customize this README file further based on your specific needs!
-
-Source: Conversation with Copilot, 9/14/2024
-(1) paul24601/Sentinel - GitHub. https://github.com/paul24601/Sentinel.
-(2) paul24601 (Aeron Paul Daliva) - GitHub. https://github.com/paul24601/.
-(3) Workflow runs · paul24601/Sentinel - GitHub. https://github.com/paul24601/Sentinel/actions.
-(4) GitHub - Azure/Azure-Sentinel: Cloud-native SIEM for intelligent .... https://github.com/Azure/Azure-Sentinel.
