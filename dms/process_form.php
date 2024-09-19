@@ -18,9 +18,10 @@ $recordCreated = false;
 // Insert form data into database
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $date = $_POST['date'];
+    $product_name = $_POST['product_name'];
     $machine = $_POST['machine'];
     $prn = $_POST['prn'];
-    $product_name = $_POST['product_name'];
+    $mold_code = $_POST['mold_code'];
     $cycle_time_target = $_POST['cycle_time_target'];
     $cycle_time_actual = $_POST['cycle_time_actual'];
     $weight_standard = $_POST['weight_standard'];
@@ -33,8 +34,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $shift = $_POST['shift'];
     $search = $_POST['search'];
 
-    $sql = "INSERT INTO submissions (date, machine, prn, product_name, cycle_time_target, cycle_time_actual, weight_standard, weight_gross, weight_net, cavity_designed, cavity_active, remarks, name, shift, search) 
-            VALUES ('$date', '$machine', '$prn', '$product_name', '$cycle_time_target', '$cycle_time_actual', '$weight_standard', '$weight_gross', '$weight_net', '$cavity_designed', '$cavity_active', '$remarks', '$name', '$shift', '$search')";
+    $sql = "INSERT INTO submissions (date, product_name, machine, prn, mold_code, cycle_time_target, cycle_time_actual, weight_standard, weight_gross, weight_net, cavity_designed, cavity_active, remarks, name, shift, search) 
+            VALUES ('$date', '$product_name', '$machine', '$prn', '$mold_code', '$cycle_time_target', '$cycle_time_actual', '$weight_standard', '$weight_gross', '$weight_net', '$cavity_designed', '$cavity_active', '$remarks', '$name', '$shift', '$search')";
 
     if ($conn->query($sql) === TRUE) {
         $recordCreated = true;
@@ -99,9 +100,10 @@ $result = $conn->query($sql);
                         <tr>
                             <th>ID</th>
                             <th>Date</th>
+                            <th>Product Name</th>
                             <th>Machine</th>
                             <th>PRN</th>
-                            <th>Product Name</th>
+                            <th>Mold Code</th>
                             <th>Cycle Time (Target)</th>
                             <th>Cycle Time (Actual)</th>
                             <th>Weight (Standard)</th>
@@ -122,9 +124,10 @@ $result = $conn->query($sql);
                                 echo "<tr>";
                                 echo "<td>" . $row["id"] . "</td>";
                                 echo "<td>" . htmlspecialchars($row["date"]) . "</td>";
+                                echo "<td>" . htmlspecialchars($row["product_name"]) . "</td>";
                                 echo "<td>" . htmlspecialchars($row["machine"]) . "</td>";
                                 echo "<td>" . htmlspecialchars($row["prn"]) . "</td>";
-                                echo "<td>" . htmlspecialchars($row["product_name"]) . "</td>";
+                                echo "<td>" . htmlspecialchars($row["mold_code"]) . "</td>";
                                 echo "<td>" . htmlspecialchars($row["cycle_time_target"]) . "</td>";
                                 echo "<td>" . htmlspecialchars($row["cycle_time_actual"]) . "</td>";
                                 echo "<td>" . htmlspecialchars($row["weight_standard"]) . "</td>";
@@ -148,7 +151,7 @@ $result = $conn->query($sql);
             </div>
         </div>
 
-        <a href="index.html" class="btn btn-primary">Back to Form</a>
+        <a href="index.php" class="btn btn-primary">Back to Form</a>
     </div>
 
     <!-- Bootstrap JS Bundle with Popper -->
