@@ -195,16 +195,10 @@
                         <label for="shift" class="form-label">Shift</label>
                         <select class="form-select" id="shift" name="shift" required>
                             <option value="" selected disabled>Select your shift</option>
-                            <option value="Day Shift">Day Shift</option>
-                            <option value="Night Shift">Night Shift</option>
+                            <option value="1st shift">1st Shift</option>
+                            <option value="2nd shift">2nd Shift</option>
+                            <option value="3rd shift">3rd Shift</option>
                         </select>
-                    </div>
-
-                    <!-- Search -->
-                    <div class="mb-4">
-                        <label for="search" class="form-label">Search</label>
-                        <input type="text" class="form-control" id="search" name="search"
-                            placeholder="Search for previous entries">
                     </div>
 
                     <!-- Submit Button -->
