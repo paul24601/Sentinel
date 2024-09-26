@@ -8,18 +8,18 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Prepared statement to fetch the most recent entry for each product_name
+// Prepared statement to fetch the first recorded entry for each product_name
 $sql = "
 SELECT t1.product_name, t1.machine, t1.prn, t1.mold_code, t1.cycle_time_target, t1.cycle_time_actual, 
        t1.weight_standard, t1.weight_gross, t1.weight_net, t1.cavity_designed, t1.cavity_active, 
        t1.remarks, t1.name, t1.shift
 FROM submissions t1
 JOIN (
-    SELECT product_name, MAX(id) AS latest
+    SELECT product_name, MIN(id) AS first_entry
     FROM submissions
     WHERE product_name LIKE CONCAT('%', ?, '%')
     GROUP BY product_name
-) t2 ON t1.product_name = t2.product_name AND t1.id = t2.latest
+) t2 ON t1.product_name = t2.product_name AND t1.id = t2.first_entry
 LIMIT 10;
 ";
 

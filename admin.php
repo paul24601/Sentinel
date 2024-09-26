@@ -42,7 +42,53 @@ switch ($sort_by) {
                     ORDER BY MIN(date)";
         break;
 
-    // Other cases...
+    case 'year':
+        $decade = isset($_POST['decade']) ? $_POST['decade'] : 2020; // Default to the latest decade
+        $startYear = $decade;
+        $endYear = $decade + 9;
+
+        $sql = "SELECT YEAR(date) AS period, 
+                       SUM(IF(cycle_time_actual >= cycle_time_target, 1, 0)) AS pass, 
+                       SUM(IF(cycle_time_actual < cycle_time_target, 1, 0)) AS fail 
+                FROM submissions 
+                WHERE YEAR(date) BETWEEN $startYear AND $endYear 
+                GROUP BY YEAR(date) 
+                ORDER BY YEAR(date)";
+        break;
+
+    case 'all_time':
+        $sortOption = isset($_POST['allTimeSortBy']) ? $_POST['allTimeSortBy'] : 'default';
+        $groupBy = "DATE_FORMAT(date, '%Y-%m')";
+
+        switch ($sortOption) {
+            case 'most_passing':
+                $sql = "SELECT $groupBy AS period, 
+                                   SUM(IF(cycle_time_actual >= cycle_time_target, 1, 0)) AS pass, 
+                                   SUM(IF(cycle_time_actual < cycle_time_target, 1, 0)) AS fail 
+                            FROM submissions 
+                            GROUP BY $groupBy 
+                            ORDER BY pass DESC"; // Sort by pass count descending
+                break;
+
+            case 'most_failing':
+                $sql = "SELECT $groupBy AS period, 
+                                   SUM(IF(cycle_time_actual >= cycle_time_target, 1, 0)) AS pass, 
+                                   SUM(IF(cycle_time_actual < cycle_time_target, 1, 0)) AS fail 
+                            FROM submissions 
+                            GROUP BY $groupBy 
+                            ORDER BY fail DESC"; // Sort by fail count descending
+                break;
+
+            default: // Default sorting
+                $sql = "SELECT $groupBy AS period, 
+                                   SUM(IF(cycle_time_actual >= cycle_time_target, 1, 0)) AS pass, 
+                                   SUM(IF(cycle_time_actual < cycle_time_target, 1, 0)) AS fail 
+                            FROM submissions 
+                            GROUP BY $groupBy 
+                            ORDER BY MIN(date)"; // Default order
+                break;
+        }
+        break;
 
     default:
         $range = isset($_POST['day_range']) ? $_POST['day_range'] : 'this_week';
@@ -138,12 +184,15 @@ $conn->close();
             const weekFilters = document.getElementById('weekFilters');
             const monthFilters = document.getElementById('monthFilters');
             const yearFilters = document.getElementById('yearFilters');
+            const allTimeFilters = document.getElementById('allTimeFilters');
 
             dayFilters.style.display = sortBy === 'day' ? 'block' : 'none';
             weekFilters.style.display = sortBy === 'week' ? 'block' : 'none';
             monthFilters.style.display = sortBy === 'month' ? 'block' : 'none';
             yearFilters.style.display = sortBy === 'year' ? 'block' : 'none';
+            allTimeFilters.style.display = sortBy === 'all_time' ? 'block' : 'none'; // Handle all time case
         }
+
 
         window.onload = toggleFilters; // Call on load to set initial visibility
     </script>
@@ -158,7 +207,7 @@ $conn->close();
             <div class="card-body">
                 <div class="row">
                     <!-- Sorting Options Form -->
-                    <form method="POST" class="col-6 mb-4" id="sortForm">
+                    <form method="POST" class="col-12 col-md-8 mb-4" id="sortForm">
                         <div class="row mb-3 align-items-end">
                             <div class="col-md-6">
                                 <label for="sortBy" class="form-label">Sort By:</label>
@@ -232,13 +281,41 @@ $conn->close();
                                     ?>
                                 </select>
                             </div>
+
+                            <!-- Year Filters -->
+                            <div id="yearFilters" class="col-md-6 mt-3" style="display:none;">
+                                <label for="decade" class="form-label">Select Decade:</label>
+                                <select name="decade" id="decade" class="form-select"
+                                    onchange="document.getElementById('sortForm').submit();">
+                                    <?php
+                                    // Assuming you want to cover decades from 2000 to 2020
+                                    for ($year = 2020; $year >= 2000; $year -= 10) {
+                                        echo '<option value="' . $year . '" ' . (isset($_POST['decade']) && $_POST['decade'] == $year ? 'selected' : '') . '>' . $year . 's</option>';
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+
+                            <!-- All Time Filter -->
+                            <div id="allTimeFilters" class="col-md-6 mt-3" style="display:none;">
+                                <label for="allTimeSortBy" class="form-label">Sort By:</label>
+                                <select name="allTimeSortBy" id="allTimeSortBy" class="form-select"
+                                    onchange="document.getElementById('sortForm').submit();">
+                                    <option value="default" <?php echo isset($_POST['allTimeSortBy']) && $_POST['allTimeSortBy'] == 'default' ? 'selected' : ''; ?>>Default</option>
+                                    <option value="most_passing" <?php echo isset($_POST['allTimeSortBy']) && $_POST['allTimeSortBy'] == 'most_passing' ? 'selected' : ''; ?>>Most Passing Month
+                                    </option>
+                                    <option value="most_failing" <?php echo isset($_POST['allTimeSortBy']) && $_POST['allTimeSortBy'] == 'most_failing' ? 'selected' : ''; ?>>Most Failing Month
+                                    </option>
+                                </select>
+                            </div>
+
                         </div>
                     </form>
 
                     <!-- Pass and Fail Rate Cards -->
-                    <div class="col-6">
-                        <div class="row mb-3">
-                            <div class="col-md-6">
+                    <div class="col-12 col-md-4">
+                        <div class="row g-1 mb-3">
+                            <div class="col-12 col-sm-6">
                                 <div class="card text-white bg-success">
                                     <div class="card-body text-center">
                                         <h5 class="card-title">Pass Rate</h5>
@@ -252,7 +329,7 @@ $conn->close();
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-12 col-sm-6">
                                 <div class="card text-white bg-danger">
                                     <div class="card-body text-center">
                                         <h5 class="card-title">Fail Rate</h5>

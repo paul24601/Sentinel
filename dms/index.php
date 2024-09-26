@@ -10,9 +10,13 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- jQuery UI for Autocomplete -->
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
     <script>
         $(function () {
+            // Enable popovers
+            $('[data-bs-toggle="popover"]').popover();
+
             $("#product_name").autocomplete({
                 source: function (request, response) {
                     $.ajax({
@@ -71,12 +75,6 @@
             <div class="card-header bg-primary text-white text-center">
                 <h2>Daily Monitoring Sheet</h2>
             </div>
-            <div class="container m-1">
-                <!-- Note -->
-                <p class="fs-6 text-center text-body-secondary">
-                    NOTE: Add remarks if Product has NO STANDARD CYCLE TIME AND WEIGHT
-                </p>
-            </div>
 
             <div class="card-body">
                 <!-- Form starts here -->
@@ -86,16 +84,23 @@
                         <label for="date" class="form-label">Date</label>
                         <input type="date" class="form-control" id="date" name="date" max="<?php echo date('Y-m-d'); ?>"
                             required>
-
                     </div>
 
                     <!-- Product Name -->
                     <div class="mb-3">
-                        <label for="product_name" class="form-label">Product Name:</label>
-                        <input type="text" id="product_name" name="product_name" class="form-control"
+                        <label for="product_name" class="form-label">Product Name</label>
+                        <!-- Popover Note -->
+                        <span 
+                            tabindex="0"
+                            class="text-body-secondary"
+                            data-bs-toggle="popover"
+                            data-bs-trigger="focus"
+                            data-bs-content="The first data submitted for the corresponding Product Name would be shown.">
+                            <i class="bi bi-info-circle"></i>
+                        </span>
+                        <input type="text" id="product_name" name="product_name" class="form-control mt-2"
                             placeholder="Enter Product Name">
                     </div>
-
 
                     <!-- Machine -->
                     <div class="mb-3">
@@ -173,9 +178,18 @@
                         </div>
                     </div>
 
-                    <!-- Remarks -->
-                    <div class="mb-3">
+                     <!-- Remarks -->
+                     <div class="mb-3">
                         <label for="remarks" class="form-label">Remarks</label>
+                        <!-- Popover Note -->
+                        <span 
+                            tabindex="0"
+                            class="text-body-secondary"
+                            data-bs-toggle="popover"
+                            data-bs-trigger="focus"
+                            data-bs-content="Add remarks if Product has NO STANDARD CYCLE TIME AND WEIGHT.">
+                            <i class="bi bi-info-circle"></i>
+                        </span>
                         <textarea class="form-control" id="remarks" name="remarks" rows="3"
                             placeholder="Enter any remarks"></textarea>
                     </div>
@@ -213,9 +227,11 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS Bundle with Popper -->
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
-
 </html>
