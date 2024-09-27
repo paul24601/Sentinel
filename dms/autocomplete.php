@@ -10,9 +10,8 @@ if ($conn->connect_error) {
 
 // Prepared statement to fetch the first recorded entry for each product_name
 $sql = "
-SELECT t1.product_name, t1.machine, t1.prn, t1.mold_code, t1.cycle_time_target, t1.cycle_time_actual, 
-       t1.weight_standard, t1.weight_gross, t1.weight_net, t1.cavity_designed, t1.cavity_active, 
-       t1.remarks, t1.name, t1.shift
+SELECT t1.product_name, t1.mold_code, t1.cycle_time_target,
+       t1.weight_standard, t1.cavity_designed
 FROM submissions t1
 JOIN (
     SELECT product_name, MIN(id) AS first_entry
@@ -37,19 +36,11 @@ if ($result->num_rows > 0) {
         $data[] = array(
             'label' => $row['product_name'], 
             'value' => $row['product_name'],
-            'machine' => $row['machine'],
-            'prn' => $row['prn'],
             'mold_code' => $row['mold_code'],
             'cycle_time_target' => (float) $row['cycle_time_target'],
             'cycle_time_actual' => (float) $row['cycle_time_actual'],
             'weight_standard' => (float) $row['weight_standard'],
-            'weight_gross' => (float) $row['weight_gross'],
-            'weight_net' => (float) $row['weight_net'],
-            'cavity_designed' => (int) $row['cavity_designed'],
-            'cavity_active' => (int) $row['cavity_active'],
-            'remarks' => $row['remarks'],
-            'name' => $row['name'],
-            'shift' => $row['shift']
+            'cavity_designed' => (int) $row['cavity_designed']
         );
     }
 }
