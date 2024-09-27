@@ -94,7 +94,7 @@
                             tabindex="0"
                             class="text-body-secondary"
                             data-bs-toggle="popover"
-                            data-bs-trigger="focus"
+                            data-bs-trigger="hover focus"
                             data-bs-content="The first data submitted for the corresponding Product Name would be shown.">
                             <i class="bi bi-info-circle"></i>
                         </span>
@@ -186,7 +186,7 @@
                             tabindex="0"
                             class="text-body-secondary"
                             data-bs-toggle="popover"
-                            data-bs-trigger="focus"
+                            data-bs-trigger="hover focus"
                             data-bs-content="Add remarks if Product has NO STANDARD CYCLE TIME AND WEIGHT.">
                             <i class="bi bi-info-circle"></i>
                         </span>
@@ -216,6 +216,14 @@
                     <div class="d-grid">
                         <button type="submit" class="btn btn-success">Submit</button>
                     </div>
+                    <div class="row">
+                        <div class="d-grid col-12 col-md-6">
+                            <a href="process_form.php" class="btn btn-secondary mt-3">View Submitted Records</a>
+                        </div>
+                        <div class="d-grid col-12 col-md-6">
+                            <a href="../admin.php" class="btn btn-primary mt-3">View DMS Analytics</a>
+                        </div>
+                    </div>
 
                 </form>
             </div>
@@ -223,7 +231,6 @@
                 &copy; 2024 Sentinel OJT
             </div>
 
-            <a href="process_form.php" class="btn btn-secondary mt-3">View Submitted Records</a>
         </div>
     </div>
 
