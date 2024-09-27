@@ -10,8 +10,9 @@ if ($conn->connect_error) {
 
 // Prepared statement to fetch the first recorded entry for each product_name
 $sql = "
-SELECT t1.product_name, t1.mold_code, t1.cycle_time_target,
-       t1.weight_standard, t1.cavity_designed
+SELECT t1.product_name, t1.machine, t1.prn, t1.mold_code, t1.cycle_time_target, t1.cycle_time_actual, 
+       t1.weight_standard, t1.weight_gross, t1.weight_net, t1.cavity_designed, t1.cavity_active, 
+       t1.remarks, t1.name, t1.shift
 FROM submissions t1
 JOIN (
     SELECT product_name, MIN(id) AS first_entry

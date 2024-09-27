@@ -32,17 +32,35 @@
                 },
                 select: function (event, ui) {
                     // Populate other fields with numeric and non-numeric data
+                    $('#machine').val(ui.item.machine);
+                    $('#prn').val(ui.item.prn);
                     $('#mold_code').val(ui.item.mold_code);
                     $('#cycle_time_target').val(ui.item.cycle_time_target); // Numeric value
+                    $('#cycle_time_actual').val(ui.item.cycle_time_actual); // Numeric value
                     $('#weight_standard').val(ui.item.weight_standard); // Numeric value
+                    $('#weight_gross').val(ui.item.weight_gross); // Numeric value
+                    $('#weight_net').val(ui.item.weight_net); // Numeric value
                     $('#cavity_designed').val(ui.item.cavity_designed); // Integer value
+                    $('#cavity_active').val(ui.item.cavity_active); // Integer value
+                    $('#remarks').val(ui.item.remarks);
+                    $('#name').val(ui.item.name);
+                    $('#shift').val(ui.item.shift);
                 },
                 focus: function (event, ui) {
                     // When hovering over a suggestion, preview the data in the fields
+                    $('#machine').val(ui.item.machine);
+                    $('#prn').val(ui.item.prn);
                     $('#mold_code').val(ui.item.mold_code);
                     $('#cycle_time_target').val(ui.item.cycle_time_target);
+                    $('#cycle_time_actual').val(ui.item.cycle_time_actual);
                     $('#weight_standard').val(ui.item.weight_standard);
+                    $('#weight_gross').val(ui.item.weight_gross);
+                    $('#weight_net').val(ui.item.weight_net);
                     $('#cavity_designed').val(ui.item.cavity_designed);
+                    $('#cavity_active').val(ui.item.cavity_active);
+                    $('#remarks').val(ui.item.remarks);
+                    $('#name').val(ui.item.name);
+                    $('#shift').val(ui.item.shift);
                     return false; // Prevent replacing the text in the search box
                 }
             });
