@@ -39,7 +39,6 @@ if ($result->num_rows > 0) {
             'value' => $row['product_name'],
             'mold_code' => $row['mold_code'],
             'cycle_time_target' => (float) $row['cycle_time_target'],
-            'cycle_time_actual' => (float) $row['cycle_time_actual'],
             'weight_standard' => (float) $row['weight_standard'],
             'cavity_designed' => (int) $row['cavity_designed']
         );
