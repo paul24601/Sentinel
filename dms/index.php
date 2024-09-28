@@ -112,7 +112,7 @@
                     <!-- PRN -->
                     <div class="mb-3">
                         <label for="prn" class="form-label">PRN</label>
-                        <input type="text" class="form-control" id="prn" name="prn" placeholder="Enter PRN" required>
+                        <input type="text" class="form-control" id="prn" name="prn" placeholder="Enter PRN">
                     </div>
 
                     <!-- Mold Code -->
