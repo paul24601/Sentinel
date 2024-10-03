@@ -26,7 +26,7 @@
 
 </head>
 
-<body>
+<body class="bg-primary-subtle">
     <div class="container my-5">
         <div class="card shadow">
             <div class="card-header bg-primary text-light text-center">
@@ -783,13 +783,11 @@
                                 </div>
                                 <div class="col">
                                     <label for="pclorlp" class="form-label">PLC/LP</label>
-                                    <input type="text" class="form-control" id="pclorlp"
-                                        placeholder="PLC/LP">
+                                    <input type="text" class="form-control" id="pclorlp" placeholder="PLC/LP">
                                 </div>
                                 <div class="col">
                                     <label for="pchorhp" class="form-label">PCH/HP</label>
-                                    <input type="text" class="form-control" id="pchorhp"
-                                        placeholder="PCH/HP">
+                                    <input type="text" class="form-control" id="pchorhp" placeholder="PCH/HP">
                                 </div>
                                 <div class="col">
                                     <label for="lowPresTimeLimit" class="form-label">Low Pressure Time Limit</label>
@@ -815,35 +813,29 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="screwRPM1" class="form-label">Screw RPM 1</label>
-                                <input type="number" class="form-control" id="screwRPM1"
-                                    placeholder="Screw RPM 1">
+                                <input type="number" class="form-control" id="screwRPM1" placeholder="Screw RPM 1">
                             </div>
                             <div class="col">
                                 <label for="screwRPM2" class="form-label">Screw RPM 2</label>
-                                <input type="number" class="form-control" id="screwRPM2"
-                                    placeholder="Screw RPM 2">
+                                <input type="number" class="form-control" id="screwRPM2" placeholder="Screw RPM 2">
                             </div>
                             <div class="col">
                                 <label for="screwRPM3" class="form-label">Screw RPM 3</label>
-                                <input type="number" class="form-control" id="screwRPM3"
-                                    placeholder="Screw RPM 3">
+                                <input type="number" class="form-control" id="screwRPM3" placeholder="Screw RPM 3">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="screwSpeed1" class="form-label">Screw Speed 1</label>
-                                <input type="number" class="form-control" id="screwSpeed1"
-                                    placeholder="Screw Speed 1">
+                                <input type="number" class="form-control" id="screwSpeed1" placeholder="Screw Speed 1">
                             </div>
                             <div class="col">
                                 <label for="screwSpeed2" class="form-label">Screw Speed 2</label>
-                                <input type="number" class="form-control" id="screwSpeed2"
-                                    placeholder="Screw Speed 2">
+                                <input type="number" class="form-control" id="screwSpeed2" placeholder="Screw Speed 2">
                             </div>
                             <div class="col">
                                 <label for="screwSpeed3" class="form-label">Screw Speed 3</label>
-                                <input type="number" class="form-control" id="screwSpeed3"
-                                    placeholder="Screw Speed 3">
+                                <input type="number" class="form-control" id="screwSpeed3" placeholder="Screw Speed 3">
                             </div>
                         </div>
                         <div class="row mb-3">
@@ -899,7 +891,8 @@
                         </div>
                         <div class="row mb-3">
                             <div class="col">
-                                <label for="backPressureStartPosition" class="form-label">Back Pressure Start Position</label>
+                                <label for="backPressureStartPosition" class="form-label">Back Pressure Start
+                                    Position</label>
                                 <input type="number" class="form-control" id="backPressureStartPosition"
                                     placeholder="Back Pressure Start Position">
                             </div>
@@ -920,14 +913,86 @@
                     <div class="collapse show" id="collapseInjectionParams">
                         <div class="row mb-3">
                             <div class="col">
-                                <label for="injectionPressure" class="form-label">Injection Pressure (bar)</label>
-                                <input type="number" class="form-control" id="injectionPressure"
-                                    placeholder="Injection Pressure">
+                                <label for="RecoveryPOS" class="form-label">Recovery Position (bar)</label>
+                                <input type="number" class="form-control" id="recoveryPOS"
+                                    placeholder="Recovery Position">
                             </div>
                             <div class="col">
-                                <label for="injectionSpeed" class="form-label">Injection Speed (mm/s)</label>
-                                <input type="number" class="form-control" id="injectionSpeed"
-                                    placeholder="Injection Speed">
+                                <label for="SecondStagePosition" class="form-label">Second Stage Position (mm)</label>
+                                <input type="text" class="form-control" id="secondStagePosition"
+                                    placeholder="Second Stage Position">
+                            </div>
+                            <div class="col">
+                                <label for="Cushion" class="form-label">Cushion (mm)</label>
+                                <input type="text" class="form-control" id="cushion" placeholder="Cushion">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="ScrewPosition1" class="form-label">Screw Position 1</label>
+                                <input type="text" class="form-control" id="screwPosition1"
+                                    placeholder="Screw Position 1">
+                            </div>
+                            <div class="col">
+                                <label for="ScrewPosition2" class="form-label">Screw Position 2</label>
+                                <input type="text" class="form-control" id="screwPosition2"
+                                    placeholder="Screw Position 2">
+                            </div>
+                            <div class="col">
+                                <label for="ScrewPosition3" class="form-label">Screw Position 3</label>
+                                <input type="text" class="form-control" id="screwPosition3"
+                                    placeholder="Screw Position 3">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="INJSpeed1" class="form-label">Injection Speed 1</label>
+                                <input type="text" class="form-control" id="injectionSpeed1"
+                                    placeholder="Injection Speed 1">
+                            </div>
+                            <div class="col">
+                                <label for="INJSpeed2" class="form-label">Injection Speed 2</label>
+                                <input type="text" class="form-control" id="injectionSpeed2"
+                                    placeholder="Injection Speed 2">
+                            </div>
+                            <div class="col">
+                                <label for="INJSpeed3" class="form-label">Injection Speed 3</label>
+                                <input type="text" class="form-control" id="injectionSpeed3"
+                                    placeholder="Injection Speed 3">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="INJPressure1" class="form-label">Injection Pressure 1</label>
+                                <input type="text" class="form-control" id="injectionPressure1"
+                                    placeholder="Injection Pressure 1">
+                            </div>
+                            <div class="col">
+                                <label for="INJPressure2" class="form-label">Injection Pressure 2</label>
+                                <input type="text" class="form-control" id="injectionPressure2"
+                                    placeholder="Injection Pressure 2">
+                            </div>
+                            <div class="col">
+                                <label for="INJPressure3" class="form-label">Injection Pressure 3</label>
+                                <input type="text" class="form-control" id="injectionPressure3"
+                                    placeholder="Injection Pressure 3">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="SuckBackPosition1" class="form-label">Suck Back Position 1</label>
+                                <input type="text" class="form-control" id="suckBackPosition1"
+                                    placeholder="Suck Back Position 1">
+                            </div>
+                            <div class="col">
+                                <label for="SuckBackPosition2" class="form-label">Suck Back Position 2</label>
+                                <input type="text" class="form-control" id="suckBackPosition2"
+                                    placeholder="Suck Back Position 2">
+                            </div>
+                            <div class="col">
+                                <label for="SuckBackPosition3" class="form-label">Suck Back Position 3</label>
+                                <input type="text" class="form-control" id="suckBackPosition3"
+                                    placeholder="Suck Back Position 3">
                             </div>
                         </div>
                     </div>
@@ -976,7 +1041,8 @@
                                     placeholder="Core Pull Speed">
                             </div>
                             <div class="col">
-                                <label for="corePullPressure" class="form-label">Core Pull Pressure (bar)</label>
+                                <label for="corePullPressure" class="form-label">Core Pull Pressure
+                                    (bar)</label>
                                 <input type="number" class="form-control" id="corePullPressure"
                                     placeholder="Core Pull Pressure">
                             </div>
@@ -1028,11 +1094,12 @@
                     </div>
 
                     <!-- Add a horizontal line to separate sections -->
-                    <hr class="my-4"> <!-- Adds some margin space around the horizontal line -->    
+                    <hr class="my-4"> <!-- Adds some margin space around the horizontal line -->
 
                     <!-- Section 15: Attachments --><!-- Section: Attachments -->
                     <h4>
-                        <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapseAttachments" role="button" aria-expanded="false" aria-controls="collapseAttachments">
+                        <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapseAttachments"
+                            role="button" aria-expanded="false" aria-controls="collapseAttachments">
                             Attachments
                             <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
                         </a>
@@ -1058,11 +1125,13 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <label class="form-label">Image Preview</label>
-                                <img id="imagePreview" src="" class="img-fluid border rounded" alt="Image Preview" style="display: none;">
+                                <img id="imagePreview" src="" class="img-fluid border rounded" alt="Image Preview"
+                                    style="display: none;">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Video Preview</label>
-                                <video id="videoPreview" class="img-fluid border rounded" controls style="display: none;">
+                                <video id="videoPreview" class="img-fluid border rounded" controls
+                                    style="display: none;">
                                     <source src="" id="videoSource">
                                     Your browser does not support the video tag.
                                 </video>
@@ -1071,7 +1140,7 @@
                     </div>
 
                     <!-- Add a horizontal line to separate sections -->
-                    <hr class="my-4"> <!-- Adds some margin space around the horizontal line -->    
+                    <hr class="my-4"> <!-- Adds some margin space around the horizontal line -->
 
                     <!-- Submit Button -->
                     <button type="submit" class="btn btn-primary mt-4">Submit</button>
@@ -1082,32 +1151,32 @@
     </div>
 
     <script>
-        document.getElementById('uploadImage').addEventListener('change', function(event) {
-        const imagePreview = document.getElementById('imagePreview');
-        const file = event.target.files[0];
-        
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                imagePreview.src = e.target.result;
-                imagePreview.style.display = 'block'; // Show the image
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+        document.getElementById('uploadImage').addEventListener('change', function (event) {
+            const imagePreview = document.getElementById('imagePreview');
+            const file = event.target.files[0];
 
-    document.getElementById('uploadVideo').addEventListener('change', function(event) {
-        const videoSource = document.getElementById('videoSource');
-        const videoPreview = document.getElementById('videoPreview');
-        const file = event.target.files[0];
-        
-        if (file) {
-            const url = URL.createObjectURL(file);
-            videoSource.src = url;
-            videoPreview.load(); // Reload the video
-            videoPreview.style.display = 'block'; // Show the video
-        }
-    });
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block'; // Show the image
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('uploadVideo').addEventListener('change', function (event) {
+            const videoSource = document.getElementById('videoSource');
+            const videoPreview = document.getElementById('videoPreview');
+            const file = event.target.files[0];
+
+            if (file) {
+                const url = URL.createObjectURL(file);
+                videoSource.src = url;
+                videoPreview.load(); // Reload the video
+                videoPreview.style.display = 'block'; // Show the video
+            }
+        });
 
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

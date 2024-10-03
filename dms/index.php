@@ -69,8 +69,8 @@
     </script>
 </head>
 
-<body>
-    <div class="container my-5">
+<body class="bg-primary-subtle">
+    <div class="container my-5 opacity-90">
         <div class="card shadow">
             <div class="card-header bg-primary text-white text-center">
                 <h2>Daily Monitoring Sheet</h2>

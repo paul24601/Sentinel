@@ -23,8 +23,8 @@ switch ($sort_by) {
 
         // Simplified query to handle week sorting
         $sql = "SELECT CONCAT(YEAR(date), ' Week ', WEEK(date, 1)) AS period, 
-                           SUM(IF(cycle_time_actual >= cycle_time_target, 1, 0)) AS pass, 
-                           SUM(IF(cycle_time_actual < cycle_time_target, 1, 0)) AS fail 
+                           SUM(IF(cycle_time_actual >= cycle_time_target, 1, 0)) AS fail, 
+                           SUM(IF(cycle_time_actual < cycle_time_target, 1, 0)) AS pass 
                     FROM submissions 
                     WHERE MONTHNAME(date) = '$month'
                     GROUP BY YEAR(date), WEEK(date, 1)
@@ -34,8 +34,8 @@ switch ($sort_by) {
     case 'month':
         $year = isset($_POST['month_year']) ? $_POST['month_year'] : date('Y');
         $sql = "SELECT DATE_FORMAT(date, '%Y-%m') AS period, 
-                           SUM(IF(cycle_time_actual >= cycle_time_target, 1, 0)) AS pass, 
-                           SUM(IF(cycle_time_actual < cycle_time_target, 1, 0)) AS fail 
+                           SUM(IF(cycle_time_actual > cycle_time_target, 1, 0)) AS fail, 
+                           SUM(IF(cycle_time_actual <= cycle_time_target, 1, 0)) AS pass 
                     FROM submissions 
                     WHERE YEAR(date) = $year 
                     GROUP BY DATE_FORMAT(date, '%Y-%m') 
@@ -48,8 +48,8 @@ switch ($sort_by) {
         $endYear = $decade + 9;
 
         $sql = "SELECT YEAR(date) AS period, 
-                       SUM(IF(cycle_time_actual >= cycle_time_target, 1, 0)) AS pass, 
-                       SUM(IF(cycle_time_actual < cycle_time_target, 1, 0)) AS fail 
+                       SUM(IF(cycle_time_actual > cycle_time_target, 1, 0)) AS fail, 
+                       SUM(IF(cycle_time_actual <= cycle_time_target, 1, 0)) AS pass 
                 FROM submissions 
                 WHERE YEAR(date) BETWEEN $startYear AND $endYear 
                 GROUP BY YEAR(date) 
@@ -63,8 +63,8 @@ switch ($sort_by) {
         switch ($sortOption) {
             case 'most_passing':
                 $sql = "SELECT $groupBy AS period, 
-                                   SUM(IF(cycle_time_actual >= cycle_time_target, 1, 0)) AS pass, 
-                                   SUM(IF(cycle_time_actual < cycle_time_target, 1, 0)) AS fail 
+                                   SUM(IF(cycle_time_actual > cycle_time_target, 1, 0)) AS fail, 
+                                   SUM(IF(cycle_time_actual <= cycle_time_target, 1, 0)) AS pass 
                             FROM submissions 
                             GROUP BY $groupBy 
                             ORDER BY pass DESC"; // Sort by pass count descending
@@ -72,8 +72,8 @@ switch ($sort_by) {
 
             case 'most_failing':
                 $sql = "SELECT $groupBy AS period, 
-                                   SUM(IF(cycle_time_actual >= cycle_time_target, 1, 0)) AS pass, 
-                                   SUM(IF(cycle_time_actual < cycle_time_target, 1, 0)) AS fail 
+                                   SUM(IF(cycle_time_actual > cycle_time_target, 1, 0)) AS fail, 
+                                   SUM(IF(cycle_time_actual <= cycle_time_target, 1, 0)) AS pass 
                             FROM submissions 
                             GROUP BY $groupBy 
                             ORDER BY fail DESC"; // Sort by fail count descending
@@ -81,8 +81,8 @@ switch ($sort_by) {
 
             default: // Default sorting
                 $sql = "SELECT $groupBy AS period, 
-                                   SUM(IF(cycle_time_actual >= cycle_time_target, 1, 0)) AS pass, 
-                                   SUM(IF(cycle_time_actual < cycle_time_target, 1, 0)) AS fail 
+                                   SUM(IF(cycle_time_actual > cycle_time_target, 1, 0)) AS fail, 
+                                   SUM(IF(cycle_time_actual <= cycle_time_target, 1, 0)) AS pass 
                             FROM submissions 
                             GROUP BY $groupBy 
                             ORDER BY MIN(date)"; // Default order
@@ -101,8 +101,8 @@ switch ($sort_by) {
             $dateCondition = "WHERE date >= DATE_SUB(CURDATE(), INTERVAL 14 DAY)";
         }
         $sql = "SELECT DATE(date) AS period, 
-                           SUM(IF(cycle_time_actual >= cycle_time_target, 1, 0)) AS pass, 
-                           SUM(IF(cycle_time_actual < cycle_time_target, 1, 0)) AS fail 
+                           SUM(IF(cycle_time_actual > cycle_time_target, 1, 0)) AS fail, 
+                           SUM(IF(cycle_time_actual <= cycle_time_target, 1, 0)) AS pass 
                     FROM submissions 
                     $dateCondition 
                     GROUP BY DATE(date) 
@@ -164,6 +164,23 @@ $totalCount = $totalPass + $totalFail;
 $passPercentage = $totalCount > 0 ? ($totalPass / $totalCount) * 100 : 0;
 $failPercentage = $totalCount > 0 ? ($totalFail / $totalCount) * 100 : 0;
 
+// SQL query to fetch machine names and the difference between target and actual cycle time
+$sqlDifference = "SELECT machine, 
+                         (cycle_time_actual - cycle_time_target) AS cycle_time_difference
+                  FROM submissions 
+                  WHERE cycle_time_target IS NOT NULL 
+                  AND cycle_time_actual IS NOT NULL";
+
+$resultDifference = $conn->query($sqlDifference);
+$dataDifference = ['labels' => [], 'differences' => []];
+
+if ($resultDifference->num_rows > 0) {
+    while ($row = $resultDifference->fetch_assoc()) {
+        $dataDifference['labels'][] = $row['machine'];  // Machine name on X axis
+        $dataDifference['differences'][] = (float) $row['cycle_time_difference'];  // Difference on Y axis
+    }
+}
+
 $conn->close();
 ?>
 <!DOCTYPE html>
@@ -198,9 +215,10 @@ $conn->close();
     </script>
 </head>
 
-<body>
+<body class="bg-primary-subtle">
     <div class="container my-5">
-        <div class="card shadow">
+        <!-- container for pass/fail -->
+        <div class="card shadow mb-3">
             <div class="card-header bg-primary text-white text-center">
                 <h2>Daily Pass/Fail Metrics Bar Chart</h2>
             </div>
@@ -316,7 +334,7 @@ $conn->close();
                     <div class="col-12 col-md-4">
                         <div class="row g-1 mb-3">
                             <div class="col-12 col-sm-6">
-                                <div class="card text-white bg-success">
+                                <div class="card text-secondary-subtle" style="border: none; background-color: rgba(75, 192, 192, 0.6);">
                                     <div class="card-body text-center">
                                         <h5 class="card-title">Pass Rate</h5>
                                         <p class="card-text">
@@ -330,7 +348,7 @@ $conn->close();
                                 </div>
                             </div>
                             <div class="col-12 col-sm-6">
-                                <div class="card text-white bg-danger">
+                                <div class="card text-secondary-subtle" style="border: none; background-color: rgba(255, 99, 132, 0.6);">
                                     <div class="card-body text-center">
                                         <h5 class="card-title">Fail Rate</h5>
                                         <p class="card-text">
@@ -356,8 +374,31 @@ $conn->close();
                 </div>
             </div>
         </div>
+        
+        <!-- container for cycle time difference -->
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white text-center">
+                <h2>Cycle Time Difference per Machine</h2>
+            </div>
+            <div class="card-body">
+                <canvas id="cycleTimeDifferenceChart"></canvas>
+            </div>
+        </div>
+
+        
+
+        <div class="row p-3">
+            <div class="d-grid col-12 col-md-6">
+                <a href="dms/index.php" class="btn btn-secondary mt-3">Back to Form</a>
+            </div>
+            <div class="d-grid col-12 col-md-6">
+                <a href="dms/process_form.php" class="btn btn-primary mt-3">View Submitted Records</a>
+            </div>
+        </div>
+    </div>
 
         <script>
+            //pass/fail chart
             const ctx = document.getElementById('metricsChart').getContext('2d');
             const metricsChart = new Chart(ctx, {
                 type: 'bar',
@@ -384,7 +425,57 @@ $conn->close();
                     }
                 }
             });
+            
+            //difference chart
+            var ctxDifference = document.getElementById('cycleTimeDifferenceChart').getContext('2d');
+            var cycleTimeDifferenceChart = new Chart(ctxDifference, {
+                type: 'bar',
+                data: {
+                    labels: <?php echo json_encode($dataDifference['labels']); ?>,  // Machine names
+                    datasets: [{
+                        label: 'Cycle Time Difference (seconds)',
+                        data: <?php echo json_encode($dataDifference['differences']); ?>,  // Differences
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    animation: {
+                    duration: 1000, // Total duration of the animation
+                    delay: function(context) {
+                        // Delay for each data point
+                        if (context.type === 'data' && context.index !== null) {
+                            return context.index * 10; // Delay each data point by 100 ms
+                        }
+                        return 0; // No delay for other animations
+                    }
+                },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Cycle Time Difference (seconds)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Machine'
+                            }
+                        }
+                    },
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            });
         </script>
+
 </body>
 
 </html>

@@ -44,7 +44,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 // Retrieve data from database
-$sql = "SELECT * FROM submissions";
+$sql = "SELECT id, date, product_name, machine, prn, mold_code, cycle_time_target, 
+        cycle_time_actual, 
+        (cycle_time_target - cycle_time_actual) AS cycle_time_difference, 
+        weight_standard, weight_gross, weight_net, cavity_designed, cavity_active, 
+        remarks, name, shift 
+        FROM submissions";
 $result = $conn->query($sql);
 ?>
 
@@ -69,9 +74,8 @@ $result = $conn->query($sql);
     </style>
 </head>
 
-<body>
+<body class="bg-secondary-subtle">
     <div class="container my-5">
-        <h2 class="text-center">Daily Monitoring Sheet Data</h2>
 
         <?php if ($recordCreated): ?>
             <!-- Modal -->
@@ -92,63 +96,79 @@ $result = $conn->query($sql);
                 </div>
             </div>
         <?php endif; ?>
-        <div class="table-container m-3">
-            <div class="table-responsive">
-                <table id="submissionTable" class="table table-bordered table-striped pt-3">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Date</th>
-                            <th>Product Name</th>
-                            <th>Machine</th>
-                            <th>PRN</th>
-                            <th>Mold Code</th>
-                            <th>Cycle Time (Target)</th>
-                            <th>Cycle Time (Actual)</th>
-                            <th>Weight (Standard)</th>
-                            <th>Weight (Gross)</th>
-                            <th>Weight (Net)</th>
-                            <th>Cavity (Designed)</th>
-                            <th>Cavity (Active)</th>
-                            <th>Remarks</th>
-                            <th>Name</th>
-                            <th>Shift</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        if ($result->num_rows > 0) {
-                            while ($row = $result->fetch_assoc()) {
-                                echo "<tr>";
-                                echo "<td>" . $row["id"] . "</td>";
-                                echo "<td>" . htmlspecialchars($row["date"]) . "</td>";
-                                echo "<td>" . htmlspecialchars($row["product_name"]) . "</td>";
-                                echo "<td>" . htmlspecialchars($row["machine"]) . "</td>";
-                                echo "<td>" . htmlspecialchars($row["prn"]) . "</td>";
-                                echo "<td>" . htmlspecialchars($row["mold_code"]) . "</td>";
-                                echo "<td>" . htmlspecialchars($row["cycle_time_target"]) . "</td>";
-                                echo "<td>" . htmlspecialchars($row["cycle_time_actual"]) . "</td>";
-                                echo "<td>" . htmlspecialchars($row["weight_standard"]) . "</td>";
-                                echo "<td>" . htmlspecialchars($row["weight_gross"]) . "</td>";
-                                echo "<td>" . htmlspecialchars($row["weight_net"]) . "</td>";
-                                echo "<td>" . htmlspecialchars($row["cavity_designed"]) . "</td>";
-                                echo "<td>" . htmlspecialchars($row["cavity_active"]) . "</td>";
-                                echo "<td>" . htmlspecialchars($row["remarks"]) . "</td>";
-                                echo "<td>" . htmlspecialchars($row["name"]) . "</td>";
-                                echo "<td>" . htmlspecialchars($row["shift"]) . "</td>";
-                                echo "</tr>";
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-center">Daily Monitoring Sheet Data</h2>
+            </div>
+            <div class="card-body table-container bg-white">
+                <div class="table-responsive">
+                    <table id="submissionTable" class="table table-bordered table-striped pt-3">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Date</th>
+                                <th>Product Name</th>
+                                <th>Machine</th>
+                                <th>PRN</th>
+                                <th>Mold Code</th>
+                                <th>Cycle Time (Target)</th>
+                                <th>Cycle Time (Actual)</th>
+                                <th>Cycle Time Difference</th> <!-- New column -->
+                                <th>Weight (Standard)</th>
+                                <th>Weight (Gross)</th>
+                                <th>Weight (Net)</th>
+                                <th>Cavity (Designed)</th>
+                                <th>Cavity (Active)</th>
+                                <th>Remarks</th>
+                                <th>Name</th>
+                                <th>Shift</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            if ($result->num_rows > 0) {
+                                while ($row = $result->fetch_assoc()) {
+                                    echo "<tr>";
+                                    echo "<td>" . $row["id"] . "</td>";
+                                    echo "<td>" . htmlspecialchars($row["date"]) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row["product_name"]) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row["machine"]) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row["prn"]) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row["mold_code"]) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row["cycle_time_target"]) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row["cycle_time_actual"]) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row["cycle_time_difference"]) . "</td>"; // Display the difference
+                                    echo "<td>" . htmlspecialchars($row["weight_standard"]) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row["weight_gross"]) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row["weight_net"]) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row["cavity_designed"]) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row["cavity_active"]) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row["remarks"]) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row["name"]) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row["shift"]) . "</td>";
+                                    echo "</tr>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='17' class='text-center'>No records found</td></tr>"; // Updated colspan
                             }
-                        } else {
-                            echo "<tr><td colspan='16' class='text-center'>No records found</td></tr>";
-                        }
-                        $conn->close();
-                        ?>
-                    </tbody>
-                </table>
+                            $conn->close();
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row p-3">
+                <div class="d-grid col-12 col-md-6">
+                    <a href="index.php" class="btn btn-secondary mt-3">Back to Form</a>
+                </div>
+                <div class="d-grid col-12 col-md-6">
+                    <a href="../admin.php" class="btn btn-primary mt-3">View DMS Analytics</a>
+                </div>
             </div>
         </div>
 
-        <a href="index.php" class="btn btn-primary">Back to Form</a>
     </div>
 
     <!-- Bootstrap JS Bundle with Popper -->
@@ -160,7 +180,10 @@ $result = $conn->query($sql);
 
     <script>
         $(document).ready(function () {
-            $('#submissionTable').DataTable(); // Initialize DataTables
+            $('#submissionTable').DataTable({
+                "pageLength": 5,  // Display 5 entries per page by default
+                "lengthMenu": [5, 10, 25, 50, 100]  // Users can select from these options
+            }); // Initialize DataTables
         });
 
         <?php if ($recordCreated): ?>
