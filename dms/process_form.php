@@ -1,9 +1,9 @@
 <?php
 // Database connection details
-$servername = "localhost"; // replace with your server name
-$username = "root"; // replace with your MySQL username
-$password = ""; // replace with your MySQL password
-$dbname = "production_data"; // replace with your database name
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "production_data";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -14,6 +14,33 @@ if ($conn->connect_error) {
 }
 
 $recordCreated = false;
+
+// Export CSV
+if (isset($_GET['export_csv'])) {
+    $filename = "DMS_data_" . date('Ymd') . ".csv";
+    header("Content-Type: text/csv");
+    header("Content-Disposition: attachment; filename=\"$filename\"");
+
+    $output = fopen("php://output", "w");
+    $headers = ["ID", "Date", "Product Name", "Machine", "PRN", "Mold Code", "Cycle Time (Target)", "Cycle Time (Actual)", 
+                "Cycle Time Difference", "Weight (Standard)", "Weight (Gross)", "Weight (Net)", "Cavity (Designed)", 
+                "Cavity (Active)", "Remarks", "Name", "Shift"];
+    fputcsv($output, $headers);
+
+    $sql = "SELECT id, date, product_name, machine, prn, mold_code, cycle_time_target, cycle_time_actual, 
+            (cycle_time_target - cycle_time_actual) AS cycle_time_difference, weight_standard, weight_gross, 
+            weight_net, cavity_designed, cavity_active, remarks, name, shift 
+            FROM submissions";
+    $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            fputcsv($output, $row);
+        }
+    }
+    fclose($output);
+    exit();
+}
 
 // Insert form data into database
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -66,10 +93,9 @@ $result = $conn->query($sql);
     <link href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css" rel="stylesheet">
     <style>
         .table-container {
-            border: 1px solid #ddd; /* Border color */
-            border-radius: .375rem; /* Rounded corners */
+            border: 1px solid #ddd;
             padding: 1rem;
-            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15); /* Optional shadow */
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
         }
     </style>
 </head>
@@ -78,7 +104,6 @@ $result = $conn->query($sql);
     <div class="container my-5">
 
         <?php if ($recordCreated): ?>
-            <!-- Modal -->
             <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -114,7 +139,7 @@ $result = $conn->query($sql);
                                 <th>Mold Code</th>
                                 <th>Cycle Time (Target)</th>
                                 <th>Cycle Time (Actual)</th>
-                                <th>Cycle Time Difference</th> <!-- New column -->
+                                <th>Cycle Time Difference</th>
                                 <th>Weight (Standard)</th>
                                 <th>Weight (Gross)</th>
                                 <th>Weight (Net)</th>
@@ -138,7 +163,7 @@ $result = $conn->query($sql);
                                     echo "<td>" . htmlspecialchars($row["mold_code"]) . "</td>";
                                     echo "<td>" . htmlspecialchars($row["cycle_time_target"]) . "</td>";
                                     echo "<td>" . htmlspecialchars($row["cycle_time_actual"]) . "</td>";
-                                    echo "<td>" . htmlspecialchars($row["cycle_time_difference"]) . "</td>"; // Display the difference
+                                    echo "<td>" . htmlspecialchars($row["cycle_time_difference"]) . "</td>";
                                     echo "<td>" . htmlspecialchars($row["weight_standard"]) . "</td>";
                                     echo "<td>" . htmlspecialchars($row["weight_gross"]) . "</td>";
                                     echo "<td>" . htmlspecialchars($row["weight_net"]) . "</td>";
@@ -150,7 +175,7 @@ $result = $conn->query($sql);
                                     echo "</tr>";
                                 }
                             } else {
-                                echo "<tr><td colspan='17' class='text-center'>No records found</td></tr>"; // Updated colspan
+                                echo "<tr><td colspan='17' class='text-center'>No records found</td></tr>";
                             }
                             $conn->close();
                             ?>
@@ -160,11 +185,24 @@ $result = $conn->query($sql);
             </div>
 
             <div class="row p-3">
-                <div class="d-grid col-12 col-md-6">
+                <div class="d-grid col-12 col-md-4">
                     <a href="index.php" class="btn btn-secondary mt-3">Back to Form</a>
                 </div>
-                <div class="d-grid col-12 col-md-6">
+                <div class="d-grid col-12 col-md-4">
                     <a href="../admin.php" class="btn btn-primary mt-3">View DMS Analytics</a>
+                </div>
+                <div class="d-grid col-12 col-md-4">
+                    <a href="?export_csv=1" class="btn btn-success mt-3">Export to CSV</a>
+                </div>
+            </div>
+
+            <div class="row p-3">
+                <div class="d-grid col-12 col-md-6">
+                    <a href="../admin_dashboard.php" class="btn btn-info mt-3">Admin Dashboard</a>
+                </div>
+                <!-- Logout Button -->
+                <div class="d-grid col-12 col-md-6">
+                    <a href="../logout.php" class="btn btn-danger mt-3">Log out</a>
                 </div>
             </div>
         </div>
@@ -181,9 +219,9 @@ $result = $conn->query($sql);
     <script>
         $(document).ready(function () {
             $('#submissionTable').DataTable({
-                "pageLength": 5,  // Display 5 entries per page by default
-                "lengthMenu": [5, 10, 25, 50, 100]  // Users can select from these options
-            }); // Initialize DataTables
+                "pageLength": 10,
+                "lengthMenu": [5, 10, 25, 50, 100, 200]
+            });
         });
 
         <?php if ($recordCreated): ?>

@@ -1,4 +1,12 @@
 <?php
+session_start();
+if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'supervisor' && $_SESSION['role'] !== 'admin')) {
+    echo "Access denied. You are not authorized to view this page.";
+    exit();
+}
+?>
+
+<?php
 // Database connection parameters
 $servername = "localhost";
 $username = "root";
@@ -13,176 +21,83 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Get the selected sorting option
-$sort_by = isset($_POST['sort_by']) ? $_POST['sort_by'] : 'day'; // Default to sorting by day
 
-// SQL query for sorting based on user selection
-switch ($sort_by) {
-    case 'week':
-        $month = isset($_POST['week_month']) ? $_POST['week_month'] : date('F');
+// REMARKS
+// SQL query to fetch unique product names
+$sqlProductNames = "SELECT DISTINCT product_name FROM submissions WHERE product_name IS NOT NULL ORDER BY product_name";
+$resultProductNames = $conn->query($sqlProductNames);
 
-        // Simplified query to handle week sorting
-        $sql = "SELECT CONCAT(YEAR(date), ' Week ', WEEK(date, 1)) AS period, 
-                           SUM(IF(cycle_time_actual >= cycle_time_target, 1, 0)) AS fail, 
-                           SUM(IF(cycle_time_actual < cycle_time_target, 1, 0)) AS pass 
-                    FROM submissions 
-                    WHERE MONTHNAME(date) = '$month'
-                    GROUP BY YEAR(date), WEEK(date, 1)
-                    ORDER BY YEAR(date), WEEK(date, 1)";
-        break;
+$productNames = [];
+if ($resultProductNames->num_rows > 0) {
+    while ($row = $resultProductNames->fetch_assoc()) {
+        $productNames[] = $row['product_name'];
+    }
+}
 
-    case 'month':
-        $year = isset($_POST['month_year']) ? $_POST['month_year'] : date('Y');
-        $sql = "SELECT DATE_FORMAT(date, '%Y-%m') AS period, 
-                           SUM(IF(cycle_time_actual > cycle_time_target, 1, 0)) AS fail, 
-                           SUM(IF(cycle_time_actual <= cycle_time_target, 1, 0)) AS pass 
-                    FROM submissions 
-                    WHERE YEAR(date) = $year 
-                    GROUP BY DATE_FORMAT(date, '%Y-%m') 
-                    ORDER BY MIN(date)";
-        break;
+// SQL query to fetch product name remarks along with date, mold number, and cycle time difference
+$sqlRemarks = "SELECT product_name, date, mold_code, remarks, 
+                      (cycle_time_target - cycle_time_actual) AS cycle_time_difference 
+               FROM submissions 
+               WHERE remarks IS NOT NULL 
+               ORDER BY product_name, date";
 
-    case 'year':
-        $decade = isset($_POST['decade']) ? $_POST['decade'] : 2020; // Default to the latest decade
-        $startYear = $decade;
-        $endYear = $decade + 9;
+$resultRemarks = $conn->query($sqlRemarks);
 
-        $sql = "SELECT YEAR(date) AS period, 
-                       SUM(IF(cycle_time_actual > cycle_time_target, 1, 0)) AS fail, 
-                       SUM(IF(cycle_time_actual <= cycle_time_target, 1, 0)) AS pass 
-                FROM submissions 
-                WHERE YEAR(date) BETWEEN $startYear AND $endYear 
-                GROUP BY YEAR(date) 
-                ORDER BY YEAR(date)";
-        break;
-
-    case 'all_time':
-        $sortOption = isset($_POST['allTimeSortBy']) ? $_POST['allTimeSortBy'] : 'default';
-        $groupBy = "DATE_FORMAT(date, '%Y-%m')";
-
-        switch ($sortOption) {
-            case 'most_passing':
-                $sql = "SELECT $groupBy AS period, 
-                                   SUM(IF(cycle_time_actual > cycle_time_target, 1, 0)) AS fail, 
-                                   SUM(IF(cycle_time_actual <= cycle_time_target, 1, 0)) AS pass 
-                            FROM submissions 
-                            GROUP BY $groupBy 
-                            ORDER BY pass DESC"; // Sort by pass count descending
-                break;
-
-            case 'most_failing':
-                $sql = "SELECT $groupBy AS period, 
-                                   SUM(IF(cycle_time_actual > cycle_time_target, 1, 0)) AS fail, 
-                                   SUM(IF(cycle_time_actual <= cycle_time_target, 1, 0)) AS pass 
-                            FROM submissions 
-                            GROUP BY $groupBy 
-                            ORDER BY fail DESC"; // Sort by fail count descending
-                break;
-
-            default: // Default sorting
-                $sql = "SELECT $groupBy AS period, 
-                                   SUM(IF(cycle_time_actual > cycle_time_target, 1, 0)) AS fail, 
-                                   SUM(IF(cycle_time_actual <= cycle_time_target, 1, 0)) AS pass 
-                            FROM submissions 
-                            GROUP BY $groupBy 
-                            ORDER BY MIN(date)"; // Default order
-                break;
+$remarksData = [];
+if ($resultRemarks->num_rows > 0) {
+    while ($row = $resultRemarks->fetch_assoc()) {
+        $product_name = $row['product_name'];
+        if (!isset($remarksData[$product_name])) {
+            $remarksData[$product_name] = [];
         }
-        break;
-
-    default:
-        $range = isset($_POST['day_range']) ? $_POST['day_range'] : 'this_week';
-        $dateCondition = '';
-        if ($range == 'this_week') {
-            $dateCondition = "WHERE YEARWEEK(date, 1) = YEARWEEK(CURDATE(), 1)";
-        } elseif ($range == 'last_1_week') {
-            $dateCondition = "WHERE date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
-        } elseif ($range == 'last_2_weeks') {
-            $dateCondition = "WHERE date >= DATE_SUB(CURDATE(), INTERVAL 14 DAY)";
-        }
-        $sql = "SELECT DATE(date) AS period, 
-                           SUM(IF(cycle_time_actual > cycle_time_target, 1, 0)) AS fail, 
-                           SUM(IF(cycle_time_actual <= cycle_time_target, 1, 0)) AS pass 
-                    FROM submissions 
-                    $dateCondition 
-                    GROUP BY DATE(date) 
-                    ORDER BY period";
-        break;
-}
-
-$result = $conn->query($sql);
-$data = ['labels' => [], 'pass' => [], 'fail' => []];
-
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $data['labels'][] = $row['period'];  // Use 'period' here
-        $data['pass'][] = (int) $row['pass'];
-        $data['fail'][] = (int) $row['fail'];
+        $remarksData[$product_name][] = [
+            'date' => $row['date'],
+            'mold_code' => $row['mold_code'],
+            'remark' => $row['remarks'],
+            'cycle_time_difference' => $row['cycle_time_difference']
+        ];
     }
 }
 
-// Existing database connection and SQL query code...
+// PRODUCT VARIANCE
+// Query to fetch product names, date, machine number, and cycle time data
+$sqlProductVariance = "SELECT product_name, 
+                              date,
+                              machine,
+                              cycle_time_target, 
+                              cycle_time_actual 
+                       FROM submissions 
+                       WHERE cycle_time_target IS NOT NULL 
+                       AND cycle_time_actual IS NOT NULL";
 
-$result = $conn->query($sql);
-$data = ['labels' => [], 'pass' => [], 'fail' => []];
+$resultProductVariance = $conn->query($sqlProductVariance);
+$productVarianceData = [];
 
-// Variable to track if data exists
-$dataExists = false;
+if ($resultProductVariance->num_rows > 0) {
+    while ($row = $resultProductVariance->fetch_assoc()) {
+        $target = $row['cycle_time_target'];
+        $actual = $row['cycle_time_actual'];
+        $productName = $row['product_name'];
+        $date = $row['date'];
+        $machine = $row['machine'];
+        
+        // Calculate variance percentage
+        $variancePercentage = (($actual - $target) / $target) * 100;
 
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $data['labels'][] = $row['period'];
-        $data['pass'][] = (int) $row['pass'];
-        $data['fail'][] = (int) $row['fail'];
-        $dataExists = true;  // Set to true when data is found
-    }
-}
-$result = $conn->query($sql);
-$data = ['labels' => [], 'pass' => [], 'fail' => []];
-
-// Variable to track if data exists
-$dataExists = false;
-
-$totalPass = 0;  // Initialize total pass count
-$totalFail = 0;  // Initialize total fail count
-
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $data['labels'][] = $row['period'];
-        $data['pass'][] = (int) $row['pass'];
-        $data['fail'][] = (int) $row['fail'];
-        $dataExists = true;  // Set to true when data is found
-
-        // Accumulate pass and fail counts
-        $totalPass += (int) $row['pass'];
-        $totalFail += (int) $row['fail'];
+        // Store in array
+        $productVarianceData[] = [
+            'product_name' => $productName,
+            'date' => $date,
+            'machine' => $machine,
+            'variance_percentage' => $variancePercentage
+        ];
     }
 }
 
-// Calculate pass and fail percentages
-$totalCount = $totalPass + $totalFail;
-$passPercentage = $totalCount > 0 ? ($totalPass / $totalCount) * 100 : 0;
-$failPercentage = $totalCount > 0 ? ($totalFail / $totalCount) * 100 : 0;
-
-// SQL query to fetch machine names and the difference between target and actual cycle time
-$sqlDifference = "SELECT machine, 
-                         (cycle_time_actual - cycle_time_target) AS cycle_time_difference
-                  FROM submissions 
-                  WHERE cycle_time_target IS NOT NULL 
-                  AND cycle_time_actual IS NOT NULL";
-
-$resultDifference = $conn->query($sqlDifference);
-$dataDifference = ['labels' => [], 'differences' => []];
-
-if ($resultDifference->num_rows > 0) {
-    while ($row = $resultDifference->fetch_assoc()) {
-        $dataDifference['labels'][] = $row['machine'];  // Machine name on X axis
-        $dataDifference['differences'][] = (float) $row['cycle_time_difference'];  // Difference on Y axis
-    }
-}
 
 $conn->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -194,6 +109,11 @@ $conn->close();
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <!-- jQuery and DataTables JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script>
         function toggleFilters() {
             const sortBy = document.getElementById('sortBy').value;
@@ -209,183 +129,84 @@ $conn->close();
             yearFilters.style.display = sortBy === 'year' ? 'block' : 'none';
             allTimeFilters.style.display = sortBy === 'all_time' ? 'block' : 'none'; // Handle all time case
         }
-
-
         window.onload = toggleFilters; // Call on load to set initial visibility
-    </script>
+    </script>    
 </head>
 
 <body class="bg-primary-subtle">
     <div class="container my-5">
-        <!-- container for pass/fail -->
-        <div class="card shadow mb-3">
-            <div class="card-header bg-primary text-white text-center">
-                <h2>Daily Pass/Fail Metrics Bar Chart</h2>
+        <div class="row row-cols-1">
+            <!-- Cycle Time Variance Dashboard -->
+            <div class="col">
+                <div class="card shadow mb-3">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h2>Cycle Time Variance by Product</h2>
+                    </div>
+                    <div class="card-body">
+                        <table id="cycleTimeVarianceTable" class="table table-striped display" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Product Name</th>
+                                    <th>Machine Number</th>
+                                    <th>Variance Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($productVarianceData as $data): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($data['date']); ?></td>
+                                        <td><?php echo htmlspecialchars($data['product_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($data['machine']); ?></td>
+                                        <td><?php echo number_format($data['variance_percentage'], 2); ?>%</td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>                
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <!-- Sorting Options Form -->
-                    <form method="POST" class="col-12 col-md-8 mb-4" id="sortForm">
-                        <div class="row mb-3 align-items-end">
-                            <div class="col-md-6">
-                                <label for="sortBy" class="form-label">Sort By:</label>
-                                <select name="sort_by" id="sortBy" class="form-select"
-                                    onchange="document.getElementById('sortForm').submit();">
-                                    <option value="day" <?php echo isset($_POST['sort_by']) && $_POST['sort_by'] == 'day' ? 'selected' : ''; ?>>Day</option>
-                                    <option value="week" <?php echo isset($_POST['sort_by']) && $_POST['sort_by'] == 'week' ? 'selected' : ''; ?>>Week</option>
-                                    <option value="month" <?php echo isset($_POST['sort_by']) && $_POST['sort_by'] == 'month' ? 'selected' : ''; ?>>Month</option>
-                                    <option value="year" <?php echo isset($_POST['sort_by']) && $_POST['sort_by'] == 'year' ? 'selected' : ''; ?>>Year</option>
-                                    <option value="all_time" <?php echo isset($_POST['sort_by']) && $_POST['sort_by'] == 'all_time' ? 'selected' : ''; ?>>All Time</option>
-                                </select>
-                            </div>
 
-                            <!-- Day Filters -->
-                            <div id="dayFilters" class="col-md-6 mt-3" style="display:none;">
-                                <label for="dayRange" class="form-label">Select Range:</label>
-                                <select name="day_range" id="dayRange" class="form-select"
-                                    onchange="document.getElementById('sortForm').submit();">
-                                    <option value="this_week" <?php echo isset($_POST['day_range']) && $_POST['day_range'] == 'this_week' ? 'selected' : ''; ?>>This Week</option>
-                                    <option value="last_1_week" <?php echo isset($_POST['day_range']) && $_POST['day_range'] == 'last_1_week' ? 'selected' : ''; ?>>Last 1 Week</option>
-                                    <option value="last_2_weeks" <?php echo isset($_POST['day_range']) && $_POST['day_range'] == 'last_2_weeks' ? 'selected' : ''; ?>>Last 2 Weeks</option>
-                                </select>
-                            </div>
-
-                            <!-- Week Filters -->
-                            <div id="weekFilters" class="col-md-6 mt-3" style="display:none;">
-                                <label for="weekMonth" class="form-label">Select Month:</label>
-                                <select name="week_month" id="weekMonth" class="form-select"
-                                    onchange="document.getElementById('sortForm').submit();">
-                                    <?php
-                                    // Get the current month
-                                    $currentMonth = date('F');
-
-                                    // Array of all months
-                                    $months = [
-                                        'January',
-                                        'February',
-                                        'March',
-                                        'April',
-                                        'May',
-                                        'June',
-                                        'July',
-                                        'August',
-                                        'September',
-                                        'October',
-                                        'November',
-                                        'December'
-                                    ];
-
-                                    // Loop through each month and set the current month as selected by default
-                                    foreach ($months as $month) {
-                                        echo '<option value="' . $month . '" ' .
-                                            (isset($_POST['week_month']) ? ($_POST['week_month'] == $month ? 'selected' : '') : ($month == $currentMonth ? 'selected' : '')) .
-                                            '>' . $month . '</option>';
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-
-                            <!-- Month Filters -->
-                            <div id="monthFilters" class="col-md-6 mt-3" style="display:none;">
-                                <label for="monthYear" class="form-label">Select Year:</label>
-                                <select name="month_year" id="monthYear" class="form-select"
-                                    onchange="document.getElementById('sortForm').submit();">
-                                    <?php
-                                    // Dynamically generate year options
-                                    $currentYear = date("Y");
-                                    for ($year = $currentYear; $year >= 2000; $year--) {
-                                        echo '<option value="' . $year . '" ' . (isset($_POST['month_year']) && $_POST['month_year'] == $year ? 'selected' : '') . '>' . $year . '</option>';
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-
-                            <!-- Year Filters -->
-                            <div id="yearFilters" class="col-md-6 mt-3" style="display:none;">
-                                <label for="decade" class="form-label">Select Decade:</label>
-                                <select name="decade" id="decade" class="form-select"
-                                    onchange="document.getElementById('sortForm').submit();">
-                                    <?php
-                                    // Assuming you want to cover decades from 2000 to 2020
-                                    for ($year = 2020; $year >= 2000; $year -= 10) {
-                                        echo '<option value="' . $year . '" ' . (isset($_POST['decade']) && $_POST['decade'] == $year ? 'selected' : '') . '>' . $year . 's</option>';
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-
-                            <!-- All Time Filter -->
-                            <div id="allTimeFilters" class="col-md-6 mt-3" style="display:none;">
-                                <label for="allTimeSortBy" class="form-label">Sort By:</label>
-                                <select name="allTimeSortBy" id="allTimeSortBy" class="form-select"
-                                    onchange="document.getElementById('sortForm').submit();">
-                                    <option value="default" <?php echo isset($_POST['allTimeSortBy']) && $_POST['allTimeSortBy'] == 'default' ? 'selected' : ''; ?>>Default</option>
-                                    <option value="most_passing" <?php echo isset($_POST['allTimeSortBy']) && $_POST['allTimeSortBy'] == 'most_passing' ? 'selected' : ''; ?>>Most Passing Month
-                                    </option>
-                                    <option value="most_failing" <?php echo isset($_POST['allTimeSortBy']) && $_POST['allTimeSortBy'] == 'most_failing' ? 'selected' : ''; ?>>Most Failing Month
-                                    </option>
-                                </select>
-                            </div>
-
+            <!-- Remarks Dashboard -->
+            <div class="col">
+                <!-- Container for dropdown and remarks display -->
+                <div class="card shadow mb-3">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h2>Product Remarks</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="productDropdown" class="form-label">Select Product:</label>
+                            <select id="productDropdown" class="form-select" onchange="loadRemarksTable()">
+                                <option value="">Select a product</option>
+                                <?php foreach ($productNames as $product_name): ?>
+                                    <option value="<?php echo htmlspecialchars($product_name); ?>">
+                                        <?php echo htmlspecialchars($product_name); ?></option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
-                    </form>
 
-                    <!-- Pass and Fail Rate Cards -->
-                    <div class="col-12 col-md-4">
-                        <div class="row g-1 mb-3">
-                            <div class="col-12 col-sm-6">
-                                <div class="card text-secondary-subtle" style="border: none; background-color: rgba(75, 192, 192, 0.6);">
-                                    <div class="card-body text-center">
-                                        <h5 class="card-title">Pass Rate</h5>
-                                        <p class="card-text">
-                                            <?php
-                                            $total = array_sum($data['pass']) + array_sum($data['fail']);
-                                            $passRate = $total > 0 ? (array_sum($data['pass']) / $total) * 100 : 0;
-                                            echo number_format($passRate, 2) . '%';
-                                            ?>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-sm-6">
-                                <div class="card text-secondary-subtle" style="border: none; background-color: rgba(255, 99, 132, 0.6);">
-                                    <div class="card-body text-center">
-                                        <h5 class="card-title">Fail Rate</h5>
-                                        <p class="card-text">
-                                            <?php
-                                            $failRate = $total > 0 ? (array_sum($data['fail']) / $total) * 100 : 0;
-                                            echo number_format($failRate, 2) . '%';
-                                            ?>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
+                        <div id="remarksContainer" class="table-responsive">
+                            <table id="remarksTable" class="display nowrap" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Mold Number</th>
+                                        <th>Remark</th>
+                                        <th>Cycle Time Difference</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Table rows will be dynamically inserted here -->
+                                </tbody>
+                            </table>
+                            <p class="text-muted" id="noDataMessage">Select a product name to view remarks.</p>
                         </div>
                     </div>
-
-
-                    <!-- Display No Data Available Message -->
-                    <h3 class="<?php echo $dataExists ? 'd-none' : ''; ?> text-center m-3" style='color:red;'>No data
-                        available
-                    </h3>
-
-                    <canvas id="metricsChart" width="400" height="200"></canvas>
                 </div>
             </div>
-        </div>
-        
-        <!-- container for cycle time difference -->
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white text-center">
-                <h2>Cycle Time Difference per Machine</h2>
-            </div>
-            <div class="card-body">
-                <canvas id="cycleTimeDifferenceChart"></canvas>
-            </div>
-        </div>
 
-        
+        </div>
 
         <div class="row p-3">
             <div class="d-grid col-12 col-md-6">
@@ -395,86 +216,84 @@ $conn->close();
                 <a href="dms/process_form.php" class="btn btn-primary mt-3">View Submitted Records</a>
             </div>
         </div>
+        
+
+        <div class="row p-3">
+            <div class="d-grid col-12 col-md-6">
+                <a href="admin_dashboard.php" class="btn btn-info mt-3">Admin Dashboard</a>
+            </div>
+            <!-- Logout Button -->
+            <div class="d-grid col-12 col-md-6">
+                <a href="logout.php" class="btn btn-danger mt-3">Log out</a>
+            </div>
+        </div>
     </div>
 
-        <script>
-            //pass/fail chart
-            const ctx = document.getElementById('metricsChart').getContext('2d');
-            const metricsChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: <?php echo json_encode($data['labels']); ?>,
-                    datasets: [
-                        {
-                            label: 'Pass',
-                            data: <?php echo json_encode($data['pass']); ?>,
-                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                        },
-                        {
-                            label: 'Fail',
-                            data: <?php echo json_encode($data['fail']); ?>,
-                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                        }
-                    ]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+    <!-- remarks section -->
+    <script>
+        // PHP array to JavaScript
+        const remarksData = <?php echo json_encode($remarksData); ?>;
+
+        // Initialize DataTable
+        const table = $('#remarksTable').DataTable();
+
+        // Function to load remarks based on selected machine
+        function loadRemarksTable() {
+            const selectProduct = $('#productDropdown').val();
+
+            // Clear previous table data
+            table.clear().draw();
+
+            if (selectProduct && remarksData[selectProduct]) {
+                // Hide no data message
+                $('#noDataMessage').hide();
+
+                // Populate table with remarks data
+                remarksData[selectProduct].forEach(remark => {
+                    table.row.add([
+                        remark.date,
+                        remark.mold_code,
+                        remark.remark,
+                        remark.cycle_time_difference
+                    ]).draw();
+                });
+            } else {
+                $('#noDataMessage').show();
+            }
+        }
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTable
+            const table = $('#cycleTimeVarianceTable').DataTable({
+                responsive: true,
+                paging: true,
+                searching: true,
+                ordering: true,
+                order: [[3, 'desc']], // Order by Variance Percentage by default
+                columnDefs: [
+                    { targets: 3, orderable: true } // Enable sorting on Variance Percentage
+                ]
+            });
+
+            // Apply conditional formatting
+            table.rows().every(function() {
+                const row = this.node();
+                const variancePercentageCell = $(row).find('td:eq(3)');
+                const variancePercentage = parseFloat(variancePercentageCell.text());
+
+                if (variancePercentage >= 1.00 && variancePercentage <= 10.99) {
+                    variancePercentageCell.css('background-color', 'yellow');
+                } else if (variancePercentage >= 11.00 && variancePercentage <= 25.99) {
+                    variancePercentageCell.css('background-color', 'orange');
+                } else if (variancePercentage > 26.00) {
+                    variancePercentageCell.css('background-color', 'red');
                 }
             });
-            
-            //difference chart
-            var ctxDifference = document.getElementById('cycleTimeDifferenceChart').getContext('2d');
-            var cycleTimeDifferenceChart = new Chart(ctxDifference, {
-                type: 'bar',
-                data: {
-                    labels: <?php echo json_encode($dataDifference['labels']); ?>,  // Machine names
-                    datasets: [{
-                        label: 'Cycle Time Difference (seconds)',
-                        data: <?php echo json_encode($dataDifference['differences']); ?>,  // Differences
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    animation: {
-                    duration: 1000, // Total duration of the animation
-                    delay: function(context) {
-                        // Delay for each data point
-                        if (context.type === 'data' && context.index !== null) {
-                            return context.index * 10; // Delay each data point by 100 ms
-                        }
-                        return 0; // No delay for other animations
-                    }
-                },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Cycle Time Difference (seconds)'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Machine'
-                            }
-                        }
-                    },
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            display: true
-                        }
-                    }
-                }
-            });
-        </script>
+        });
+    </script>
+
 
 </body>
 

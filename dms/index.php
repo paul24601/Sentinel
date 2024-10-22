@@ -1,3 +1,14 @@
+<?php
+session_start(); // Start the session to access session variables
+
+// Check if the user is logged in
+if (!isset($_SESSION['full_name'])) {
+    // If not logged in, redirect to the login page
+    header("Location: ../login.html");
+    exit();
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,6 +27,11 @@
         $(function () {
             // Enable popovers
             $('[data-bs-toggle="popover"]').popover();
+            
+            // Convert product name input to uppercase on every keystroke
+            $('#product_name').on('input', function () {
+                this.value = this.value.toUpperCase();
+            });
 
             $("#product_name").autocomplete({
                 source: function (request, response) {
@@ -32,35 +48,17 @@
                 },
                 select: function (event, ui) {
                     // Populate other fields with numeric and non-numeric data
-                    $('#machine').val(ui.item.machine);
-                    $('#prn').val(ui.item.prn);
-                    $('#mold_code').val(ui.item.mold_code);
+                    $('#mold_code').val(ui.item.mold_code); 
                     $('#cycle_time_target').val(ui.item.cycle_time_target); // Numeric value
-                    $('#cycle_time_actual').val(ui.item.cycle_time_actual); // Numeric value
                     $('#weight_standard').val(ui.item.weight_standard); // Numeric value
-                    $('#weight_gross').val(ui.item.weight_gross); // Numeric value
-                    $('#weight_net').val(ui.item.weight_net); // Numeric value
                     $('#cavity_designed').val(ui.item.cavity_designed); // Integer value
-                    $('#cavity_active').val(ui.item.cavity_active); // Integer value
-                    $('#remarks').val(ui.item.remarks);
-                    $('#name').val(ui.item.name);
-                    $('#shift').val(ui.item.shift);
                 },
                 focus: function (event, ui) {
                     // When hovering over a suggestion, preview the data in the fields
-                    $('#machine').val(ui.item.machine);
-                    $('#prn').val(ui.item.prn);
                     $('#mold_code').val(ui.item.mold_code);
                     $('#cycle_time_target').val(ui.item.cycle_time_target);
-                    $('#cycle_time_actual').val(ui.item.cycle_time_actual);
                     $('#weight_standard').val(ui.item.weight_standard);
-                    $('#weight_gross').val(ui.item.weight_gross);
-                    $('#weight_net').val(ui.item.weight_net);
                     $('#cavity_designed').val(ui.item.cavity_designed);
-                    $('#cavity_active').val(ui.item.cavity_active);
-                    $('#remarks').val(ui.item.remarks);
-                    $('#name').val(ui.item.name);
-                    $('#shift').val(ui.item.shift);
                     return false; // Prevent replacing the text in the search box
                 }
             });
@@ -105,9 +103,25 @@
                     <!-- Machine -->
                     <div class="mb-3">
                         <label for="machine" class="form-label">Machine</label>
-                        <input type="text" class="form-control" id="machine" name="machine"
-                            placeholder="Enter machine name/number" required>
+                        <select class="form-control" id="machine" name="machine" required>
+                            <option value="" disabled selected>Select a machine</option>
+                            <option value="ARB 50">ARB 50</option>
+                            <option value="SUM 260C">SUM 260C</option>
+                            <option value="SUM 350">SUM 350</option>
+                            <option value="MIT 650D">MIT 650D</option>
+                            <option value="TOS 650A">TOS 650A</option>
+                            <option value="CLF 750A">CLF 750A</option>
+                            <option value="CLF 750B">CLF 750B</option>
+                            <option value="CLF 750C">CLF 750C</option>
+                            <option value="TOS 850A">TOS 850A</option>
+                            <option value="TOS 850B">TOS 850B</option>
+                            <option value="TOS 850C">TOS 850C</option>
+                            <option value="CLF 950A">CLF 950A</option>
+                            <option value="CLF 950B">CLF 950B</option>
+                            <option value="MIT 1050B">MIT 1050B</option>
+                        </select>
                     </div>
+
 
                     <!-- PRN -->
                     <div class="mb-3">
@@ -118,8 +132,8 @@
                     <!-- Mold Code -->
                     <div class="mb-3">
                         <label for="mold_code" class="form-label">Mold Code</label>
-                        <input type="text" class="form-control" id="mold_code" name="mold_code"
-                            placeholder="Enter Mold Code" required>
+                        <input type="number" class="form-control" id="mold_code" name="mold_code"
+                            placeholder="Enter Mold Code" max="9999" required>
                     </div>
 
                     <!-- Cycle Time -->
@@ -197,8 +211,7 @@
                     <!-- Name -->
                     <div class="mb-3">
                         <label for="name" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name"
-                            required>
+                        <input type="text" class="form-control" id="name" name="name" value="<?php echo $_SESSION['full_name']; ?>" readonly required>
                     </div>
 
                     <!-- Shift -->
@@ -222,6 +235,16 @@
                         </div>
                         <div class="d-grid col-12 col-md-6">
                             <a href="../admin.php" class="btn btn-primary mt-3">View DMS Analytics</a>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="d-grid col-12 col-md-6">
+                            <a href="../admin_dashboard.php" class="btn btn-info mt-3">Admin Dashboard</a>
+                        </div>
+                        <!-- Logout Button -->
+                        <div class="d-grid col-12 col-md-6">
+                            <a href="../logout.php" class="btn btn-danger mt-3">Log out</a>
                         </div>
                     </div>
 
