@@ -1,4 +1,13 @@
 <?php
+session_start(); // Start session to access the user's role
+
+// Check if the user is logged in
+if (!isset($_SESSION['full_name'])) {
+    // If not logged in, redirect to the login page
+    header("Location: ../login.html");
+    exit();
+}
+
 // Database connection details
 $servername = "localhost";
 $username = "root";
@@ -15,31 +24,68 @@ if ($conn->connect_error) {
 
 $recordCreated = false;
 
-// Export CSV
+// Export CSV (Allow only if user is admin or supervisor)
 if (isset($_GET['export_csv'])) {
-    $filename = "DMS_data_" . date('Ymd') . ".csv";
-    header("Content-Type: text/csv");
-    header("Content-Disposition: attachment; filename=\"$filename\"");
+    if (isset($_SESSION['role']) && ($_SESSION['role'] == 'admin' || $_SESSION['role'] == 'supervisor')) {
+        $filename = "DMS_data_" . date('Ymd') . ".csv";
+        header("Content-Type: text/csv");
+        header("Content-Disposition: attachment; filename=\"$filename\"");
 
-    $output = fopen("php://output", "w");
-    $headers = ["ID", "Date", "Product Name", "Machine", "PRN", "Mold Code", "Cycle Time (Target)", "Cycle Time (Actual)", 
-                "Cycle Time Difference", "Weight (Standard)", "Weight (Gross)", "Weight (Net)", "Cavity (Designed)", 
-                "Cavity (Active)", "Remarks", "Name", "Shift"];
-    fputcsv($output, $headers);
+        $output = fopen("php://output", "w");
+        $headers = ["ID", "Date", "Product Name", "Machine", "PRN", "Mold Code", "Cycle Time (Target)", "Cycle Time (Actual)", 
+                    "Cycle Time Difference", "Weight (Standard)", "Weight (Gross)", "Weight (Net)", "Cavity (Designed)", 
+                    "Cavity (Active)", "Remarks", "Name", "Shift"];
+        fputcsv($output, $headers);
 
-    $sql = "SELECT id, date, product_name, machine, prn, mold_code, cycle_time_target, cycle_time_actual, 
-            (cycle_time_target - cycle_time_actual) AS cycle_time_difference, weight_standard, weight_gross, 
-            weight_net, cavity_designed, cavity_active, remarks, name, shift 
-            FROM submissions";
-    $result = $conn->query($sql);
+        $sql = "SELECT id, date, product_name, machine, prn, mold_code, cycle_time_target, cycle_time_actual, 
+                (cycle_time_target - cycle_time_actual) AS cycle_time_difference, weight_standard, weight_gross, 
+                weight_net, cavity_designed, cavity_active, remarks, name, shift 
+                FROM submissions";
+        $result = $conn->query($sql);
 
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            fputcsv($output, $row);
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                fputcsv($output, $row);
+            }
         }
+        fclose($output);
+        exit();
+    } else {
+        // Redirect or show an error message if the user is not authorized
+        echo "<!DOCTYPE html>
+        <html lang='en'>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+            <title>Unauthorized Access</title>
+            <!-- Bootstrap CSS -->
+            <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css' rel='stylesheet'>
+        </head>
+        <body class='bg-light d-flex align-items-center justify-content-center vh-100'>
+            <div class='container'>
+                <div class='row'>
+                    <div class='col-md-6 offset-md-3'>
+                        <div class='alert alert-danger text-center'>
+                            <h4 class='alert-heading'>Unauthorized Access</h4>
+                            <p>You do not have permission to export this data.</p>
+                            <hr>
+                            <button onclick='goBack()' class='btn btn-outline-danger'>Return to Previous Page</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Bootstrap JS -->
+            <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js'></script>
+            <!-- JavaScript to go back to the previous page -->
+            <script>
+                function goBack() {
+                    window.history.back();
+                }
+            </script>
+        </body>
+        </html>";
+        exit();
     }
-    fclose($output);
-    exit();
 }
 
 // Insert form data into database
@@ -184,26 +230,28 @@ $result = $conn->query($sql);
                 </div>
             </div>
 
-            <div class="row p-3">
-                <div class="d-grid col-12 col-md-4">
+            <div class="row px-3">
+                <div class="d-grid col-12 col-md-6">
                     <a href="index.php" class="btn btn-secondary mt-3">Back to Form</a>
                 </div>
-                <div class="d-grid col-12 col-md-4">
-                    <a href="../admin.php" class="btn btn-primary mt-3">View DMS Analytics</a>
-                </div>
-                <div class="d-grid col-12 col-md-4">
+                <div class="d-grid col-12 col-md-6">
                     <a href="?export_csv=1" class="btn btn-success mt-3">Export to CSV</a>
                 </div>
             </div>
 
-            <div class="row p-3">
+            <div class="row px-3">
                 <div class="d-grid col-12 col-md-6">
                     <a href="../admin_dashboard.php" class="btn btn-info mt-3">Admin Dashboard</a>
                 </div>
-                <!-- Logout Button -->
+                
                 <div class="d-grid col-12 col-md-6">
-                    <a href="../logout.php" class="btn btn-danger mt-3">Log out</a>
+                    <a href="../admin.php" class="btn btn-primary mt-3">View DMS Analytics</a>
                 </div>
+            </div>
+
+            <!-- Logout Button -->
+            <div class="d-grid p-3 pt-0">
+                <a href="../logout.php" class="btn btn-danger mt-3">Log out</a>
             </div>
         </div>
 

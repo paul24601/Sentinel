@@ -11,6 +11,7 @@ if (!isset($_SESSION['full_name'])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,7 +28,7 @@ if (!isset($_SESSION['full_name'])) {
         $(function () {
             // Enable popovers
             $('[data-bs-toggle="popover"]').popover();
-            
+
             // Convert product name input to uppercase on every keystroke
             $('#product_name').on('input', function () {
                 this.value = this.value.toUpperCase();
@@ -48,7 +49,7 @@ if (!isset($_SESSION['full_name'])) {
                 },
                 select: function (event, ui) {
                     // Populate other fields with numeric and non-numeric data
-                    $('#mold_code').val(ui.item.mold_code); 
+                    $('#mold_code').val(ui.item.mold_code);
                     $('#cycle_time_target').val(ui.item.cycle_time_target); // Numeric value
                     $('#weight_standard').val(ui.item.weight_standard); // Numeric value
                     $('#cavity_designed').val(ui.item.cavity_designed); // Integer value
@@ -59,6 +60,29 @@ if (!isset($_SESSION['full_name'])) {
                     $('#cycle_time_target').val(ui.item.cycle_time_target);
                     $('#weight_standard').val(ui.item.weight_standard);
                     $('#cavity_designed').val(ui.item.cavity_designed);
+                    return false; // Prevent replacing the text in the search box
+                }
+            });
+
+            // PRN Autocomplete setup
+            $("#prn").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: "autocomplete_prn.php", // Script to fetch PRN data
+                        dataType: "json",
+                        data: {
+                            term: request.term // Send the search term to the server
+                        },
+                        success: function (data) {
+                            response(data);
+                        }
+                    });
+                },
+                select: function (event, ui) {
+                    // Populate fields or perform actions when an item is selected, if needed
+                },
+                focus: function (event, ui) {
+                    // Preview if desired
                     return false; // Prevent replacing the text in the search box
                 }
             });
@@ -88,10 +112,7 @@ if (!isset($_SESSION['full_name'])) {
                     <div class="mb-3">
                         <label for="product_name" class="form-label">Product Name</label>
                         <!-- Popover Note -->
-                        <span 
-                            tabindex="0"
-                            class="text-body-secondary"
-                            data-bs-toggle="popover"
+                        <span tabindex="0" class="text-body-secondary" data-bs-toggle="popover"
                             data-bs-trigger="hover focus"
                             data-bs-content="The first data submitted for the corresponding Product Name would be shown.">
                             <i class="bi bi-info-circle"></i>
@@ -192,14 +213,11 @@ if (!isset($_SESSION['full_name'])) {
                         </div>
                     </div>
 
-                     <!-- Remarks -->
-                     <div class="mb-3">
+                    <!-- Remarks -->
+                    <div class="mb-3">
                         <label for="remarks" class="form-label">Remarks</label>
                         <!-- Popover Note -->
-                        <span 
-                            tabindex="0"
-                            class="text-body-secondary"
-                            data-bs-toggle="popover"
+                        <span tabindex="0" class="text-body-secondary" data-bs-toggle="popover"
                             data-bs-trigger="hover focus"
                             data-bs-content="Add remarks if Product has NO STANDARD CYCLE TIME AND WEIGHT.">
                             <i class="bi bi-info-circle"></i>
@@ -211,7 +229,8 @@ if (!isset($_SESSION['full_name'])) {
                     <!-- Name -->
                     <div class="mb-3">
                         <label for="name" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="name" name="name" value="<?php echo $_SESSION['full_name']; ?>" readonly required>
+                        <input type="text" class="form-control" id="name" name="name"
+                            value="<?php echo $_SESSION['full_name']; ?>" readonly required>
                     </div>
 
                     <!-- Shift -->
@@ -257,11 +276,12 @@ if (!isset($_SESSION['full_name'])) {
         </div>
     </div>
 
-        </div>
+    </div>
     </div>
 
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

@@ -1,10 +1,42 @@
 <?php
 session_start();
 if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'supervisor' && $_SESSION['role'] !== 'admin')) {
-    echo "Access denied. You are not authorized to view this page.";
+    echo "<!DOCTYPE html>
+    <html lang='en'>
+    <head>
+        <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <title>Access Denied</title>
+        <!-- Bootstrap CSS -->
+        <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css' rel='stylesheet'>
+    </head>
+    <body class='bg-light d-flex align-items-center justify-content-center vh-100'>
+        <div class='container'>
+            <div class='row'>
+                <div class='col-md-6 offset-md-3'>
+                    <div class='alert alert-danger text-center'>
+                        <h4 class='alert-heading'>Access Denied</h4>
+                        <p>You are not authorized to view this page. Only supervisors or admins can access it.</p>
+                        <hr>
+                        <button onclick='goBack()' class='btn btn-outline-danger'>Return to Previous Page</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Bootstrap JS -->
+        <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js'></script>
+        <!-- JavaScript to go back to the previous page -->
+        <script>
+            function goBack() {
+                window.history.back();
+            }
+        </script>
+    </body>
+    </html>";
     exit();
 }
 ?>
+
 
 <?php
 // Database connection parameters
@@ -80,7 +112,7 @@ if ($resultProductVariance->num_rows > 0) {
         $productName = $row['product_name'];
         $date = $row['date'];
         $machine = $row['machine'];
-        
+
         // Calculate variance percentage
         $variancePercentage = (($actual - $target) / $target) * 100;
 
@@ -94,6 +126,23 @@ if ($resultProductVariance->num_rows > 0) {
     }
 }
 
+// Fetching unique combinations of machines and mold codes with dates
+$sqlMachineMoldCombination = "SELECT CONCAT(machine, ' - ', mold_code) AS machine_mold_combination, date 
+                              FROM submissions 
+                              WHERE machine IS NOT NULL AND mold_code IS NOT NULL 
+                              ORDER BY date, machine, mold_code";
+
+$resultMachineMoldCombination = $conn->query($sqlMachineMoldCombination);
+$machineMoldData = [];
+
+if ($resultMachineMoldCombination->num_rows > 0) {
+    while ($row = $resultMachineMoldCombination->fetch_assoc()) {
+        $machineMoldData[] = [
+            'machine_mold_combination' => $row['machine_mold_combination'],
+            'date' => $row['date']
+        ];
+    }
+}
 
 $conn->close();
 ?>
@@ -114,6 +163,8 @@ $conn->close();
     <!-- jQuery and DataTables JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <!-- Chart.js Date Adapter -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <script>
         function toggleFilters() {
             const sortBy = document.getElementById('sortBy').value;
@@ -130,7 +181,7 @@ $conn->close();
             allTimeFilters.style.display = sortBy === 'all_time' ? 'block' : 'none'; // Handle all time case
         }
         window.onload = toggleFilters; // Call on load to set initial visibility
-    </script>    
+    </script>
 </head>
 
 <body class="bg-primary-subtle">
@@ -164,7 +215,7 @@ $conn->close();
                             </tbody>
                         </table>
                     </div>
-                </div>                
+                </div>
             </div>
 
             <!-- Remarks Dashboard -->
@@ -181,7 +232,8 @@ $conn->close();
                                 <option value="">Select a product</option>
                                 <?php foreach ($productNames as $product_name): ?>
                                     <option value="<?php echo htmlspecialchars($product_name); ?>">
-                                        <?php echo htmlspecialchars($product_name); ?></option>
+                                        <?php echo htmlspecialchars($product_name); ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -206,25 +258,51 @@ $conn->close();
                 </div>
             </div>
 
+            <!-- Mold Machine Combination Chart -->
+            <div class="col">
+                <div class="card shadow mb-3">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h2>Machine-Mold Combinations Over Time</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="productFilter" class="form-label">Filter by Product:</label>
+                            <select id="productFilter" class="form-select">
+                                <option value="all">All Products</option>
+                                <?php foreach ($productNames as $product_name): ?>
+                                    <option value="<?php echo htmlspecialchars($product_name); ?>">
+                                        <?php echo htmlspecialchars($product_name); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <canvas id="machineMoldChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <div class="row p-3">
-            <div class="d-grid col-12 col-md-6">
-                <a href="dms/index.php" class="btn btn-secondary mt-3">Back to Form</a>
-            </div>
-            <div class="d-grid col-12 col-md-6">
-                <a href="dms/process_form.php" class="btn btn-primary mt-3">View Submitted Records</a>
-            </div>
-        </div>
-        
+        <div class="card shadow mb-5">
+            <div class="card-body">
+                <div class="row">
+                    <div class="d-grid col-12 col-md-6">
+                        <a href="dms/index.php" class="btn btn-secondary mt-3">Back to Form</a>
+                    </div>
+                    <div class="d-grid col-12 col-md-6">
+                        <a href="dms/process_form.php" class="btn btn-primary mt-3">View Submitted Records</a>
+                    </div>
+                </div>
 
-        <div class="row p-3">
-            <div class="d-grid col-12 col-md-6">
-                <a href="admin_dashboard.php" class="btn btn-info mt-3">Admin Dashboard</a>
-            </div>
-            <!-- Logout Button -->
-            <div class="d-grid col-12 col-md-6">
-                <a href="logout.php" class="btn btn-danger mt-3">Log out</a>
+                <div class="row">
+                    <div class="d-grid col-12 col-md-6">
+                        <a href="admin_dashboard.php" class="btn btn-info mt-3">Admin Dashboard</a>
+                    </div>
+                    <!-- Logout Button -->
+                    <div class="d-grid col-12 col-md-6">
+                        <a href="logout.php" class="btn btn-danger mt-3">Log out</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -264,7 +342,7 @@ $conn->close();
     </script>
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Initialize DataTable
             const table = $('#cycleTimeVarianceTable').DataTable({
                 responsive: true,
@@ -278,7 +356,7 @@ $conn->close();
             });
 
             // Apply conditional formatting
-            table.rows().every(function() {
+            table.rows().every(function () {
                 const row = this.node();
                 const variancePercentageCell = $(row).find('td:eq(3)');
                 const variancePercentage = parseFloat(variancePercentageCell.text());
@@ -292,6 +370,98 @@ $conn->close();
                 }
             });
         });
+    </script>
+
+
+    <!-- Chart.js Script -->
+    <script>
+        const machineMoldData = <?php echo json_encode($machineMoldData); ?>;
+
+        function formatDataForBarChart(data) {
+            // Count occurrences of machine-mold combinations for each product
+            const counts = {};
+            data.forEach(item => {
+                if (!counts[item.machine_mold_combination]) {
+                    counts[item.machine_mold_combination] = 0;
+                }
+                counts[item.machine_mold_combination]++;
+            });
+
+            return {
+                labels: Object.keys(counts),
+                data: Object.values(counts)
+            };
+        }
+
+        const ctx = document.getElementById('machineMoldChart').getContext('2d');
+        let machineMoldChart;
+
+        function createBarChart(filteredData) {
+            if (machineMoldChart) {
+                machineMoldChart.destroy(); // Destroy previous chart instance if it exists
+            }
+
+            const chartData = formatDataForBarChart(filteredData);
+
+            machineMoldChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Occurrences of Machine-Mold Combinations',
+                        data: chartData.data,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Machine-Mold Combinations'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Occurrences'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (tooltipItem) {
+                                    return `Occurrences: ${tooltipItem.raw}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function filterDataByProduct(productName) {
+            const filteredData = productName === 'all'
+                ? machineMoldData
+                : machineMoldData.filter(item => item.machine_mold_combination.includes(productName));
+            createBarChart(filteredData);
+        }
+
+        document.getElementById('productFilter').addEventListener('change', function () {
+            const productName = this.value;
+            filterDataByProduct(productName);
+        });
+
+        // Initialize chart with all data
+        filterDataByProduct('all');
+
     </script>
 
 

@@ -38,7 +38,14 @@ if ($result->num_rows > 0) {
         $_SESSION['full_name'] = $user['full_name'];
         $_SESSION['role'] = $user['role'];
 
-        // Redirect based on the user's role
+        // Check if the user has changed their password (password_changed column)
+        if ($user['password_changed'] == 0) {
+            // If the password hasn't been changed, redirect to change_password.php
+            header("Location: change_password.php");
+            exit();
+        }
+
+        // Redirect based on the user's role if password has already been changed
         if ($user['role'] == 'supervisor') {
             header("Location: admin.php");
         } else if ($user['role'] == 'adjuster') {
@@ -49,11 +56,61 @@ if ($result->num_rows > 0) {
         exit();
     } else {
         // Invalid password
-        echo "Invalid password. <a href='login.html'>Try again</a>";
+        echo "<!DOCTYPE html>
+        <html lang='en'>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+            <title>Invalid Password</title>
+            <!-- Bootstrap CSS -->
+            <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css' rel='stylesheet'>
+        </head>
+        <body class='bg-light d-flex align-items-center justify-content-center vh-100'>
+            <div class='container'>
+                <div class='row'>
+                    <div class='col-md-6 offset-md-3'>
+                        <div class='alert alert-danger text-center'>
+                            <h4 class='alert-heading'>Invalid Password</h4>
+                            <p>The password you entered is incorrect. Please try again.</p>
+                            <hr>
+                            <a href='login.html' class='btn btn-outline-danger'>Return to Login</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Bootstrap JS -->
+            <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js'></script>
+        </body>
+        </html>";
     }
 } else {
     // User not found
-    echo "User not found. <a href='login.html'>Try again</a>";
+    echo "<!DOCTYPE html>
+    <html lang='en'>
+    <head>
+        <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <title>User Not Found</title>
+        <!-- Bootstrap CSS -->
+        <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css' rel='stylesheet'>
+    </head>
+    <body class='bg-light d-flex align-items-center justify-content-center vh-100'>
+        <div class='container'>
+            <div class='row'>
+                <div class='col-md-6 offset-md-3'>
+                    <div class='alert alert-warning text-center'>
+                        <h4 class='alert-heading'>User Not Found</h4>
+                        <p>The ID number you entered does not match any account. Please check and try again.</p>
+                        <hr>
+                        <a href='login.html' class='btn btn-outline-warning'>Return to Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Bootstrap JS -->
+        <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js'></script>
+    </body>
+    </html>";
 }
 
 // Close the statement and connection
