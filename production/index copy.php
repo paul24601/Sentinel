@@ -163,6 +163,46 @@
             </table>
         </fieldset>
 
+        <!-- Downtime Data Table Section -->
+        <fieldset>
+            <legend>Downtime Data</legend>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Downtime Reason</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Total Downtime (minutes)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows for downtime data entry (Adjust number of rows as needed) -->
+                    <?php for ($i = 0; $i < 5; $i++): ?>
+                    <tr>
+                        <td><input type="text" name="downtime_reason_<?php echo $i; ?>" placeholder="Enter Downtime Reason"></td>
+                        <td><input type="time" name="start_time_<?php echo $i; ?>" required></td>
+                        <td><input type="time" name="end_time_<?php echo $i; ?>" required></td>
+                        <td><input type="number" name="total_downtime_<?php echo $i; ?>" min="0" placeholder="0" readonly></td>
+                    </tr>
+                    <?php endfor; ?>
+                    <!-- Total Downtime -->
+                    <tr>
+                        <td colspan="3">Total Downtime</td>
+                        <td><input type="number" name="total_downtime_all" placeholder="0" readonly></td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+
+        <!-- Remarks Section -->
+        <fieldset>
+            <legend>Remarks</legend>
+            <div>
+                <label for="remarks">Remarks</label>
+                <textarea id="remarks" name="remarks" rows="4" cols="50" placeholder="Enter any additional remarks or notes here..."></textarea>
+            </div>
+        </fieldset>
+
         <!-- Submit Button Section -->
         <fieldset>
             <div>
