@@ -2,7 +2,7 @@
 $term = isset($_GET['term']) ? $_GET['term'] : '';
 
 // Database connection
-$conn = new mysqli("localhost", "root", "", "production_data");
+$conn = new mysqli("localhost", "root", "Admin123@plvil", "production_data");
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
