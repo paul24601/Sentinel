@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
                 <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
               </div>";
     }
-    
+
 
     $stmt->close();
 }
@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_user_password_ch
                 <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
               </div>";
     }
-    
+
 
     $stmt->close();
 }
@@ -127,8 +127,10 @@ $result = $conn->query($sql);
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet">
     <!-- Bootstrap JS (with Popper.js for tooltip and popover positioning) -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-..."
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" integrity="sha384-..."
+        crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
 
 </head>
@@ -161,7 +163,7 @@ $result = $conn->query($sql);
                         <span tabindex="0" class="text-body-secondary" data-bs-toggle="popover"
                             data-bs-trigger="hover focus"
                             data-bs-content="Leave the input blank to set password to default.">
-                        <i class="bi bi-info-circle"></i>
+                            <i class="bi bi-info-circle"></i>
                         </span>
                         <input type="password" class="form-control" name="password">
                     </div>
@@ -186,29 +188,30 @@ $result = $conn->query($sql);
                 <h2 class="card-title">Existing Users</h2>
             </div>
             <div class="card-body">
-                <table id="usersTable" class="table table-striped border">
-                    <thead>
-                        <tr>
-                            <th scope="col">ID Number</th>
-                            <th scope="col">Full Name</th>
-                            <th scope="col">Role</th>
-                            <th scope="col">Password Changed</th>
-                            <th scope="col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        if ($result->num_rows > 0) {
-                            // Output data for each row
-                            while ($row = $result->fetch_assoc()) {
-                                // Skip the admin user with ID 000000 and Mariela Ilustre Segura with ID 000001
-                                if (
-                                    ($row['id_number'] == '000000' && $row['full_name'] == 'Aeron Paul Daliva') ||
-                                    ($row['id_number'] == '000001' && $row['full_name'] == 'Mariela Ilustre Segura')
-                                ) {
-                                    continue;
-                                }
-                                echo "<tr>
+                <div class="table-responsive">
+                    <table id="usersTable" class="table table-striped border">
+                        <thead>
+                            <tr>
+                                <th scope="col">ID Number</th>
+                                <th scope="col">Full Name</th>
+                                <th scope="col">Role</th>
+                                <th scope="col">Password Changed</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            if ($result->num_rows > 0) {
+                                // Output data for each row
+                                while ($row = $result->fetch_assoc()) {
+                                    // Skip the admin user with ID 000000 and Mariela Ilustre Segura with ID 000001
+                                    if (
+                                        ($row['id_number'] == '000000' && $row['full_name'] == 'Aeron Paul Daliva') ||
+                                        ($row['id_number'] == '000001' && $row['full_name'] == 'Mariela Ilustre Segura')
+                                    ) {
+                                        continue;
+                                    }
+                                    echo "<tr>
                                 <td>" . $row['id_number'] . "</td>
                                 <td>" . $row['full_name'] . "</td>
                                 <td>" . $row['role'] . "</td>
@@ -220,14 +223,16 @@ $result = $conn->query($sql);
                                     </form>
                                 </td>
                             </tr>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='5' class='text-center'>No users found</td></tr>";
                             }
-                        } else {
-                            echo "<tr><td colspan='5' class='text-center'>No users found</td></tr>";
-                        }
-                        ?>
+                            ?>
 
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+
+                </div>
 
             </div>
         </div>
@@ -269,14 +274,14 @@ $result = $conn->query($sql);
         });
     </script>
 
-<script>
-   document.addEventListener('DOMContentLoaded', function () {
-       var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-       var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-           return new bootstrap.Popover(popoverTriggerEl);
-       });
-   });
-</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+            var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+        });
+    </script>
 
 </body>
 

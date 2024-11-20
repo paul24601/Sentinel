@@ -194,26 +194,29 @@ $conn->close();
                         <h2>Cycle Time Variance by Product</h2>
                     </div>
                     <div class="card-body">
-                        <table id="cycleTimeVarianceTable" class="table table-striped display" style="width:100%">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Product Name</th>
-                                    <th>Machine Number</th>
-                                    <th>Variance Percentage</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($productVarianceData as $data): ?>
+                        <div class="table-responsive">
+                            <table id="cycleTimeVarianceTable" class="table table-striped display" style="width:100%">
+                                <thead>
                                     <tr>
-                                        <td><?php echo htmlspecialchars($data['date']); ?></td>
-                                        <td><?php echo htmlspecialchars($data['product_name']); ?></td>
-                                        <td><?php echo htmlspecialchars($data['machine']); ?></td>
-                                        <td><?php echo number_format($data['variance_percentage'], 2); ?>%</td>
+                                        <th>Date</th>
+                                        <th>Product Name</th>
+                                        <th>Machine Number</th>
+                                        <th>Variance Percentage</th>
                                     </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($productVarianceData as $data): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($data['date']); ?></td>
+                                            <td><?php echo htmlspecialchars($data['product_name']); ?></td>
+                                            <td><?php echo htmlspecialchars($data['machine']); ?></td>
+                                            <td><?php echo number_format($data['variance_percentage'], 2); ?>%</td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+
                     </div>
                 </div>
             </div>
