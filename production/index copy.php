@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Production Report Form</title>
     <style>
-        table, th, td {
+        table,
+        th,
+        td {
             border: 1px solid black;
             border-collapse: collapse;
         }
-        th, td {
+
+        th,
+        td {
             padding: 8px;
             text-align: center;
         }
@@ -20,7 +25,7 @@
     <h2>Production Report Form</h2>
     <!-- Form starts here -->
     <form action="process_production_report.php" method="POST">
-        
+
         <!-- Plant Information Section -->
         <fieldset>
             <legend>Plant Information</legend>
@@ -46,10 +51,11 @@
 
             <div>
                 <label for="shift_hours">Shift Hours</label>
-                <input type="number" id="shift_hours" name="shift_hours" placeholder="Enter Shift Hours" min="0" required>
+                <input type="number" id="shift_hours" name="shift_hours" placeholder="Enter Shift Hours" min="0"
+                    required>
             </div>
         </fieldset>
-        
+
         <!-- Product Details Section -->
         <fieldset>
             <legend>Product Details</legend>
@@ -73,7 +79,7 @@
                 <input type="text" id="process" name="process" placeholder="Enter Process" required>
             </div>
         </fieldset>
-        
+
         <!-- ID Numbers Section -->
         <fieldset>
             <legend>ID Numbers</legend>
@@ -92,7 +98,7 @@
                 <input type="text" id="id_number_3" name="id_number_3" placeholder="Enter ID Number 3" required>
             </div>
         </fieldset>
-        
+
         <!-- Manpower Allocation Section -->
         <fieldset>
             <legend>Manpower Allocation</legend>
@@ -100,29 +106,31 @@
                 <label for="fjo">FJO #</label>
                 <input type="text" id="fjo" name="fjo" placeholder="Enter FJO #" required>
             </div>
-            
+
             <div>
                 <label for="manpower_allocation">Manpower Allocation</label>
-                <input type="text" id="manpower_allocation" name="manpower_allocation" placeholder="Enter Manpower Allocation" required>
+                <input type="text" id="manpower_allocation" name="manpower_allocation"
+                    placeholder="Enter Manpower Allocation" required>
             </div>
-            
+
             <div>
                 <label for="reg">REG</label>
                 <input type="text" id="reg" name="reg" placeholder="Enter Regular Hours" required>
             </div>
-            
+
             <div>
                 <label for="ot">OT</label>
                 <input type="text" id="ot" name="ot" placeholder="Enter Overtime Hours" required>
             </div>
         </fieldset>
-        
+
         <!-- Assembly Line / Table Section -->
         <fieldset>
             <legend>Assembly Line / Table</legend>
             <div>
                 <label for="assembly_line">Assembly Line # / Table #</label>
-                <input type="text" id="assembly_line" name="assembly_line" placeholder="Enter Assembly Line or Table #" required>
+                <input type="text" id="assembly_line" name="assembly_line" placeholder="Enter Assembly Line or Table #"
+                    required>
             </div>
         </fieldset>
 
@@ -141,14 +149,14 @@
                 <tbody>
                     <!-- Rows for data entry (Adjust number of rows as needed) -->
                     <?php for ($i = 0; $i < 10; $i++): ?>
-                    <tr>
-                        <td><input type="text" name="part_name_<?php echo $i; ?>" placeholder="Enter Part Name"></td>
-                        <td><input type="text" name="defect_<?php echo $i; ?>" placeholder="Enter Defect"></td>
-                        <?php for ($j = 0; $j < 12; $j++): ?>
-                        <td><input type="number" name="time_<?php echo $i . '_' . $j; ?>" min="0" placeholder="0"></td>
-                        <?php endfor; ?>
-                        <td><input type="number" name="total_<?php echo $i; ?>" min="0" placeholder="0" readonly></td>
-                    </tr>
+                        <tr>
+                            <td><input type="text" name="part_name_<?php echo $i; ?>" placeholder="Enter Part Name"></td>
+                            <td><input type="text" name="defect_<?php echo $i; ?>" placeholder="Enter Defect"></td>
+                            <?php for ($j = 0; $j < 12; $j++): ?>
+                                <td><input type="number" name="time_<?php echo $i . '_' . $j; ?>" min="0" placeholder="0"></td>
+                            <?php endfor; ?>
+                            <td><input type="number" name="total_<?php echo $i; ?>" min="0" placeholder="0" readonly></td>
+                        </tr>
                     <?php endfor; ?>
                     <!-- Total Rows -->
                     <tr>
@@ -178,12 +186,14 @@
                 <tbody>
                     <!-- Rows for downtime data entry (Adjust number of rows as needed) -->
                     <?php for ($i = 0; $i < 5; $i++): ?>
-                    <tr>
-                        <td><input type="text" name="downtime_reason_<?php echo $i; ?>" placeholder="Enter Downtime Reason"></td>
-                        <td><input type="time" name="start_time_<?php echo $i; ?>" required></td>
-                        <td><input type="time" name="end_time_<?php echo $i; ?>" required></td>
-                        <td><input type="number" name="total_downtime_<?php echo $i; ?>" min="0" placeholder="0" readonly></td>
-                    </tr>
+                        <tr>
+                            <td><input type="text" name="downtime_reason_<?php echo $i; ?>"
+                                    placeholder="Enter Downtime Reason"></td>
+                            <td><input type="time" name="start_time_<?php echo $i; ?>" required></td>
+                            <td><input type="time" name="end_time_<?php echo $i; ?>" required></td>
+                            <td><input type="number" name="total_downtime_<?php echo $i; ?>" min="0" placeholder="0"
+                                    readonly></td>
+                        </tr>
                     <?php endfor; ?>
                     <!-- Total Downtime -->
                     <tr>
@@ -199,7 +209,8 @@
             <legend>Remarks</legend>
             <div>
                 <label for="remarks">Remarks</label>
-                <textarea id="remarks" name="remarks" rows="4" cols="50" placeholder="Enter any additional remarks or notes here..."></textarea>
+                <textarea id="remarks" name="remarks" rows="4" cols="50"
+                    placeholder="Enter any additional remarks or notes here..."></textarea>
             </div>
         </fieldset>
 
@@ -214,7 +225,7 @@
         <fieldset>
             <legend>Navigation</legend>
             <div>
-                <a href="view_reports.php">View Reports</a> | 
+                <a href="view_reports.php">View Reports</a> |
                 <a href="../admin_dashboard.php">Admin Dashboard</a>
             </div>
             <div>
@@ -223,4 +234,5 @@
         </fieldset>
     </form>
 </body>
+
 </html>

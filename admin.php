@@ -42,7 +42,7 @@ if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'supervisor' && $_SESSIO
 // Database connection parameters
 $servername = "localhost";
 $username = "root";
-$password = "";
+$password = "Admin123@plvil";
 $dbname = "production_data";
 
 // Create a connection

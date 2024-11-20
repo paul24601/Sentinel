@@ -11,7 +11,7 @@ if (!isset($_SESSION['full_name'])) {
 // Database connection details
 $servername = "localhost";
 $username = "root";
-$password = "";
+$password = "Admin123@plvil";
 $dbname = "production_data";
 
 // Create connection

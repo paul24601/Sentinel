@@ -11,7 +11,7 @@ if (!$id_number) {
 // Database connection (replace with your actual credentials)
 $servername = "localhost";
 $username = "root";
-$password = "";
+$password = "Admin123@plvil";
 $dbname = "production_data";
 
 // Create connection

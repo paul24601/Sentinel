@@ -42,7 +42,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 // Database connection
 $servername = "localhost";
 $username = "root";
-$password = "";
+$password = "Admin123@plvil";
 $dbname = "production_data";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
