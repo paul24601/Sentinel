@@ -37,7 +37,7 @@ if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'supervisor' && $_SESSIO
 $servername = "localhost";
 $username = "root";
 $password = "Admin123@plvil";
-$dbname = "production_data";
+$dbname = "dailymonitoringsheet";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 

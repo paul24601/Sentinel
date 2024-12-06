@@ -1,3 +1,143 @@
+<?php
+// Database connection
+$servername = "localhost"; // Replace with your server's hostname
+$username = "root"; // Replace with your database username
+$password = "Admin123@plvil"; // Replace with your database password
+$dbname = "injectionmoldingparameters"; // Replace with your database name
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Handle form submission
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // Section 1: Product and Machine Information
+    $date = $_POST['date'];
+    $time = $_POST['time'];
+    $machine = $_POST['machine'];
+    $runNo = $_POST['runNo'];
+    $category = $_POST['category'];
+    $irn = $_POST['IRN'];
+
+    // Insert into productmachineinfo table
+    $sql1 = "INSERT INTO productmachineinfo (Date, Time, MachineName, RunNumber, Category, IRN) 
+             VALUES ('$date', '$time', '$machine', '$runNo', '$category', '$irn')";
+
+    // Section 2: Product Details
+    $product = $_POST['product'];
+    $color = $_POST['color'];
+    $moldName = $_POST['mold-name'];
+    $prodNo = $_POST['prodNo'];
+    $cavity = $_POST['cavity'];
+    $grossWeight = $_POST['grossWeight'];
+    $netWeight = $_POST['netWeight'];
+
+    // Insert into productdetails table
+    $sql2 = "INSERT INTO productdetails (ProductName, Color, MoldName, ProductNumber, CavityActive, GrossWeight, NetWeight) 
+             VALUES ('$product', '$color', '$moldName', '$prodNo', '$cavity', '$grossWeight', '$netWeight')";
+
+    // Section 3: Material Composition
+    $dryingTime = $_POST['dryingtime'];
+    $dryingTemp = $_POST['dryingtemp'];
+    $materials = [];
+    for ($i = 1; $i <= 4; $i++) {
+        if (!empty($_POST["type$i"])) {
+            $materials[] = [
+                'type' => $_POST["type$i"],
+                'brand' => $_POST["brand$i"],
+                'mixture' => $_POST["mix$i"],
+                'order' => $i
+            ];
+        }
+    }
+
+    // Insert into materialcomposition table
+    foreach ($materials as $material) {
+        $sql3 = "INSERT INTO materialcomposition (DryingTime, DryingTemperature, Type, Brand, MixturePercentage, MaterialOrder) 
+                 VALUES ('$dryingTime', '$dryingTemp', '{$material['type']}', '{$material['brand']}', '{$material['mixture']}', '{$material['order']}')";
+        $conn->query($sql3);
+    }
+
+    // Section 4: Colorant Details
+    $colorant = $_POST['colorant'];
+    $colorantColor = $_POST['color'];
+    $colorantDosage = $_POST['colorant-dosage'];
+    $stabilizer = $_POST['colorant-stabilizer'];
+    $stabilizerDosage = $_POST['colorant-stabilizer-dosage'];
+
+    // Insert into colorantdetails table
+    $sql4 = "INSERT INTO colorantdetails (Colorant, Color, Dosage, Stabilizer, StabilizerDosage) 
+             VALUES ('$colorant', '$colorantColor', '$colorantDosage', '$stabilizer', '$stabilizerDosage')";
+
+    // Section 5: Mold and Operation Specifications
+    $moldCode = $_POST['mold-code'];
+    $clampingForce = $_POST['clamping-force'];
+    $operationType = $_POST['operation-type'];
+    $coolingMedia = $_POST['cooling-media'];
+    $heatingMedia = $_POST['heating-media'];
+
+    // Insert into moldoperationspecs table
+    $sql5 = "INSERT INTO moldoperationspecs (MoldCode, ClampingForce, OperationType, CoolingMedia, HeatingMedia) 
+             VALUES ('$moldCode', '$clampingForce', '$operationType', '$coolingMedia', '$heatingMedia')";
+
+    // Section 6: Timer Parameters
+    $fillingTime = $_POST['fillingTime'];
+    $holdingTime = $_POST['holdingTime'];
+    $moldOpenCloseTime = $_POST['moldOpenCloseTime'];
+    $chargingTime = $_POST['chargingTime'];
+    $coolingTime = $_POST['coolingTime'];
+    $cycleTime = $_POST['cycleTime'];
+
+    // Insert into timerparameters table
+    $sql6 = "INSERT INTO timerparameters (FillingTime, HoldingTime, MoldOpenCloseTime, ChargingTime, CoolingTime, CycleTime) 
+             VALUES ('$fillingTime', '$holdingTime', '$moldOpenCloseTime', '$chargingTime', '$coolingTime', '$cycleTime')";
+
+    // Section 7: Temperature Settings
+    $temperatureSettings = [];
+    for ($i = 0; $i <= 16; $i++) {
+        if (!empty($_POST["barrelHeaterZone$i"])) {
+            $temperatureSettings[] = [
+                'zone' => $i,
+                'temperature' => $_POST["barrelHeaterZone$i"]
+            ];
+        }
+    }
+
+    // Insert into temperaturesettings table
+    foreach ($temperatureSettings as $setting) {
+        $sql7 = "INSERT INTO temperaturesettings (HeaterZone, Temperature) 
+                 VALUES ('{$setting['zone']}', '{$setting['temperature']}')";
+        $conn->query($sql7);
+    }
+
+    // Section 8: Personnel
+    $adjuster = $_POST['adjuster'];
+    $qae = $_POST['qae'];
+
+    // Insert into personnel table
+    $sql8 = "INSERT INTO personnel (AdjusterName, QAEName) 
+             VALUES ('$adjuster', '$qae')";
+
+    // Execute main queries
+    if ($conn->query($sql1) === TRUE &&
+        $conn->query($sql2) === TRUE &&
+        $conn->query($sql4) === TRUE &&
+        $conn->query($sql5) === TRUE &&
+        $conn->query($sql6) === TRUE &&
+        $conn->query($sql8) === TRUE) {
+        echo "<div class='alert alert-success'>Data saved successfully!</div>";
+    } else {
+        echo "<div class='alert alert-danger'>Error: " . $conn->error . "</div>";
+    }
+}
+
+$conn->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 

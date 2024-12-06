@@ -3,7 +3,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "Admin123@plvil";
-$dbname = "production_data";
+$dbname = "dailymonitoringsheet";
 
 // Create a connection
 $conn = new mysqli($servername, $username, $password, $dbname);
