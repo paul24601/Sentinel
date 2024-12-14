@@ -137,6 +137,7 @@ $result = $conn->query($sql);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
     <style>
         .table-container {
             border: 1px solid #ddd;
@@ -268,6 +269,7 @@ $result = $conn->query($sql);
         $(document).ready(function () {
             $('#submissionTable').DataTable({
                 "pageLength": 10,
+                "responsive": true,
                 "lengthMenu": [5, 10, 25, 50, 100, 200]
             });
         });
@@ -277,6 +279,7 @@ $result = $conn->query($sql);
             successModal.show();
         <?php endif; ?>
     </script>
+    <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
 </body>
 
 </html>

@@ -165,6 +165,7 @@ $conn->close();
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <!-- Chart.js Date Adapter -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
     <script>
         function toggleFilters() {
             const sortBy = document.getElementById('sortBy').value;
@@ -467,7 +468,7 @@ $conn->close();
 
     </script>
 
-
+<script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
 </body>
 
 </html>

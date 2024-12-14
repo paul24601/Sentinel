@@ -1,11 +1,10 @@
 <?php
 // Database connection
-$servername = "localhost"; // Replace with your server's hostname
-$username = "root"; // Replace with your database username
-$password = "Admin123@plvil"; // Replace with your database password
-$dbname = "injectionmoldingparameters"; // Replace with your database name
+$servername = "localhost";
+$username = "root";
+$password = "Admin123@plvil";
+$dbname = "injectionmoldingparameters";
 
-// Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 // Check connection
@@ -15,123 +14,67 @@ if ($conn->connect_error) {
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // Section 1: Product and Machine Information
-    $date = $_POST['date'];
-    $time = $_POST['time'];
-    $machine = $_POST['machine'];
-    $runNo = $_POST['runNo'];
-    $category = $_POST['category'];
-    $irn = $_POST['IRN'];
+    try {
+        // Start a transaction
+        $conn->begin_transaction();
 
-    // Insert into productmachineinfo table
-    $sql1 = "INSERT INTO productmachineinfo (Date, Time, MachineName, RunNumber, Category, IRN) 
-             VALUES ('$date', '$time', '$machine', '$runNo', '$category', '$irn')";
+        // Prepared statement to prevent SQL injection
+        $stmt1 = $conn->prepare("INSERT INTO productmachineinfo (Date, Time, MachineName, RunNumber, Category, IRN) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt1->bind_param("ssssss", $_POST['date'], $_POST['time'], $_POST['machine'], $_POST['runNo'], $_POST['category'], $_POST['IRN']);
+        $stmt1->execute();
 
-    // Section 2: Product Details
-    $product = $_POST['product'];
-    $color = $_POST['color'];
-    $moldName = $_POST['mold-name'];
-    $prodNo = $_POST['prodNo'];
-    $cavity = $_POST['cavity'];
-    $grossWeight = $_POST['grossWeight'];
-    $netWeight = $_POST['netWeight'];
+        $stmt2 = $conn->prepare("INSERT INTO productdetails (ProductName, Color, MoldName, ProductNumber, CavityActive, GrossWeight, NetWeight) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt2->bind_param("sssssss", $_POST['product'], $_POST['color'], $_POST['mold-name'], $_POST['prodNo'], $_POST['cavity'], $_POST['grossWeight'], $_POST['netWeight']);
+        $stmt2->execute();
 
-    // Insert into productdetails table
-    $sql2 = "INSERT INTO productdetails (ProductName, Color, MoldName, ProductNumber, CavityActive, GrossWeight, NetWeight) 
-             VALUES ('$product', '$color', '$moldName', '$prodNo', '$cavity', '$grossWeight', '$netWeight')";
-
-    // Section 3: Material Composition
-    $dryingTime = $_POST['dryingtime'];
-    $dryingTemp = $_POST['dryingtemp'];
-    $materials = [];
-    for ($i = 1; $i <= 4; $i++) {
-        if (!empty($_POST["type$i"])) {
-            $materials[] = [
-                'type' => $_POST["type$i"],
-                'brand' => $_POST["brand$i"],
-                'mixture' => $_POST["mix$i"],
-                'order' => $i
-            ];
+        $stmt3 = $conn->prepare("INSERT INTO materialcomposition (DryingTime, DryingTemperature, Type, Brand, MixturePercentage, MaterialOrder) VALUES (?, ?, ?, ?, ?, ?)");
+        $materials = [];
+        for ($i = 1; $i <= 4; $i++) {
+            if (!empty($_POST["type$i"])) {
+                $materials[] = [
+                    'type' => $_POST["type$i"],
+                    'brand' => $_POST["brand$i"],
+                    'mixture' => $_POST["mix$i"],
+                    'order' => $i
+                ];
+            }
         }
-    }
-
-    // Insert into materialcomposition table
-    foreach ($materials as $material) {
-        $sql3 = "INSERT INTO materialcomposition (DryingTime, DryingTemperature, Type, Brand, MixturePercentage, MaterialOrder) 
-                 VALUES ('$dryingTime', '$dryingTemp', '{$material['type']}', '{$material['brand']}', '{$material['mixture']}', '{$material['order']}')";
-        $conn->query($sql3);
-    }
-
-    // Section 4: Colorant Details
-    $colorant = $_POST['colorant'];
-    $colorantColor = $_POST['color'];
-    $colorantDosage = $_POST['colorant-dosage'];
-    $stabilizer = $_POST['colorant-stabilizer'];
-    $stabilizerDosage = $_POST['colorant-stabilizer-dosage'];
-
-    // Insert into colorantdetails table
-    $sql4 = "INSERT INTO colorantdetails (Colorant, Color, Dosage, Stabilizer, StabilizerDosage) 
-             VALUES ('$colorant', '$colorantColor', '$colorantDosage', '$stabilizer', '$stabilizerDosage')";
-
-    // Section 5: Mold and Operation Specifications
-    $moldCode = $_POST['mold-code'];
-    $clampingForce = $_POST['clamping-force'];
-    $operationType = $_POST['operation-type'];
-    $coolingMedia = $_POST['cooling-media'];
-    $heatingMedia = $_POST['heating-media'];
-
-    // Insert into moldoperationspecs table
-    $sql5 = "INSERT INTO moldoperationspecs (MoldCode, ClampingForce, OperationType, CoolingMedia, HeatingMedia) 
-             VALUES ('$moldCode', '$clampingForce', '$operationType', '$coolingMedia', '$heatingMedia')";
-
-    // Section 6: Timer Parameters
-    $fillingTime = $_POST['fillingTime'];
-    $holdingTime = $_POST['holdingTime'];
-    $moldOpenCloseTime = $_POST['moldOpenCloseTime'];
-    $chargingTime = $_POST['chargingTime'];
-    $coolingTime = $_POST['coolingTime'];
-    $cycleTime = $_POST['cycleTime'];
-
-    // Insert into timerparameters table
-    $sql6 = "INSERT INTO timerparameters (FillingTime, HoldingTime, MoldOpenCloseTime, ChargingTime, CoolingTime, CycleTime) 
-             VALUES ('$fillingTime', '$holdingTime', '$moldOpenCloseTime', '$chargingTime', '$coolingTime', '$cycleTime')";
-
-    // Section 7: Temperature Settings
-    $temperatureSettings = [];
-    for ($i = 0; $i <= 16; $i++) {
-        if (!empty($_POST["barrelHeaterZone$i"])) {
-            $temperatureSettings[] = [
-                'zone' => $i,
-                'temperature' => $_POST["barrelHeaterZone$i"]
-            ];
+        foreach ($materials as $material) {
+            $stmt3->bind_param("sssssi", $_POST['dryingtime'], $_POST['dryingtemp'], $material['type'], $material['brand'], $material['mixture'], $material['order']);
+            $stmt3->execute();
         }
-    }
 
-    // Insert into temperaturesettings table
-    foreach ($temperatureSettings as $setting) {
-        $sql7 = "INSERT INTO temperaturesettings (HeaterZone, Temperature) 
-                 VALUES ('{$setting['zone']}', '{$setting['temperature']}')";
-        $conn->query($sql7);
-    }
+        $stmt4 = $conn->prepare("INSERT INTO colorantdetails (Colorant, Color, Dosage, Stabilizer, StabilizerDosage) VALUES (?, ?, ?, ?, ?)");
+        $stmt4->bind_param("sssss", $_POST['colorant'], $_POST['color'], $_POST['colorant-dosage'], $_POST['colorant-stabilizer'], $_POST['colorant-stabilizer-dosage']);
+        $stmt4->execute();
 
-    // Section 8: Personnel
-    $adjuster = $_POST['adjuster'];
-    $qae = $_POST['qae'];
+        $stmt5 = $conn->prepare("INSERT INTO moldoperationspecs (MoldCode, ClampingForce, OperationType, CoolingMedia, HeatingMedia) VALUES (?, ?, ?, ?, ?)");
+        $stmt5->bind_param("sssss", $_POST['mold-code'], $_POST['clamping-force'], $_POST['operation-type'], $_POST['cooling-media'], $_POST['heating-media']);
+        $stmt5->execute();
 
-    // Insert into personnel table
-    $sql8 = "INSERT INTO personnel (AdjusterName, QAEName) 
-             VALUES ('$adjuster', '$qae')";
+        $stmt6 = $conn->prepare("INSERT INTO timerparameters (FillingTime, HoldingTime, MoldOpenCloseTime, ChargingTime, CoolingTime, CycleTime) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt6->bind_param("ssssss", $_POST['fillingTime'], $_POST['holdingTime'], $_POST['moldOpenCloseTime'], $_POST['chargingTime'], $_POST['coolingTime'], $_POST['cycleTime']);
+        $stmt6->execute();
 
-    // Execute main queries
-    if ($conn->query($sql1) === TRUE &&
-        $conn->query($sql2) === TRUE &&
-        $conn->query($sql4) === TRUE &&
-        $conn->query($sql5) === TRUE &&
-        $conn->query($sql6) === TRUE &&
-        $conn->query($sql8) === TRUE) {
+        $stmt7 = $conn->prepare("INSERT INTO temperaturesettings (HeaterZone, Temperature) VALUES (?, ?)");
+        for ($i = 0; $i <= 16; $i++) {
+            if (!empty($_POST["barrelHeaterZone$i"])) {
+                $stmt7->bind_param("ii", $i, $_POST["barrelHeaterZone$i"]);
+                $stmt7->execute();
+            }
+        }
+
+        $stmt8 = $conn->prepare("INSERT INTO personnel (AdjusterName, QAEName) VALUES (?, ?)");
+        $stmt8->bind_param("ss", $_POST['adjuster'], $_POST['qae']);
+        $stmt8->execute();
+
+        // Commit the transaction
+        $conn->commit();
         echo "<div class='alert alert-success'>Data saved successfully!</div>";
-    } else {
-        echo "<div class='alert alert-danger'>Error: " . $conn->error . "</div>";
+    } catch (Exception $e) {
+        // Rollback the transaction on error
+        $conn->rollback();
+        echo "<div class='alert alert-danger'>Error: " . $e->getMessage() . "</div>";
     }
 }
 
@@ -148,22 +91,7 @@ $conn->close();
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        /* Chevron when section is expanded */
-        a:not(.collapsed) .bi-chevron-down {
-            transform: rotate(0deg);
-            transition: transform 0.3s ease-in-out;
-            /* Add transition */
-        }
-
-        /* Chevron when section is collapsed */
-        a.collapsed .bi-chevron-down {
-            transform: rotate(90deg);
-            transition: transform 0.3s ease-in-out;
-            /* Add transition */
-        }
-    </style>
-
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body class="bg-primary-subtle">
@@ -1430,7 +1358,7 @@ $conn->close();
                                 <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
                             </a>
                         </h4>
-                        <div class="collapse show" id="collapseCorePull">
+                        <div class="collapse show" id="collapseCoreSetA">
                             <div class="row mb-3">
                                 <div class="col">
                                     <label for="coreSetASequence" class="form-label">Core Set A Sequence</label>
@@ -1697,6 +1625,9 @@ $conn->close();
                         <!-- Add a horizontal line to separate sections -->
                         <hr class="my-4"> <!-- Adds some margin space around the horizontal line -->
 
+                        <button type="button" id="autofillButton" class="btn btn-secondary mt-4">Autofill</button>
+
+
                         <!-- Submit Button -->
                         <button type="submit" class="btn btn-primary mt-4">Submit</button>
 
@@ -1704,37 +1635,10 @@ $conn->close();
             </div>
         </div>
     </div>
-
-    <script>
-        document.getElementById('uploadImage').addEventListener('change', function (event) {
-            const imagePreview = document.getElementById('imagePreview');
-            const file = event.target.files[0];
-
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    imagePreview.src = e.target.result;
-                    imagePreview.style.display = 'block'; // Show the image
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        document.getElementById('uploadVideo').addEventListener('change', function (event) {
-            const videoSource = document.getElementById('videoSource');
-            const videoPreview = document.getElementById('videoPreview');
-            const file = event.target.files[0];
-
-            if (file) {
-                const url = URL.createObjectURL(file);
-                videoSource.src = url;
-                videoPreview.load(); // Reload the video
-                videoPreview.style.display = 'block'; // Show the video
-            }
-        });
-
-    </script>
+    
+    <script src="scripts.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 
 </html>
