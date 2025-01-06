@@ -24,9 +24,9 @@
             width: 150px;
         }
 
-        input[type="text"],
-        input[type="date"],
-        input[type="number"],
+        input required[type="text"],
+        input required[type="date"],
+        input required[type="number"],
         select {
             width: calc(100% - 160px);
             margin: 5px 0;
@@ -68,11 +68,11 @@
             <legend>General Information</legend>
             <div>
                 <label for="plant">Plant:</label>
-                <input type="text" id="plant" name="plant" placeholder="Enter Plant Name" required>
+                <input required type="text" id="plant" name="plant" placeholder="Enter Plant Name" required>
             </div>
             <div>
                 <label for="date">Date:</label>
-                <input type="date" id="date" name="date" required>
+                <input required type="date" id="date" name="date" required>
             </div>
             <div>
                 <label for="shift">Shift:</label>
@@ -85,7 +85,7 @@
             </div>
             <div>
                 <label for="shift_hours">Shift Hours:</label>
-                <input type="number" id="shift_hours" name="shift_hours" placeholder="Enter Shift Hours" min="0" required>
+                <input required type="number" id="shift_hours" name="shift_hours" placeholder="Enter Shift Hours" min="0" required>
             </div>
         </fieldset>
 
@@ -94,19 +94,19 @@
             <legend>Product Details</legend>
             <div>
                 <label for="product_name">Product Name:</label>
-                <input type="text" id="product_name" name="product_name" placeholder="Enter Product Name" required>
+                <input required type="text" id="product_name" name="product_name" placeholder="Enter Product Name" required>
             </div>
             <div>
                 <label for="color">Color:</label>
-                <input type="text" id="color" name="color" placeholder="Enter Color" required>
+                <input required type="text" id="color" name="color" placeholder="Enter Color" required>
             </div>
             <div>
                 <label for="part_number">Part Number:</label>
-                <input type="text" id="part_number" name="part_number" placeholder="Enter Part Number" required>
+                <input required type="text" id="part_number" name="part_number" placeholder="Enter Part Number" required>
             </div>
             <div>
                 <label for="process">Process:</label>
-                <input type="text" id="process" name="process" placeholder="Enter Process" required>
+                <input required type="text" id="process" name="process" placeholder="Enter Process" required>
             </div>
         </fieldset>
 

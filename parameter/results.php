@@ -54,7 +54,7 @@ $colorantDetails = fetchData($conn, 'colorantdetails');
                     <tbody>
                         <?php while ($row = $productMachineInfo->fetch_assoc()) : ?>
                             <tr>
-                                <td><?= $row['ID'] ?></td>
+                                <td><?= $row['id'] ?></td>
                                 <td><?= $row['Date'] ?></td>
                                 <td><?= $row['Time'] ?></td>
                                 <td><?= $row['MachineName'] ?></td>
@@ -88,7 +88,7 @@ $colorantDetails = fetchData($conn, 'colorantdetails');
                     <tbody>
                         <?php while ($row = $productDetails->fetch_assoc()) : ?>
                             <tr>
-                                <td><?= $row['ID'] ?></td>
+                                <td><?= $row['id'] ?></td>
                                 <td><?= $row['ProductName'] ?></td>
                                 <td><?= $row['Color'] ?></td>
                                 <td><?= $row['MoldName'] ?></td>
@@ -122,7 +122,7 @@ $colorantDetails = fetchData($conn, 'colorantdetails');
                     <tbody>
                         <?php while ($row = $materialComposition->fetch_assoc()) : ?>
                             <tr>
-                                <td><?= $row['ID'] ?></td>
+                                <td><?= $row['id'] ?></td>
                                 <td><?= $row['DryingTime'] ?></td>
                                 <td><?= $row['DryingTemperature'] ?></td>
                                 <td><?= $row['Type'] ?></td>
@@ -154,7 +154,7 @@ $colorantDetails = fetchData($conn, 'colorantdetails');
                     <tbody>
                         <?php while ($row = $colorantDetails->fetch_assoc()) : ?>
                             <tr>
-                                <td><?= $row['ID'] ?></td>
+                                <td><?= $row['id'] ?></td>
                                 <td><?= $row['Colorant'] ?></td>
                                 <td><?= $row['Color'] ?></td>
                                 <td><?= $row['Dosage'] ?></td>

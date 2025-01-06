@@ -29,8 +29,8 @@ if (!isset($_SESSION['full_name'])) {
             // Enable popovers
             $('[data-bs-toggle="popover"]').popover();
 
-            // Convert product name input to uppercase on every keystroke
-            $('#product_name').on('input', function () {
+            // Convert product name input required to uppercase on every keystroke
+            $('#product_name').on('input required', function () {
                 this.value = this.value.toUpperCase();
             });
 
@@ -104,7 +104,7 @@ if (!isset($_SESSION['full_name'])) {
                     <!-- Date -->
                     <div class="mb-3">
                         <label for="date" class="form-label">Date</label>
-                        <input type="date" class="form-control" id="date" name="date" max="<?php echo date('Y-m-d'); ?>"
+                        <input required type="date" class="form-control" id="date" name="date" max="<?php echo date('Y-m-d'); ?>"
                             required>
                     </div>
 
@@ -117,7 +117,7 @@ if (!isset($_SESSION['full_name'])) {
                             data-bs-content="The first data submitted for the corresponding Product Name would be shown.">
                             <i class="bi bi-info-circle"></i>
                         </span>
-                        <input type="text" id="product_name" name="product_name" class="form-control mt-2"
+                        <input required type="text" id="product_name" name="product_name" class="form-control mt-2"
                             placeholder="Enter Product Name">
                     </div>
 
@@ -147,13 +147,13 @@ if (!isset($_SESSION['full_name'])) {
                     <!-- PRN -->
                     <div class="mb-3">
                         <label for="prn" class="form-label">PRN</label>
-                        <input type="text" class="form-control" id="prn" name="prn" placeholder="Enter PRN">
+                        <input required type="text" class="form-control" id="prn" name="prn" placeholder="Enter PRN">
                     </div>
 
                     <!-- Mold Code -->
                     <div class="mb-3">
                         <label for="mold_code" class="form-label">Mold Code</label>
-                        <input type="number" class="form-control" id="mold_code" name="mold_code"
+                        <input required type="number" class="form-control" id="mold_code" name="mold_code"
                             placeholder="Enter Mold Code" max="9999" required>
                     </div>
 
@@ -163,12 +163,12 @@ if (!isset($_SESSION['full_name'])) {
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="cycle-time-target" class="form-label">Target</label>
-                                <input type="number" class="form-control" id="cycle_time_target"
+                                <input required type="number" class="form-control" id="cycle_time_target"
                                     name="cycle_time_target" placeholder="Enter target cycle time" min="0" required>
                             </div>
                             <div class="col-md-6">
                                 <label for="cycle-time-actual" class="form-label">Actual</label>
-                                <input type="number" class="form-control" id="cycle_time_actual"
+                                <input required type="number" class="form-control" id="cycle_time_actual"
                                     name="cycle_time_actual" placeholder="Enter actual cycle time" min="0" required>
                             </div>
                         </div>
@@ -180,17 +180,17 @@ if (!isset($_SESSION['full_name'])) {
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <label for="weight-standard" class="form-label">Standard</label>
-                                <input type="number" step="0.01" class="form-control" id="weight_standard"
+                                <input required type="number" step="0.01" class="form-control" id="weight_standard"
                                     name="weight_standard" placeholder="Enter standard weight" min="0" required>
                             </div>
                             <div class="col-md-4">
                                 <label for="weight-gross" class="form-label">Gross</label>
-                                <input type="number" step="0.01" class="form-control" id="weight_gross"
+                                <input required type="number" step="0.01" class="form-control" id="weight_gross"
                                     name="weight_gross" placeholder="Enter gross weight" min="0" required>
                             </div>
                             <div class="col-md-4">
                                 <label for="weight-net" class="form-label">Net</label>
-                                <input type="number" step="0.01" class="form-control" id="weight_net" name="weight_net"
+                                <input required type="number" step="0.01" class="form-control" id="weight_net" name="weight_net"
                                     placeholder="Enter net weight" min="0" required>
                             </div>
                         </div>
@@ -202,12 +202,12 @@ if (!isset($_SESSION['full_name'])) {
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="cavity-designed" class="form-label">Designed</label>
-                                <input type="number" class="form-control" id="cavity_designed" name="cavity_designed"
+                                <input required type="number" class="form-control" id="cavity_designed" name="cavity_designed"
                                     placeholder="Enter designed number of cavities" min="0" required>
                             </div>
                             <div class="col-md-6">
                                 <label for="cavity-active" class="form-label">Active</label>
-                                <input type="number" class="form-control" id="cavity_active" name="cavity_active"
+                                <input required type="number" class="form-control" id="cavity_active" name="cavity_active"
                                     placeholder="Enter active number of cavities" min="0" required>
                             </div>
                         </div>
@@ -229,7 +229,7 @@ if (!isset($_SESSION['full_name'])) {
                     <!-- Name -->
                     <div class="mb-3">
                         <label for="name" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="name" name="name"
+                        <input required type="text" class="form-control" id="name" name="name"
                             value="<?php echo $_SESSION['full_name']; ?>" readonly required>
                     </div>
 

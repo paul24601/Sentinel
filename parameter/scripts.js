@@ -25,11 +25,10 @@ document.getElementById('uploadVideo').addEventListener('change', function (even
     }
 });
 
-//autofill
+// Autofill
 document.getElementById('autofillButton').addEventListener('click', function () {
-    // Random number generator
+    // Random number generator for integers
     const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-    const randomFloat = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
     // Autofill function
     const autofillField = (id, value) => {
@@ -53,90 +52,90 @@ document.getElementById('autofillButton').addEventListener('click', function () 
     autofillField('mold-name', `Mold-${randomInt(1, 50)}`);
     autofillField('prodNo', `Prod-${randomInt(1000, 9999)}`);
     autofillField('cavity', randomInt(1, 8));
-    autofillField('grossWeight', randomFloat(100, 200));
-    autofillField('netWeight', randomFloat(50, 150));
+    autofillField('grossWeight', randomInt(100, 200));
+    autofillField('netWeight', randomInt(50, 150));
 
     // Material Composition
-    autofillField('dryingtime', randomFloat(1, 10));
-    autofillField('dryingtemp', randomFloat(50, 100));
+    autofillField('dryingtime', randomInt(1, 10));
+    autofillField('dryingtemp', randomInt(50, 100));
     for (let i = 1; i <= 4; i++) {
         autofillField(`type${i}`, `Type-${i}`);
         autofillField(`brand${i}`, `Brand-${i}`);
-        autofillField(`mix${i}`, randomFloat(0, 100));
+        autofillField(`mix${i}`, randomInt(0, 100));
     }
 
     // Colorant Details
     autofillField('colorant', `Colorant-${randomInt(1, 5)}`);
-    autofillField('colorant-dosage', `${randomFloat(0.5, 5)}%`);
+    autofillField('colorant-dosage', `${randomInt(1, 5)}%`);
     autofillField('colorant-stabilizer', `Stabilizer-${randomInt(1, 5)}`);
-    autofillField('colorant-stabilizer-dosage', `${randomFloat(0.5, 2)}g`);
+    autofillField('colorant-stabilizer-dosage', `${randomInt(1, 2)}g`);
 
     // Timer Parameters
-    autofillField('fillingTime', randomFloat(0.5, 5));
-    autofillField('holdingTime', randomFloat(0.5, 5));
-    autofillField('moldOpenCloseTime', randomFloat(0.5, 5));
-    autofillField('chargingTime', randomFloat(0.5, 5));
-    autofillField('coolingTime', randomFloat(0.5, 5));
-    autofillField('cycleTime', randomFloat(0.5, 5));
+    autofillField('fillingTime', randomInt(1, 5));
+    autofillField('holdingTime', randomInt(1, 5));
+    autofillField('moldOpenCloseTime', randomInt(1, 5));
+    autofillField('chargingTime', randomInt(1, 5));
+    autofillField('coolingTime', randomInt(1, 5));
+    autofillField('cycleTime', randomInt(1, 5));
 
     // Temperature Settings
     for (let i = 0; i <= 16; i++) {
-        autofillField(`barrelHeaterZone${i}`, randomFloat(150, 300));
+        autofillField(`barrelHeaterZone${i}`, randomInt(150, 300));
     }
 
     // Mold Open and Close Settings
     for (let i = 1; i <= 6; i++) {
-        autofillField(`moldOpenPos${i}`, randomFloat(0, 500));
-        autofillField(`moldOpenSpd${i}`, randomFloat(0, 100));
-        autofillField(`moldOpenPressure${i}`, randomFloat(0, 200));
+        autofillField(`moldOpenPos${i}`, randomInt(0, 500));
+        autofillField(`moldOpenSpd${i}`, randomInt(0, 100));
+        autofillField(`moldOpenPressure${i}`, randomInt(0, 200));
 
-        autofillField(`moldClosePos${i}`, randomFloat(0, 500));
-        autofillField(`moldCloseSpd${i}`, randomFloat(0, 100));
-        autofillField(`moldClosePressure${i}`, randomFloat(0, 200));
+        autofillField(`moldClosePos${i}`, randomInt(0, 500));
+        autofillField(`moldCloseSpd${i}`, randomInt(0, 100));
+        autofillField(`moldClosePressure${i}`, randomInt(0, 200));
     }
 
     // Plasticizing Parameters
     for (let i = 1; i <= 3; i++) {
         autofillField(`screwRPM${i}`, randomInt(10, 100));
         autofillField(`screwSpeed${i}`, randomInt(10, 100));
-        autofillField(`plastPressure${i}`, randomFloat(50, 200));
-        autofillField(`plastPosition${i}`, randomFloat(10, 100));
-        autofillField(`backPressure${i}`, randomFloat(10, 50));
+        autofillField(`plastPressure${i}`, randomInt(50, 200));
+        autofillField(`plastPosition${i}`, randomInt(10, 100));
+        autofillField(`backPressure${i}`, randomInt(10, 50));
     }
-    autofillField('backPressureStartPosition', randomFloat(10, 100));
+    autofillField('backPressureStartPosition', randomInt(10, 100));
 
     // Injection Parameters
-    autofillField('recoveryPOS', randomFloat(10, 50));
-    autofillField('secondStagePosition', randomFloat(10, 50));
-    autofillField('cushion', randomFloat(1, 10));
+    autofillField('recoveryPOS', randomInt(10, 50));
+    autofillField('secondStagePosition', randomInt(10, 50));
+    autofillField('cushion', randomInt(1, 10));
     for (let i = 1; i <= 6; i++) {
-        autofillField(`screwPosition${i}`, randomFloat(10, 100));
-        autofillField(`injectionSpeed${i}`, randomFloat(10, 100));
-        autofillField(`injectionPressure${i}`, randomFloat(50, 200));
+        autofillField(`screwPosition${i}`, randomInt(10, 100));
+        autofillField(`injectionSpeed${i}`, randomInt(10, 100));
+        autofillField(`injectionPressure${i}`, randomInt(50, 200));
     }
 
     // Ejection Parameters
-    autofillField('airBlowTimeA', randomFloat(1, 10));
-    autofillField('airBlowPositionA', randomFloat(10, 50));
-    autofillField('airBlowADelay', randomFloat(1, 5));
-    autofillField('airBlowTimeB', randomFloat(1, 10));
-    autofillField('airBlowPositionB', randomFloat(10, 50));
-    autofillField('airBlowBDelay', randomFloat(1, 5));
+    autofillField('airBlowTimeA', randomInt(1, 10));
+    autofillField('airBlowPositionA', randomInt(10, 50));
+    autofillField('airBlowADelay', randomInt(1, 5));
+    autofillField('airBlowTimeB', randomInt(1, 10));
+    autofillField('airBlowPositionB', randomInt(10, 50));
+    autofillField('airBlowBDelay', randomInt(1, 5));
 
     // Core Pull Settings
     for (let i of ['A', 'B']) {
         autofillField(`coreSet${i}Sequence`, randomInt(1, 10));
-        autofillField(`coreSet${i}Pressure`, randomFloat(10, 100));
-        autofillField(`coreSet${i}Speed`, randomFloat(10, 100));
-        autofillField(`coreSet${i}Position`, randomFloat(10, 100));
-        autofillField(`coreSet${i}Time`, randomFloat(1, 10));
+        autofillField(`coreSet${i}Pressure`, randomInt(10, 100));
+        autofillField(`coreSet${i}Speed`, randomInt(10, 100));
+        autofillField(`coreSet${i}Position`, randomInt(10, 100));
+        autofillField(`coreSet${i}Time`, randomInt(1, 10));
         autofillField(`coreSet${i}LimitSwitch`, `Switch-${randomInt(1, 5)}`);
 
         autofillField(`corePull${i}Sequence`, randomInt(1, 10));
-        autofillField(`corePull${i}Pressure`, randomFloat(10, 100));
-        autofillField(`corePull${i}Speed`, randomFloat(10, 100));
-        autofillField(`corePull${i}Position`, randomFloat(10, 100));
-        autofillField(`corePull${i}Time`, randomFloat(1, 10));
+        autofillField(`corePull${i}Pressure`, randomInt(10, 100));
+        autofillField(`corePull${i}Speed`, randomInt(10, 100));
+        autofillField(`corePull${i}Position`, randomInt(10, 100));
+        autofillField(`corePull${i}Time`, randomInt(1, 10));
         autofillField(`corePull${i}LimitSwitch`, `Switch-${randomInt(1, 5)}`);
     }
 

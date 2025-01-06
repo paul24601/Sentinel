@@ -19,8 +19,8 @@
             <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
             <!-- Navbar Search-->
             <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
-                <div class="input-group">
-                    <input class="form-control" type="text" placeholder="Search for..." aria-label="Search for..." aria-describedby="btnNavbarSearch" />
+                <div class="input required-group">
+                    <input required class="form-control" type="text" placeholder="Search for..." aria-label="Search for..." aria-describedby="btnNavbarSearch" />
                     <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
                 </div>
             </form>
@@ -130,25 +130,25 @@
                                         <!-- Date -->
                                         <div class="mb-3">
                                             <label for="date" class="form-label">Date</label>
-                                            <input type="date" class="form-control" id="date" name="date" required>
+                                            <input required type="date" class="form-control" id="date" name="date" required>
                                         </div>
                                         
                                         <!-- Machine -->
                                         <div class="mb-3">
                                             <label for="machine" class="form-label">Machine</label>
-                                            <input type="text" class="form-control" id="machine" name="machine" placeholder="Enter machine name/number" required>
+                                            <input required type="text" class="form-control" id="machine" name="machine" placeholder="Enter machine name/number" required>
                                         </div>
                                         
                                         <!-- PRN -->
                                         <div class="mb-3">
                                             <label for="prn" class="form-label">PRN</label>
-                                            <input type="text" class="form-control" id="prn" name="prn" placeholder="Enter PRN" required>
+                                            <input required type="text" class="form-control" id="prn" name="prn" placeholder="Enter PRN" required>
                                         </div>
                                         
                                         <!-- Product Name -->
                                         <div class="mb-3">
                                             <label for="product-name" class="form-label">Product Name</label>
-                                            <input type="text" class="form-control" id="product-name" name="product_name" placeholder="Enter product name" required>
+                                            <input required type="text" class="form-control" id="product-name" name="product_name" placeholder="Enter product name" required>
                                         </div>
                             
                                         <!-- Cycle Time -->
@@ -157,11 +157,11 @@
                                             <div class="row g-3">
                                                 <div class="col-md-6">
                                                     <label for="cycle-time-target" class="form-label">Target</label>
-                                                    <input type="number" class="form-control" id="cycle-time-target" name="cycle_time_target" placeholder="Enter target cycle time" min="0" required>
+                                                    <input required type="number" class="form-control" id="cycle-time-target" name="cycle_time_target" placeholder="Enter target cycle time" min="0" required>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label for="cycle-time-actual" class="form-label">Actual</label>
-                                                    <input type="number" class="form-control" id="cycle-time-actual" name="cycle_time_actual" placeholder="Enter actual cycle time" min="0" required>
+                                                    <input required type="number" class="form-control" id="cycle-time-actual" name="cycle_time_actual" placeholder="Enter actual cycle time" min="0" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -172,15 +172,15 @@
                                             <div class="row g-3">
                                                 <div class="col-md-4">
                                                     <label for="weight-standard" class="form-label">Standard</label>
-                                                    <input type="number" step="0.01" class="form-control" id="weight-standard" name="weight_standard" placeholder="Enter standard weight" min="0" required>
+                                                    <input required type="number" step="0.01" class="form-control" id="weight-standard" name="weight_standard" placeholder="Enter standard weight" min="0" required>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label for="weight-gross" class="form-label">Gross</label>
-                                                    <input type="number" step="0.01" class="form-control" id="weight-gross" name="weight_gross" placeholder="Enter gross weight" min="0" required>
+                                                    <input required type="number" step="0.01" class="form-control" id="weight-gross" name="weight_gross" placeholder="Enter gross weight" min="0" required>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label for="weight-net" class="form-label">Net</label>
-                                                    <input type="number" step="0.01" class="form-control" id="weight-net" name="weight_net" placeholder="Enter net weight" min="0" required>
+                                                    <input required type="number" step="0.01" class="form-control" id="weight-net" name="weight_net" placeholder="Enter net weight" min="0" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -191,11 +191,11 @@
                                             <div class="row g-3">
                                                 <div class="col-md-6">
                                                     <label for="cavity-designed" class="form-label">Designed</label>
-                                                    <input type="number" class="form-control" id="cavity-designed" name="cavity_designed" placeholder="Enter designed number of cavities" min="0" required>
+                                                    <input required type="number" class="form-control" id="cavity-designed" name="cavity_designed" placeholder="Enter designed number of cavities" min="0" required>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label for="cavity-active" class="form-label">Active</label>
-                                                    <input type="number" class="form-control" id="cavity-active" name="cavity_active" placeholder="Enter active number of cavities" min="0" required>
+                                                    <input required type="number" class="form-control" id="cavity-active" name="cavity_active" placeholder="Enter active number of cavities" min="0" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -209,7 +209,7 @@
                                         <!-- Name -->
                                         <div class="mb-3">
                                             <label for="name" class="form-label">Name</label>
-                                            <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name" required>
+                                            <input required type="text" class="form-control" id="name" name="name" placeholder="Enter your name" required>
                                         </div>
                             
                                         <!-- Shift -->
@@ -225,7 +225,7 @@
                                         <!-- Search -->
                                         <div class="mb-4">
                                             <label for="search" class="form-label">Search</label>
-                                            <input type="text" class="form-control" id="search" name="search" placeholder="Search for previous entries">
+                                            <input required type="text" class="form-control" id="search" name="search" placeholder="Search for previous entries">
                                         </div>
                             
                                         <!-- Submit Button -->

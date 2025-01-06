@@ -400,6 +400,23 @@ $conn->close();
         const ctx = document.getElementById('machineMoldChart').getContext('2d');
         let machineMoldChart;
 
+        function calculateSmoothedTrendLine(data) {
+            // Generate x-values as the indices of the data points
+            const xValues = Array.from({ length: data.length }, (_, i) => i + 1);
+            const yValues = data;
+
+            // Interpolate y-values for smoothing using cubic spline or similar
+            // For simplicity, we'll use a lightweight smoothing function
+            const smoothedYValues = [];
+            for (let i = 0; i < yValues.length; i++) {
+                const prev = yValues[i - 1] || yValues[i];
+                const next = yValues[i + 1] || yValues[i];
+                smoothedYValues.push((prev + yValues[i] + next) / 3); // Simple average smoothing
+            }
+
+            return smoothedYValues;
+        }
+
         function createBarChart(filteredData) {
             if (machineMoldChart) {
                 machineMoldChart.destroy(); // Destroy previous chart instance if it exists
@@ -407,17 +424,32 @@ $conn->close();
 
             const chartData = formatDataForBarChart(filteredData);
 
+            // Calculate smoothed trend line data
+            const smoothedTrendLineData = calculateSmoothedTrendLine(chartData.data);
+
             machineMoldChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: chartData.labels,
-                    datasets: [{
-                        label: 'Occurrences of Machine-Mold Combinations',
-                        data: chartData.data,
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
+                    datasets: [
+                        {
+                            label: 'Occurrences of Machine-Mold Combinations',
+                            data: chartData.data,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Smoothed Trend Line',
+                            data: smoothedTrendLineData,
+                            type: 'line',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 2,
+                            fill: false,
+                            pointRadius: 0, // Remove points for a smoother line
+                            tension: 0.4 // Adds curve to the line for smoothness
+                        }
+                    ]
                 },
                 options: {
                     scales: {
@@ -442,7 +474,9 @@ $conn->close();
                         tooltip: {
                             callbacks: {
                                 label: function (tooltipItem) {
-                                    return `Occurrences: ${tooltipItem.raw}`;
+                                    return tooltipItem.datasetIndex === 0
+                                        ? `Occurrences: ${tooltipItem.raw}`
+                                        : `Trend Line Value: ${tooltipItem.raw.toFixed(2)}`;
                                 }
                             }
                         }
@@ -468,7 +502,7 @@ $conn->close();
 
     </script>
 
-<script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
 </body>
 
 </html>

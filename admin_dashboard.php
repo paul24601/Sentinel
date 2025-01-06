@@ -145,15 +145,15 @@ $result = $conn->query($sql);
             </div>
             <div class="card-body">
                 <form method="POST" action="">
-                    <input type="hidden" name="add_user" value="1">
+                    <input required type="hidden" name="add_user" value="1">
                     <div class="mb-3">
                         <label for="id_number" class="form-label">ID Number:</label>
-                        <input type="text" class="form-control" name="id_number" required>
+                        <input required type="text" class="form-control" name="id_number" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="full_name" class="form-label">Full Name:</label>
-                        <input type="text" class="form-control" name="full_name" required>
+                        <input required type="text" class="form-control" name="full_name" required>
                     </div>
 
                     <div class="mb-3">
@@ -162,10 +162,10 @@ $result = $conn->query($sql);
                         <!-- Popover Note -->
                         <span tabindex="0" class="text-body-secondary" data-bs-toggle="popover"
                             data-bs-trigger="hover focus"
-                            data-bs-content="Leave the input blank to set password to default.">
+                            data-bs-content="Leave the input required blank to set password to default.">
                             <i class="bi bi-info-circle"></i>
                         </span>
-                        <input type="password" class="form-control" name="password">
+                        <input required type="password" class="form-control" name="password">
                     </div>
 
                     <div class="mb-3">
@@ -218,7 +218,7 @@ $result = $conn->query($sql);
                                 <td>" . ($row['password_changed'] ? 'Yes' : 'No') . "</td>
                                 <td>
                                     <form method='POST' action=''>
-                                        <input type='hidden' name='user_id' value='" . $row['id_number'] . "'>
+                                        <input required type='hidden' name='user_id' value='" . $row['id_number'] . "'>
                                         <button type='submit' name='reset_user_password_changed' class='btn btn-warning btn-sm'>Reset</button>
                                     </form>
                                 </td>
