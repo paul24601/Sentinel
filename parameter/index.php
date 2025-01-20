@@ -31,30 +31,30 @@
                         <div class="row mb-3 row-cols-1 row-cols-sm-3">
                             <div class="col">
                                 <label for="Date" class="form-label">Date</label>
-                                <input type="date" class="form-control" id="Date" name="Date">
+                                <input type="date" class="form-control" name="Date">
                             </div>
                             <div class="col">
                                 <label for="Time" class="form-label">Time</label>
-                                <input type="time" class="form-control" id="Time" name="Time">
+                                <input type="time" class="form-control" name="Time">
                             </div>
                             <div class="col">
                                 <label for="MachineName" class="form-label">Machine</label>
-                                <input type="text" class="form-control" id="MachineName" name="MachineName"
+                                <input type="text" class="form-control" name="MachineName"
                                     placeholder="Enter Machine Name">
                             </div>
                             <div class="col">
                                 <label for="RunNumber" class="form-label">Run No.</label>
-                                <input type="text" class="form-control" id="RunNumber" name="RunNumber"
+                                <input type="text" class="form-control" name="RunNumber"
                                     placeholder="Enter Run Number">
                             </div>
                             <div class="col">
                                 <label for="Category" class="form-label">Category</label>
-                                <input type="text" class="form-control" id="Category" name="Category"
+                                <input type="text" class="form-control" name="Category"
                                     placeholder="Enter Category">
                             </div>
                             <div class="col">
                                 <label for="IRN" class="form-label">IRN</label>
-                                <input type="text" class="form-control" id="IRN" name="IRN" placeholder="Enter IRN">
+                                <input type="text" class="form-control" name="IRN" placeholder="Enter IRN">
                             </div>
                         </div>
                     </div>
@@ -74,34 +74,34 @@
                         <div class="row mb-3 row-cols-1 row-cols-md-3 row-cols-sm-2">
                             <div class="col">
                                 <label for="product" class="form-label">Product Name</label>
-                                <input type="text" class="form-control" id="product" name="product"
+                                <input type="text" class="form-control" name="product"
                                     placeholder="Enter Product">
                             </div>
                             <div class="col">
                                 <label for="color" class="form-label">Color</label>
-                                <input type="text" class="form-control" id="color" name="color"
+                                <input type="text" class="form-control" name="color"
                                     placeholder="Enter Color">
                             </div>
                             <div class="col">
                                 <label for="mold-name" class="form-label">Mold Name</label>
-                                <input type="text" class="form-control" id="mold-name" name="mold-name"
+                                <input type="text" class="form-control" name="mold-name"
                                     placeholder="Enter Mold Name">
                             </div>
                             <div class="col">
                                 <label for="prodNo" class="form-label">Product Number</label>
-                                <input type="text" class="form-control" id="prodNo" placeholder="Product Number">
+                                <input type="text" class="form-control" name="prodNo" placeholder="Product Number">
                             </div>
                             <div class="col">
                                 <label for="cavity" class="form-label">Number of Cavity (Active)</label>
-                                <input type="number" class="form-control" id="cavity" placeholder="Number of Cavity">
+                                <input type="number" class="form-control" name="cavity" placeholder="Number of Cavity">
                             </div>
                             <div class="col">
                                 <label for="grossWeight" class="form-label">Gross Weight</label>
-                                <input type="text" class="form-control" id="grossWeight" placeholder="Gross Weight (g)">
+                                <input type="text" class="form-control" name="grossWeight" placeholder="Gross Weight (g)">
                             </div>
                             <div class="col">
                                 <label for="netWeight" class="form-label">Net Weight</label>
-                                <input type="text" class="form-control" id="netWeight" placeholder="Net Weight (g)">
+                                <input type="text" class="form-control" name="netWeight" placeholder="Net Weight (g)">
                             </div>
                         </div>
                     </div>
@@ -123,13 +123,13 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="dryingtime" class="form-label">Drying Time</label>
-                                <input type="number" class="form-control" id="dryingtime"
+                                <input type="number" class="form-control" name="dryingtime"
                                     placeholder="Select Drying Time">
                             </div>
                             <div class="col">
                                 <label for="dryingtemp" class="form-label">Drying Temperature</label>
                                 <div class="input -group">
-                                    <input type="number" class="form-control" id="dryingtemp"
+                                    <input type="number" class="form-control" name="dryingtemp"
                                         placeholder="Enter Temperature" min="0" max="300" step="0.1">
                                     <span class="input -group-text">°C</span>
                                 </div>
@@ -141,15 +141,15 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="type1" class="form-label">Type 1</label>
-                                <input type="text" class="form-control" id="type1" placeholder="Enter Type 1">
+                                <input type="text" class="form-control" name="type1" id="type1" placeholder="Enter Type 1">
                             </div>
                             <div class="col">
                                 <label for="brand1" class="form-label">Brand 1</label>
-                                <input type="text" class="form-control" id="brand1" placeholder="Enter Brand 1">
+                                <input type="text" class="form-control" name="brand1" id="brand1" placeholder="Enter Brand 1">
                             </div>
                             <div class="col">
                                 <label for="mix1" class="form-label">Mixture 1</label>
-                                <input type="number" class="form-control" id="mix1" placeholder="% Mixture 1">
+                                <input type="number" class="form-control" name="mix1" id="mix1" placeholder="% Mixture 1">
                             </div>
                         </div>
 
@@ -157,15 +157,15 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="type2" class="form-label">Type 2</label>
-                                <input type="text" class="form-control" id="type2" placeholder="Enter Type 2">
+                                <input type="text" class="form-control" name="type2" id="type2" placeholder="Enter Type 2">
                             </div>
                             <div class="col">
                                 <label for="brand2" class="form-label">Brand 2</label>
-                                <input type="text" class="form-control" id="brand2" placeholder="Enter Brand 2">
+                                <input type="text" class="form-control" name="brand2" id="brand2" placeholder="Enter Brand 2">
                             </div>
                             <div class="col">
                                 <label for="mix2" class="form-label">Mixture 3</label>
-                                <input type="number" class="form-control" id="mix2" placeholder="% Mixture 2">
+                                <input type="number" class="form-control" name="mix2" id="mix2" placeholder="% Mixture 2">
                             </div>
                         </div>
 
@@ -173,15 +173,15 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="type3" class="form-label">Type 3</label>
-                                <input type="text" class="form-control" id="type3" placeholder="Enter Type 3">
+                                <input type="text" class="form-control" name="type3" id="type3" placeholder="Enter Type 3">
                             </div>
                             <div class="col">
                                 <label for="brand3" class="form-label">Brand 3</label>
-                                <input type="text" class="form-control" id="brand3" placeholder="Enter Brand 3">
+                                <input type="text" class="form-control" name="brand3" id="brand3" placeholder="Enter Brand 3">
                             </div>
                             <div class="col">
                                 <label for="mix3" class="form-label">Mixture 3</label>
-                                <input type="number" class="form-control" id="mix3" placeholder="% Mixture 3">
+                                <input type="number" class="form-control" name="mix3" id="mix3" placeholder="% Mixture 3">
                             </div>
                         </div>
 
@@ -189,15 +189,15 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="type4" class="form-label">Type 4</label>
-                                <input type="text" class="form-control" id="type4" placeholder="Enter Type 4">
+                                <input type="text" class="form-control" name="type4" id="type4" placeholder="Enter Type 4">
                             </div>
                             <div class="col">
                                 <label for="brand4" class="form-label">Brand 4</label>
-                                <input type="text" class="form-control" id="brand4" placeholder="Enter Brand 4">
+                                <input type="text" class="form-control" name="brand4" id="brand4" placeholder="Enter Brand 4">
                             </div>
                             <div class="col">
                                 <label for="mix4" class="form-label">Mixture 4</label>
-                                <input type="number" class="form-control" id="mix4" placeholder="% Mixture 4">
+                                <input type="number" class="form-control" name="mix4" id="mix4" placeholder="% Mixture 4">
                             </div>
                         </div>
                     </div>
@@ -218,28 +218,28 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="colorant" class="form-label">Colorant</label>
-                                <input type="text" class="form-control" id="colorant" placeholder="Enter Colorant">
+                                <input type="text" class="form-control" name="colorant" id="colorant" placeholder="Enter Colorant">
                             </div>
                             <div class="col">
                                 <label for="color" class="form-label">Color</label>
-                                <input type="text" class="form-control" id="color" placeholder="Enter Colorant Color">
+                                <input type="text" class="form-control" name="color" id="color" placeholder="Enter Colorant Color">
                             </div>
                             <div class="col">
                                 <label for="colorant-dosage" class="form-label">Colorant Dosage</label>
-                                <input type="text" class="form-control" id="colorant-dosage"
+                                <input type="text" class="form-control" name="colorant-dosage" id="colorant-dosage"
                                     placeholder="Enter Colorant Dosage">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="colorant-stabilizer" class="form-label">Colorant Stabilizer</label>
-                                <input type="text" class="form-control" id="colorant-stabilizer"
+                                <input type="text" class="form-control" name="colorant-stabilizer" id="colorant-stabilizer"
                                     placeholder="Enter Colorant Stabilizer">
                             </div>
                             <div class="col">
                                 <label for="colorant-stabilizer-dosage" class="form-label">Colorant Stabilizer Dosage
                                     (grams)</label>
-                                <input type="text" class="form-control" id="colorant-stabilizer-dosage"
+                                <input type="text" class="form-control" name="colorant-stabilizer-dosage" id="colorant-stabilizer-dosage"
                                     placeholder="Enter Colorant Stabilizer Dosage (grams) ">
                             </div>
                         </div>
@@ -260,30 +260,30 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="mold-code" class="form-label">Mold Code</label>
-                                <input type="text" class="form-control" id="mold-code" placeholder="Enter Mold Code">
+                                <input type="text" class="form-control" name="mold-code" id="mold-code" placeholder="Enter Mold Code">
                             </div>
                             <div class="col">
                                 <label for="clamping-force" class="form-label">Clamping Force</label>
-                                <input type="text" class="form-control" id="clamping-force"
+                                <input type="text" class="form-control" name="clamping-force" id="clamping-force"
                                     placeholder="Enter Clamping Force">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="operation-type" class="form-label">Operation</label>
-                                <input type="text" class="form-control" id="operation-type"
+                                <input type="text" class="form-control" name="operation-type" id="operation-type"
                                     placeholder="Enter Type of Operation">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="cooling-media" class="form-label">Cooling Media</label>
-                                <input type="text" class="form-control" id="cooling-media"
+                                <input type="text" class="form-control" name="cooling-media" id="cooling-media"
                                     placeholder="Enter Cooling Media">
                             </div>
                             <div class="col">
                                 <label for="heating-media" class="form-label">Heating Media</label>
-                                <input type="text" class="form-control" id="heating-media"
+                                <input type="text" class="form-control" name="heating-media" id="heating-media"
                                     placeholder="Enter Heating Media">
                             </div>
                         </div>
@@ -304,30 +304,30 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="fillingTime" class="form-label">Filling Time (s)</label>
-                                <input type="number" class="form-control" id="fillingTime" placeholder="Filling Time">
+                                <input type="number" class="form-control" name="fillingTime" id="fillingTime" placeholder="Filling Time">
                             </div>
                             <div class="col">
                                 <label for="holdingTime" class="form-label">Holding Time (s)</label>
-                                <input type="number" class="form-control" id="holdingTime" placeholder="Holding Time">
+                                <input type="number" class="form-control" name="holdingTime" id="holdingTime" placeholder="Holding Time">
                             </div>
                             <div class="col">
                                 <label for="moldOpenCloseTime" class="form-label">Mold Open-Close Time (s)</label>
-                                <input type="number" class="form-control" id="moldOpenCloseTime"
+                                <input type="number" class="form-control" name="moldOpenCloseTime" id="moldOpenCloseTime"
                                     placeholder="Mold Open-Close Time">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="chargingTime" class="form-label">Charging Time (s)</label>
-                                <input type="number" class="form-control" id="chargingTime" placeholder="Charging Time">
+                                <input type="number" class="form-control" name="chargingTime" id="chargingTime" placeholder="Charging Time">
                             </div>
                             <div class="col">
                                 <label for="coolingTime" class="form-label">Cooling Time (s)</label>
-                                <input type="number" class="form-control" id="coolingTime" placeholder="Cooling Time">
+                                <input type="number" class="form-control" name="coolingTime" id="coolingTime" placeholder="Cooling Time">
                             </div>
                             <div class="col">
                                 <label for="cycleTime" class="form-label">Cycle Time (s)</label>
-                                <input type="number" class="form-control" id="cycleTime" placeholder="Cycle Time">
+                                <input type="number" class="form-control" name="cycleTime" id="cycleTime" placeholder="Cycle Time">
                             </div>
                         </div>
                     </div>
@@ -357,94 +357,94 @@
                                 <!-- Barrel Heater input s -->
                                 <div class="col">
                                     <label for="nozzleHeaterZone0" class="form-label">Nozzle Heater Zone 0 (°C)</label>
-                                    <input type="number" class="form-control" id="nozzleHeaterZone0"
+                                    <input type="number" class="form-control" name="nozzleHeaterZone0" id="nozzleHeaterZone0"
                                         placeholder="Nozzle Heater Zone 0 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone1" class="form-label">Barrel Heater Zone 1 (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone1"
+                                    <input type="number" class="form-control" name="barrelHeaterZone1" id="barrelHeaterZone1"
                                         placeholder="Barrel Heater Zone 1 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone2" class="form-label">Barrel Heater Zone 2 (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone2"
+                                    <input type="number" class="form-control" name="barrelHeaterZone2" id="barrelHeaterZone2"
                                         placeholder="Barrel Heater Zone 2 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone3" class="form-label">Barrel Heater Zone 3 (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone3"
+                                    <input type="number" class="form-control" name="barrelHeaterZone3" id="barrelHeaterZone3"
                                         placeholder="Barrel Heater Zone 3 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone4" class="form-label">Barrel Heater Zone 4 (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone4"
+                                    <input type="number" class="form-control" name="barrelHeaterZone4" id="barrelHeaterZone4"
                                         placeholder="Barrel Heater Zone 4 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone5" class="form-label">Barrel Heater Zone 5 (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone5"
+                                    <input type="number" class="form-control" name="barrelHeaterZone5" id="barrelHeaterZone5"
                                         placeholder="Barrel Heater Zone 5 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone6" class="form-label">Barrel Heater Zone 6 (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone6"
+                                    <input type="number" class="form-control" name="barrelHeaterZone6" id="barrelHeaterZone6"
                                         placeholder="Barrel Heater Zone 6 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone7" class="form-label">Barrel Heater Zone 7 (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone7"
+                                    <input type="number" class="form-control" name="barrelHeaterZone7" id="barrelHeaterZone7"
                                         placeholder="Barrel Heater Zone 7 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone8" class="form-label">Barrel Heater Zone 8 (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone8"
+                                    <input type="number" class="form-control" name="barrelHeaterZone8" id="barrelHeaterZone8"
                                         placeholder="Barrel Heater Zone 8 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone9" class="form-label">Barrel Heater Zone 9 (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone9"
+                                    <input type="number" class="form-control" name="barrelHeaterZone9" id="barrelHeaterZone9"
                                         placeholder="Barrel Heater Zone 9 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone10" class="form-label">Barrel Heater Zone 10
                                         (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone10"
+                                    <input type="number" class="form-control" name="barrelHeaterZone10" id="barrelHeaterZone10"
                                         placeholder="Barrel Heater Zone 10 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone11" class="form-label">Barrel Heater Zone 11
                                         (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone11"
+                                    <input type="number" class="form-control" name="barrelHeaterZone11" id="barrelHeaterZone11"
                                         placeholder="Barrel Heater Zone 11 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone12" class="form-label">Barrel Heater Zone 12
                                         (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone12"
+                                    <input type="number" class="form-control" name="barrelHeaterZone12" id="barrelHeaterZone12"
                                         placeholder="Barrel Heater Zone 12 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone13" class="form-label">Barrel Heater Zone 13
                                         (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone13"
+                                    <input type="number" class="form-control" name="barrelHeaterZone13" id="barrelHeaterZone13"
                                         placeholder="Barrel Heater Zone 13 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone14" class="form-label">Barrel Heater Zone 14
                                         (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone14"
+                                    <input type="number" class="form-control" name="barrelHeaterZone14" id="barrelHeaterZone14"
                                         placeholder="Barrel Heater Zone 14 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone15" class="form-label">Barrel Heater Zone 15
                                         (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone15"
+                                    <input type="number" class="form-control" name="barrelHeaterZone15" id="barrelHeaterZone15"
                                         placeholder="Barrel Heater Zone 15 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone16" class="form-label">Barrel Heater Zone 16
                                         (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone16"
+                                    <input type="number" class="form-control" name="barrelHeaterZone16" id="barrelHeaterZone16"
                                         placeholder="Barrel Heater Zone 16 (°C)">
                                 </div>
                             </div>
@@ -461,99 +461,99 @@
                             <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-3 row-col-lg-6 g-3">
                                 <div class="col">
                                     <label for="barrelHeaterZone0" class="form-label">Barrel Heater Zone 0 (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone0"
+                                    <input type="number" class="form-control" name="barrelHeaterZone0" id="barrelHeaterZone0"
                                         placeholder="Barrel Heater Zone 0 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone1" class="form-label">Barrel Heater Zone 1 (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone1"
+                                    <input type="number" class="form-control" name="barrelHeaterZone1" id="barrelHeaterZone1"
                                         placeholder="Barrel Heater Zone 1 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone2" class="form-label">Barrel Heater Zone 2 (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone2"
+                                    <input type="number" class="form-control" name="barrelHeaterZone2" id="barrelHeaterZone2"
                                         placeholder="Barrel Heater Zone 2 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone3" class="form-label">Barrel Heater Zone 3 (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone3"
+                                    <input type="number" class="form-control" name="barrelHeaterZone3" id="barrelHeaterZone3"
                                         placeholder="Barrel Heater Zone 3 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone4" class="form-label">Barrel Heater Zone 4 (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone4"
+                                    <input type="number" class="form-control" name="barrelHeaterZone4" id="barrelHeaterZone4"
                                         placeholder="Barrel Heater Zone 4 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone5" class="form-label">Barrel Heater Zone 5 (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone5"
+                                    <input type="number" class="form-control" name="barrelHeaterZone5" id="barrelHeaterZone5"
                                         placeholder="Barrel Heater Zone 5 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone6" class="form-label">Barrel Heater Zone 6 (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone6"
+                                    <input type="number" class="form-control" name="barrelHeaterZone6" id="barrelHeaterZone6"
                                         placeholder="Barrel Heater Zone 6 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone7" class="form-label">Barrel Heater Zone 7 (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone7"
+                                    <input type="number" class="form-control" name="barrelHeaterZone7" id="barrelHeaterZone7"
                                         placeholder="Barrel Heater Zone 7 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone8" class="form-label">Barrel Heater Zone 8 (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone8"
+                                    <input type="number" class="form-control" name="barrelHeaterZone8" id="barrelHeaterZone8"
                                         placeholder="Barrel Heater Zone 8 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone9" class="form-label">Barrel Heater Zone 9 (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone9"
+                                    <input type="number" class="form-control" name="barrelHeaterZone9" id="barrelHeaterZone9"
                                         placeholder="Barrel Heater Zone 9 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone10" class="form-label">Barrel Heater Zone 10
                                         (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone10"
+                                    <input type="number" class="form-control" name="barrelHeaterZone10" id="barrelHeaterZone10"
                                         placeholder="Barrel Heater Zone 10 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone11" class="form-label">Barrel Heater Zone 11
                                         (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone11"
+                                    <input type="number" class="form-control" name="barrelHeaterZone11" id="barrelHeaterZone11"
                                         placeholder="Barrel Heater Zone 11 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone12" class="form-label">Barrel Heater Zone 12
                                         (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone12"
+                                    <input type="number" class="form-control" name="barrelHeaterZone12" id="barrelHeaterZone12"
                                         placeholder="Barrel Heater Zone 12 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone13" class="form-label">Barrel Heater Zone 13
                                         (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone13"
+                                    <input type="number" class="form-control" name="barrelHeaterZone13" id="barrelHeaterZone13"
                                         placeholder="Barrel Heater Zone 13 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone14" class="form-label">Barrel Heater Zone 14
                                         (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone14"
+                                    <input type="number" class="form-control" name="barrelHeaterZone14" id="barrelHeaterZone14"
                                         placeholder="Barrel Heater Zone 14 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone15" class="form-label">Barrel Heater Zone 15
                                         (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone15"
+                                    <input type="number" class="form-control" name="barrelHeaterZone15" id="barrelHeaterZone15"
                                         placeholder="Barrel Heater Zone 15 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone16" class="form-label">Barrel Heater Zone 16
                                         (°C)</label>
-                                    <input type="number" class="form-control" id="barrelHeaterZone16"
+                                    <input type="number" class="form-control" name="barrelHeaterZone16" id="barrelHeaterZone16"
                                         placeholder="Barrel Heater Zone 16 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="MTCSetting" class="form-label">MTC Setting</label>
-                                    <input type="number" class="form-control" id="MTCSetting" placeholder="MTC Setting">
+                                    <input type="number" class="form-control" name="MTCSetting" id="MTCSetting" placeholder="MTC Setting">
                                 </div>
                             </div>
                         </div>
@@ -586,32 +586,32 @@
                             <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-6 g-3">
                                 <div class="col">
                                     <label for="moldOpenPos1" class="form-label">Position 1</label>
-                                    <input type="number" class="form-control" id="moldOpenPos1"
+                                    <input type="number" class="form-control" name="moldOpenPos1" id="moldOpenPos1"
                                         placeholder="Position 1">
                                 </div>
                                 <div class="col">
                                     <label for="moldOpenPos2" class="form-label">Position 2</label>
-                                    <input type="number" class="form-control" id="moldOpenPos2"
+                                    <input type="number" class="form-control" name="moldOpenPos2" id="moldOpenPos2"
                                         placeholder="Position 2">
                                 </div>
                                 <div class="col">
                                     <label for="moldOpenPos3" class="form-label">Position 3</label>
-                                    <input type="number" class="form-control" id="moldOpenPos3"
+                                    <input type="number" class="form-control" name="moldOpenPos3" id="moldOpenPos3"
                                         placeholder="Position 3">
                                 </div>
                                 <div class="col">
                                     <label for="moldOpenPos4" class="form-label">Position 4</label>
-                                    <input type="number" class="form-control" id="moldOpenPos4"
+                                    <input type="number" class="form-control" name="moldOpenPos4" id="moldOpenPos4"
                                         placeholder="Position 4">
                                 </div>
                                 <div class="col">
                                     <label for="moldOpenPos5" class="form-label">Position 5</label>
-                                    <input type="number" class="form-control" id="moldOpenPos5"
+                                    <input type="number" class="form-control" name="moldOpenPos5" id="moldOpenPos5"
                                         placeholder="Position 5">
                                 </div>
                                 <div class="col">
                                     <label for="moldOpenPos6" class="form-label">Position 6</label>
-                                    <input type="number" class="form-control" id="moldOpenPos6"
+                                    <input type="number" class="form-control" name="moldOpenPos6" id="moldOpenPos6"
                                         placeholder="Position 6">
                                 </div>
                             </div>
@@ -620,27 +620,27 @@
                             <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-6 g-3">
                                 <div class="col">
                                     <label for="moldOpenSpd1" class="form-label">Speed 1</label>
-                                    <input type="number" class="form-control" id="moldOpenSpd1" placeholder="Speed 1">
+                                    <input type="number" class="form-control" name="moldOpenSpd1" id="moldOpenSpd1" placeholder="Speed 1">
                                 </div>
                                 <div class="col">
                                     <label for="moldOpenSpd2" class="form-label">Speed 2</label>
-                                    <input type="number" class="form-control" id="moldOpenSpd2" placeholder="Speed 2">
+                                    <input type="number" class="form-control" name="moldOpenSpd2" id="moldOpenSpd2" placeholder="Speed 2">
                                 </div>
                                 <div class="col">
                                     <label for="moldOpenSpd3" class="form-label">Speed 3</label>
-                                    <input type="number" class="form-control" id="moldOpenSpd3" placeholder="Speed 3">
+                                    <input type="number" class="form-control" name="moldOpenSpd3" id="moldOpenSpd3" placeholder="Speed 3">
                                 </div>
                                 <div class="col">
                                     <label for="moldOpenSpd4" class="form-label">Speed 4</label>
-                                    <input type="number" class="form-control" id="moldOpenSpd4" placeholder="Speed 4">
+                                    <input type="number" class="form-control" name="moldOpenSpd4" id="moldOpenSpd4" placeholder="Speed 4">
                                 </div>
                                 <div class="col">
                                     <label for="moldOpenSpd5" class="form-label">Speed 5</label>
-                                    <input type="number" class="form-control" id="moldOpenSpd5" placeholder="Speed 5">
+                                    <input type="number" class="form-control" name="moldOpenSpd5" id="moldOpenSpd5" placeholder="Speed 5">
                                 </div>
                                 <div class="col">
                                     <label for="moldOpenSpd6" class="form-label">Speed 6</label>
-                                    <input type="number" class="form-control" id="moldOpenSpd6" placeholder="Speed 6">
+                                    <input type="number" class="form-control" name="moldOpenSpd6" id="moldOpenSpd6" placeholder="Speed 6">
                                 </div>
                             </div>
                             <!-- MO Pressure -->
@@ -648,32 +648,32 @@
                             <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-6 g-3">
                                 <div class="col">
                                     <label for="moldOpenPressure1" class="form-label">Pressure 1</label>
-                                    <input type="number" class="form-control" id="moldOpenPressure1"
+                                    <input type="number" class="form-control" name="moldOpenPressure1" id="moldOpenPressure1"
                                         placeholder="Pressure 1">
                                 </div>
                                 <div class="col">
                                     <label for="moldOpenPressure2" class="form-label">Pressure 2</label>
-                                    <input type="number" class="form-control" id="moldOpenPressure2"
+                                    <input type="number" class="form-control" name="moldOpenPressure2" id="moldOpenPressure2"
                                         placeholder="Pressure 2">
                                 </div>
                                 <div class="col">
                                     <label for="moldOpenPressure3" class="form-label">Pressure 3</label>
-                                    <input type="number" class="form-control" id="moldOpenPressure3"
+                                    <input type="number" class="form-control" name="moldOpenPressure3" id="moldOpenPressure3"
                                         placeholder="Pressure 3">
                                 </div>
                                 <div class="col">
                                     <label for="moldOpenPressure4" class="form-label">Pressure 4</label>
-                                    <input type="number" class="form-control" id="moldOpenPressure4"
+                                    <input type="number" class="form-control" name="moldOpenPressure4" id="moldOpenPressure4"
                                         placeholder="Pressure 4">
                                 </div>
                                 <div class="col">
                                     <label for="moldOpenPressure5" class="form-label">Pressure 5</label>
-                                    <input type="number" class="form-control" id="moldOpenPressure5"
+                                    <input type="number" class="form-control" name="moldOpenPressure5" id="moldOpenPressure5"
                                         placeholder="Pressure 5">
                                 </div>
                                 <div class="col">
                                     <label for="moldOpenPressure6" class="form-label">Pressure 6</label>
-                                    <input type="number" class="form-control" id="moldOpenPressure6"
+                                    <input type="number" class="form-control" name="moldOpenPressure6" id="moldOpenPressure6"
                                         placeholder="Pressure 6">
                                 </div>
                             </div>
@@ -693,32 +693,32 @@
                             <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-6 g-3">
                                 <div class="col">
                                     <label for="moldClosePos1" class="form-label">Position 1</label>
-                                    <input type="number" class="form-control" id="moldClosePos1"
+                                    <input type="number" class="form-control" name="moldClosePos1" id="moldClosePos1"
                                         placeholder="Position 1">
                                 </div>
                                 <div class="col">
                                     <label for="moldOpenPos2" class="form-label">Position 2</label>
-                                    <input type="number" class="form-control" id="moldOpenPos2"
+                                    <input type="number" class="form-control" name="moldOpenPos2" id="moldOpenPos2"
                                         placeholder="Position 2">
                                 </div>
                                 <div class="col">
                                     <label for="moldClosePos3" class="form-label">Position 3</label>
-                                    <input type="number" class="form-control" id="moldClosePos3"
+                                    <input type="number" class="form-control" name="moldClosePos3" id="moldClosePos3"
                                         placeholder="Position 3">
                                 </div>
                                 <div class="col">
                                     <label for="moldClosePos4" class="form-label">Position 4</label>
-                                    <input type="number" class="form-control" id="moldClosePos4"
+                                    <input type="number" class="form-control" name="moldClosePos4" id="moldClosePos4"
                                         placeholder="Position 4">
                                 </div>
                                 <div class="col">
                                     <label for="moldClosePos5" class="form-label">Position 5</label>
-                                    <input type="number" class="form-control" id="moldClosePos5"
+                                    <input type="number" class="form-control" name="moldClosePos5" id="moldClosePos5"
                                         placeholder="Position 5">
                                 </div>
                                 <div class="col">
                                     <label for="moldClosePos6" class="form-label">Position 6</label>
-                                    <input type="number" class="form-control" id="moldClosePos6"
+                                    <input type="number" class="form-control" name="moldClosePos6" id="moldClosePos6"
                                         placeholder="Position 6">
                                 </div>
                             </div>
@@ -727,27 +727,27 @@
                             <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-6 g-3">
                                 <div class="col">
                                     <label for="moldCloseSpd1" class="form-label">Speed 1</label>
-                                    <input type="number" class="form-control" id="moldCloseSpd1" placeholder="Speed 1">
+                                    <input type="number" class="form-control" name="moldCloseSpd1" id="moldCloseSpd1" placeholder="Speed 1">
                                 </div>
                                 <div class="col">
                                     <label for="moldCloseSpd2" class="form-label">Speed 2</label>
-                                    <input type="number" class="form-control" id="moldCloseSpd2" placeholder="Speed 2">
+                                    <input type="number" class="form-control" name="moldCloseSpd2" id="moldCloseSpd2" placeholder="Speed 2">
                                 </div>
                                 <div class="col">
                                     <label for="moldCloseSpd3" class="form-label">Speed 3</label>
-                                    <input type="number" class="form-control" id="moldCloseSpd3" placeholder="Speed 3">
+                                    <input type="number" class="form-control" name="moldCloseSpd3" id="moldCloseSpd3" placeholder="Speed 3">
                                 </div>
                                 <div class="col">
                                     <label for="moldCloseSpd4" class="form-label">Speed 4</label>
-                                    <input type="number" class="form-control" id="moldCloseSpd4" placeholder="Speed 4">
+                                    <input type="number" class="form-control" name="moldCloseSpd4" id="moldCloseSpd4" placeholder="Speed 4">
                                 </div>
                                 <div class="col">
                                     <label for="moldCloseSpd5" class="form-label">Speed 5</label>
-                                    <input type="number" class="form-control" id="moldCloseSpd5" placeholder="Speed 5">
+                                    <input type="number" class="form-control" name="moldCloseSpd5" id="moldCloseSpd5" placeholder="Speed 5">
                                 </div>
                                 <div class="col">
                                     <label for="moldCloseSpd6" class="form-label">Speed 6</label>
-                                    <input type="number" class="form-control" id="moldCloseSpd6" placeholder="Speed 6">
+                                    <input type="number" class="form-control" name="moldCloseSpd6" id="moldCloseSpd6" placeholder="Speed 6">
                                 </div>
                             </div>
                             <!-- MO Pressure -->
@@ -755,30 +755,30 @@
                             <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
                                 <div class="col">
                                     <label for="moldClosePressure1" class="form-label">Pressure 1</label>
-                                    <input type="number" class="form-control" id="moldClosePressure1"
+                                    <input type="number" class="form-control" name="moldClosePressure1" id="moldClosePressure1"
                                         placeholder="Pressure 1">
                                 </div>
                                 <div class="col">
                                     <label for="moldClosePressure2" class="form-label">Pressure 2</label>
-                                    <input type="number" class="form-control" id="moldClosePressure2"
+                                    <input type="number" class="form-control" name="moldClosePressure2" id="moldClosePressure2"
                                         placeholder="Pressure 2">
                                 </div>
                                 <div class="col">
                                     <label for="moldClosePressure3" class="form-label">Pressure 3</label>
-                                    <input type="number" class="form-control" id="moldClosePressure3"
+                                    <input type="number" class="form-control" name="moldClosePressure3" id="moldClosePressure3"
                                         placeholder="Pressure 3">
                                 </div>
                                 <div class="col">
                                     <label for="pclorlp" class="form-label">PLC/LP</label>
-                                    <input type="text" class="form-control" id="pclorlp" placeholder="PLC/LP">
+                                    <input type="text" class="form-control" name="pclorlp" id="pclorlp" placeholder="PLC/LP">
                                 </div>
                                 <div class="col">
                                     <label for="pchorhp" class="form-label">PCH/HP</label>
-                                    <input type="text" class="form-control" id="pchorhp" placeholder="PCH/HP">
+                                    <input type="text" class="form-control" name="pchorhp" id="pchorhp" placeholder="PCH/HP">
                                 </div>
                                 <div class="col">
                                     <label for="lowPresTimeLimit" class="form-label">Low Pressure Time Limit</label>
-                                    <input type="text" class="form-control" id="lowPresTimeLimit"
+                                    <input type="text" class="form-control" name="lowPresTimeLimit" id="lowPresTimeLimit"
                                         placeholder="Low Pressure Time Limit">
                                 </div>
                             </div>
@@ -800,79 +800,79 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="screwRPM1" class="form-label">Screw RPM 1</label>
-                                <input type="number" class="form-control" id="screwRPM1" placeholder="Screw RPM 1">
+                                <input type="number" class="form-control" name="screwRPM1" id="screwRPM1" placeholder="Screw RPM 1">
                             </div>
                             <div class="col">
                                 <label for="screwRPM2" class="form-label">Screw RPM 2</label>
-                                <input type="number" class="form-control" id="screwRPM2" placeholder="Screw RPM 2">
+                                <input type="number" class="form-control" name="screwRPM2" id="screwRPM2" placeholder="Screw RPM 2">
                             </div>
                             <div class="col">
                                 <label for="screwRPM3" class="form-label">Screw RPM 3</label>
-                                <input type="number" class="form-control" id="screwRPM3" placeholder="Screw RPM 3">
+                                <input type="number" class="form-control" name="screwRPM3" id="screwRPM3" placeholder="Screw RPM 3">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="screwSpeed1" class="form-label">Screw Speed 1</label>
-                                <input type="number" class="form-control" id="screwSpeed1" placeholder="Screw Speed 1">
+                                <input type="number" class="form-control" name="screwSpeed1" id="screwSpeed1" placeholder="Screw Speed 1">
                             </div>
                             <div class="col">
                                 <label for="screwSpeed2" class="form-label">Screw Speed 2</label>
-                                <input type="number" class="form-control" id="screwSpeed2" placeholder="Screw Speed 2">
+                                <input type="number" class="form-control" name="screwSpeed2" id="screwSpeed2" placeholder="Screw Speed 2">
                             </div>
                             <div class="col">
                                 <label for="screwSpeed3" class="form-label">Screw Speed 3</label>
-                                <input type="number" class="form-control" id="screwSpeed3" placeholder="Screw Speed 3">
+                                <input type="number" class="form-control" name="screwSpeed3" id="screwSpeed3" placeholder="Screw Speed 3">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="plastPressure1" class="form-label">Plast Pressure 1</label>
-                                <input type="number" class="form-control" id="plastPressure1"
+                                <input type="number" class="form-control" name="plastPressure1" id="plastPressure1"
                                     placeholder="Plast Pressure 1">
                             </div>
                             <div class="col">
                                 <label for="plastPressure2" class="form-label">Plast Pressure 2</label>
-                                <input type="number" class="form-control" id="plastPressure2"
+                                <input type="number" class="form-control" name="plastPressure2" id="plastPressure2"
                                     placeholder="Plast Pressure 2">
                             </div>
                             <div class="col">
                                 <label for="plastPressure3" class="form-label">Plast Pressure 3</label>
-                                <input type="number" class="form-control" id="plastPressure3"
+                                <input type="number" class="form-control" name="plastPressure3" id="plastPressure3"
                                     placeholder="Plast Pressure 3">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="plastPosition1" class="form-label">Plast Position 1</label>
-                                <input type="number" class="form-control" id="plastPosition1"
+                                <input type="number" class="form-control" name="plastPosition1" id="plastPosition1"
                                     placeholder="Plast Position 1">
                             </div>
                             <div class="col">
                                 <label for="plastPosition2" class="form-label">Plast Position 2</label>
-                                <input type="number" class="form-control" id="plastPosition2"
+                                <input type="number" class="form-control" name="plastPosition2" id="plastPosition2"
                                     placeholder="Plast Position 2">
                             </div>
                             <div class="col">
                                 <label for="plastPosition3" class="form-label">Plast Position 3</label>
-                                <input type="number" class="form-control" id="plastPosition3"
+                                <input type="number" class="form-control" name="plastPosition3" id="plastPosition3"
                                     placeholder="Plast Position 3">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="backPressure1" class="form-label">Back Pressure 1</label>
-                                <input type="number" class="form-control" id="backPressure1"
+                                <input type="number" class="form-control" name="backPressure1" id="backPressure1"
                                     placeholder="Back Pressure 1">
                             </div>
                             <div class="col">
                                 <label for="backPressure2" class="form-label">Back Pressure 2</label>
-                                <input type="number" class="form-control" id="backPressure2"
+                                <input type="number" class="form-control" name="backPressure2" id="backPressure2"
                                     placeholder="Back Pressure 2">
                             </div>
                             <div class="col">
                                 <label for="backPressure3" class="form-label">Back Pressure 3</label>
-                                <input type="number" class="form-control" id="backPressure3"
+                                <input type="number" class="form-control" name="backPressure3" id="backPressure3"
                                     placeholder="Back Pressure 3">
                             </div>
                         </div>
@@ -880,7 +880,7 @@
                             <div class="col">
                                 <label for="backPressureStartPosition" class="form-label">Back Pressure Start
                                     Position</label>
-                                <input type="number" class="form-control" id="backPressureStartPosition"
+                                <input type="number" class="form-control" name="backPressureStartPosition" id="backPressureStartPosition"
                                     placeholder="Back Pressure Start Position">
                             </div>
                         </div>
@@ -901,33 +901,33 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="RecoveryPOS" class="form-label">Recovery Position (mm)</label>
-                                <input type="number" class="form-control" id="recoveryPOS"
+                                <input type="number" class="form-control" name="recoveryPOS" id="recoveryPOS"
                                     placeholder="Recovery Position">
                             </div>
                             <div class="col">
                                 <label for="SecondStagePosition" class="form-label">Second Stage Position (mm)</label>
-                                <input type="text" class="form-control" id="secondStagePosition"
+                                <input type="text" class="form-control" name="secondStagePosition" id="secondStagePosition"
                                     placeholder="Second Stage Position">
                             </div>
                             <div class="col">
                                 <label for="Cushion" class="form-label">Cushion (mm)</label>
-                                <input type="text" class="form-control" id="cushion" placeholder="Cushion">
+                                <input type="text" class="form-control" name="cushion" id="cushion" placeholder="Cushion">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="ScrewPosition1" class="form-label">Screw Position 1</label>
-                                <input type="text" class="form-control" id="screwPosition1"
+                                <input type="text" class="form-control" name="screwPosition1" id="screwPosition1"
                                     placeholder="Screw Position 1">
                             </div>
                             <div class="col">
                                 <label for="ScrewPosition2" class="form-label">Screw Position 2</label>
-                                <input type="text" class="form-control" id="screwPosition2"
+                                <input type="text" class="form-control" name="screwPosition2" id="screwPosition2"
                                     placeholder="Screw Position 2">
                             </div>
                             <div class="col">
                                 <label for="ScrewPosition3" class="form-label">Screw Position 3</label>
-                                <input type="text" class="form-control" id="screwPosition3"
+                                <input type="text" class="form-control" name="screwPosition3" id="screwPosition3"
                                     placeholder="Screw Position 3">
                             </div>
                         </div>
@@ -936,167 +936,167 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="INJSpeed1" class="form-label">Injection Speed 1</label>
-                                <input type="text" class="form-control" id="injectionSpeed1"
+                                <input type="text" class="form-control" name="injectionSpeed1" id="injectionSpeed1"
                                     placeholder="Injection Speed 1">
                             </div>
                             <div class="col">
                                 <label for="INJSpeed2" class="form-label">Injection Speed 2</label>
-                                <input type="text" class="form-control" id="injectionSpeed2"
+                                <input type="text" class="form-control" name="injectionSpeed2" id="injectionSpeed2"
                                     placeholder="Injection Speed 2">
                             </div>
                             <div class="col">
                                 <label for="INJSpeed3" class="form-label">Injection Speed 3</label>
-                                <input type="text" class="form-control" id="injectionSpeed3"
+                                <input type="text" class="form-control" name="injectionSpeed3" id="injectionSpeed3"
                                     placeholder="Injection Speed 3">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="INJPressure1" class="form-label">Injection Pressure 1</label>
-                                <input type="text" class="form-control" id="injectionPressure1"
+                                <input type="text" class="form-control" name="injectionPressure1" id="injectionPressure1"
                                     placeholder="Injection Pressure 1">
                             </div>
                             <div class="col">
                                 <label for="INJPressure2" class="form-label">Injection Pressure 2</label>
-                                <input type="text" class="form-control" id="injectionPressure2"
+                                <input type="text" class="form-control" name="injectionPressure2" id="injectionPressure2"
                                     placeholder="Injection Pressure 2">
                             </div>
                             <div class="col">
                                 <label for="INJPressure3" class="form-label">Injection Pressure 3</label>
-                                <input type="text" class="form-control" id="injectionPressure3"
+                                <input type="text" class="form-control" name="injectionPressure3" id="injectionPressure3"
                                     placeholder="Injection Pressure 3">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="SuckBackPos" class="form-label">Suck Back Position</label>
-                                <input type="text" class="form-control" id="suckBackPosition"
+                                <input type="text" class="form-control" name="suckBackPosition" id="suckBackPosition"
                                     placeholder="Suck Back Position">
                             </div>
                             <div class="col">
                                 <label for="SuckBackSpeed" class="form-label">Suck Back Speed</label>
-                                <input type="text" class="form-control" id="suckBackSpeed"
+                                <input type="text" class="form-control" name="suckBackSpeed" id="suckBackSpeed"
                                     placeholder="Suck Back Speed">
                             </div>
                             <div class="col">
                                 <label for="SuckBackPres" class="form-label">Suck Back Pressure</label>
-                                <input type="text" class="form-control" id="suckBackPressure"
+                                <input type="text" class="form-control" name="suckBackPressure" id="suckBackPressure"
                                     placeholder="Suck Back Pressure">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="ScrewPosition4" class="form-label">Screw Position 4</label>
-                                <input type="text" class="form-control" id="screwPosition4"
+                                <input type="text" class="form-control" name="screwPosition4" id="screwPosition4"
                                     placeholder="Screw Position 4">
                             </div>
                             <div class="col">
                                 <label for="ScrewPosition5" class="form-label">Screw Position 5</label>
-                                <input type="text" class="form-control" id="ScrewPosition5"
+                                <input type="text" class="form-control" name="ScrewPosition5" id="ScrewPosition5"
                                     placeholder="Screw Position 5">
                             </div>
                             <div class="col">
                                 <label for="ScrewPosition6" class="form-label">Screw Position 6</label>
-                                <input type="text" class="form-control" id="ScrewPosition6"
+                                <input type="text" class="form-control" name="ScrewPosition6" id="ScrewPosition6"
                                     placeholder="Screw Position 6">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="InjectionSpeed4" class="form-label">Injection Speed 4</label>
-                                <input type="text" class="form-control" id="InjectionSpeed4"
+                                <input type="text" class="form-control" name="InjectionSpeed4" id="InjectionSpeed4"
                                     placeholder="Injection Speed 4">
                             </div>
                             <div class="col">
                                 <label for="InjectionSpeed5" class="form-label">Injection Speed 5</label>
-                                <input type="text" class="form-control" id="InjectionSpeed5"
+                                <input type="text" class="form-control" name="InjectionSpeed5" id="InjectionSpeed5"
                                     placeholder="Injection Speed 5">
                             </div>
                             <div class="col">
                                 <label for="InjectionSpeed6" class="form-label">Injection Speed 6</label>
-                                <input type="text" class="form-control" id="InjectionSpeed6"
+                                <input type="text" class="form-control" name="InjectionSpeed6" id="InjectionSpeed6"
                                     placeholder="Injection Speed 6">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="InjectionPressure4" class="form-label">Injection Pressure 4</label>
-                                <input type="text" class="form-control" id="InjectionPressure4"
+                                <input type="text" class="form-control" name="InjectionPressure4" id="InjectionPressure4"
                                     placeholder="Injection Pressure 4">
                             </div>
                             <div class="col">
                                 <label for="InjectionPressure5" class="form-label">Injection Pressure 5</label>
-                                <input type="text" class="form-control" id="InjectionPressure5"
+                                <input type="text" class="form-control" name="InjectionPressure5" id="InjectionPressure5"
                                     placeholder="Injection Pressure 5">
                             </div>
                             <div class="col">
                                 <label for="InjectionPressure6" class="form-label">Injection Pressure 6</label>
-                                <input type="text" class="form-control" id="InjectionPressure6"
+                                <input type="text" class="form-control" name="InjectionPressure6" id="InjectionPressure6"
                                     placeholder="Injection Pressure 6">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="SprueBreak" class="form-label">Sprue Break</label>
-                                <input type="text" class="form-control" id="SprueBreak" placeholder="Sprue Break">
+                                <input type="text" class="form-control" name="SprueBreak" id="SprueBreak" placeholder="Sprue Break">
                             </div>
                             <div class="col">
                                 <label for="SprueBreakTime" class="form-label">Sprue Break Time</label>
-                                <input type="text" class="form-control" id="SprueBreakTime"
+                                <input type="text" class="form-control" name="SprueBreakTime" id="SprueBreakTime"
                                     placeholder="Sprue Break Time">
                             </div>
                             <div class="col">
                                 <label for="InjectionDelay" class="form-label">Injection Delay</label>
-                                <input type="text" class="form-control" id="InjectionDelay"
+                                <input type="text" class="form-control" name="InjectionDelay" id="InjectionDelay"
                                     placeholder="Injection Delay">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="HoldingPres1" class="form-label">Holding Pressure 1</label>
-                                <input type="text" class="form-control" id="HoldingPres1"
+                                <input type="text" class="form-control" name="HoldingPres1" id="HoldingPres1"
                                     placeholder="Holding Pressure 1">
                             </div>
                             <div class="col">
                                 <label for="HoldingPres2" class="form-label">Sprue Break Time</label>
-                                <input type="text" class="form-control" id="HoldingPres2"
+                                <input type="text" class="form-control" name="HoldingPres2" id="HoldingPres2"
                                     placeholder="Holding Pressure 2">
                             </div>
                             <div class="col">
                                 <label for="HoldingPres3" class="form-label">Holding Pressure 3</label>
-                                <input type="text" class="form-control" id="HoldingPres3"
+                                <input type="text" class="form-control" name="HoldingPres3" id="HoldingPres3"
                                     placeholder="Holding Pressure 3">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="HoldingSpeed1" class="form-label">Holding Speed 1</label>
-                                <input type="text" class="form-control" id="HoldingSpeed1"
+                                <input type="text" class="form-control" name="HoldingSpeed1" id="HoldingSpeed1"
                                     placeholder="Holding Speed 1">
                             </div>
                             <div class="col">
                                 <label for="HoldingSpeed2" class="form-label">Holding Speed 2</label>
-                                <input type="text" class="form-control" id="HoldingSpeed2"
+                                <input type="text" class="form-control" name="HoldingSpeed2" id="HoldingSpeed2"
                                     placeholder="Holding Speed 2">
                             </div>
                             <div class="col">
                                 <label for="HoldingSpeed3" class="form-label">Holding Speed 3</label>
-                                <input type="text" class="form-control" id="HoldingSpeed3"
+                                <input type="text" class="form-control" name="HoldingSpeed3" id="HoldingSpeed3"
                                     placeholder="Holding Speed 3">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="HoldingTime1" class="form-label">Holding Time 1</label>
-                                <input type="text" class="form-control" id="HoldingTime1" placeholder="Holding Time 1">
+                                <input type="text" class="form-control" name="HoldingTime1" id="HoldingTime1" placeholder="Holding Time 1">
                             </div>
                             <div class="col">
                                 <label for="HoldingTime2" class="form-label">Holding Time 2</label>
-                                <input type="text" class="form-control" id="HoldingTime2" placeholder="Holding Time 2">
+                                <input type="text" class="form-control" name="HoldingTime2" id="HoldingTime2" placeholder="Holding Time 2">
                             </div>
                             <div class="col">
                                 <label for="HoldingTime3" class="form-label">Holding Time 3</label>
-                                <input type="text" class="form-control" id="HoldingTime3" placeholder="Holding Time 3">
+                                <input type="text" class="form-control" name="HoldingTime3" id="HoldingTime3" placeholder="Holding Time 3">
                             </div>
                         </div>
                     </div>
@@ -1116,33 +1116,33 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="AirBlowTimeA" class="form-label">Air Blow Time A</label>
-                                <input type="text" class="form-control" id="airBlowTime A"
+                                <input type="text" class="form-control" name="airBlowTime A"d="airBlowTime A"
                                     placeholder="Air Blow Time A">
                             </div>
                             <div class="col">
                                 <label for="AirBlowPositionA" class="form-label">Air Blow Position A</label>
-                                <input type="text" class="form-control" id="airBlowPositionA"
+                                <input type="text" class="form-control" name="airBlowPositionA" id="airBlowPositionA"
                                     placeholder="Air Blow Position A">
                             </div>
                             <div class="col">
                                 <label for="AB A Delay" class="form-label">Air Blow A Delay</label>
-                                <input type="text" class="form-control" id="airBlowADelay"
+                                <input type="text" class="form-control" name="airBlowADelay" id="airBlowADelay"
                                     placeholder="Air Blow A Delay">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="AirBlowTimeB" class="form-label">Air Blow Time B</label>
-                                <input type="text" class="form-control" id="airBlowTimeB" placeholder="Air Blow Time B">
+                                <input type="text" class="form-control" name="airBlowTimeB" id="airBlowTimeB" placeholder="Air Blow Time B">
                             </div>
                             <div class="col">
                                 <label for="AirBlowPosB" class="form-label">Air Blow Position B</label>
-                                <input type="text" class="form-control" id="aBlowPositionB"
+                                <input type="text" class="form-control" name="aBlowPositionB" id="aBlowPositionB"
                                     placeholder="Air Blow Position B">
                             </div>
                             <div class="col">
                                 <label for="AirBlowBDelay" class="form-label">Air Blow B Delay</label>
-                                <input type="text" class="form-control" id="airBlowBDelay"
+                                <input type="text" class="form-control" name="airBlowBDelay" id="airBlowBDelay"
                                     placeholder="Air Blow B Delay">
                             </div>
                         </div>
@@ -1150,18 +1150,18 @@
                             <div class="col">
                                 <label for="EjectorForwardPOS1" class="form-label">Ejector Forward Position
                                     1</label>
-                                <input type="text" class="form-control" id="ejectorForwardPOS1"
+                                <input type="text" class="form-control" name="ejectorForwardPOS1" id="ejectorForwardPOS1"
                                     placeholder="Ejector Forward Position 1">
                             </div>
                             <div class="col">
                                 <label for="EjectorForwardPOS2" class="form-label">Ejector Forward Position
                                     2</label>
-                                <input type="text" class="form-control" id="ejectorForwardPOS2"
+                                <input type="text" class="form-control" name="ejectorForwardPOS2" id="ejectorForwardPOS2"
                                     placeholder="Ejector Forward Position 2">
                             </div>
                             <div class="col">
                                 <label for="EFSpeed1" class="form-label">Ejector Forward Speed 1</label>
-                                <input type="text" class="form-control" id="ejectorForwardSpeed1"
+                                <input type="text" class="form-control" name="ejectorForwardSpeed1" id="ejectorForwardSpeed1"
                                     placeholder="Ejector Forward Speed 1">
                             </div>
                         </div>
@@ -1169,19 +1169,19 @@
                             <div class="col">
                                 <label for="EjectorRetractPosition1" class="form-label">Ejector Retract Position
                                     1</label>
-                                <input type="text" class="form-control" id="ejectorRetractPosition1"
+                                <input type="text" class="form-control" name="ejectorRetractPosition1" id="ejectorRetractPosition1"
                                     placeholder="Ejector Retract Position 1">
                             </div>
                             <div class="col">
                                 <label for="EjectorRetractPosition2" class="form-label">Ejector Retract Position
                                     2</label>
-                                <input type="text" class="form-control" id="ejectorRetractPosition2"
+                                <input type="text" class="form-control" name="ejectorRetractPosition2" id="ejectorRetractPosition2"
                                     placeholder="Ejector Retract Position 2">
                             </div>
                             <div class="col">
                                 <label for="Ejector Retract Speed1" class="form-label">Ejector Retract Speed
                                     1</label>
-                                <input type="text" class="form-control" id="ejectorRetractSpeed1"
+                                <input type="text" class="form-control" name="ejectorRetractSpeed1" id="ejectorRetractSpeed1"
                                     placeholder="Ejector Retract Speed 1">
                             </div>
                         </div>
@@ -1189,54 +1189,54 @@
                             <div class="col">
                                 <label for="EjectorForwardPosition" class="form-label">Ejector Forward
                                     Position</label>
-                                <input type="text" class="form-control" id="ejectorForwardPosition"
+                                <input type="text" class="form-control" name="ejectorForwardPosition" id="ejectorForwardPosition"
                                     placeholder="Ejector Forward Position">
                             </div>
                             <div class="col">
                                 <label for="EjectorForwardTime" class="form-label">Ejector Forward Time</label>
-                                <input type="text" class="form-control" id="ejectorForwardTime"
+                                <input type="text" class="form-control" name="ejectorForwardTime" id="ejectorForwardTime"
                                     placeholder="Ejector Forward Time">
                             </div>
                             <div class="col">
                                 <label for="EjectorRetractPosition" class="form-label">Ejector Retract
                                     Position</label>
-                                <input type="text" class="form-control" id="ejectorRetractPosition"
+                                <input type="text" class="form-control" name="ejectorRetractPosition" id="ejectorRetractPosition"
                                     placeholder="Ejector Retract Position">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="EjectorRetractTime" class="form-label">Ejector Retract Time</label>
-                                <input type="text" class="form-control" id="ejectorRetractTime"
+                                <input type="text" class="form-control" name="ejectorRetractTime" id="ejectorRetractTime"
                                     placeholder="Ejector Retract Time">
                             </div>
                             <div class="col">
                                 <label for="EjectorForwardSpeed2" class="form-label">Ejector Forward Speed 2</label>
-                                <input type="text" class="form-control" id="ejectorForwardSpeed2"
+                                <input type="text" class="form-control" name="ejectorForwardSpeed2" id="ejectorForwardSpeed2"
                                     placeholder="Ejector Forward Speed2">
                             </div><!--sub field-->
                             <div class="col">
                                 <label for="EjectorForwardPressure1" class="form-label">Ejector Forward Pressure
                                     1</label>
-                                <input type="text" class="form-control" id="ejectorForwardPressure1"
+                                <input type="text" class="form-control" name="ejectorForwardPressure1" id="ejectorForwardPressure1"
                                     placeholder="Ejector Forward Pressure 1">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="EjectorForwardSpeed2" class="form-label">Ejector Forward Speed 2</label>
-                                <input type="text" class="form-control" id="ejectorForwardSpeed2"
+                                <input type="text" class="form-control" name="ejectorForwardSpeed2" id="ejectorForwardSpeed2"
                                     placeholder="Ejector Forward Speed 2">
                             </div>
                             <!--sub field-->
                             <div class="col">
                                 <label for="EjectorForward" class="form-label">Ejector Forward</label>
-                                <input type="text" class="form-control" id="ejectorForward"
+                                <input type="text" class="form-control" name="ejectorForward" id="ejectorForward"
                                     placeholder="Ejector Forward">
                             </div>
                             <div class="col">
                                 <label for="EjectorRetractSpeed2" class="form-label">Ejector Retract Speed 2</label>
-                                <input type="text" class="form-control" id="ejectorRetractSpeed2"
+                                <input type="text" class="form-control" name="ejectorRetractSpeed2" id="ejectorRetractSpeed2"
                                     placeholder="Ejector Retract Speed 2">
                             </div>
                         </div>
@@ -1245,18 +1245,18 @@
                             <div class="col">
                                 <label for="EjectorRetractPressure1" class="form-label">Ejector Retract Pressure
                                     1</label>
-                                <input type="text" class="form-control" id="ejectorRetractPressure1"
+                                <input type="text" class="form-control" name="ejectorRetractPressure1" id="ejectorRetractPressure1"
                                     placeholder="Ejector Retract Pressure 1">
                             </div>
                             <div class="col">
                                 <label for="EjectorRetractSpeed2" class="form-label">Ejector Retract Speed 2</label>
-                                <input type="text" class="form-control" id="ejectorRetractSpeed2"
+                                <input type="text" class="form-control" name="ejectorRetractSpeed2" id="ejectorRetractSpeed2"
                                     placeholder="Ejector Retract Speed 2">
                             </div>
                             <!--sub field-->
                             <div class="col">
                                 <label for="EjectorRetract" class="form-label">Ejector Retract</label>
-                                <input type="text" class="form-control" id="ejectorRetract"
+                                <input type="text" class="form-control" name="ejectorRetract" id="ejectorRetract"
                                     placeholder="Ejector Retract">
                             </div>
                         </div>
@@ -1285,35 +1285,35 @@
                             <div class="row mb-3">
                                 <div class="col">
                                     <label for="coreSetASequence" class="form-label">Core Set A Sequence</label>
-                                    <input type="number" class="form-control" id="coreSetASequence"
+                                    <input type="number" class="form-control" name="coreSetASequence" id="coreSetASequence"
                                         placeholder="Core Set A Sequence">
                                 </div>
                                 <div class="col">
                                     <label for="coreSetAPressure" class="form-label">Core Set A Pressure ()</label>
-                                    <input type="number" class="form-control" id="coreSetAPressure"
+                                    <input type="number" class="form-control" name="coreSetAPressure" id="coreSetAPressure"
                                         placeholder="Core Set A Pressure">
                                 </div>
                                 <div class="col">
                                     <label for="coreSetASpeed" class="form-label">Core Set A Speed</label>
-                                    <input type="text" class="form-control" id="coreSetASpeed"
+                                    <input type="text" class="form-control" name="coreSetASpeed" id="coreSetASpeed"
                                         placeholder="Core Set A Speed">
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <div class="col">
                                     <label for="coreSetAPosition" class="form-label">Core Set A Position</label>
-                                    <input type="text" class="form-control" id="coreSetAPosition"
+                                    <input type="text" class="form-control" name="coreSetAPosition" id="coreSetAPosition"
                                         placeholder="Core Set A Position">
                                 </div>
                                 <div class="col">
                                     <label for="coreSetATime" class="form-label">Core Set A Time</label>
-                                    <input type="number" class="form-control" id="coreSetATime"
+                                    <input type="number" class="form-control" name="coreSetATime" id="coreSetATime"
                                         placeholder="Core Set A Time">
                                 </div>
                                 <div class="col">
                                     <label for="coreSetALimitSwitch" class="form-label">Core Set A Limit
                                         Switch</label>
-                                    <input type="text" class="form-control" id="coreSetALimitSwitch"
+                                    <input type="text" class="form-control" name="coreSetALimitSwitch" id="coreSetALimitSwitch"
                                         placeholder="Core Set A Limit Switch">
                                 </div>
                             </div>
@@ -1330,36 +1330,36 @@
                             <div class="row mb-3">
                                 <div class="col">
                                     <label for="corePullASequence" class="form-label">Core Pull A Sequence</label>
-                                    <input type="number" class="form-control" id="corePullASequence"
+                                    <input type="number" class="form-control" name="corePullASequence" id="corePullASequence"
                                         placeholder="Core Pull A Sequence">
                                 </div>
                                 <div class="col">
                                     <label for="corePullAPressure" class="form-label">Core Pull A Pressure
                                         ()</label>
-                                    <input type="number" class="form-control" id="corePullAPressure"
+                                    <input type="number" class="form-control" name="corePullAPressure" id="corePullAPressure"
                                         placeholder="Core Pull A Pressure">
                                 </div>
                                 <div class="col">
                                     <label for="corePullASpeed" class="form-label">Core Pull A Speed</label>
-                                    <input type="text" class="form-control" id="corePullASpeed"
+                                    <input type="text" class="form-control" name="corePullASpeed" id="corePullASpeed"
                                         placeholder="Core Pull A Speed">
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <div class="col">
                                     <label for="corePullAPosition" class="form-label">Core Pull A Position</label>
-                                    <input type="number" class="form-control" id="corePullAPosition"
+                                    <input type="number" class="form-control" name="corePullAPosition" id="corePullAPosition"
                                         placeholder="Core Pull A Position">
                                 </div>
                                 <div class="col">
                                     <label for="corePullATime" class="form-label">Core Pull A Time</label>
-                                    <input type="number" class="form-control" id="corePullATime"
+                                    <input type="number" class="form-control" name="corePullATime" id="corePullATime"
                                         placeholder="Core Pull A Time">
                                 </div>
                                 <div class="col">
                                     <label for="corePullALimitSwitch" class="form-label">Core Pull A Limit
                                         Switch</label>
-                                    <input type="text" class="form-control" id="corePullALimitSwitch"
+                                    <input type="text" class="form-control" name="corePullALimitSwitch" id="corePullALimitSwitch"
                                         placeholder="Core Pull A Limit Switch">
                                 </div>
                             </div>
@@ -1376,36 +1376,36 @@
                             <div class="row mb-3">
                                 <div class="col">
                                     <label for="coreSetBSequence" class="form-label">Core Set B Sequence</label>
-                                    <input type="number" class="form-control" id="coreSetBSequence"
+                                    <input type="number" class="form-control" name="coreSetBSequence" id="coreSetBSequence"
                                         placeholder="Core Set B Sequence">
                                 </div>
                                 <div class="col">
                                     <label for="coreSetBPressure" class="form-label">Core Set B Pressure
                                         ()</label>
-                                    <input type="number" class="form-control" id="coreSetBPressure"
+                                    <input type="number" class="form-control" name="coreSetBPressure" id="coreSetBPressure"
                                         placeholder="Core Set B Pressure">
                                 </div>
                                 <div class="col">
                                     <label for="coreSetBSpeed" class="form-label">Core Set B Speed</label>
-                                    <input type="text" class="form-control" id="coreSetBSpeed"
+                                    <input type="text" class="form-control" name="coreSetBSpeed" id="coreSetBSpeed"
                                         placeholder="Core Set B Speed">
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <div class="col">
                                     <label for="coreSetBPosition" class="form-label">Core Set B Position</label>
-                                    <input type="text" class="form-control" id="coreSetBPosition"
+                                    <input type="text" class="form-control" name="coreSetBPosition" id="coreSetBPosition"
                                         placeholder="Core Set B Position">
                                 </div>
                                 <div class="col">
                                     <label for="coreSetBTime" class="form-label">Core Set B Time</label>
-                                    <input type="number" class="form-control" id="coreSetBTime"
+                                    <input type="number" class="form-control" name="coreSetBTime" id="coreSetBTime"
                                         placeholder="Core Set B Time">
                                 </div>
                                 <div class="col">
                                     <label for="coreSetBLimitSwitch" class="form-label">Core Set B Limit
                                         Switch</label>
-                                    <input type="text" class="form-control" id="coreSetBLimitSwitch"
+                                    <input type="text" class="form-control" name="coreSetBLimitSwitch" id="coreSetBLimitSwitch"
                                         placeholder="Core Set B Limit Switch">
                                 </div>
                             </div>
@@ -1422,18 +1422,18 @@
                                 <div class="col">
                                     <label for="corePullBSequence" class="form-label">Core Pull B
                                         Sequence</label>
-                                    <input type="number" class="form-control" id="corePullBSequence"
+                                    <input type="number" class="form-control" name="corePullBSequence" id="corePullBSequence"
                                         placeholder="Core Pull B Sequence">
                                 </div>
                                 <div class="col">
                                     <label for="corePullBPressure" class="form-label">Core Pull B Pressure
                                         ()</label>
-                                    <input type="number" class="form-control" id="corePullBPressure"
+                                    <input type="number" class="form-control" name="corePullBPressure" id="corePullBPressure"
                                         placeholder="Core Pull B Pressure">
                                 </div>
                                 <div class="col">
                                     <label for="corePullBSpeed" class="form-label">Core Pull B Speed</label>
-                                    <input type="text" class="form-control" id="corePullBSpeed"
+                                    <input type="text" class="form-control" name="corePullBSpeed" id="corePullBSpeed"
                                         placeholder="Core Pull B Speed">
                                 </div>
                             </div>
@@ -1441,18 +1441,18 @@
                                 <div class="col">
                                     <label for="corePullBPosition" class="form-label">Core Pull B
                                         Position</label>
-                                    <input type="number" class="form-control" id="corePullBPosition"
+                                    <input type="number" class="form-control" name="corePullBPosition" id="corePullBPosition"
                                         placeholder="Core Pull B Position">
                                 </div>
                                 <div class="col">
                                     <label for="corePullBTime" class="form-label">Core Pull B Time</label>
-                                    <input type="number" class="form-control" id="corePullBTime"
+                                    <input type="number" class="form-control" name="corePullBTime" id="corePullBTime"
                                         placeholder="Core Pull B Time">
                                 </div>
                                 <div class="col">
                                     <label for="corePullBLimitSwitch" class="form-label">Core Pull B Limit
                                         Switch</label>
-                                    <input type="text" class="form-control" id="corePullBLimitSwitch"
+                                    <input type="text" class="form-control" name="corePullBLimitSwitch" id="corePullBLimitSwitch"
                                         placeholder="Core Pull B Limit Switch">
                                 </div>
                             </div>
@@ -1473,7 +1473,7 @@
                     <div class="collapse show" id="collapseAdditionalInfo">
                         <div class="mb-3">
                             <label for="additionalInfo" class="form-label">Additional Info</label>
-                            <textarea class="form-control" id="additionalInfo" rows="4"
+                            <textarea class="form-control" name="additionalInfo" id="additionalInfo" rows="4"
                                 placeholder="Enter any additional info"></textarea>
                         </div>
                     </div>
@@ -1493,11 +1493,11 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="adjuster" class="form-label">Adjuster Name</label>
-                                <input type="text" class="form-control" id="adjuster" placeholder="Enter Adjuster Name">
+                                <input type="text" class="form-control" name="adjuster" id="adjuster" placeholder="Enter Adjuster Name">
                             </div>
                             <div class="col">
                                 <label for="qae" class="form-label">Quality Assurance Engineer Name</label>
-                                <input type="text" class="form-control" id="qae"
+                                <input type="text" class="form-control" name="qae" id="qae"
                                     placeholder="Enter Quality Assurance Engineer Name">
                             </div>
 
@@ -1516,17 +1516,17 @@
                     </h4>
                     <div class="collapse show" id="collapseAttachments">
                         <div class="row mb-3">
-                            <!-- Upload Image -->
+                            <!-- Pictures -->
                             <div class="col-md-6">
-                                <label for="uploadImage" class="form-label">Upload Image</label>
-                                <input class="form-control" type="file" id="uploadImage" accept="image/*">
+                                <label for="uploadImages" class="form-label">Upload Images</label>
+                                <input class="form-control" type="file" id="uploadImages" name="uploadImages[]" accept="image/*" multiple>
                                 <small class="text-muted">Accepted formats: JPG, PNG, GIF</small>
                             </div>
 
-                            <!-- Upload Video -->
+                            <!-- Videos -->
                             <div class="col-md-6">
-                                <label for="uploadVideo" class="form-label">Upload Video</label>
-                                <input class="form-control" type="file" id="uploadVideo" accept="video/*">
+                                <label for="uploadVideos" class="form-label">Upload Videos</label>
+                                <input class="form-control" type="file" id="uploadVideos" name="uploadVideos[]" accept="video/*" multiple>
                                 <small class="text-muted">Accepted formats: MP4, AVI, MKV</small>
                             </div>
                         </div>
@@ -1591,84 +1591,35 @@
                     videoPreview.style.display = 'block';
                 }
             });
+        </script>
 
-            // Autofill
-            // Autofill
+        <script>
             document.getElementById('autofillButton').addEventListener('click', function () {
                 // Random number generator for integers
                 const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-                // Random float generator
-                const randomFloat = (min, max, decimals = 2) =>
-                    (Math.random() * (max - min) + min).toFixed(decimals);
-
-                // Autofill function
-                const autofillField = (id, value) => {
-                    const field = document.getElementById(id);
-                    if (field) {
-                        field.value = value;
+                // Autofill all input fields
+                document.querySelectorAll('input').forEach(input => {
+                    if (input.type === 'text' || input.type === 'number' || input.type === 'date' || input.type === 'time') {
+                        input.value = randomInt(1, 1000); // Random whole number between 1 and 1000
                     }
-                };
+                });
 
-                // Product and Machine Information
-                autofillField('date', new Date().toISOString().split('T')[0]);
-                autofillField('time', new Date().toLocaleTimeString('en-US', { hour12: false }).slice(0, 5));
-                autofillField('machine', `Machine-${randomInt(1, 10)}`);
-                autofillField('runNo', `Run-${randomInt(1000, 9999)}`);
-                autofillField('category', `Category-${randomInt(1, 5)}`);
-                autofillField('IRN', `IRN-${randomInt(100000, 999999)}`);
+                // Autofill all textarea fields
+                document.querySelectorAll('textarea').forEach(textarea => {
+                    textarea.value = randomInt(1, 1000); // Random whole number between 1 and 1000
+                });
 
-                // Product Details
-                autofillField('product', `Product-${randomInt(1, 100)}`);
-                autofillField('color', `Color-${randomInt(1, 10)}`);
-                autofillField('mold-name', `Mold-${randomInt(1, 50)}`);
-                autofillField('prodNo', `Prod-${randomInt(1000, 9999)}`);
-                autofillField('cavity', randomInt(1, 8));
-                autofillField('grossWeight', randomFloat(100, 200));
-                autofillField('netWeight', randomFloat(50, 150));
-
-                // Material Composition
-                autofillField('dryingtime', randomFloat(1, 10));
-                autofillField('dryingtemp', randomInt(50, 100));
-                for (let i = 1; i <= 4; i++) {
-                    autofillField(`type${i}`, `Type-${i}`);
-                    autofillField(`brand${i}`, `Brand-${i}`);
-                    autofillField(`mix${i}`, randomFloat(0, 100));
-                }
-
-                // Colorant Details
-                autofillField('colorant', `Colorant-${randomInt(1, 5)}`);
-                autofillField('colorant-dosage', `${randomFloat(1, 5)}%`);
-                autofillField('colorant-stabilizer', `Stabilizer-${randomInt(1, 5)}`);
-                autofillField('colorant-stabilizer-dosage', `${randomFloat(1, 2)}g`);
-
-                // Timer Parameters
-                autofillField('fillingTime', randomFloat(1, 5));
-                autofillField('holdingTime', randomFloat(1, 5));
-                autofillField('moldOpenCloseTime', randomFloat(1, 5));
-                autofillField('chargingTime', randomFloat(1, 5));
-                autofillField('coolingTime', randomFloat(1, 5));
-                autofillField('cycleTime', randomFloat(1, 5));
-
-                // Temperature Settings
-                for (let i = 0; i <= 16; i++) {
-                    autofillField(`barrelHeaterZone${i}`, randomInt(150, 300));
-                }
-
-                // Mold Operation Specifications
-                autofillField('mold-code', `MoldCode-${randomInt(1, 100)}`);
-                autofillField('clamping-force', randomInt(50, 500));
-                autofillField('operation-type', `Type-${randomInt(1, 5)}`);
-                autofillField('cooling-media', `CoolingMedia-${randomInt(1, 5)}`);
-                autofillField('heating-media', `HeatingMedia-${randomInt(1, 5)}`);
-
-                // Personnel
-                autofillField('adjuster', `Adjuster-${randomInt(1, 100)}`);
-                autofillField('qae', `QAE-${randomInt(1, 100)}`);
+                // Autofill select fields if they exist
+                document.querySelectorAll('select').forEach(select => {
+                    const options = select.options;
+                    if (options.length > 0) {
+                        select.selectedIndex = randomInt(0, options.length - 1); // Randomly select an option
+                    }
+                });
             });
-
-
         </script>
+
 
 </body>
 

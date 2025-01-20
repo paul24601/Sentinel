@@ -1,5 +1,4 @@
--- Database: injectionmoldingparameters
-
+-- Database Schema
 CREATE DATABASE IF NOT EXISTS injectionmoldingparameters;
 USE injectionmoldingparameters;
 
@@ -50,16 +49,16 @@ CREATE TABLE IF NOT EXISTS colorantdetails (
     id INT AUTO_INCREMENT PRIMARY KEY,
     Colorant VARCHAR(255),
     Color VARCHAR(255),
-    Dosage VARCHAR(255),
+    Dosage FLOAT,
     Stabilizer VARCHAR(255),
-    StabilizerDosage VARCHAR(255)
+    StabilizerDosage FLOAT
 );
 
 -- Table for Mold and Operation Specifications
 CREATE TABLE IF NOT EXISTS moldoperationspecs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     MoldCode VARCHAR(255),
-    ClampingForce VARCHAR(255),
+    ClampingForce FLOAT,
     OperationType VARCHAR(255),
     CoolingMedia VARCHAR(255),
     HeatingMedia VARCHAR(255)
@@ -131,8 +130,8 @@ CREATE TABLE IF NOT EXISTS personnel (
 -- Table for Attachments
 CREATE TABLE IF NOT EXISTS attachments (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    ImagePath VARCHAR(255),
-    VideoPath VARCHAR(255)
+    ImagePath JSON,
+    VideoPath JSON
 );
 
 -- Table for Molding Settings - Mold Open
