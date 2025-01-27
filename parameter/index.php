@@ -778,7 +778,7 @@
                                 </div>
                                 <div class="col">
                                     <label for="lowPresTimeLimit" class="form-label">Low Pressure Time Limit</label>
-                                    <input type="text" class="form-control" name="lowPresTimeLimit" id="lowPresTimeLimit"
+                                    <input type="number" class="form-control" name="lowPresTimeLimit" id="lowPresTimeLimit"
                                         placeholder="Low Pressure Time Limit">
                                 </div>
                             </div>
@@ -900,203 +900,201 @@
                     <div class="collapse show" id="collapseInjectionParams">
                         <div class="row mb-3">
                             <div class="col">
-                                <label for="RecoveryPOS" class="form-label">Recovery Position (mm)</label>
-                                <input type="number" class="form-control" name="recoveryPOS" id="recoveryPOS"
+                                <label for="RecoveryPosition" class="form-label">Recovery Position (mm)</label>
+                                <input type="number" class="form-control" name="RecoveryPosition" id="RecoveryPosition"
                                     placeholder="Recovery Position">
                             </div>
                             <div class="col">
                                 <label for="SecondStagePosition" class="form-label">Second Stage Position (mm)</label>
-                                <input type="text" class="form-control" name="secondStagePosition" id="secondStagePosition"
+                                <input type="number" class="form-control" name="SecondStagePosition" id="SecondStagePosition"
                                     placeholder="Second Stage Position">
                             </div>
                             <div class="col">
                                 <label for="Cushion" class="form-label">Cushion (mm)</label>
-                                <input type="text" class="form-control" name="cushion" id="cushion" placeholder="Cushion">
+                                <input type="number" class="form-control" name="Cushion" id="Cushion" placeholder="Cushion">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
-                                <label for="ScrewPosition1" class="form-label">Screw Position 1</label>
-                                <input type="text" class="form-control" name="screwPosition1" id="screwPosition1"
+                                <label for="screwPosition1" class="form-label">Screw Position 1</label>
+                                <input type="number" class="form-control" name="ScrewPosition1" id="screwPosition1"
                                     placeholder="Screw Position 1">
                             </div>
                             <div class="col">
-                                <label for="ScrewPosition2" class="form-label">Screw Position 2</label>
-                                <input type="text" class="form-control" name="screwPosition2" id="screwPosition2"
+                                <label for="screwPosition2" class="form-label">Screw Position 2</label>
+                                <input type="number" class="form-control" name="ScrewPosition2" id="screwPosition2"
                                     placeholder="Screw Position 2">
                             </div>
                             <div class="col">
-                                <label for="ScrewPosition3" class="form-label">Screw Position 3</label>
-                                <input type="text" class="form-control" name="screwPosition3" id="screwPosition3"
+                                <label for="screwPosition3" class="form-label">Screw Position 3</label>
+                                <input type="number" class="form-control" name="ScrewPosition3" id="screwPosition3"
                                     placeholder="Screw Position 3">
                             </div>
                         </div>
                         <div class="row mb-3">
-                        </div>
-                        <div class="row mb-3">
                             <div class="col">
                                 <label for="INJSpeed1" class="form-label">Injection Speed 1</label>
-                                <input type="text" class="form-control" name="injectionSpeed1" id="injectionSpeed1"
+                                <input type="number" class="form-control" name="InjectionSpeed1" id="injectionSpeed1"
                                     placeholder="Injection Speed 1">
                             </div>
                             <div class="col">
                                 <label for="INJSpeed2" class="form-label">Injection Speed 2</label>
-                                <input type="text" class="form-control" name="injectionSpeed2" id="injectionSpeed2"
+                                <input type="number" class="form-control" name="InjectionSpeed2" id="injectionSpeed2"
                                     placeholder="Injection Speed 2">
                             </div>
                             <div class="col">
                                 <label for="INJSpeed3" class="form-label">Injection Speed 3</label>
-                                <input type="text" class="form-control" name="injectionSpeed3" id="injectionSpeed3"
+                                <input type="number" class="form-control" name="InjectionSpeed3" id="injectionSpeed3"
                                     placeholder="Injection Speed 3">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="INJPressure1" class="form-label">Injection Pressure 1</label>
-                                <input type="text" class="form-control" name="injectionPressure1" id="injectionPressure1"
+                                <input type="number" class="form-control" name="InjectionPressure1" id="injectionPressure1"
                                     placeholder="Injection Pressure 1">
                             </div>
                             <div class="col">
                                 <label for="INJPressure2" class="form-label">Injection Pressure 2</label>
-                                <input type="text" class="form-control" name="injectionPressure2" id="injectionPressure2"
+                                <input type="number" class="form-control" name="InjectionPressure2" id="injectionPressure2"
                                     placeholder="Injection Pressure 2">
                             </div>
                             <div class="col">
                                 <label for="INJPressure3" class="form-label">Injection Pressure 3</label>
-                                <input type="text" class="form-control" name="injectionPressure3" id="injectionPressure3"
+                                <input type="number" class="form-control" name="InjectionPressure3" id="injectionPressure3"
                                     placeholder="Injection Pressure 3">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="SuckBackPos" class="form-label">Suck Back Position</label>
-                                <input type="text" class="form-control" name="suckBackPosition" id="suckBackPosition"
+                                <input type="number" class="form-control" name="SuckBackPosition" id="suckBackPosition"
                                     placeholder="Suck Back Position">
                             </div>
                             <div class="col">
                                 <label for="SuckBackSpeed" class="form-label">Suck Back Speed</label>
-                                <input type="text" class="form-control" name="suckBackSpeed" id="suckBackSpeed"
+                                <input type="number" class="form-control" name="SuckBackSpeed" id="suckBackSpeed"
                                     placeholder="Suck Back Speed">
                             </div>
                             <div class="col">
                                 <label for="SuckBackPres" class="form-label">Suck Back Pressure</label>
-                                <input type="text" class="form-control" name="suckBackPressure" id="suckBackPressure"
+                                <input type="number" class="form-control" name="SuckBackPressure" id="suckBackPressure"
                                     placeholder="Suck Back Pressure">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="ScrewPosition4" class="form-label">Screw Position 4</label>
-                                <input type="text" class="form-control" name="screwPosition4" id="screwPosition4"
+                                <input type="number" class="form-control" name="ScrewPosition4" id="screwPosition4"
                                     placeholder="Screw Position 4">
                             </div>
                             <div class="col">
                                 <label for="ScrewPosition5" class="form-label">Screw Position 5</label>
-                                <input type="text" class="form-control" name="ScrewPosition5" id="ScrewPosition5"
+                                <input type="number" class="form-control" name="ScrewPosition5" id="ScrewPosition5"
                                     placeholder="Screw Position 5">
                             </div>
                             <div class="col">
                                 <label for="ScrewPosition6" class="form-label">Screw Position 6</label>
-                                <input type="text" class="form-control" name="ScrewPosition6" id="ScrewPosition6"
+                                <input type="number" class="form-control" name="ScrewPosition6" id="ScrewPosition6"
                                     placeholder="Screw Position 6">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="InjectionSpeed4" class="form-label">Injection Speed 4</label>
-                                <input type="text" class="form-control" name="InjectionSpeed4" id="InjectionSpeed4"
+                                <input type="number" class="form-control" name="InjectionSpeed4" id="InjectionSpeed4"
                                     placeholder="Injection Speed 4">
                             </div>
                             <div class="col">
                                 <label for="InjectionSpeed5" class="form-label">Injection Speed 5</label>
-                                <input type="text" class="form-control" name="InjectionSpeed5" id="InjectionSpeed5"
+                                <input type="number" class="form-control" name="InjectionSpeed5" id="InjectionSpeed5"
                                     placeholder="Injection Speed 5">
                             </div>
                             <div class="col">
                                 <label for="InjectionSpeed6" class="form-label">Injection Speed 6</label>
-                                <input type="text" class="form-control" name="InjectionSpeed6" id="InjectionSpeed6"
+                                <input type="number" class="form-control" name="InjectionSpeed6" id="InjectionSpeed6"
                                     placeholder="Injection Speed 6">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="InjectionPressure4" class="form-label">Injection Pressure 4</label>
-                                <input type="text" class="form-control" name="InjectionPressure4" id="InjectionPressure4"
+                                <input type="number" class="form-control" name="InjectionPressure4" id="InjectionPressure4"
                                     placeholder="Injection Pressure 4">
                             </div>
                             <div class="col">
                                 <label for="InjectionPressure5" class="form-label">Injection Pressure 5</label>
-                                <input type="text" class="form-control" name="InjectionPressure5" id="InjectionPressure5"
+                                <input type="number" class="form-control" name="InjectionPressure5" id="InjectionPressure5"
                                     placeholder="Injection Pressure 5">
                             </div>
                             <div class="col">
                                 <label for="InjectionPressure6" class="form-label">Injection Pressure 6</label>
-                                <input type="text" class="form-control" name="InjectionPressure6" id="InjectionPressure6"
+                                <input type="number" class="form-control" name="InjectionPressure6" id="InjectionPressure6"
                                     placeholder="Injection Pressure 6">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="SprueBreak" class="form-label">Sprue Break</label>
-                                <input type="text" class="form-control" name="SprueBreak" id="SprueBreak" placeholder="Sprue Break">
+                                <input type="number" class="form-control" name="SprueBreak" id="SprueBreak" placeholder="Sprue Break">
                             </div>
                             <div class="col">
                                 <label for="SprueBreakTime" class="form-label">Sprue Break Time</label>
-                                <input type="text" class="form-control" name="SprueBreakTime" id="SprueBreakTime"
+                                <input type="number" class="form-control" name="SprueBreakTime" id="SprueBreakTime"
                                     placeholder="Sprue Break Time">
                             </div>
                             <div class="col">
                                 <label for="InjectionDelay" class="form-label">Injection Delay</label>
-                                <input type="text" class="form-control" name="InjectionDelay" id="InjectionDelay"
+                                <input type="number" class="form-control" name="InjectionDelay" id="InjectionDelay"
                                     placeholder="Injection Delay">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="HoldingPres1" class="form-label">Holding Pressure 1</label>
-                                <input type="text" class="form-control" name="HoldingPres1" id="HoldingPres1"
+                                <input type="number" class="form-control" name="HoldingPressure1" id="HoldingPres1"
                                     placeholder="Holding Pressure 1">
                             </div>
                             <div class="col">
                                 <label for="HoldingPres2" class="form-label">Sprue Break Time</label>
-                                <input type="text" class="form-control" name="HoldingPres2" id="HoldingPres2"
+                                <input type="number" class="form-control" name="HoldingPressure2" id="HoldingPres2"
                                     placeholder="Holding Pressure 2">
                             </div>
                             <div class="col">
                                 <label for="HoldingPres3" class="form-label">Holding Pressure 3</label>
-                                <input type="text" class="form-control" name="HoldingPres3" id="HoldingPres3"
+                                <input type="number" class="form-control" name="HoldingPressure3" id="HoldingPres3"
                                     placeholder="Holding Pressure 3">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="HoldingSpeed1" class="form-label">Holding Speed 1</label>
-                                <input type="text" class="form-control" name="HoldingSpeed1" id="HoldingSpeed1"
+                                <input type="number" class="form-control" name="HoldingSpeed1" id="HoldingSpeed1"
                                     placeholder="Holding Speed 1">
                             </div>
                             <div class="col">
                                 <label for="HoldingSpeed2" class="form-label">Holding Speed 2</label>
-                                <input type="text" class="form-control" name="HoldingSpeed2" id="HoldingSpeed2"
+                                <input type="number" class="form-control" name="HoldingSpeed2" id="HoldingSpeed2"
                                     placeholder="Holding Speed 2">
                             </div>
                             <div class="col">
                                 <label for="HoldingSpeed3" class="form-label">Holding Speed 3</label>
-                                <input type="text" class="form-control" name="HoldingSpeed3" id="HoldingSpeed3"
+                                <input type="number" class="form-control" name="HoldingSpeed3" id="HoldingSpeed3"
                                     placeholder="Holding Speed 3">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="HoldingTime1" class="form-label">Holding Time 1</label>
-                                <input type="text" class="form-control" name="HoldingTime1" id="HoldingTime1" placeholder="Holding Time 1">
+                                <input type="number" class="form-control" name="HoldingTime1" id="HoldingTime1" placeholder="Holding Time 1">
                             </div>
                             <div class="col">
                                 <label for="HoldingTime2" class="form-label">Holding Time 2</label>
-                                <input type="text" class="form-control" name="HoldingTime2" id="HoldingTime2" placeholder="Holding Time 2">
+                                <input type="number" class="form-control" name="HoldingTime2" id="HoldingTime2" placeholder="Holding Time 2">
                             </div>
                             <div class="col">
                                 <label for="HoldingTime3" class="form-label">Holding Time 3</label>
-                                <input type="text" class="form-control" name="HoldingTime3" id="HoldingTime3" placeholder="Holding Time 3">
+                                <input type="number" class="form-control" name="HoldingTime3" id="HoldingTime3" placeholder="Holding Time 3">
                             </div>
                         </div>
                     </div>
@@ -1116,52 +1114,52 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="AirBlowTimeA" class="form-label">Air Blow Time A</label>
-                                <input type="text" class="form-control" name="airBlowTime A"d="airBlowTime A"
+                                <input type="number" class="form-control" name="AirBlowTimeA" id="airBlowTimeA"
                                     placeholder="Air Blow Time A">
                             </div>
                             <div class="col">
                                 <label for="AirBlowPositionA" class="form-label">Air Blow Position A</label>
-                                <input type="text" class="form-control" name="airBlowPositionA" id="airBlowPositionA"
+                                <input type="number" class="form-control" name="AirBlowPositionA" id="airBlowPositionA"
                                     placeholder="Air Blow Position A">
                             </div>
                             <div class="col">
                                 <label for="AB A Delay" class="form-label">Air Blow A Delay</label>
-                                <input type="text" class="form-control" name="airBlowADelay" id="airBlowADelay"
+                                <input type="number" class="form-control" name="AirBlowADelay" id="airBlowADelay"
                                     placeholder="Air Blow A Delay">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="AirBlowTimeB" class="form-label">Air Blow Time B</label>
-                                <input type="text" class="form-control" name="airBlowTimeB" id="airBlowTimeB" placeholder="Air Blow Time B">
+                                <input type="number" class="form-control" name="AirBlowTimeB" id="airBlowTimeB" placeholder="Air Blow Time B">
                             </div>
                             <div class="col">
                                 <label for="AirBlowPosB" class="form-label">Air Blow Position B</label>
-                                <input type="text" class="form-control" name="aBlowPositionB" id="aBlowPositionB"
+                                <input type="number" class="form-control" name="ABlowPositionB" id="aBlowPositionB"
                                     placeholder="Air Blow Position B">
                             </div>
                             <div class="col">
                                 <label for="AirBlowBDelay" class="form-label">Air Blow B Delay</label>
-                                <input type="text" class="form-control" name="airBlowBDelay" id="airBlowBDelay"
+                                <input type="number" class="form-control" name="AirBlowBDelay" id="airBlowBDelay"
                                     placeholder="Air Blow B Delay">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
-                                <label for="EjectorForwardPOS1" class="form-label">Ejector Forward Position
+                                <label for="EjectorForwardPosition1" class="form-label">Ejector Forward Position
                                     1</label>
-                                <input type="text" class="form-control" name="ejectorForwardPOS1" id="ejectorForwardPOS1"
+                                <input type="number" class="form-control" name="EjectorForwardPosition1" id="EjectorForwardPosition1"
                                     placeholder="Ejector Forward Position 1">
                             </div>
                             <div class="col">
-                                <label for="EjectorForwardPOS2" class="form-label">Ejector Forward Position
+                                <label for="EjectorForwardPosition2" class="form-label">Ejector Forward Position
                                     2</label>
-                                <input type="text" class="form-control" name="ejectorForwardPOS2" id="ejectorForwardPOS2"
+                                <input type="number" class="form-control" name="EjectorForwardPosition2" id="EjectorForwardPosition2"
                                     placeholder="Ejector Forward Position 2">
                             </div>
                             <div class="col">
                                 <label for="EFSpeed1" class="form-label">Ejector Forward Speed 1</label>
-                                <input type="text" class="form-control" name="ejectorForwardSpeed1" id="ejectorForwardSpeed1"
+                                <input type="number" class="form-control" name="EjectorForwardSpeed1" id="ejectorForwardSpeed1"
                                     placeholder="Ejector Forward Speed 1">
                             </div>
                         </div>
@@ -1169,19 +1167,19 @@
                             <div class="col">
                                 <label for="EjectorRetractPosition1" class="form-label">Ejector Retract Position
                                     1</label>
-                                <input type="text" class="form-control" name="ejectorRetractPosition1" id="ejectorRetractPosition1"
+                                <input type="number" class="form-control" name="EjectorRetractPosition1" id="ejectorRetractPosition1"
                                     placeholder="Ejector Retract Position 1">
                             </div>
                             <div class="col">
                                 <label for="EjectorRetractPosition2" class="form-label">Ejector Retract Position
                                     2</label>
-                                <input type="text" class="form-control" name="ejectorRetractPosition2" id="ejectorRetractPosition2"
+                                <input type="number" class="form-control" name="EjectorRetractPosition2" id="ejectorRetractPosition2"
                                     placeholder="Ejector Retract Position 2">
                             </div>
                             <div class="col">
                                 <label for="Ejector Retract Speed1" class="form-label">Ejector Retract Speed
                                     1</label>
-                                <input type="text" class="form-control" name="ejectorRetractSpeed1" id="ejectorRetractSpeed1"
+                                <input type="number" class="form-control" name="EjectorRetractSpeed1" id="ejectorRetractSpeed1"
                                     placeholder="Ejector Retract Speed 1">
                             </div>
                         </div>
@@ -1189,54 +1187,54 @@
                             <div class="col">
                                 <label for="EjectorForwardPosition" class="form-label">Ejector Forward
                                     Position</label>
-                                <input type="text" class="form-control" name="ejectorForwardPosition" id="ejectorForwardPosition"
+                                <input type="number" class="form-control" name="EjectorForwardPosition" id="ejectorForwardPosition"
                                     placeholder="Ejector Forward Position">
                             </div>
                             <div class="col">
                                 <label for="EjectorForwardTime" class="form-label">Ejector Forward Time</label>
-                                <input type="text" class="form-control" name="ejectorForwardTime" id="ejectorForwardTime"
+                                <input type="number" class="form-control" name="EjectorForwardTime" id="ejectorForwardTime"
                                     placeholder="Ejector Forward Time">
                             </div>
                             <div class="col">
                                 <label for="EjectorRetractPosition" class="form-label">Ejector Retract
                                     Position</label>
-                                <input type="text" class="form-control" name="ejectorRetractPosition" id="ejectorRetractPosition"
+                                <input type="number" class="form-control" name="EjectorRetractPosition" id="ejectorRetractPosition"
                                     placeholder="Ejector Retract Position">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="EjectorRetractTime" class="form-label">Ejector Retract Time</label>
-                                <input type="text" class="form-control" name="ejectorRetractTime" id="ejectorRetractTime"
+                                <input type="number" class="form-control" name="EjectorRetractTime" id="ejectorRetractTime"
                                     placeholder="Ejector Retract Time">
                             </div>
                             <div class="col">
                                 <label for="EjectorForwardSpeed2" class="form-label">Ejector Forward Speed 2</label>
-                                <input type="text" class="form-control" name="ejectorForwardSpeed2" id="ejectorForwardSpeed2"
+                                <input type="number" class="form-control" name="EjectorForwardSpeed2" id="ejectorForwardSpeed2"
                                     placeholder="Ejector Forward Speed2">
                             </div><!--sub field-->
                             <div class="col">
                                 <label for="EjectorForwardPressure1" class="form-label">Ejector Forward Pressure
                                     1</label>
-                                <input type="text" class="form-control" name="ejectorForwardPressure1" id="ejectorForwardPressure1"
+                                <input type="number" class="form-control" name="EjectorForwardPressure1" id="ejectorForwardPressure1"
                                     placeholder="Ejector Forward Pressure 1">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="EjectorForwardSpeed2" class="form-label">Ejector Forward Speed 2</label>
-                                <input type="text" class="form-control" name="ejectorForwardSpeed2" id="ejectorForwardSpeed2"
+                                <input type="number" class="form-control" name="EjectorForwardSpeed2" id="ejectorForwardSpeed2"
                                     placeholder="Ejector Forward Speed 2">
                             </div>
                             <!--sub field-->
                             <div class="col">
                                 <label for="EjectorForward" class="form-label">Ejector Forward</label>
-                                <input type="text" class="form-control" name="ejectorForward" id="ejectorForward"
+                                <input type="number" class="form-control" name="EjectorForward" id="ejectorForward"
                                     placeholder="Ejector Forward">
                             </div>
                             <div class="col">
                                 <label for="EjectorRetractSpeed2" class="form-label">Ejector Retract Speed 2</label>
-                                <input type="text" class="form-control" name="ejectorRetractSpeed2" id="ejectorRetractSpeed2"
+                                <input type="number" class="form-control" name="EjectorRetractSpeed2" id="ejectorRetractSpeed2"
                                     placeholder="Ejector Retract Speed 2">
                             </div>
                         </div>
@@ -1245,18 +1243,18 @@
                             <div class="col">
                                 <label for="EjectorRetractPressure1" class="form-label">Ejector Retract Pressure
                                     1</label>
-                                <input type="text" class="form-control" name="ejectorRetractPressure1" id="ejectorRetractPressure1"
+                                <input type="number" class="form-control" name="EjectorRetractPressure1" id="ejectorRetractPressure1"
                                     placeholder="Ejector Retract Pressure 1">
                             </div>
                             <div class="col">
                                 <label for="EjectorRetractSpeed2" class="form-label">Ejector Retract Speed 2</label>
-                                <input type="text" class="form-control" name="ejectorRetractSpeed2" id="ejectorRetractSpeed2"
+                                <input type="number" class="form-control" name="EjectorRetractSpeed2" id="ejectorRetractSpeed2"
                                     placeholder="Ejector Retract Speed 2">
                             </div>
                             <!--sub field-->
                             <div class="col">
                                 <label for="EjectorRetract" class="form-label">Ejector Retract</label>
-                                <input type="text" class="form-control" name="ejectorRetract" id="ejectorRetract"
+                                <input type="number" class="form-control" name="EjectorRetract" id="ejectorRetract"
                                     placeholder="Ejector Retract">
                             </div>
                         </div>
@@ -1295,14 +1293,14 @@
                                 </div>
                                 <div class="col">
                                     <label for="coreSetASpeed" class="form-label">Core Set A Speed</label>
-                                    <input type="text" class="form-control" name="coreSetASpeed" id="coreSetASpeed"
+                                    <input type="number" class="form-control" name="coreSetASpeed" id="coreSetASpeed"
                                         placeholder="Core Set A Speed">
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <div class="col">
                                     <label for="coreSetAPosition" class="form-label">Core Set A Position</label>
-                                    <input type="text" class="form-control" name="coreSetAPosition" id="coreSetAPosition"
+                                    <input type="number" class="form-control" name="coreSetAPosition" id="coreSetAPosition"
                                         placeholder="Core Set A Position">
                                 </div>
                                 <div class="col">
@@ -1313,7 +1311,7 @@
                                 <div class="col">
                                     <label for="coreSetALimitSwitch" class="form-label">Core Set A Limit
                                         Switch</label>
-                                    <input type="text" class="form-control" name="coreSetALimitSwitch" id="coreSetALimitSwitch"
+                                    <input type="number" class="form-control" name="coreSetALimitSwitch" id="coreSetALimitSwitch"
                                         placeholder="Core Set A Limit Switch">
                                 </div>
                             </div>
@@ -1341,7 +1339,7 @@
                                 </div>
                                 <div class="col">
                                     <label for="corePullASpeed" class="form-label">Core Pull A Speed</label>
-                                    <input type="text" class="form-control" name="corePullASpeed" id="corePullASpeed"
+                                    <input type="number" class="form-control" name="corePullASpeed" id="corePullASpeed"
                                         placeholder="Core Pull A Speed">
                                 </div>
                             </div>
@@ -1359,7 +1357,7 @@
                                 <div class="col">
                                     <label for="corePullALimitSwitch" class="form-label">Core Pull A Limit
                                         Switch</label>
-                                    <input type="text" class="form-control" name="corePullALimitSwitch" id="corePullALimitSwitch"
+                                    <input type="number" class="form-control" name="corePullALimitSwitch" id="corePullALimitSwitch"
                                         placeholder="Core Pull A Limit Switch">
                                 </div>
                             </div>
@@ -1387,14 +1385,14 @@
                                 </div>
                                 <div class="col">
                                     <label for="coreSetBSpeed" class="form-label">Core Set B Speed</label>
-                                    <input type="text" class="form-control" name="coreSetBSpeed" id="coreSetBSpeed"
+                                    <input type="number" class="form-control" name="coreSetBSpeed" id="coreSetBSpeed"
                                         placeholder="Core Set B Speed">
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <div class="col">
                                     <label for="coreSetBPosition" class="form-label">Core Set B Position</label>
-                                    <input type="text" class="form-control" name="coreSetBPosition" id="coreSetBPosition"
+                                    <input type="number" class="form-control" name="coreSetBPosition" id="coreSetBPosition"
                                         placeholder="Core Set B Position">
                                 </div>
                                 <div class="col">
@@ -1405,7 +1403,7 @@
                                 <div class="col">
                                     <label for="coreSetBLimitSwitch" class="form-label">Core Set B Limit
                                         Switch</label>
-                                    <input type="text" class="form-control" name="coreSetBLimitSwitch" id="coreSetBLimitSwitch"
+                                    <input type="number" class="form-control" name="coreSetBLimitSwitch" id="coreSetBLimitSwitch"
                                         placeholder="Core Set B Limit Switch">
                                 </div>
                             </div>
@@ -1433,7 +1431,7 @@
                                 </div>
                                 <div class="col">
                                     <label for="corePullBSpeed" class="form-label">Core Pull B Speed</label>
-                                    <input type="text" class="form-control" name="corePullBSpeed" id="corePullBSpeed"
+                                    <input type="number" class="form-control" name="corePullBSpeed" id="corePullBSpeed"
                                         placeholder="Core Pull B Speed">
                                 </div>
                             </div>
@@ -1452,7 +1450,7 @@
                                 <div class="col">
                                     <label for="corePullBLimitSwitch" class="form-label">Core Pull B Limit
                                         Switch</label>
-                                    <input type="text" class="form-control" name="corePullBLimitSwitch" id="corePullBLimitSwitch"
+                                    <input type="number" class="form-control" name="corePullBLimitSwitch" id="corePullBLimitSwitch"
                                         placeholder="Core Pull B Limit Switch">
                                 </div>
                             </div>
@@ -1493,7 +1491,7 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="adjuster" class="form-label">Adjuster Name</label>
-                                <input type="text" class="form-control" name="adjuster" id="adjuster" placeholder="Enter Adjuster Name">
+                                <input type="number" class="form-control" name="adjuster" id="adjuster" placeholder="Enter Adjuster Name">
                             </div>
                             <div class="col">
                                 <label for="qae" class="form-label">Quality Assurance Engineer Name</label>
@@ -1601,13 +1599,13 @@
                 // Autofill all input fields
                 document.querySelectorAll('input').forEach(input => {
                     if (input.type === 'text' || input.type === 'number' || input.type === 'date' || input.type === 'time') {
-                        input.value = randomInt(1, 1000); // Random whole number between 1 and 1000
+                        input.value = randomInt(1, 10); // Random whole number between 1 and 1000
                     }
                 });
 
                 // Autofill all textarea fields
                 document.querySelectorAll('textarea').forEach(textarea => {
-                    textarea.value = randomInt(1, 1000); // Random whole number between 1 and 1000
+                    textarea.value = randomInt(1, 10); // Random whole number between 1 and 1000
                 });
 
                 // Autofill select fields if they exist
