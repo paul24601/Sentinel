@@ -378,6 +378,68 @@ if (isset($_POST['additionalInfo'])) {
     }
 }
 
+// Directory for uploaded files
+$uploadDir = 'uploads/';
+if (!is_dir($uploadDir)) {
+    mkdir($uploadDir, 0777, true); // Create the directory if it doesn't exist
+}
+
+// Function to handle file uploads
+function handleFileUpload($files, $uploadDir, $type) {
+    $uploadedFiles = [];
+    foreach ($files['name'] as $key => $name) {
+        $tmpName = $files['tmp_name'][$key];
+        $error = $files['error'][$key];
+        $size = $files['size'][$key];
+
+        // Skip if there was an error with the file
+        if ($error !== UPLOAD_ERR_OK) {
+            continue;
+        }
+
+        // Generate a unique file name
+        $uniqueName = uniqid() . '_' . basename($name);
+        $filePath = $uploadDir . $uniqueName;
+
+        // Move the file to the upload directory
+        if (move_uploaded_file($tmpName, $filePath)) {
+            $uploadedFiles[] = [
+                'name' => $name,
+                'path' => $filePath,
+                'type' => $type,
+            ];
+        }
+    }
+    return $uploadedFiles;
+}
+
+// Handle image uploads
+$uploadedImages = [];
+if (isset($_FILES['uploadImages'])) {
+    $uploadedImages = handleFileUpload($_FILES['uploadImages'], $uploadDir, 'image');
+}
+
+// Handle video uploads
+$uploadedVideos = [];
+if (isset($_FILES['uploadVideos'])) {
+    $uploadedVideos = handleFileUpload($_FILES['uploadVideos'], $uploadDir, 'video');
+}
+
+// Insert attachments into the database
+$attachments = array_merge($uploadedImages, $uploadedVideos);
+if (!empty($attachments)) {
+    $sql = "INSERT INTO attachments (FileName, FilePath, FileType) VALUES (?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    foreach ($attachments as $attachment) {
+        $stmt->bind_param("sss", $attachment['name'], $attachment['path'], $attachment['type']);
+        if (!$stmt->execute()) {
+            $errors[] = "Error inserting attachment: " . $stmt->error;
+        }
+    }
+}
+
+
+
 // Output success or errors
 if (empty($errors)) {
     echo "All data has been submitted successfully!";

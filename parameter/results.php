@@ -39,6 +39,18 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Submission Results</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('table').each(function () {
+                $(this).DataTable({
+                    responsive: true
+                });
+            });
+        });
+    </script>
 </head>
 
 <body class="bg-light">
@@ -48,7 +60,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
         <!-- Product Machine Info -->
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">Product Machine Info</div>
-            <div class="card-body">
+            <div class="card-body table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead class="table-light">
                         <tr>
@@ -81,7 +93,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
         <!-- Product Details -->
         <div class="card mb-4">
             <div class="card-header bg-success text-white">Product Details</div>
-            <div class="card-body">
+            <div class="card-body table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead class="table-light">
                         <tr>
@@ -116,7 +128,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
         <!-- Material Composition -->
         <div class="card mb-4">
             <div class="card-header bg-warning text-white">Material Composition</div>
-            <div class="card-body">
+            <div class="card-body table-responsive table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead class="table-light">
                         <tr>
@@ -165,7 +177,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
         <!-- Colorant Details -->
         <div class="card mb-4">
             <div class="card-header bg-danger text-white">Colorant Details</div>
-            <div class="card-body">
+            <div class="card-body table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead class="table-light">
                         <tr>
@@ -196,7 +208,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
         <!-- Mold Operation Specs -->
         <div class="card mb-4">
             <div class="card-header bg-info text-white">Mold Operation Specs</div>
-            <div class="card-body">
+            <div class="card-body table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead class="table-light">
                         <tr>
@@ -227,7 +239,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
         <!-- Timer Parameters -->
         <div class="card mb-4">
             <div class="card-header bg-secondary text-white">Timer Parameters</div>
-            <div class="card-body">
+            <div class="card-body table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead class="table-light">
                         <tr>
@@ -259,7 +271,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
         <!-- Barrel Heater Temperatures -->
         <div class="card mb-4">
             <div class="card-header bg-dark text-white">Barrel Heater Temperatures</div>
-            <div class="card-body">
+            <div class="card-body table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead class="table-light">
                         <tr>
@@ -300,7 +312,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
         <!-- Mold Heater Temperatures -->
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">Mold Heater Temperatures</div>
-            <div class="card-body">
+            <div class="card-body table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead class="table-light">
                         <tr>
@@ -343,7 +355,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
         <!-- Plasticizing Parameters -->
         <div class="card mb-4">
             <div class="card-header bg-success text-white">Plasticizing Parameters</div>
-            <div class="card-body">
+            <div class="card-body table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead class="table-light">
                         <tr>
@@ -396,7 +408,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
         <!-- Injection Parameters -->
         <div class="card mb-4">
             <div class="card-header bg-warning text-white">Injection Parameters</div>
-            <div class="card-body">
+            <div class="card-body table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead class="table-light">
                         <tr>
@@ -471,7 +483,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
         <!-- Additional Information -->
         <div class="card mb-4">
             <div class="card-header bg-info text-white">Additional Information</div>
-            <div class="card-body">
+            <div class="card-body table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead class="table-light">
                         <tr>
@@ -494,7 +506,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
         <!-- Ejection Parameters -->
         <div class="card mb-4">
             <div class="card-header bg-danger text-white">Ejection Parameters</div>
-            <div class="card-body">
+            <div class="card-body table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead class="table-light">
                         <tr>
@@ -547,7 +559,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
         <!-- Core Pull Settings -->
         <div class="card mb-4">
             <div class="card-header bg-warning text-white">Core Pull Settings</div>
-            <div class="card-body">
+            <div class="card-body table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead class="table-light">
                         <tr>

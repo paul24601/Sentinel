@@ -280,7 +280,6 @@ $result = $conn->query($sql);
             successModal.show();
         <?php endif; ?>
     </script>
-    <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
     
 </body>
 
