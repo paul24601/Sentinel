@@ -462,7 +462,7 @@ if (isset($_POST['adjuster'], $_POST['qae'])) {
 }
 
 // Modified File Upload Handling
-function handleFileUpload($files, $uploadDir, $typeCategory, $allowedExtensions, $maxSize = 5000000, $irn, $date, $time, $machineNumber, $runNumber) {
+function handleFileUpload($files, $uploadDir, $typeCategory, $allowedExtensions, $maxSize, $irn, $date, $time, $machineNumber, $runNumber) {
     $uploadedFiles = [];
     
     if (!isset($files['name']) || !is_array($files['name'])) {
@@ -470,54 +470,74 @@ function handleFileUpload($files, $uploadDir, $typeCategory, $allowedExtensions,
     }
 
     foreach ($files['name'] as $key => $name) {
-        // Skip invalid entries
-        if ($files['error'][$key] !== UPLOAD_ERR_OK) continue;
+        if ($files['error'][$key] !== UPLOAD_ERR_OK) {
+            error_log("Upload error for file $name: Code " . $files['error'][$key]);
+            continue;
+        }
         
-        // Validate extension
         $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-        if (!in_array($ext, $allowedExtensions)) continue;
+        if (!in_array($ext, $allowedExtensions)) {
+            error_log("Invalid extension for file $name");
+            continue;
+        }
         
-        // Validate size
-        if ($files['size'][$key] > $maxSize) continue;
+        if ($files['size'][$key] > $maxSize) {
+            error_log("File $name exceeds size limit");
+            continue;
+        }
 
         // Create upload directory if not exists
         if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
+            if (!mkdir($uploadDir, 0755, true)) {
+                error_log("Failed to create directory: $uploadDir");
+                continue;
+            }
         }
 
-        // Generate safe filename
+        // Generate unique and safe filename
+        $uniqueId = uniqid();
         $safeName = sprintf(
-            "%s_%s_%s_%s_%s.%s",
+            "%s_%s_%s_%s_%s_%s.%s", // Added unique ID
             $irn,
             $date,
             $time,
             $machineNumber,
             $runNumber,
+            $uniqueId,
             $ext
         );
         $targetPath = $uploadDir . $safeName;
 
+        // Move uploaded file and log errors
         if (move_uploaded_file($files['tmp_name'][$key], $targetPath)) {
             $uploadedFiles[] = [
-                'name' => $name,
+                'name' => $safeName, // Use sanitized name, not original
                 'path' => $targetPath,
                 'type' => $typeCategory
             ];
+        } else {
+            error_log("Failed to move uploaded file $name to $targetPath");
+            error_log("Check permissions for: " . $uploadDir);
         }
     }
     return $uploadedFiles;
 }
 
 // Handle file uploads with proper validation
-$uploadDir = 'uploads/';
+$uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/Sentinel/parameter/uploads/';
 $uploadedImages = [];
 $uploadedVideos = [];
 
-$irn = $_POST['IRN']; // You need to ensure this is set in your form
-$date = $_POST['Date'];
-$time = $_POST['Time'];
-$machineNumber = $_POST['MachineName'];
-$runNumber = $_POST['RunNumber'];
+// Sanitize parameters for filename
+$irn = preg_replace('/[^A-Za-z0-9]/', '', $_POST['IRN']);
+$dateFormatted = preg_replace('/[^0-9]/', '', $_POST['Date']); // YYYYMMDD
+$timeFormatted = preg_replace('/[^0-9]/', '', $_POST['Time']); // HHMMSS
+$machineNumber = preg_replace('/[^A-Za-z0-9]/', '', $_POST['MachineName']);
+$runNumber = preg_replace('/[^A-Za-z0-9]/', '', $_POST['RunNumber']);
+
+// Handle file uploads with proper validation
+$uploadedImages = [];
+$uploadedVideos = [];
 
 if (isset($_FILES['uploadImages'])) {
     $uploadedImages = handleFileUpload(
@@ -525,10 +545,10 @@ if (isset($_FILES['uploadImages'])) {
         $uploadDir,
         'image',
         ['jpg', 'jpeg', 'png', 'gif'],
-        5000000, // 5MB limit for images
+        5000000, // 5MB
         $irn,
-        $date,
-        $time,
+        $dateFormatted,
+        $timeFormatted,
         $machineNumber,
         $runNumber
     );
@@ -540,10 +560,10 @@ if (isset($_FILES['uploadVideos'])) {
         $uploadDir,
         'video',
         ['mp4', 'avi', 'mov', 'mkv'],
-        50000000, // 50MB limit for videos
+        50000000, // 50MB
         $irn,
-        $date,
-        $time,
+        $dateFormatted,
+        $timeFormatted,
         $machineNumber,
         $runNumber
     );
