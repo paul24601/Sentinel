@@ -18,7 +18,7 @@
                 <h2>Injection Molding Parameters</h2>
             </div>
             <div class="card-body">
-                <form action="submit.php" method="POST">
+                <form action="submit.php" method="POST" enctype="multipart/form-data">
                     <!-- Section 1: Product and Machine Information -->
                     <h4>
                         <a class="text-decoration-none" data-bs-toggle="collapse" href="#collapseProductMachine"
@@ -124,10 +124,10 @@
                             </div>
                             <div class="col">
                                 <label for="dryingtemp" class="form-label">Drying Temperature</label>
-                                <div class="input -group">
+                                <div class="input-group">
                                     <input type="number" class="form-control" name="dryingtemp"
                                         placeholder="Enter Temperature" min="0" max="300" step="0.1">
-                                    <span class="input -group-text">°C</span>
+                                    <span class="input-group-text">°C</span>
                                 </div>
                             </div>
                         </div>
@@ -165,7 +165,7 @@
                                     placeholder="Enter Brand 2">
                             </div>
                             <div class="col">
-                                <label for="mix2" class="form-label">Mixture 3</label>
+                                <label for="mix2" class="form-label">Mixture 2</label>
                                 <input type="number" class="form-control" name="mix2" id="mix2"
                                     placeholder="% Mixture 2">
                             </div>
@@ -230,8 +230,8 @@
                                     placeholder="Enter Colorant">
                             </div>
                             <div class="col">
-                                <label for="color" class="form-label">Color</label>
-                                <input type="text" class="form-control" name="color" id="color"
+                                <label for="colorantColor" class="form-label">Color</label>
+                                <input type="text" class="form-control" name="colorantColor" id="colorantColor"
                                     placeholder="Enter Colorant Color">
                             </div>
                             <div class="col">
@@ -373,9 +373,9 @@
                             <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-3 row-col-lg-6 g-3">
                                 <!-- Barrel Heater input s -->
                                 <div class="col">
-                                    <label for="nozzleHeaterZone0" class="form-label">Nozzle Heater Zone 0 (°C)</label>
-                                    <input type="number" class="form-control" name="nozzleHeaterZone0"
-                                        id="nozzleHeaterZone0" placeholder="Nozzle Heater Zone 0 (°C)">
+                                    <label for="barrelHeaterZone0" class="form-label">Barrel Heater Zone 0 (°C)</label>
+                                    <input type="number" class="form-control" name="barrelHeaterZone0"
+                                        id="barrelHeaterZone0" placeholder="Barrel Heater Zone 0 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="barrelHeaterZone1" class="form-label">Barrel Heater Zone 1 (°C)</label>
@@ -477,96 +477,96 @@
                         <div class="collapse show" id="collapseMoldHeater">
                             <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-3 row-col-lg-6 g-3">
                                 <div class="col">
-                                    <label for="barrelHeaterZone0" class="form-label">Barrel Heater Zone 0 (°C)</label>
-                                    <input type="number" class="form-control" name="barrelHeaterZone0"
-                                        id="barrelHeaterZone0" placeholder="Barrel Heater Zone 0 (°C)">
+                                    <label for="Zone0" class="form-label">Mold Heater Zone 0 (°C)</label>
+                                    <input type="number" class="form-control" name="Zone0" id="Zone0"
+                                        placeholder="Mold Heater Zone 0 (°C)">
                                 </div>
                                 <div class="col">
-                                    <label for="barrelHeaterZone1" class="form-label">Barrel Heater Zone 1 (°C)</label>
-                                    <input type="number" class="form-control" name="barrelHeaterZone1"
-                                        id="barrelHeaterZone1" placeholder="Barrel Heater Zone 1 (°C)">
+                                    <label for="Zone1" class="form-label">Mold Heater Zone 1 (°C)</label>
+                                    <input type="number" class="form-control" name="Zone1" id="Zone1"
+                                        placeholder="Mold Heater Zone 1 (°C)">
                                 </div>
                                 <div class="col">
-                                    <label for="barrelHeaterZone2" class="form-label">Barrel Heater Zone 2 (°C)</label>
-                                    <input type="number" class="form-control" name="barrelHeaterZone2"
-                                        id="barrelHeaterZone2" placeholder="Barrel Heater Zone 2 (°C)">
+                                    <label for="Zone2" class="form-label">Mold Heater Zone 2 (°C)</label>
+                                    <input type="number" class="form-control" name="Zone2" id="Zone2"
+                                        placeholder="Mold Heater Zone 2 (°C)">
                                 </div>
                                 <div class="col">
-                                    <label for="barrelHeaterZone3" class="form-label">Barrel Heater Zone 3 (°C)</label>
-                                    <input type="number" class="form-control" name="barrelHeaterZone3"
-                                        id="barrelHeaterZone3" placeholder="Barrel Heater Zone 3 (°C)">
+                                    <label for="Zone3" class="form-label">Mold Heater Zone 3 (°C)</label>
+                                    <input type="number" class="form-control" name="Zone3" id="Zone3"
+                                        placeholder="Mold Heater Zone 3 (°C)">
                                 </div>
                                 <div class="col">
-                                    <label for="barrelHeaterZone4" class="form-label">Barrel Heater Zone 4 (°C)</label>
-                                    <input type="number" class="form-control" name="barrelHeaterZone4"
-                                        id="barrelHeaterZone4" placeholder="Barrel Heater Zone 4 (°C)">
+                                    <label for="Zone4" class="form-label">Mold Heater Zone 4 (°C)</label>
+                                    <input type="number" class="form-control" name="Zone4" id="Zone4"
+                                        placeholder="Mold Heater Zone 4 (°C)">
                                 </div>
                                 <div class="col">
-                                    <label for="barrelHeaterZone5" class="form-label">Barrel Heater Zone 5 (°C)</label>
-                                    <input type="number" class="form-control" name="barrelHeaterZone5"
-                                        id="barrelHeaterZone5" placeholder="Barrel Heater Zone 5 (°C)">
+                                    <label for="Zone5" class="form-label">Mold Heater Zone 5 (°C)</label>
+                                    <input type="number" class="form-control" name="Zone5" id="Zone5"
+                                        placeholder="Mold Heater Zone 5 (°C)">
                                 </div>
                                 <div class="col">
-                                    <label for="barrelHeaterZone6" class="form-label">Barrel Heater Zone 6 (°C)</label>
-                                    <input type="number" class="form-control" name="barrelHeaterZone6"
-                                        id="barrelHeaterZone6" placeholder="Barrel Heater Zone 6 (°C)">
+                                    <label for="Zone6" class="form-label">Mold Heater Zone 6 (°C)</label>
+                                    <input type="number" class="form-control" name="Zone6" id="Zone6"
+                                        placeholder="Mold Heater Zone 6 (°C)">
                                 </div>
                                 <div class="col">
-                                    <label for="barrelHeaterZone7" class="form-label">Barrel Heater Zone 7 (°C)</label>
-                                    <input type="number" class="form-control" name="barrelHeaterZone7"
-                                        id="barrelHeaterZone7" placeholder="Barrel Heater Zone 7 (°C)">
+                                    <label for="Zone7" class="form-label">Mold Heater Zone 7 (°C)</label>
+                                    <input type="number" class="form-control" name="Zone7" id="Zone7"
+                                        placeholder="Mold Heater Zone 7 (°C)">
                                 </div>
                                 <div class="col">
-                                    <label for="barrelHeaterZone8" class="form-label">Barrel Heater Zone 8 (°C)</label>
-                                    <input type="number" class="form-control" name="barrelHeaterZone8"
-                                        id="barrelHeaterZone8" placeholder="Barrel Heater Zone 8 (°C)">
+                                    <label for="Zone8" class="form-label">Mold Heater Zone 8 (°C)</label>
+                                    <input type="number" class="form-control" name="Zone8" id="Zone8"
+                                        placeholder="Mold Heater Zone 8 (°C)">
                                 </div>
                                 <div class="col">
-                                    <label for="barrelHeaterZone9" class="form-label">Barrel Heater Zone 9 (°C)</label>
-                                    <input type="number" class="form-control" name="barrelHeaterZone9"
-                                        id="barrelHeaterZone9" placeholder="Barrel Heater Zone 9 (°C)">
+                                    <label for="Zone9" class="form-label">Mold Heater Zone 9 (°C)</label>
+                                    <input type="number" class="form-control" name="Zone9" id="Zone9"
+                                        placeholder="Mold Heater Zone 9 (°C)">
                                 </div>
                                 <div class="col">
-                                    <label for="barrelHeaterZone10" class="form-label">Barrel Heater Zone 10
+                                    <label for="Zone10" class="form-label">Mold Heater Zone 10
                                         (°C)</label>
-                                    <input type="number" class="form-control" name="barrelHeaterZone10"
-                                        id="barrelHeaterZone10" placeholder="Barrel Heater Zone 10 (°C)">
+                                    <input type="number" class="form-control" name="Zone10" id="Zone10"
+                                        placeholder="Mold Heater Zone 10 (°C)">
                                 </div>
                                 <div class="col">
-                                    <label for="barrelHeaterZone11" class="form-label">Barrel Heater Zone 11
+                                    <label for="Zone11" class="form-label">Mold Heater Zone 11
                                         (°C)</label>
-                                    <input type="number" class="form-control" name="barrelHeaterZone11"
-                                        id="barrelHeaterZone11" placeholder="Barrel Heater Zone 11 (°C)">
+                                    <input type="number" class="form-control" name="Zone11" id="Zone11"
+                                        placeholder="Mold Heater Zone 11 (°C)">
                                 </div>
                                 <div class="col">
-                                    <label for="barrelHeaterZone12" class="form-label">Barrel Heater Zone 12
+                                    <label for="Zone12" class="form-label">Mold Heater Zone 12
                                         (°C)</label>
-                                    <input type="number" class="form-control" name="barrelHeaterZone12"
-                                        id="barrelHeaterZone12" placeholder="Barrel Heater Zone 12 (°C)">
+                                    <input type="number" class="form-control" name="Zone12" id="Zone12"
+                                        placeholder="Mold Heater Zone 12 (°C)">
                                 </div>
                                 <div class="col">
-                                    <label for="barrelHeaterZone13" class="form-label">Barrel Heater Zone 13
+                                    <label for="Zone13" class="form-label">Mold Heater Zone 13
                                         (°C)</label>
-                                    <input type="number" class="form-control" name="barrelHeaterZone13"
-                                        id="barrelHeaterZone13" placeholder="Barrel Heater Zone 13 (°C)">
+                                    <input type="number" class="form-control" name="Zone13" id="Zone13"
+                                        placeholder="Mold Heater Zone 13 (°C)">
                                 </div>
                                 <div class="col">
-                                    <label for="barrelHeaterZone14" class="form-label">Barrel Heater Zone 14
+                                    <label for="Zone14" class="form-label">Mold Heater Zone 14
                                         (°C)</label>
-                                    <input type="number" class="form-control" name="barrelHeaterZone14"
-                                        id="barrelHeaterZone14" placeholder="Barrel Heater Zone 14 (°C)">
+                                    <input type="number" class="form-control" name="Zone14" id="Zone14"
+                                        placeholder="Mold Heater Zone 14 (°C)">
                                 </div>
                                 <div class="col">
-                                    <label for="barrelHeaterZone15" class="form-label">Barrel Heater Zone 15
+                                    <label for="Zone15" class="form-label">Mold Heater Zone 15
                                         (°C)</label>
-                                    <input type="number" class="form-control" name="barrelHeaterZone15"
-                                        id="barrelHeaterZone15" placeholder="Barrel Heater Zone 15 (°C)">
+                                    <input type="number" class="form-control" name="Zone15" id="Zone15"
+                                        placeholder="Mold Heater Zone 15 (°C)">
                                 </div>
                                 <div class="col">
-                                    <label for="barrelHeaterZone16" class="form-label">Barrel Heater Zone 16
+                                    <label for="Zone16" class="form-label">Mold Heater Zone 16
                                         (°C)</label>
-                                    <input type="number" class="form-control" name="barrelHeaterZone16"
-                                        id="barrelHeaterZone16" placeholder="Barrel Heater Zone 16 (°C)">
+                                    <input type="number" class="form-control" name="Zone16" id="Zone16"
+                                        placeholder="Mold Heater Zone 16 (°C)">
                                 </div>
                                 <div class="col">
                                     <label for="MTCSetting" class="form-label">MTC Setting</label>
@@ -721,8 +721,8 @@
                                         placeholder="Position 1">
                                 </div>
                                 <div class="col">
-                                    <label for="moldOpenPos2" class="form-label">Position 2</label>
-                                    <input type="number" class="form-control" name="moldOpenPos2" id="moldOpenPos2"
+                                    <label for="moldClosePos2" class="form-label">Position 2</label>
+                                    <input type="number" class="form-control" name="moldClosePos2" id="moldClosePos2"
                                         placeholder="Position 2">
                                 </div>
                                 <div class="col">
@@ -1178,8 +1178,8 @@
                                     placeholder="Air Blow Time B">
                             </div>
                             <div class="col">
-                                <label for="AirBlowPosB" class="form-label">Air Blow Position B</label>
-                                <input type="number" class="form-control" name="ABlowPositionB" id="aBlowPositionB"
+                                <label for="AirBlowPositionB" class="form-label">Air Blow Position B</label>
+                                <input type="number" class="form-control" name="AirBlowPositionB" id="airBlowPositionB"
                                     placeholder="Air Blow Position B">
                             </div>
                             <div class="col">
@@ -1535,7 +1535,7 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <label for="adjuster" class="form-label">Adjuster Name</label>
-                                <input type="number" class="form-control" name="adjuster" id="adjuster"
+                                <input type="text" class="form-control" name="adjuster" id="adjuster"
                                     placeholder="Enter Adjuster Name">
                             </div>
                             <div class="col">
@@ -1559,35 +1559,30 @@
                     </h4>
                     <div class="collapse show" id="collapseAttachments">
                         <div class="row mb-3">
-                            <!-- Pictures -->
+                            <!-- Image Upload -->
                             <div class="col-md-6">
                                 <label for="uploadImages" class="form-label">Upload Images</label>
                                 <input class="form-control" type="file" id="uploadImages" name="uploadImages[]"
-                                    accept="image/*" multiple>
-                                <small class="text-muted">Accepted formats: JPG, PNG, GIF</small>
+                                    accept="image/jpeg, image/png, image/gif" multiple>
+                                <small class="text-muted">Max 5 images (JPG, PNG, GIF)</small>
                             </div>
 
-                            <!-- Videos -->
+                            <!-- Video Upload -->
                             <div class="col-md-6">
                                 <label for="uploadVideos" class="form-label">Upload Videos</label>
                                 <input class="form-control" type="file" id="uploadVideos" name="uploadVideos[]"
-                                    accept="video/*" multiple>
-                                <small class="text-muted">Accepted formats: MP4, AVI, MKV</small>
+                                    accept="video/mp4, video/avi, video/mkv" multiple>
+                                <small class="text-muted">Max 2 videos (MP4, AVI, MKV)</small>
                             </div>
                         </div>
 
-                        <!-- Preview Section for Uploaded Files -->
+                        <!-- Preview Containers -->
                         <div class="row">
-                            <!-- Image Previews -->
                             <div class="col-md-6">
-                                <label class="form-label">Image Previews</label>
-                                <div id="imagePreviews" class="d-flex flex-wrap gap-2"></div>
+                                <div id="imagePreviews" class="d-flex flex-wrap gap-2 mb-3"></div>
                             </div>
-
-                            <!-- Video Previews -->
                             <div class="col-md-6">
-                                <label class="form-label">Video Previews</label>
-                                <div id="videoPreviews" class="d-flex flex-wrap gap-2"></div>
+                                <div id="videoPreviews" class="d-flex flex-wrap gap-2 mb-3"></div>
                             </div>
                         </div>
                     </div>
@@ -1601,110 +1596,112 @@
                     <!-- Submit Button -->
                     <button type="submit" class="btn btn-primary mt-4">Submit</button>
 
-                </form>
+                </f>
             </div>
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
         <script>
-            const imageFiles = []; // Array to track uploaded image files
-            const videoFiles = []; // Array to track uploaded video files
+            const MAX_IMAGES = 5;
+            const MAX_VIDEOS = 2;
+            const imageFiles = new DataTransfer();
+            const videoFiles = new DataTransfer();
 
-            // Handle image uploads and previews
-            document.getElementById('uploadImages').addEventListener('change', function (event) {
-                const imagePreviews = document.getElementById('imagePreviews');
-                Array.from(event.target.files).forEach((file, index) => {
-                    if (file.type.startsWith('image/')) {
-                        imageFiles.push(file); // Add to image file array
-                        const reader = new FileReader();
-                        reader.onload = function (e) {
-                            const previewContainer = document.createElement('div');
-                            previewContainer.className = 'position-relative';
+            // Image Handler
+            document.getElementById('uploadImages').addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
 
-                            const img = document.createElement('img');
-                            img.src = e.target.result;
-                            img.className = 'img-fluid border rounded';
-                            img.style.width = '100px';
-                            img.style.height = '100px';
-                            img.alt = 'Uploaded Image';
+                // Clear existing if over limit
+                if (imageFiles.items.length + files.length > MAX_IMAGES) {
+                    alert(`Maximum ${MAX_IMAGES} images allowed`);
+                    e.target.value = '';
+                    return;
+                }
 
-                            const removeBtn = document.createElement('button');
-                            removeBtn.className = 'btn btn-sm btn-danger position-absolute top-0 end-0';
-                            removeBtn.textContent = 'X';
-                            removeBtn.style.margin = '5px';
-                            removeBtn.addEventListener('click', () => {
-                                imageFiles.splice(index, 1); // Remove the file from array
-                                previewContainer.remove(); // Remove the preview
-                            });
+                files.forEach(file => {
+                    if (!file.type.startsWith('image/')) return;
+                    imageFiles.items.add(file);
 
-                            previewContainer.appendChild(img);
-                            previewContainer.appendChild(removeBtn);
-                            imagePreviews.appendChild(previewContainer);
-                        };
-                        reader.readAsDataURL(file);
-                    }
+                    const reader = new FileReader();
+                    reader.onload = () => createImagePreview(reader.result);
+                    reader.readAsDataURL(file);
                 });
 
-                // Clear the input to allow re-adding files
-                event.target.value = '';
+                // Update input files
+                e.target.files = imageFiles.files;
+                showPreviews();
             });
 
-            // Handle video uploads and previews
-            document.getElementById('uploadVideos').addEventListener('change', function (event) {
-                const videoPreviews = document.getElementById('videoPreviews');
-                Array.from(event.target.files).forEach((file, index) => {
-                    if (file.type.startsWith('video/')) {
-                        videoFiles.push(file); // Add to video file array
-                        const url = URL.createObjectURL(file);
+            // Video Handler
+            document.getElementById('uploadVideos').addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
 
-                        const previewContainer = document.createElement('div');
-                        previewContainer.className = 'position-relative';
+                if (videoFiles.items.length + files.length > MAX_VIDEOS) {
+                    alert(`Maximum ${MAX_VIDEOS} videos allowed`);
+                    e.target.value = '';
+                    return;
+                }
 
-                        const video = document.createElement('video');
-                        video.src = url;
-                        video.className = 'img-fluid border rounded';
-                        video.style.width = '150px';
-                        video.style.height = '150px';
-                        video.controls = true;
-
-                        const removeBtn = document.createElement('button');
-                        removeBtn.className = 'btn btn-sm btn-danger position-absolute top-0 end-0';
-                        removeBtn.textContent = 'X';
-                        removeBtn.style.margin = '5px';
-                        removeBtn.addEventListener('click', () => {
-                            videoFiles.splice(index, 1); // Remove the file from array
-                            previewContainer.remove(); // Remove the preview
-                        });
-
-                        previewContainer.appendChild(video);
-                        previewContainer.appendChild(removeBtn);
-                        videoPreviews.appendChild(previewContainer);
-                    }
+                files.forEach(file => {
+                    if (!file.type.startsWith('video/')) return;
+                    videoFiles.items.add(file);
+                    createVideoPreview(URL.createObjectURL(file));
                 });
 
-                // Clear the input to allow re-adding files
-                event.target.value = '';
+                e.target.files = videoFiles.files;
+                showPreviews();
             });
+
+            // Preview Creation
+            function createImagePreview(url) {
+                const preview = document.createElement('div');
+                preview.className = 'position-relative';
+                preview.innerHTML = `
+            <img src="${url}" class="img-thumbnail" style="width: 100px; height: 100px">
+            <button type="button" class="btn-close bg-danger position-absolute top-0 end-0 m-1"></button>
+        `;
+                preview.querySelector('button').onclick = () => removePreview(preview, imageFiles);
+                document.getElementById('imagePreviews').appendChild(preview);
+            }
+
+            function createVideoPreview(url) {
+                const preview = document.createElement('div');
+                preview.className = 'position-relative';
+                preview.innerHTML = `
+            <video controls class="img-thumbnail" style="width: 150px; height: 150px">
+                <source src="${url}" type="video/mp4">
+            </video>
+            <button type="button" class="btn-close bg-danger position-absolute top-0 end-0 m-1"></button>
+        `;
+                preview.querySelector('button').onclick = () => removePreview(preview, videoFiles);
+                document.getElementById('videoPreviews').appendChild(preview);
+            }
+
+            // Removal Logic
+            function removePreview(previewElement, fileList) {
+                const index = Array.from(previewElement.parentElement.children).indexOf(previewElement);
+                fileList.items.remove(index);
+                previewElement.remove();
+            }
         </script>
-
-
 
         <script>
             document.getElementById('autofillButton').addEventListener('click', function () {
-                // Random number generator for integers
                 const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-                // Autofill all input fields
                 document.querySelectorAll('input').forEach(input => {
-                    if (input.type === 'text' || input.type === 'number' || input.type === 'date' || input.type === 'time') {
-                        input.value = randomInt(1, 10); // Random whole number between 1 and 1000
+                    if (input.type === 'date') {
+                        input.value = '2024-01-01'; // Example fixed date
+                    } else if (input.type === 'time') {
+                        input.value = '12:00'; // Example fixed time
+                    } else if (input.type === 'text' || input.type === 'number') {
+                        input.value = randomInt(1, 100);
                     }
                 });
 
-                // Autofill all textarea fields
                 document.querySelectorAll('textarea').forEach(textarea => {
-                    textarea.value = randomInt(1, 10); // Random whole number between 1 and 1000
+                    textarea.value = 'Sample additional info'; // Text instead of number
                 });
 
                 // Autofill select fields if they exist

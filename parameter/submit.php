@@ -15,6 +15,7 @@ $dbname = "injectionmoldingparameters";
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
+$conn->begin_transaction();
 // Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -73,13 +74,21 @@ if (isset($_POST['dryingtime'], $_POST['dryingtemp'])) {
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param(
-        "ddssssdsdsdssd",
+        "ddssdssdssdssd",
         $_POST['dryingtime'],           // Drying Time
         $_POST['dryingtemp'],           // Drying Temperature
-        $type1, $brand1, $mix1,         // Material 1
-        $type2, $brand2, $mix2,         // Material 2
-        $type3, $brand3, $mix3,         // Material 3
-        $type4, $brand4, $mix4          // Material 4
+        $type1,
+        $brand1,
+        $mix1,         // Material 1
+        $type2,
+        $brand2,
+        $mix2,         // Material 2
+        $type3,
+        $brand3,
+        $mix3,         // Material 3
+        $type4,
+        $brand4,
+        $mix4          // Material 4
     );
 
     if (!$stmt->execute()) {
@@ -93,7 +102,7 @@ if (isset($_POST['colorant'], $_POST['color'], $_POST['colorant-dosage'], $_POST
     $sql = "INSERT INTO colorantdetails (Colorant, Color, Dosage, Stabilizer, StabilizerDosage)
             VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssss", $_POST['colorant'], $_POST['color'], $_POST['colorant-dosage'], $_POST['colorant-stabilizer'], $_POST['colorant-stabilizer-dosage']);
+    $stmt->bind_param("sssss", $_POST['colorant'], $_POST['colorantColor'], $_POST['colorant-dosage'], $_POST['colorant-stabilizer'], $_POST['colorant-stabilizer-dosage']);
     if (!$stmt->execute()) {
         $errors[] = "Error inserting into colorantdetails: " . $stmt->error;
     }
@@ -155,7 +164,7 @@ if (isset($_POST['barrelHeaterZone0'], $_POST['barrelHeaterZone1'], $_POST['barr
 }
 
 // Insert into moldheatertemperatures table
-if (isset($_POST['barrelHeaterZone0'], $_POST['barrelHeaterZone1'], $_POST['MTCSetting'])) {
+if (isset($_POST['Zone0'], $_POST['Zone1'], $_POST['MTCSetting'])) {
     $sql = "INSERT INTO moldheatertemperatures (
                 Zone0, Zone1, Zone2, Zone3, Zone4, Zone5, Zone6, Zone7, Zone8, Zone9,
                 Zone10, Zone11, Zone12, Zone13, Zone14, Zone15, Zone16, MTCSetting
@@ -164,23 +173,23 @@ if (isset($_POST['barrelHeaterZone0'], $_POST['barrelHeaterZone1'], $_POST['MTCS
     $stmt = $conn->prepare($sql);
     $stmt->bind_param(
         "dddddddddddddddddd",
-        $_POST['barrelHeaterZone0'],
-        $_POST['barrelHeaterZone1'],
-        $_POST['barrelHeaterZone2'],
-        $_POST['barrelHeaterZone3'],
-        $_POST['barrelHeaterZone4'],
-        $_POST['barrelHeaterZone5'],
-        $_POST['barrelHeaterZone6'],
-        $_POST['barrelHeaterZone7'],
-        $_POST['barrelHeaterZone8'],
-        $_POST['barrelHeaterZone9'],
-        $_POST['barrelHeaterZone10'],
-        $_POST['barrelHeaterZone11'],
-        $_POST['barrelHeaterZone12'],
-        $_POST['barrelHeaterZone13'],
-        $_POST['barrelHeaterZone14'],
-        $_POST['barrelHeaterZone15'],
-        $_POST['barrelHeaterZone16'],
+        $_POST['Zone0'],
+        $_POST['Zone1'],
+        $_POST['Zone2'],
+        $_POST['Zone3'],
+        $_POST['Zone4'],
+        $_POST['Zone5'],
+        $_POST['Zone6'],
+        $_POST['Zone7'],
+        $_POST['Zone8'],
+        $_POST['Zone9'],
+        $_POST['Zone10'],
+        $_POST['Zone11'],
+        $_POST['Zone12'],
+        $_POST['Zone13'],
+        $_POST['Zone14'],
+        $_POST['Zone15'],
+        $_POST['Zone16'],
         $_POST['MTCSetting']
     );
     if (!$stmt->execute()) {
@@ -277,20 +286,38 @@ if (isset($_POST['RecoveryPosition'], $_POST['ScrewPosition1'], $_POST['Injectio
     // Bind the parameters
     $stmt->bind_param(
         "ddddddddddddddddddddddddddd",
-        $RecoveryPosition, $SecondStagePosition, $Cushion,
-        $ScrewPosition1, $ScrewPosition2, $ScrewPosition3,
-        $InjectionSpeed1, $InjectionSpeed2, $InjectionSpeed3,
-        $InjectionPressure1, $InjectionPressure2, $InjectionPressure3,
-        $SuckBackPosition, $SuckBackSpeed, $SuckBackPressure,
-        $SprueBreak, $SprueBreakTime, $InjectionDelay,
-        $HoldingPressure1, $HoldingPressure2, $HoldingPressure3,
-        $HoldingSpeed1, $HoldingSpeed2, $HoldingSpeed3,
-        $HoldingTime1, $HoldingTime2, $HoldingTime3
+        $RecoveryPosition,
+        $SecondStagePosition,
+        $Cushion,
+        $ScrewPosition1,
+        $ScrewPosition2,
+        $ScrewPosition3,
+        $InjectionSpeed1,
+        $InjectionSpeed2,
+        $InjectionSpeed3,
+        $InjectionPressure1,
+        $InjectionPressure2,
+        $InjectionPressure3,
+        $SuckBackPosition,
+        $SuckBackSpeed,
+        $SuckBackPressure,
+        $SprueBreak,
+        $SprueBreakTime,
+        $InjectionDelay,
+        $HoldingPressure1,
+        $HoldingPressure2,
+        $HoldingPressure3,
+        $HoldingSpeed1,
+        $HoldingSpeed2,
+        $HoldingSpeed3,
+        $HoldingTime1,
+        $HoldingTime2,
+        $HoldingTime3
     );
-    
+
     // Execute the query
     if (!$stmt->execute()) {
-        die("Error executing statement: " . $stmt->error);
+        $errors[] = "Error inserting into injectionparameters: " . $stmt->error;
     } else {
         echo "Data successfully inserted!";
     }
@@ -350,21 +377,67 @@ if (isset($_POST['AirBlowTimeA'], $_POST['EjectorForwardPosition1'], $_POST['Eje
 
 // Insert into corepullsettings table
 if (isset($_POST['coreSetASequence'], $_POST['coreSetAPressure'], $_POST['coreSetASpeed'])) {
-    $sql = "INSERT INTO corepullsettings (Section, Sequence, Pressure, Speed, Position, Time, LimitSwitch)
+    // Insert Core Pull Settings for all sections
+    $coreSections = [
+        'A' => [
+            'Set' => [
+                'sequence' => $_POST['coreSetASequence'] ?? null,
+                'pressure' => $_POST['coreSetAPressure'] ?? null,
+                'speed' => $_POST['coreSetASpeed'] ?? null,
+                'position' => $_POST['coreSetAPosition'] ?? null,
+                'time' => $_POST['coreSetATime'] ?? null,
+                'limit' => $_POST['coreSetALimitSwitch'] ?? null
+            ],
+            'Pull' => [
+                'sequence' => $_POST['corePullASequence'] ?? null,
+                'pressure' => $_POST['corePullAPressure'] ?? null,
+                'speed' => $_POST['corePullASpeed'] ?? null,
+                'position' => $_POST['corePullAPosition'] ?? null,
+                'time' => $_POST['corePullATime'] ?? null,
+                'limit' => $_POST['corePullALimitSwitch'] ?? null
+            ]
+        ],
+        'B' => [
+            'Set' => [
+                'sequence' => $_POST['coreSetBSequence'] ?? null,
+                'pressure' => $_POST['coreSetBPressure'] ?? null,
+                'speed' => $_POST['coreSetBSpeed'] ?? null,
+                'position' => $_POST['coreSetBPosition'] ?? null,
+                'time' => $_POST['coreSetBTime'] ?? null,
+                'limit' => $_POST['coreSetBLimitSwitch'] ?? null
+            ],
+            'Pull' => [
+                'sequence' => $_POST['corePullBSequence'] ?? null,
+                'pressure' => $_POST['corePullBPressure'] ?? null,
+                'speed' => $_POST['corePullBSpeed'] ?? null,
+                'position' => $_POST['corePullBPosition'] ?? null,
+                'time' => $_POST['corePullBTime'] ?? null,
+                'limit' => $_POST['corePullBLimitSwitch'] ?? null
+            ]
+        ]
+    ];
+
+    $sqlCore = "INSERT INTO corepullsettings (Section, Sequence, Pressure, Speed, Position, Time, LimitSwitch)
             VALUES (?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param(
-        "sidddds",
-        $_POST['coreSetASection'],
-        $_POST['coreSetASequence'],
-        $_POST['coreSetAPressure'],
-        $_POST['coreSetASpeed'],
-        $_POST['coreSetAPosition'],
-        $_POST['coreSetATime'],
-        $_POST['coreSetALimitSwitch']
-    );
-    if (!$stmt->execute()) {
-        $errors[] = "Error inserting into corepullsettings: " . $stmt->error;
+    $stmtCore = $conn->prepare($sqlCore);
+
+    foreach ($coreSections as $section => $types) {
+        foreach ($types as $type => $fields) {
+            $sectionName = "Core " . ucfirst($type) . " " . $section;
+            $stmtCore->bind_param(
+                "sidddds",
+                $sectionName,
+                $fields['sequence'],
+                $fields['pressure'],
+                $fields['speed'],
+                $fields['position'],
+                $fields['time'],
+                $fields['limit']
+            );
+            if (!$stmtCore->execute()) {
+                $errors[] = "Error inserting core settings for $sectionName: " . $stmtCore->error;
+            }
+        }
     }
 }
 
@@ -378,60 +451,116 @@ if (isset($_POST['additionalInfo'])) {
     }
 }
 
-// Directory for uploaded files
-$uploadDir = 'uploads/';
-if (!is_dir($uploadDir)) {
-    mkdir($uploadDir, 0777, true); // Create the directory if it doesn't exist
+// Insert into personnel table
+if (isset($_POST['adjuster'], $_POST['qae'])) {
+    $sql = "INSERT INTO personnel (AdjusterName, QAEName) VALUES (?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ss", $_POST['adjuster'], $_POST['qae']);
+    if (!$stmt->execute()) {
+        $errors[] = "Error inserting into personnel: " . $stmt->error;
+    }
 }
 
-// Function to handle file uploads
-function handleFileUpload($files, $uploadDir, $type) {
+// Modified File Upload Handling
+function handleFileUpload($files, $uploadDir, $typeCategory, $allowedExtensions, $maxSize = 5000000, $irn, $date, $time, $machineNumber, $runNumber) {
     $uploadedFiles = [];
-    foreach ($files['name'] as $key => $name) {
-        $tmpName = $files['tmp_name'][$key];
-        $error = $files['error'][$key];
-        $size = $files['size'][$key];
+    
+    if (!isset($files['name']) || !is_array($files['name'])) {
+        return $uploadedFiles;
+    }
 
-        // Skip if there was an error with the file
-        if ($error !== UPLOAD_ERR_OK) {
-            continue;
+    foreach ($files['name'] as $key => $name) {
+        // Skip invalid entries
+        if ($files['error'][$key] !== UPLOAD_ERR_OK) continue;
+        
+        // Validate extension
+        $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+        if (!in_array($ext, $allowedExtensions)) continue;
+        
+        // Validate size
+        if ($files['size'][$key] > $maxSize) continue;
+
+        // Create upload directory if not exists
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
         }
 
-        // Generate a unique file name
-        $uniqueName = uniqid() . '_' . basename($name);
-        $filePath = $uploadDir . $uniqueName;
+        // Generate safe filename
+        $safeName = sprintf(
+            "%s_%s_%s_%s_%s.%s",
+            $irn,
+            $date,
+            $time,
+            $machineNumber,
+            $runNumber,
+            $ext
+        );
+        $targetPath = $uploadDir . $safeName;
 
-        // Move the file to the upload directory
-        if (move_uploaded_file($tmpName, $filePath)) {
+        if (move_uploaded_file($files['tmp_name'][$key], $targetPath)) {
             $uploadedFiles[] = [
                 'name' => $name,
-                'path' => $filePath,
-                'type' => $type,
+                'path' => $targetPath,
+                'type' => $typeCategory
             ];
         }
     }
     return $uploadedFiles;
 }
 
-// Handle image uploads
+// Handle file uploads with proper validation
+$uploadDir = 'uploads/';
 $uploadedImages = [];
-if (isset($_FILES['uploadImages'])) {
-    $uploadedImages = handleFileUpload($_FILES['uploadImages'], $uploadDir, 'image');
-}
-
-// Handle video uploads
 $uploadedVideos = [];
-if (isset($_FILES['uploadVideos'])) {
-    $uploadedVideos = handleFileUpload($_FILES['uploadVideos'], $uploadDir, 'video');
+
+$irn = $_POST['IRN']; // You need to ensure this is set in your form
+$date = $_POST['Date'];
+$time = $_POST['Time'];
+$machineNumber = $_POST['MachineName'];
+$runNumber = $_POST['RunNumber'];
+
+if (isset($_FILES['uploadImages'])) {
+    $uploadedImages = handleFileUpload(
+        $_FILES['uploadImages'],
+        $uploadDir,
+        'image',
+        ['jpg', 'jpeg', 'png', 'gif'],
+        5000000, // 5MB limit for images
+        $irn,
+        $date,
+        $time,
+        $machineNumber,
+        $runNumber
+    );
 }
 
-// Insert attachments into the database
-$attachments = array_merge($uploadedImages, $uploadedVideos);
-if (!empty($attachments)) {
+if (isset($_FILES['uploadVideos'])) {
+    $uploadedVideos = handleFileUpload(
+        $_FILES['uploadVideos'],
+        $uploadDir,
+        'video',
+        ['mp4', 'avi', 'mov', 'mkv'],
+        50000000, // 50MB limit for videos
+        $irn,
+        $date,
+        $time,
+        $machineNumber,
+        $runNumber
+    );
+}
+
+// Insert attachments into database
+if (!empty($uploadedImages) || !empty($uploadedVideos)) {
     $sql = "INSERT INTO attachments (FileName, FilePath, FileType) VALUES (?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    foreach ($attachments as $attachment) {
-        $stmt->bind_param("sss", $attachment['name'], $attachment['path'], $attachment['type']);
+    
+    foreach (array_merge($uploadedImages, $uploadedVideos) as $file) {
+        $stmt->bind_param("sss", 
+            $file['name'],
+            $file['path'],
+            $file['type']
+        );
+        
         if (!$stmt->execute()) {
             $errors[] = "Error inserting attachment: " . $stmt->error;
         }
@@ -439,11 +568,12 @@ if (!empty($attachments)) {
 }
 
 
-
 // Output success or errors
 if (empty($errors)) {
+    $conn->commit();
     echo "All data has been submitted successfully!";
 } else {
+    $conn->rollback();
     echo "The following errors occurred:<br>";
     foreach ($errors as $error) {
         echo $error . "<br>";

@@ -10,7 +10,8 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-function fetchData($conn, $tableName) {
+function fetchData($conn, $tableName)
+{
     $sql = "SELECT * FROM $tableName";
     return $conn->query($sql);
 }
@@ -29,6 +30,8 @@ $injectionParameters = fetchData($conn, 'injectionparameters');
 $ejectionParameters = fetchData($conn, 'ejectionparameters');
 $corePullSettings = fetchData($conn, 'corepullsettings');
 $additionalInformation = fetchData($conn, 'additionalinformation');
+$personnel = fetchData($conn, 'personnel');  // Added personnel
+$attachments = fetchData($conn, 'attachments');  // Added attachments
 ?>
 
 <!DOCTYPE html>
@@ -74,7 +77,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $productMachineInfo->fetch_assoc()) : ?>
+                        <?php while ($row = $productMachineInfo->fetch_assoc()): ?>
                             <tr>
                                 <td><?= $row['id'] ?></td>
                                 <td><?= $row['Date'] ?></td>
@@ -108,7 +111,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $productDetails->fetch_assoc()) : ?>
+                        <?php while ($row = $productDetails->fetch_assoc()): ?>
                             <tr>
                                 <td><?= $row['id'] ?></td>
                                 <td><?= $row['ProductName'] ?></td>
@@ -150,7 +153,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $materialComposition->fetch_assoc()) : ?>
+                        <?php while ($row = $materialComposition->fetch_assoc()): ?>
                             <tr>
                                 <td><?= $row['id'] ?></td>
                                 <td><?= $row['DryingTime'] ?></td>
@@ -190,7 +193,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $colorantDetails->fetch_assoc()) : ?>
+                        <?php while ($row = $colorantDetails->fetch_assoc()): ?>
                             <tr>
                                 <td><?= $row['id'] ?></td>
                                 <td><?= $row['Colorant'] ?></td>
@@ -221,7 +224,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $moldOperationSpecs->fetch_assoc()) : ?>
+                        <?php while ($row = $moldOperationSpecs->fetch_assoc()): ?>
                             <tr>
                                 <td><?= $row['id'] ?></td>
                                 <td><?= $row['MoldCode'] ?></td>
@@ -253,7 +256,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $timerParameters->fetch_assoc()) : ?>
+                        <?php while ($row = $timerParameters->fetch_assoc()): ?>
                             <tr>
                                 <td><?= $row['id'] ?></td>
                                 <td><?= $row['FillingTime'] ?></td>
@@ -296,10 +299,10 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $barrelHeaterTemperatures->fetch_assoc()) : ?>
+                        <?php while ($row = $barrelHeaterTemperatures->fetch_assoc()): ?>
                             <tr>
                                 <td><?= $row['id'] ?></td>
-                                <?php for ($i = 0; $i <= 16; $i++) : ?>
+                                <?php for ($i = 0; $i <= 16; $i++): ?>
                                     <td><?= $row["Zone$i"] ?></td>
                                 <?php endfor; ?>
                             </tr>
@@ -338,10 +341,10 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $moldHeaterTemperatures->fetch_assoc()) : ?>
+                        <?php while ($row = $moldHeaterTemperatures->fetch_assoc()): ?>
                             <tr>
                                 <td><?= $row['id'] ?></td>
-                                <?php for ($i = 0; $i <= 16; $i++) : ?>
+                                <?php for ($i = 0; $i <= 16; $i++): ?>
                                     <td><?= $row["Zone$i"] ?></td>
                                 <?php endfor; ?>
                                 <td><?= $row['MTCSetting'] ?></td>
@@ -379,7 +382,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $plasticizingParameters->fetch_assoc()) : ?>
+                        <?php while ($row = $plasticizingParameters->fetch_assoc()): ?>
                             <tr>
                                 <td><?= $row['id'] ?></td>
                                 <td><?= $row['ScrewRPM1'] ?></td>
@@ -443,7 +446,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $injectionParameters->fetch_assoc()) : ?>
+                        <?php while ($row = $injectionParameters->fetch_assoc()): ?>
                             <tr>
                                 <td><?= $row['id'] ?></td>
                                 <td><?= $row['RecoveryPosition'] ?></td>
@@ -479,7 +482,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
                 </table>
             </div>
         </div>
-        
+
         <!-- Additional Information -->
         <div class="card mb-4">
             <div class="card-header bg-info text-white">Additional Information</div>
@@ -492,7 +495,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $additionalInformation->fetch_assoc()) : ?>
+                        <?php while ($row = $additionalInformation->fetch_assoc()): ?>
                             <tr>
                                 <td><?= $row['id'] ?></td>
                                 <td><?= $row['Info'] ?></td>
@@ -530,7 +533,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $ejectionParameters->fetch_assoc()) : ?>
+                        <?php while ($row = $ejectionParameters->fetch_assoc()): ?>
                             <tr>
                                 <td><?= $row['id'] ?></td>
                                 <td><?= $row['AirBlowTimeA'] ?></td>
@@ -574,7 +577,7 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $corePullSettings->fetch_assoc()) : ?>
+                        <?php while ($row = $corePullSettings->fetch_assoc()): ?>
                             <tr>
                                 <td><?= $row['id'] ?></td>
                                 <td><?= $row['Section'] ?></td>
@@ -590,6 +593,60 @@ $additionalInformation = fetchData($conn, 'additionalinformation');
                 </table>
             </div>
         </div>
+
+        <!-- Add Personnel Section -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">Personnel</div>
+            <div class="card-body table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Adjuster Name</th>
+                            <th>Quality Assurance Engineer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while ($row = $personnel->fetch_assoc()): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($row['id']) ?></td>
+                                <td><?= htmlspecialchars($row['AdjusterName']) ?></td>
+                                <td><?= htmlspecialchars($row['QAEName']) ?></td>
+                            </tr>
+                        <?php endwhile; ?>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Attachments -->
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white">Attachments</div>
+            <div class="card-body table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>File Name</th>
+                            <th>Type</th>
+                            <th>Path</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while ($row = $attachments->fetch_assoc()): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($row['id']) ?></td>
+                                <td><?= htmlspecialchars($row['FileName']) ?></td>
+                                <td><?= htmlspecialchars($row['FileType']) ?></td>
+                                <td><?= htmlspecialchars($row['FilePath']) ?></td>
+                            </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
