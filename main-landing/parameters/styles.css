@@ -1,0 +1,11 @@
+/* Chevron when section is expanded */
+a:not(.collapsed) .bi-chevron-down {
+    transform: rotate(0deg);
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Chevron when section is collapsed */
+a.collapsed .bi-chevron-down {
+    transform: rotate(90deg);
+    transition: transform 0.3s ease-in-out;
+}

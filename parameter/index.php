@@ -1596,124 +1596,124 @@
                     <!-- Submit Button -->
                     <button type="submit" class="btn btn-primary mt-4">Submit</button>
 
-                </f>
+                </form>
             </div>
         </div>
+    </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-        <script>
-            const MAX_IMAGES = 5;
-            const MAX_VIDEOS = 2;
-            const imageFiles = new DataTransfer();
-            const videoFiles = new DataTransfer();
+    <script>
+        const MAX_IMAGES = 5;
+        const MAX_VIDEOS = 2;
+        const imageFiles = new DataTransfer();
+        const videoFiles = new DataTransfer();
 
-            // Image Handler
-            document.getElementById('uploadImages').addEventListener('change', (e) => {
-                const files = Array.from(e.target.files);
+        // Image Handler
+        document.getElementById('uploadImages').addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
 
-                // Clear existing if over limit
-                if (imageFiles.items.length + files.length > MAX_IMAGES) {
-                    alert(`Maximum ${MAX_IMAGES} images allowed`);
-                    e.target.value = '';
-                    return;
+            // Clear existing if over limit
+            if (imageFiles.items.length + files.length > MAX_IMAGES) {
+                alert(`Maximum ${MAX_IMAGES} images allowed`);
+                e.target.value = '';
+                return;
+            }
+
+            files.forEach(file => {
+                if (!file.type.startsWith('image/')) return;
+                imageFiles.items.add(file);
+
+                const reader = new FileReader();
+                reader.onload = () => createImagePreview(reader.result);
+                reader.readAsDataURL(file);
+            });
+
+            // Update input files
+            e.target.files = imageFiles.files;
+            showPreviews();
+        });
+
+        // Video Handler
+        document.getElementById('uploadVideos').addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+
+            if (videoFiles.items.length + files.length > MAX_VIDEOS) {
+                alert(`Maximum ${MAX_VIDEOS} videos allowed`);
+                e.target.value = '';
+                return;
+            }
+
+            files.forEach(file => {
+                if (!file.type.startsWith('video/')) return;
+                videoFiles.items.add(file);
+                createVideoPreview(URL.createObjectURL(file));
+            });
+
+            e.target.files = videoFiles.files;
+            showPreviews();
+        });
+
+        // Preview Creation
+        function createImagePreview(url) {
+            const preview = document.createElement('div');
+            preview.className = 'position-relative';
+            preview.innerHTML = `
+        <img src="${url}" class="img-thumbnail" style="width: 100px; height: 100px">
+        <button type="button" class="btn-close bg-danger position-absolute top-0 end-0 m-1"></button>
+    `;
+            preview.querySelector('button').onclick = () => removePreview(preview, imageFiles);
+            document.getElementById('imagePreviews').appendChild(preview);
+        }
+
+        function createVideoPreview(url) {
+            const preview = document.createElement('div');
+            preview.className = 'position-relative';
+            preview.innerHTML = `
+        <video controls class="img-thumbnail" style="width: 150px; height: 150px">
+            <source src="${url}" type="video/mp4">
+        </video>
+        <button type="button" class="btn-close bg-danger position-absolute top-0 end-0 m-1"></button>
+    `;
+            preview.querySelector('button').onclick = () => removePreview(preview, videoFiles);
+            document.getElementById('videoPreviews').appendChild(preview);
+        }
+
+        // Removal Logic
+        function removePreview(previewElement, fileList) {
+            const index = Array.from(previewElement.parentElement.children).indexOf(previewElement);
+            fileList.items.remove(index);
+            previewElement.remove();
+        }
+    </script>
+
+    <script>
+        document.getElementById('autofillButton').addEventListener('click', function () {
+            const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+            document.querySelectorAll('input').forEach(input => {
+                if (input.type === 'date') {
+                    input.value = '2024-01-01'; // Example fixed date
+                } else if (input.type === 'time') {
+                    input.value = '12:00'; // Example fixed time
+                } else if (input.type === 'text' || input.type === 'number') {
+                    input.value = randomInt(1, 100);
                 }
-
-                files.forEach(file => {
-                    if (!file.type.startsWith('image/')) return;
-                    imageFiles.items.add(file);
-
-                    const reader = new FileReader();
-                    reader.onload = () => createImagePreview(reader.result);
-                    reader.readAsDataURL(file);
-                });
-
-                // Update input files
-                e.target.files = imageFiles.files;
-                showPreviews();
             });
 
-            // Video Handler
-            document.getElementById('uploadVideos').addEventListener('change', (e) => {
-                const files = Array.from(e.target.files);
+            document.querySelectorAll('textarea').forEach(textarea => {
+                textarea.value = 'Sample additional info'; // Text instead of number
+            });
 
-                if (videoFiles.items.length + files.length > MAX_VIDEOS) {
-                    alert(`Maximum ${MAX_VIDEOS} videos allowed`);
-                    e.target.value = '';
-                    return;
+            // Autofill select fields if they exist
+            document.querySelectorAll('select').forEach(select => {
+                const options = select.options;
+                if (options.length > 0) {
+                    select.selectedIndex = randomInt(0, options.length - 1); // Randomly select an option
                 }
-
-                files.forEach(file => {
-                    if (!file.type.startsWith('video/')) return;
-                    videoFiles.items.add(file);
-                    createVideoPreview(URL.createObjectURL(file));
-                });
-
-                e.target.files = videoFiles.files;
-                showPreviews();
             });
-
-            // Preview Creation
-            function createImagePreview(url) {
-                const preview = document.createElement('div');
-                preview.className = 'position-relative';
-                preview.innerHTML = `
-            <img src="${url}" class="img-thumbnail" style="width: 100px; height: 100px">
-            <button type="button" class="btn-close bg-danger position-absolute top-0 end-0 m-1"></button>
-        `;
-                preview.querySelector('button').onclick = () => removePreview(preview, imageFiles);
-                document.getElementById('imagePreviews').appendChild(preview);
-            }
-
-            function createVideoPreview(url) {
-                const preview = document.createElement('div');
-                preview.className = 'position-relative';
-                preview.innerHTML = `
-            <video controls class="img-thumbnail" style="width: 150px; height: 150px">
-                <source src="${url}" type="video/mp4">
-            </video>
-            <button type="button" class="btn-close bg-danger position-absolute top-0 end-0 m-1"></button>
-        `;
-                preview.querySelector('button').onclick = () => removePreview(preview, videoFiles);
-                document.getElementById('videoPreviews').appendChild(preview);
-            }
-
-            // Removal Logic
-            function removePreview(previewElement, fileList) {
-                const index = Array.from(previewElement.parentElement.children).indexOf(previewElement);
-                fileList.items.remove(index);
-                previewElement.remove();
-            }
-        </script>
-
-        <script>
-            document.getElementById('autofillButton').addEventListener('click', function () {
-                const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-
-                document.querySelectorAll('input').forEach(input => {
-                    if (input.type === 'date') {
-                        input.value = '2024-01-01'; // Example fixed date
-                    } else if (input.type === 'time') {
-                        input.value = '12:00'; // Example fixed time
-                    } else if (input.type === 'text' || input.type === 'number') {
-                        input.value = randomInt(1, 100);
-                    }
-                });
-
-                document.querySelectorAll('textarea').forEach(textarea => {
-                    textarea.value = 'Sample additional info'; // Text instead of number
-                });
-
-                // Autofill select fields if they exist
-                document.querySelectorAll('select').forEach(select => {
-                    const options = select.options;
-                    if (options.length > 0) {
-                        select.selectedIndex = randomInt(0, options.length - 1); // Randomly select an option
-                    }
-                });
-            });
-        </script>
-
+        });
+    </script>
 
 </body>
 

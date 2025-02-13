@@ -35,12 +35,12 @@
                                     <div class="card-body">
                                         <form method="POST" action="login.php">
                                             <div class="form-floating mb-3">
-                                                <input required class="form-control" id="input requiredIDNumber" name="id_number" type="number" placeholder="ID number" max="999999" maxlength="6" required/>
-                                                <label for="input requiredIDNumber">ID number</label>
+                                                <input required class="form-control" id="requiredIDNumber" name="id_number" type="number" placeholder="ID number" max="999999" maxlength="6" required/>
+                                                <label for="requiredIDNumber">ID number</label>
                                             </div>
                                             <div class="form-floating mb-3 password-wrapper">
-                                                <input required class="form-control" id="input requiredPassword" name="password" type="password" placeholder="Password" required/>
-                                                <label for="input requiredPassword">Password</label>
+                                                <input required class="form-control" id="requiredPassword" name="password" type="password" placeholder="Password" required/>
+                                                <label for="requiredPassword">Password</label>
                                                 <!-- Add the toggle password button -->
                                                 <span class="toggle-password" onclick="togglePasswordVisibility()">
                                                     <i class="fas fa-eye" id="togglePasswordIcon"></i>
@@ -76,14 +76,14 @@
         <script src="js/scripts.js"></script>
         <script>
             function togglePasswordVisibility() {
-                const passwordinput required = document.getElementById('input requiredPassword');
+                const passwordinput = document.getElementById('requiredPassword');
                 const togglePasswordIcon = document.getElementById('togglePasswordIcon');
-                if (passwordinput required.type === 'password') {
-                    passwordinput required.type = 'text';
+                if (passwordinput.type === 'password') {
+                    passwordinput.type = 'text';
                     togglePasswordIcon.classList.remove('fa-eye');
                     togglePasswordIcon.classList.add('fa-eye-slash');
                 } else {
-                    passwordinput required.type = 'password';
+                    passwordinput.type = 'password';
                     togglePasswordIcon.classList.remove('fa-eye-slash');
                     togglePasswordIcon.classList.add('fa-eye');
                 }
