@@ -443,9 +443,10 @@ if (isset($_POST['adjuster'], $_POST['qae'])) {
 }
 
 // Modified File Upload Handling
-function handleFileUpload($files, $uploadDir, $typeCategory, $allowedExtensions, $maxSize, $irn, $date, $time, $machineNumber, $runNumber) {
+function handleFileUpload($files, $uploadDir, $typeCategory, $allowedExtensions, $maxSize, $irn, $date, $time, $machineNumber, $runNumber)
+{
     $uploadedFiles = [];
-    
+
     if (!isset($files['name']) || !is_array($files['name'])) {
         return $uploadedFiles;
     }
@@ -455,13 +456,13 @@ function handleFileUpload($files, $uploadDir, $typeCategory, $allowedExtensions,
             error_log("Upload error for file $name: Code " . $files['error'][$key]);
             continue;
         }
-        
+
         $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
         if (!in_array($ext, $allowedExtensions)) {
             error_log("Invalid extension for file $name");
             continue;
         }
-        
+
         if ($files['size'][$key] > $maxSize) {
             error_log("File $name exceeds size limit");
             continue;
@@ -554,14 +555,15 @@ if (isset($_FILES['uploadVideos'])) {
 if (!empty($uploadedImages) || !empty($uploadedVideos)) {
     $sql = "INSERT INTO attachments (FileName, FilePath, FileType) VALUES (?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    
+
     foreach (array_merge($uploadedImages, $uploadedVideos) as $file) {
-        $stmt->bind_param("sss", 
+        $stmt->bind_param(
+            "sss",
             $file['name'],
             $file['path'],
             $file['type']
         );
-        
+
         if (!$stmt->execute()) {
             $errors[] = "Error inserting attachment: " . $stmt->error;
         }
@@ -589,34 +591,38 @@ $conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <!-- Redirect after 3 seconds -->
-  <meta http-equiv="refresh" content="3;url=submission.php">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Submission Result</title>
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-  <!-- Bootstrap Modal Popup -->
-  <div class="modal fade" id="resultModal" tabindex="-1" role="dialog" aria-labelledby="resultModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <?php echo $modalHeader; ?>
-        <?php echo $modalBody; ?>
-      </div>
-    </div>
-  </div>
 
-  <!-- Bootstrap and jQuery scripts -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    $(document).ready(function(){
-      // Show the modal on page load
-      $('#resultModal').modal('show');
-    });
-  </script>
+<head>
+    <meta charset="UTF-8">
+    <!-- Redirect after 3 seconds -->
+    <meta http-equiv="refresh" content="3;url=submission.php">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Submission Result</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+
+<body>
+    <!-- Bootstrap Modal Popup -->
+    <div class="modal fade" id="resultModal" tabindex="-1" role="dialog" aria-labelledby="resultModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <?php echo $modalHeader; ?>
+                <?php echo $modalBody; ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap and jQuery scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Show the modal on page load
+            $('#resultModal').modal('show');
+        });
+    </script>
 </body>
+
 </html>

@@ -122,8 +122,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['name'];
     $shift = $_POST['shift'];
 
-    $sql = "INSERT INTO submissions (date, product_name, machine, prn, mold_code, cycle_time_target, cycle_time_actual, weight_standard, weight_gross, weight_net, cavity_designed, cavity_active, remarks, name, shift) 
-            VALUES ('$date', '$product_name', '$machine', '$prn', '$mold_code', '$cycle_time_target', '$cycle_time_actual', '$weight_standard', '$weight_gross', '$weight_net', '$cavity_designed', '$cavity_active', '$remarks', '$name', '$shift')";
+    $sql = "INSERT INTO submissions (
+        date, product_name, machine, prn, mold_code, 
+        cycle_time_target, cycle_time_actual, weight_standard, 
+        weight_gross, weight_net, cavity_designed, cavity_active, 
+        remarks, name, shift, approval_status
+      ) VALUES (
+        '$date', '$product_name', '$machine', '$prn', '$mold_code', 
+        '$cycle_time_target', '$cycle_time_actual', '$weight_standard', 
+        '$weight_gross', '$weight_net', '$cavity_designed', '$cavity_active', 
+        '$remarks', '$name', '$shift', 'pending'
+      )";
 
     if ($conn->query($sql) === TRUE) {
         $recordCreated = true;

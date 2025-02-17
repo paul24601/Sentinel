@@ -71,6 +71,7 @@ $sqlRemarks = "SELECT product_name, date, mold_code, remarks,
                       (cycle_time_target - cycle_time_actual) AS cycle_time_difference 
                FROM submissions 
                WHERE remarks IS NOT NULL 
+                 AND (cycle_time_target - cycle_time_actual) < 0
                ORDER BY product_name, date";
 
 $resultRemarks = $conn->query($sqlRemarks);
@@ -127,22 +128,24 @@ if ($resultProductVariance->num_rows > 0) {
 }
 
 // Fetching unique combinations of machines and mold codes with dates
-$sqlMachineMoldCombination = "SELECT CONCAT(machine, ' - ', mold_code) AS machine_mold_combination, date 
+$sqlMachineMoldCombination = "SELECT product_name, CONCAT(machine, ' - ', mold_code) AS machine_mold_combination, date 
                               FROM submissions 
                               WHERE machine IS NOT NULL AND mold_code IS NOT NULL 
                               ORDER BY date, machine, mold_code";
 
 $resultMachineMoldCombination = $conn->query($sqlMachineMoldCombination);
-$machineMoldData = [];
 
+$machineMoldData = [];
 if ($resultMachineMoldCombination->num_rows > 0) {
     while ($row = $resultMachineMoldCombination->fetch_assoc()) {
         $machineMoldData[] = [
+            'product_name' => $row['product_name'],
             'machine_mold_combination' => $row['machine_mold_combination'],
             'date' => $row['date']
         ];
     }
 }
+
 
 $conn->close();
 ?>
@@ -571,9 +574,10 @@ $conn->close();
                         function filterDataByProduct(productName) {
                             const filteredData = productName === 'all'
                                 ? machineMoldData
-                                : machineMoldData.filter(item => item.machine_mold_combination.includes(productName));
+                                : machineMoldData.filter(item => item.product_name === productName);
                             createBarChart(filteredData);
                         }
+
 
                         document.getElementById('productFilter').addEventListener('change', function () {
                             const productName = this.value;
