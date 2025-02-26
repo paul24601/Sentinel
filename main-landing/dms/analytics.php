@@ -244,6 +244,7 @@ $conn->close();
                                 <a class="nav-link" href="index.php">Data Entry</a>
                                 <a class="nav-link" href="submission.php">Records</a>
                                 <a class="nav-link active" href="#">Analytics</a>
+                                <a class="nav-link" href="approval.php">Approvals</a>
                             </nav>
                         </div>
 

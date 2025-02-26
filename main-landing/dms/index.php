@@ -8,6 +8,33 @@ if (!isset($_SESSION['full_name'])) {
     exit();
 }
 
+// --- Database Connection & Notification Functionality --- //
+$servername = "localhost";
+$username = "root";
+$password = "Admin123@plvil";
+$dbname = "dailymonitoringsheet";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Function to get pending submissions for notifications
+function getPendingSubmissions($conn) {
+    $pending = [];
+    $sql_pending = "SELECT id, product_name, date FROM submissions WHERE approval_status = 'pending' ORDER BY date DESC";
+    $result_pending = $conn->query($sql_pending);
+    if ($result_pending && $result_pending->num_rows > 0) {
+        while ($row = $result_pending->fetch_assoc()) {
+            $pending[] = $row;
+        }
+    }
+    return $pending;
+}
+
+$pending_submissions = getPendingSubmissions($conn);
+$pending_count = count($pending_submissions);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -24,9 +51,8 @@ if (!isset($_SESSION['full_name'])) {
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- jQuery -->
+    <!-- jQuery and jQuery UI for Autocomplete -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- jQuery UI for Autocomplete -->
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
@@ -45,9 +71,7 @@ if (!isset($_SESSION['full_name'])) {
                     $.ajax({
                         url: "autocomplete.php",
                         dataType: "json",
-                        data: {
-                            term: request.term // Send the search term to the server
-                        },
+                        data: { term: request.term },
                         success: function (data) {
                             response(data);
                         }
@@ -56,9 +80,9 @@ if (!isset($_SESSION['full_name'])) {
                 select: function (event, ui) {
                     // Populate other fields with numeric and non-numeric data
                     $('#mold_code').val(ui.item.mold_code);
-                    $('#cycle_time_target').val(ui.item.cycle_time_target); // Numeric value
-                    $('#weight_standard').val(ui.item.weight_standard); // Numeric value
-                    $('#cavity_designed').val(ui.item.cavity_designed); // Integer value
+                    $('#cycle_time_target').val(ui.item.cycle_time_target);
+                    $('#weight_standard').val(ui.item.weight_standard);
+                    $('#cavity_designed').val(ui.item.cavity_designed);
                 },
                 focus: function (event, ui) {
                     // When hovering over a suggestion, preview the data in the fields
@@ -66,7 +90,7 @@ if (!isset($_SESSION['full_name'])) {
                     $('#cycle_time_target').val(ui.item.cycle_time_target);
                     $('#weight_standard').val(ui.item.weight_standard);
                     $('#cavity_designed').val(ui.item.cavity_designed);
-                    return false; // Prevent replacing the text in the search box
+                    return false;
                 }
             });
 
@@ -74,26 +98,22 @@ if (!isset($_SESSION['full_name'])) {
             $("#prn").autocomplete({
                 source: function (request, response) {
                     $.ajax({
-                        url: "autocomplete_prn.php", // Script to fetch PRN data
+                        url: "autocomplete_prn.php",
                         dataType: "json",
-                        data: {
-                            term: request.term // Send the search term to the server
-                        },
+                        data: { term: request.term },
                         success: function (data) {
                             response(data);
                         }
                     });
                 },
                 select: function (event, ui) {
-                    // Populate fields or perform actions when an item is selected, if needed
+                    // Additional actions when a PRN is selected (if needed)
                 },
                 focus: function (event, ui) {
-                    // Preview if desired
-                    return false; // Prevent replacing the text in the search box
+                    return false;
                 }
             });
         });
-
     </script>
 </head>
 
@@ -102,23 +122,53 @@ if (!isset($_SESSION['full_name'])) {
         <!-- Navbar Brand-->
         <a class="navbar-brand ps-3" href="../index.php">Sentinel Digitization</a>
         <!-- Sidebar Toggle-->
-        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i
-                class="fas fa-bars"></i></button>
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
+            <i class="fas fa-bars"></i>
+        </button>
         <!-- Navbar Search-->
         <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
-
+            <!-- (Optional search form can go here) -->
         </form>
-        <!-- Navbar-->
+        <!-- Navbar Notifications and User Dropdown-->
         <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+            <!-- Notification Dropdown -->
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
-                    aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+                <a class="nav-link dropdown-toggle position-relative" id="notifDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-bell"></i>
+                    <?php if ($pending_count > 0): ?>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            <?php echo $pending_count; ?>
+                        </span>
+                    <?php endif; ?>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown">
+                    <?php if ($pending_count > 0): ?>
+                        <?php foreach ($pending_submissions as $pending): ?>
+                            <li>
+                                <a class="dropdown-item" href="approval.php#submission-<?php echo $pending['id']; ?>">
+                                    Submission #<?php echo $pending['id']; ?> -
+                                    <?php echo htmlspecialchars($pending['product_name']); ?>
+                                    <br>
+                                    <small><?php echo date("M d, Y", strtotime($pending['date'])); ?></small>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <li>
+                            <span class="dropdown-item-text">No pending submissions.</span>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </li>
+            <!-- User Dropdown -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user fa-fw"></i>
+                </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li><a class="dropdown-item" href="#!">Settings</a></li>
                     <li><a class="dropdown-item" href="#!">Activity Log</a></li>
-                    <li>
-                        <hr class="dropdown-divider" />
-                    </li>
+                    <li><hr class="dropdown-divider" /></li>
                     <li><a class="dropdown-item" href="../logout.php">Logout</a></li>
                 </ul>
             </li>
@@ -147,10 +197,9 @@ if (!isset($_SESSION['full_name'])) {
                                 <a class="nav-link active" href="#">Data Entry</a>
                                 <a class="nav-link" href="submission.php">Records</a>
                                 <a class="nav-link" href="analytics.php">Analytics</a>
+                                <a class="nav-link" href="approval.php">Approvals</a>
                             </nav>
                         </div>
-
-
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseParameters"
                             aria-expanded="false" aria-controls="collapseParameters">
                             <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
@@ -193,7 +242,7 @@ if (!isset($_SESSION['full_name'])) {
                     <ol class="breadcrumb mb-4">
                         <li class="breadcrumb-item active">Injection Department</li>
                     </ol>
-                    <!--FORMS-->
+                    <!-- FORMS -->
                     <div class="container-fluid opacity-90">
                         <div class="card shadow">
                             <div class="card-body">
@@ -205,11 +254,9 @@ if (!isset($_SESSION['full_name'])) {
                                         <input required type="date" class="form-control" id="date" name="date"
                                             max="<?php echo date('Y-m-d'); ?>" required>
                                     </div>
-
                                     <!-- Product Name -->
                                     <div class="mb-3">
                                         <label for="product_name" class="form-label">Product Name</label>
-                                        <!-- Popover Note -->
                                         <span tabindex="0" class="text-body-secondary" data-bs-toggle="popover"
                                             data-bs-trigger="hover focus"
                                             data-bs-content="The first data submitted for the corresponding Product Name would be shown.">
@@ -218,7 +265,6 @@ if (!isset($_SESSION['full_name'])) {
                                         <input required type="text" id="product_name" name="product_name"
                                             class="form-control mt-2" placeholder="Enter Product Name">
                                     </div>
-
                                     <!-- Machine -->
                                     <div class="mb-3">
                                         <label for="machine" class="form-label">Machine</label>
@@ -240,22 +286,18 @@ if (!isset($_SESSION['full_name'])) {
                                             <option value="MIT 1050B">MIT 1050B</option>
                                         </select>
                                     </div>
-
-
                                     <!-- PRN -->
                                     <div class="mb-3">
                                         <label for="prn" class="form-label">PRN</label>
                                         <input required type="text" class="form-control" id="prn" name="prn"
                                             placeholder="Enter PRN">
                                     </div>
-
                                     <!-- Mold Code -->
                                     <div class="mb-3">
                                         <label for="mold_code" class="form-label">Mold Code</label>
                                         <input required type="number" class="form-control" id="mold_code"
                                             name="mold_code" placeholder="Enter Mold Code" max="9999" required>
                                     </div>
-
                                     <!-- Cycle Time -->
                                     <div class="mb-4">
                                         <h5 class="mb-3">Cycle Time</h5>
@@ -274,7 +316,6 @@ if (!isset($_SESSION['full_name'])) {
                                             </div>
                                         </div>
                                     </div>
-
                                     <!-- Weight -->
                                     <div class="mb-4">
                                         <h5 class="mb-3">WEIGHT (grams/pc)</h5>
@@ -299,7 +340,6 @@ if (!isset($_SESSION['full_name'])) {
                                             </div>
                                         </div>
                                     </div>
-
                                     <!-- Number of Cavity -->
                                     <div class="mb-4">
                                         <h5 class="mb-3">Number of Cavity</h5>
@@ -318,11 +358,9 @@ if (!isset($_SESSION['full_name'])) {
                                             </div>
                                         </div>
                                     </div>
-
                                     <!-- Remarks -->
                                     <div class="mb-3">
                                         <label for="remarks" class="form-label">Remarks</label>
-                                        <!-- Popover Note -->
                                         <span tabindex="0" class="text-body-secondary" data-bs-toggle="popover"
                                             data-bs-trigger="hover focus"
                                             data-bs-content="Add remarks if Product has NO STANDARD CYCLE TIME AND WEIGHT.">
@@ -331,14 +369,12 @@ if (!isset($_SESSION['full_name'])) {
                                         <textarea class="form-control" id="remarks" name="remarks" rows="3"
                                             placeholder="Enter any remarks"></textarea>
                                     </div>
-
                                     <!-- Name -->
                                     <div class="mb-3">
                                         <label for="name" class="form-label">Name</label>
                                         <input required type="text" class="form-control" id="name" name="name"
                                             value="<?php echo $_SESSION['full_name']; ?>" readonly required>
                                     </div>
-
                                     <!-- Shift -->
                                     <div class="mb-3">
                                         <label for="shift" class="form-label">Shift</label>
@@ -349,19 +385,14 @@ if (!isset($_SESSION['full_name'])) {
                                             <option value="3rd shift">3rd Shift</option>
                                         </select>
                                     </div>
-
                                     <!-- Submit Button -->
                                     <div class="d-grid">
                                         <button type="submit" class="btn btn-success">Submit</button>
                                     </div>
-
                                 </form>
                             </div>
-
                         </div>
                     </div>
-
-
                 </div>
             </main>
             <footer class="py-4 bg-light mt-auto">
@@ -382,8 +413,7 @@ if (!isset($_SESSION['full_name'])) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
     <script src="../assets/demo/chart-area-demo.js"></script>
     <script src="../assets/demo/chart-bar-demo.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
-        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
     <script src="../js/datatables-simple-demo.js"></script>
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>

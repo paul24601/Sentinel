@@ -3,11 +3,9 @@ session_start(); // Start the session to access session variables
 
 // Check if the user is logged in
 if (!isset($_SESSION['full_name'])) {
-    // If not logged in, redirect to the login page
     header("Location: ../login.html");
     exit();
 }
-
 ?>
 
 <?php
@@ -19,13 +17,31 @@ $dbname = "dailymonitoringsheet";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch data from submissions table
+// ------------------------------------------------------------------
+// Get Pending Submissions for Notifications
+// ------------------------------------------------------------------
+function getPendingSubmissions($conn) {
+    $pending = [];
+    $sql_pending = "SELECT id, product_name, date FROM submissions WHERE approval_status = 'pending' ORDER BY date DESC";
+    $result_pending = $conn->query($sql_pending);
+    if ($result_pending && $result_pending->num_rows > 0) {
+        while ($row = $result_pending->fetch_assoc()) {
+            $pending[] = $row;
+        }
+    }
+    return $pending;
+}
+
+$pending_submissions = getPendingSubmissions($conn);
+$pending_count = count($pending_submissions);
+
+// ------------------------------------------------------------------
+// (Optional) Fetch submissions data if needed
+// ------------------------------------------------------------------
 $sql = "SELECT * FROM submissions";
 $result = $conn->query($sql);
 
@@ -50,7 +66,7 @@ $result = $conn->query($sql);
 
 // ==========================
 // Analytics Data for Charts
-// Here we count the number of visits per day.
+// Count the number of visits per day.
 // ==========================
 $sqlAnalytics = "SELECT DATE(visit_time) AS day, COUNT(*) AS total FROM visits GROUP BY day ORDER BY day";
 $resultAnalytics = $conn->query($sqlAnalytics);
@@ -84,21 +100,52 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
         <!-- Navbar Brand-->
         <a class="navbar-brand ps-3" href="index.php">Sentinel OJT</a>
         <!-- Sidebar Toggle-->
-        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i
-                class="fas fa-bars"></i></button>
-        <!-- Navbar Search-->
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
+            <i class="fas fa-bars"></i>
+        </button>
+        <!-- Navbar Search (optional)-->
         <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0"></form>
-        <!-- Navbar-->
+        <!-- Navbar Notifications and User Dropdown-->
         <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+            <!-- Notification Dropdown -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle position-relative" id="notifDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-bell"></i>
+                    <?php if ($pending_count > 0): ?>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            <?php echo $pending_count; ?>
+                        </span>
+                    <?php endif; ?>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown">
+                    <?php if ($pending_count > 0): ?>
+                        <?php foreach ($pending_submissions as $pending): ?>
+                            <li>
+                                <a class="dropdown-item" href="dms/approval.php#submission-<?php echo $pending['id']; ?>">
+                                    Submission #<?php echo $pending['id']; ?> -
+                                    <?php echo htmlspecialchars($pending['product_name']); ?>
+                                    <br>
+                                    <small><?php echo date("M d, Y", strtotime($pending['date'])); ?></small>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <li>
+                            <span class="dropdown-item-text">No pending submissions.</span>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </li>
+            <!-- User Dropdown -->
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
-                    aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+                    aria-expanded="false">
+                    <i class="fas fa-user fa-fw"></i>
+                </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li><a class="dropdown-item" href="#!">Settings</a></li>
                     <li><a class="dropdown-item" href="#!">Activity Log</a></li>
-                    <li>
-                        <hr class="dropdown-divider" />
-                    </li>
+                    <li><hr class="dropdown-divider" /></li>
                     <li><a class="dropdown-item" href="logout.php">Logout</a></li>
                 </ul>
             </li>
@@ -121,25 +168,21 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                             DMS
                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                         </a>
-                        <div class="collapse" id="collapseDMS" aria-labelledby="headingOne"
-                            data-bs-parent="#sidenavAccordion">
+                        <div class="collapse" id="collapseDMS" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav">
                                 <a class="nav-link" href="dms/index.php">Data Entry</a>
                                 <a class="nav-link" href="dms/submission.php">Records</a>
                                 <a class="nav-link" href="dms/analytics.php">Analytics</a>
+                                <a class="nav-link" href="dms/approval.php">Approvals</a>
                             </nav>
                         </div>
-
-
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
-                            data-bs-target="#collapseParameters" aria-expanded="false"
-                            aria-controls="collapseParameters">
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseParameters"
+                            aria-expanded="false" aria-controls="collapseParameters">
                             <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
                             Parameters
                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                         </a>
-                        <div class="collapse" id="collapseParameters" aria-labelledby="headingOne"
-                            data-bs-parent="#sidenavAccordion">
+                        <div class="collapse" id="collapseParameters" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav">
                                 <a class="nav-link" href="parameters/index.php">Data Entry</a>
                                 <a class="nav-link" href="parameters/submission.php">Data Visualization</a>
@@ -174,6 +217,7 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                     <ol class="breadcrumb mb-4">
                         <li class="breadcrumb-item active">Injection Department</li>
                     </ol>
+                    
                     <div class="row">
                         <div class="col-xl-3 col-md-6">
                             <div class="card bg-primary text-white mb-4">
@@ -214,7 +258,6 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                     </div>
                     <!-- Charts Row -->
                     <div class="row">
-                        <!-- Area Chart -->
                         <div class="col-xl-6">
                             <div class="card mb-4">
                                 <div class="card-header">
@@ -226,7 +269,6 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                                 </div>
                             </div>
                         </div>
-                        <!-- Bar Chart -->
                         <div class="col-xl-6">
                             <div class="card mb-4">
                                 <div class="card-header">
@@ -291,14 +333,13 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
             </footer>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
-        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="js/scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
-        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
     <script src="js/datatables-simple-demo.js"></script>
     <script>
+        // Initialize DataTable for the visits log
         document.addEventListener("DOMContentLoaded", event => {
             const datatablesSimple = document.getElementById("datatablesSimple");
             if (datatablesSimple) {
@@ -308,7 +349,6 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
             }
         });
     </script>
-
     <!-- Charts Script -->
     <script>
         // Pass PHP analytics data to JavaScript

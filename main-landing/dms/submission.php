@@ -53,10 +53,14 @@ if (isset($_GET['export_csv'])) {
         ];
         fputcsv($output, $headers);
 
-        $sql = "SELECT id, date, product_name, machine, prn, mold_code, cycle_time_target, cycle_time_actual, 
-                (cycle_time_target - cycle_time_actual) AS cycle_time_difference, weight_standard, weight_gross, 
-                weight_net, cavity_designed, cavity_active, remarks, name, shift 
-                FROM submissions";
+        $sql = "SELECT id, date, product_name, machine, prn, mold_code, cycle_time_target, 
+        cycle_time_actual, 
+        (cycle_time_target - cycle_time_actual) AS cycle_time_difference, 
+        weight_standard, weight_gross, weight_net, cavity_designed, cavity_active, 
+        remarks, name, shift 
+        FROM submissions
+        WHERE approval_status = 'approved'";
+
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
@@ -142,12 +146,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 // Retrieve data from database
-$sql = "SELECT id, date, product_name, machine, prn, mold_code, cycle_time_target, 
-        cycle_time_actual, 
-        (cycle_time_target - cycle_time_actual) AS cycle_time_difference, 
-        weight_standard, weight_gross, weight_net, cavity_designed, cavity_active, 
-        remarks, name, shift 
-        FROM submissions";
+$sql = "SELECT id, date, product_name, machine, prn, mold_code, cycle_time_target, cycle_time_actual, 
+        (cycle_time_target - cycle_time_actual) AS cycle_time_difference, weight_standard, weight_gross, 
+        weight_net, cavity_designed, cavity_active, remarks, name, shift 
+        FROM submissions
+        WHERE approval_status = 'approved'";
+
 $result = $conn->query($sql);
 ?>
 
@@ -235,6 +239,7 @@ $result = $conn->query($sql);
                                 <a class="nav-link " href="index.php">Data Entry</a>
                                 <a class="nav-link active" href="#">Records</a>
                                 <a class="nav-link" href="analytics.php">Analytics</a>
+                                <a class="nav-link" href="approval.php">Approvals</a>
                             </nav>
                         </div>
 
@@ -400,7 +405,7 @@ $result = $conn->query($sql);
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
     <script>
