@@ -190,7 +190,7 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                             </nav>
                         </div>
                         <div class="sb-sidenav-menu-heading">Admin</div>
-                        <a class="nav-link" href="dms.html">
+                        <a class="nav-link" href="admin/users.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-user-group"></i></div>
                             Users
                         </a>

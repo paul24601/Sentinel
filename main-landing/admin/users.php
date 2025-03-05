@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-
 // Check if the user is an admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     echo "<!DOCTYPE html>
@@ -54,11 +53,22 @@ if ($conn->connect_error) {
 
 // Handle the form submission to add a new user
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
-    $id_number = $_POST['id_number'];
-    $full_name = $_POST['full_name'];
-    $password = !empty($_POST['password']) ? $_POST['password'] : "injection";
+    $id_number   = $_POST['id_number'] ?? '';
+    $first_name  = $_POST['first_name']  ?? '';
+    $middle_name = $_POST['middle_name'] ?? '';
+    $last_name   = $_POST['last_name']   ?? '';
+    // Construct full_name, omitting the middle name if empty
+    if (!empty(trim($middle_name))) {
+        $full_name = trim($first_name) . ' ' . trim($middle_name) . ' ' . trim($last_name);
+    } else {
+        $full_name = trim($first_name) . ' ' . trim($last_name);
+    }
+
+    // If password is not provided, default to 'injection'
+    $password = !empty($_POST['password']) ? $_POST['password'] : 'injection';
     $hashed_password = password_hash($password, PASSWORD_DEFAULT); // Hash the password
-    $role = $_POST['role'];
+
+    $role = $_POST['role'] ?? 'adjuster';
 
     $sql = "INSERT INTO users (id_number, full_name, password, role) VALUES (?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
@@ -76,14 +86,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
               </div>";
     }
 
-
     $stmt->close();
 }
 
-
 // Handle individual password_changed reset and set the password to 'injection'
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_user_password_changed'])) {
-    $user_id = $_POST['user_id'];
+    $user_id = $_POST['user_id'] ?? '';
 
     // Securely hash the new password 'injection'
     $new_password = password_hash("injection", PASSWORD_DEFAULT);
@@ -105,10 +113,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_user_password_ch
               </div>";
     }
 
-
     $stmt->close();
 }
-
 
 // Fetch all users from the database
 $sql = "SELECT id_number, full_name, role, password_changed FROM users";
@@ -144,23 +150,22 @@ $result = $conn->query($sql);
         <!-- Navbar Brand-->
         <a class="navbar-brand ps-3" href="../index.php">Sentinel Digitization</a>
         <!-- Sidebar Toggle-->
-        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i
-                class="fas fa-bars"></i></button>
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
+            <i class="fas fa-bars"></i>
+        </button>
         <!-- Navbar Search-->
-        <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
-
-        </form>
+        <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0"></form>
         <!-- Navbar-->
         <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
-                    aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
+                   data-bs-toggle="dropdown" aria-expanded="false">
+                   <i class="fas fa-user fa-fw"></i>
+                </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li><a class="dropdown-item" href="#!">Settings</a></li>
                     <li><a class="dropdown-item" href="#!">Activity Log</a></li>
-                    <li>
-                        <hr class="dropdown-divider" />
-                    </li>
+                    <li><hr class="dropdown-divider" /></li>
                     <li><a class="dropdown-item" href="../logout.php">Logout</a></li>
                 </ul>
             </li>
@@ -177,14 +182,14 @@ $result = $conn->query($sql);
                             Dashboard
                         </a>
                         <div class="sb-sidenav-menu-heading">Systems</div>
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseDMS"
-                            aria-expanded="false" aria-controls="collapseDMS">
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
+                           data-bs-target="#collapseDMS" aria-expanded="false" aria-controls="collapseDMS">
                             <div class="sb-nav-link-icon"><i class="fas fa-people-roof"></i></div>
                             DMS
                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                         </a>
                         <div class="collapse" id="collapseDMS" aria-labelledby="headingOne"
-                            data-bs-parent="#sidenavAccordion">
+                             data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav">
                                 <a class="nav-link" href="../dms/index.php">Data Entry</a>
                                 <a class="nav-link" href="../dms/submission.php">Records</a>
@@ -192,16 +197,15 @@ $result = $conn->query($sql);
                             </nav>
                         </div>
 
-
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
-                            data-bs-target="#collapseParameters" aria-expanded="false"
-                            aria-controls="collapseParameters">
+                           data-bs-target="#collapseParameters" aria-expanded="false"
+                           aria-controls="collapseParameters">
                             <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
                             Parameters
                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                         </a>
                         <div class="collapse" id="collapseParameters" aria-labelledby="headingOne"
-                            data-bs-parent="#sidenavAccordion">
+                             data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav">
                                 <a class="nav-link" href="../parameters/index.php">Data Entry</a>
                                 <a class="nav-link" href="../parameters/submission.php">Data Visualization</a>
@@ -244,27 +248,36 @@ $result = $conn->query($sql);
                             </div>
                             <div class="card-body">
                                 <form method="POST" action="">
-                                    <input required type="hidden" name="add_user" value="1">
+                                    <input type="hidden" name="add_user" value="1">
+                                    
                                     <div class="mb-3">
                                         <label for="id_number" class="form-label">ID Number:</label>
-                                        <input required type="text" class="form-control" name="id_number" required>
+                                        <input required type="text" class="form-control" name="id_number">
+                                    </div>
+                                    
+                                    <!-- Split Full Name into First, Middle, Last -->
+                                    <div class="mb-3">
+                                        <label for="first_name" class="form-label">First Name:</label>
+                                        <input required type="text" class="form-control" name="first_name">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="middle_name" class="form-label">Middle Name (Optional):</label>
+                                        <input type="text" class="form-control" name="middle_name">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="last_name" class="form-label">Last Name:</label>
+                                        <input required type="text" class="form-control" name="last_name">
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="full_name" class="form-label">Full Name:</label>
-                                        <input required type="text" class="form-control" name="full_name" required>
-                                    </div>
-
-                                    <div class="mb-3">
-
                                         <label for="password" class="form-label">Password:</label>
                                         <!-- Popover Note -->
                                         <span tabindex="0" class="text-body-secondary" data-bs-toggle="popover"
-                                            data-bs-trigger="hover focus"
-                                            data-bs-content="Leave the input required blank to set password to default.">
+                                              data-bs-trigger="hover focus"
+                                              data-bs-content="Leave blank to set password to 'injection'.">
                                             <i class="bi bi-info-circle"></i>
                                         </span>
-                                        <input required type="password" class="form-control" name="password">
+                                        <input type="password" class="form-control" name="password">
                                     </div>
 
                                     <div class="mb-3">
@@ -303,7 +316,8 @@ $result = $conn->query($sql);
                                             if ($result->num_rows > 0) {
                                                 // Output data for each row
                                                 while ($row = $result->fetch_assoc()) {
-                                                    // Skip the admin user with ID 000000 and Mariela Ilustre Segura with ID 000001
+                                                    // Skip the admin user with ID 000000 (Aeron Paul Daliva)
+                                                    // and ID 000001 (Mariela Ilustre Segura)
                                                     if (
                                                         ($row['id_number'] == '000000' && $row['full_name'] == 'Aeron Paul Daliva') ||
                                                         ($row['id_number'] == '000001' && $row['full_name'] == 'Mariela Ilustre Segura')
@@ -311,17 +325,19 @@ $result = $conn->query($sql);
                                                         continue;
                                                     }
                                                     echo "<tr>
-                                <td>" . $row['id_number'] . "</td>
-                                <td>" . $row['full_name'] . "</td>
-                                <td>" . $row['role'] . "</td>
-                                <td>" . ($row['password_changed'] ? 'Yes' : 'No') . "</td>
-                                <td>
-                                    <form method='POST' action=''>
-                                        <input required type='hidden' name='user_id' value='" . $row['id_number'] . "'>
-                                        <button type='submit' name='reset_user_password_changed' class='btn btn-warning btn-sm'>Reset</button>
-                                    </form>
-                                </td>
-                            </tr>";
+                                                        <td>" . $row['id_number'] . "</td>
+                                                        <td>" . $row['full_name'] . "</td>
+                                                        <td>" . $row['role'] . "</td>
+                                                        <td>" . ($row['password_changed'] ? 'Yes' : 'No') . "</td>
+                                                        <td>
+                                                            <form method='POST' action=''>
+                                                                <input type='hidden' name='user_id' value='" . $row['id_number'] . "'>
+                                                                <button type='submit' name='reset_user_password_changed' class='btn btn-warning btn-sm'>
+                                                                    Reset
+                                                                </button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>";
                                                 }
                                             } else {
                                                 echo "<tr><td colspan='5' class='text-center'>No users found</td></tr>";
@@ -353,8 +369,7 @@ $result = $conn->query($sql);
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
     <script src="../assets/demo/chart-area-demo.js"></script>
     <script src="../assets/demo/chart-bar-demo.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
-        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -367,9 +382,7 @@ $result = $conn->query($sql);
         $(document).ready(function () {
             $('#usersTable').DataTable();
         });
-    </script>
 
-    <script>
         document.addEventListener('DOMContentLoaded', function () {
             var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
             var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
@@ -378,7 +391,6 @@ $result = $conn->query($sql);
         });
     </script>
 </body>
-
 </html>
 
 <?php

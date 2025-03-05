@@ -1,93 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="" />
-        <meta name="author" content="" />
-        <title>Login - Sentinel System</title>
-        <link href="css/styles.css" rel="stylesheet" />
-        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-        <style>
-            .password-wrapper {
-                position: relative;
-            }
-            .toggle-password {
-                position: absolute;
-                top: 50%;
-                right: 10px;
-                transform: translateY(-50%);
-                cursor: pointer;
-                color: grey;
-            }
-        </style>
-    </head>
-    <body class="bg-primary">
-        <div id="layoutAuthentication">
-            <div id="layoutAuthentication_content">
-                <main>
-                    <div class="container">
-                        <div class="row justify-content-center">
-                            <div class="col-lg-5">
-                                <div class="card shadow-lg border-0 rounded-lg mt-5">
-                                    <div class="card-header"><h3 class="text-center font-weight-light my-4">Login</h3></div>
-                                    <div class="card-body">
-                                        <form method="POST" action="login.php">
-                                            <div class="form-floating mb-3">
-                                                <input required class="form-control" id="requiredIDNumber" name="id_number" type="number" placeholder="ID number" max="999999" maxlength="6" required/>
-                                                <label for="requiredIDNumber">ID number</label>
-                                            </div>
-                                            <div class="form-floating mb-3 password-wrapper">
-                                                <input required class="form-control" id="requiredPassword" name="password" type="password" placeholder="Password" required/>
-                                                <label for="requiredPassword">Password</label>
-                                                <!-- Add the toggle password button -->
-                                                <span class="toggle-password" onclick="togglePasswordVisibility()">
-                                                    <i class="fas fa-eye" id="togglePasswordIcon"></i>
-                                                </span>
-                                            </div>
-                                            <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
-                                                <button class="btn btn-primary" type="submit">Login</button>
-                                            </div>
-                                        </form>
-                                    </div>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Login - Sentinel System</title>
+    <link href="css/styles.css" rel="stylesheet" />
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <style>
+        .password-wrapper {
+            position: relative;
+        }
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: grey;
+        }
+        /* Improved Notification Styling */
+        #notificationArea {
+            margin: 20px auto;
+            max-width: 500px;
+        }
+        .notification-alert {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            color: #333;
+            font-family: Arial, sans-serif;
+        }
+        .notification-alert h5 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #007bff;
+        }
+        .notification-alert ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+        .notification-alert li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.95rem;
+        }
+        .notification-alert li:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body class="bg-primary">
+    <div id="layoutAuthentication">
+        <div id="layoutAuthentication_content">
+            <main>
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-5">
+                            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                                <div class="card-header">
+                                    <h3 class="text-center font-weight-light my-4">Login</h3>
+                                </div>
+                                <div class="card-body">
+                                    <form method="POST" action="login.php">
+                                        <div class="form-floating mb-3">
+                                            <input required class="form-control" id="requiredIDNumber" name="id_number"
+                                                   type="number" placeholder="ID number" max="999999" maxlength="6" />
+                                            <label for="requiredIDNumber">ID number</label>
+                                        </div>
+                                        <div class="form-floating mb-3 password-wrapper">
+                                            <input required class="form-control" id="requiredPassword" name="password"
+                                                   type="password" placeholder="Password" />
+                                            <label for="requiredPassword">Password</label>
+                                            <!-- Toggle password button -->
+                                            <span class="toggle-password" onclick="togglePasswordVisibility()">
+                                                <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                                            </span>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
+                                            <button class="btn btn-primary" type="submit">Login</button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </main>
-            </div>
-            <div id="layoutAuthentication_footer">
-                <footer class="py-4 bg-light mt-auto">
-                    <div class="container-fluid px-4">
-                        <div class="d-flex align-items-center justify-content-between small">
-                            <div class="text-muted">Copyright &copy; Sentinel OJT 2024</div>
-                            <div>
-                                <a href="#">Privacy Policy</a>
-                                &middot;
-                                <a href="#">Terms &amp; Conditions</a>
-                            </div>
+
+                    <!-- Notification Alert Area -->
+                    <div id="notificationArea"></div>
+                </div>
+            </main>
+        </div>
+        <div id="layoutAuthentication_footer">
+            <footer class="py-4 bg-light mt-auto">
+                <div class="container-fluid px-4">
+                    <div class="d-flex align-items-center justify-content-between small">
+                        <div class="text-muted">&copy; Sentinel OJT 2024</div>
+                        <div>
+                            <a href="#">Privacy Policy</a>
+                            &middot;
+                            <a href="#">Terms &amp; Conditions</a>
                         </div>
                     </div>
-                </footer>
-            </div>
+                </div>
+            </footer>
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-        <script src="js/scripts.js"></script>
-        <script>
-            function togglePasswordVisibility() {
-                const passwordinput = document.getElementById('requiredPassword');
-                const togglePasswordIcon = document.getElementById('togglePasswordIcon');
-                if (passwordinput.type === 'password') {
-                    passwordinput.type = 'text';
-                    togglePasswordIcon.classList.remove('fa-eye');
-                    togglePasswordIcon.classList.add('fa-eye-slash');
-                } else {
-                    passwordinput.type = 'password';
-                    togglePasswordIcon.classList.remove('fa-eye-slash');
-                    togglePasswordIcon.classList.add('fa-eye');
-                }
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+            crossorigin="anonymous"></script>
+    <script src="js/scripts.js"></script>
+    <script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('requiredPassword');
+            const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                togglePasswordIcon.classList.remove('fa-eye');
+                togglePasswordIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                togglePasswordIcon.classList.remove('fa-eye-slash');
+                togglePasswordIcon.classList.add('fa-eye');
             }
-        </script>
-    </body>
+        }
+
+        // Function to fetch notifications from a separate endpoint (notifications.php)
+        function fetchNotifications() {
+            fetch('notifications.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        const notificationArea = document.getElementById('notificationArea');
+                        let notificationHtml = '<div class="notification-alert">';
+                        notificationHtml += `<h5>Pending Submissions (${data.length})</h5>`;
+                        notificationHtml += '<ul>';
+                        
+                        data.forEach(notification => {
+                            // Convert "Jade Cordova" -> "J. Cordova"
+                            const fullName = notification.name.trim();
+                            const nameParts = fullName.split(/\s+/);
+                            let displayName = '';
+                            
+                            // If there's at least 2 parts (e.g., first name & last name)
+                            if (nameParts.length >= 2) {
+                                const firstName = nameParts[0];
+                                const lastName = nameParts[nameParts.length - 1];
+                                displayName = `${firstName.charAt(0)}. ${lastName}`;
+                            } else {
+                                // Fallback if there's only one name part
+                                displayName = fullName;
+                            }
+
+                            notificationHtml += `
+                                <li>
+                                    Submission #${notification.id} - ${notification.product_name} 
+                                    by ${displayName} 
+                                    <small>(${new Date(notification.date).toLocaleDateString()})</small>
+                                </li>`;
+                        });
+
+                        notificationHtml += '</ul></div>';
+                        notificationArea.innerHTML = notificationHtml;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching notifications:', error);
+                });
+        }
+
+        // Fetch notifications when the page loads
+        window.onload = fetchNotifications;
+    </script>
+</body>
 </html>

@@ -70,8 +70,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_submission_id']) 
     $new_status = $_POST['new_approval_status'];
     // Validate the new status
     if (in_array($new_status, ['pending', 'approved', 'declined'])) {
-        $stmt = $conn->prepare("UPDATE submissions SET approval_status = ? WHERE id = ?");
-        $stmt->bind_param("si", $new_status, $submission_id);
+        // Grab the comment from the form, if provided
+        $approval_comment = isset($_POST['approval_comment']) ? $_POST['approval_comment'] : '';
+
+        // Update both the approval_status and approval_comment fields
+        $stmt = $conn->prepare("UPDATE submissions SET approval_status = ?, approval_comment = ? WHERE id = ?");
+        $stmt->bind_param("ssi", $new_status, $approval_comment, $submission_id);
         if ($stmt->execute()) {
             $message = "Submission #{$submission_id} updated to " . ucfirst($new_status) . ".";
         } else {
@@ -83,9 +87,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_submission_id']) 
     }
 }
 
-// ----- Retrieve all submissions ----- //
-$sql = "SELECT * FROM submissions ORDER BY date DESC";
-$result = $conn->query($sql);
+
+// ----- Retrieve Pending Submissions ----- //
+$sql_pending = "SELECT * FROM submissions WHERE approval_status = 'pending' ORDER BY date DESC";
+$result_pending = $conn->query($sql_pending);
+
+// ----- Retrieve Approved/Declined Submissions ----- //
+$sql_other = "SELECT * FROM submissions WHERE approval_status != 'pending' ORDER BY date DESC";
+$result_other = $conn->query($sql_other);
 ?>
 
 <!DOCTYPE html>
@@ -100,11 +109,18 @@ $result = $conn->query($sql);
     <title>DMS - Approvals</title>
     <link href="../css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/keytable/2.6.2/css/keyTable.dataTables.min.css">
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/select/1.6.0/css/select.dataTables.min.css">
+
+    <!-- DataTables Buttons CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
+
+    <!-- DataTables Responsive CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
     <style>
         .alert-bottom-right {
             position: fixed;
@@ -151,7 +167,8 @@ $result = $conn->query($sql);
                     <?php if ($pending_count > 0): ?>
                         <?php foreach ($pending_submissions as $pending): ?>
                             <li>
-                            <a class="dropdown-item" href="approval.php?refresh=1#submission-<?php echo $pending['id']; ?>">
+                                <a class="dropdown-item notification-link"
+                                    href="approval.php?refresh=1#submission-<?php echo $pending['id']; ?>">
                                     Submission #<?php echo $pending['id']; ?> -
                                     <?php echo htmlspecialchars($pending['product_name']); ?>
                                     <br>
@@ -159,6 +176,7 @@ $result = $conn->query($sql);
                                 </a>
                             </li>
                         <?php endforeach; ?>
+
                     <?php else: ?>
                         <li>
                             <span class="dropdown-item-text">No pending submissions.</span>
@@ -166,6 +184,7 @@ $result = $conn->query($sql);
                     <?php endif; ?>
                 </ul>
             </li>
+
 
             <!-- User Dropdown -->
             <li class="nav-item dropdown">
@@ -255,18 +274,30 @@ $result = $conn->query($sql);
                         <li class="breadcrumb-item active">Injection Department</li>
                     </ol>
 
-                    <?php if ($message): ?>
-                        <div class="alert alert-info alert-dismissible fade show alert-bottom-right" role="alert">
+                    <?php if ($message):
+                        // Determine alert class based on message content
+                        if (strpos($message, 'Approved') !== false) {
+                            $alertClass = 'alert-success';
+                        } elseif (strpos($message, 'Declined') !== false) {
+                            $alertClass = 'alert-danger';
+                        } else {
+                            $alertClass = 'alert-secondary';
+                        }
+                        ?>
+                        <div class="alert <?php echo $alertClass; ?> alert-dismissible fade show alert-bottom-right"
+                            role="alert">
                             <?php echo $message; ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     <?php endif; ?>
 
-                    <div class="card shadow">
-                        <div class="card-body">
 
+                    <!-- Pending Submissions Table -->
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <h2>Pending Submissions</h2>
                             <div class="table-responsive">
-                                <table id="submissionsTable" class="table table-bordered table-striped">
+                                <table id="pendingTable" class="table table-bordered table-striped">
                                     <thead class="table-dark">
                                         <tr>
                                             <th>ID</th>
@@ -287,12 +318,13 @@ $result = $conn->query($sql);
                                             <th>Shift</th>
                                             <th>Approval Status</th>
                                             <th>Action</th>
+                                            <th>Comment</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php
-                                        if ($result && $result->num_rows > 0) {
-                                            while ($row = $result->fetch_assoc()) {
+                                        if ($result_pending && $result_pending->num_rows > 0) {
+                                            while ($row = $result_pending->fetch_assoc()) {
                                                 echo "<tr id='submission-" . $row['id'] . "'>";
                                                 echo "<td>" . $row['id'] . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['date']) . "</td>";
@@ -309,18 +341,12 @@ $result = $conn->query($sql);
                                                 echo "<td>" . htmlspecialchars($row['cavity_active']) . "</td>";
                                                 $maxLength = 20;
                                                 $remarks = htmlspecialchars($row['remarks'], ENT_QUOTES);
-                                                if (strlen($remarks) > $maxLength) {
-                                                    $truncated = substr($remarks, 0, $maxLength) . '...';
-                                                } else {
-                                                    $truncated = $remarks;
-                                                }
+                                                $truncated = (strlen($remarks) > $maxLength) ? substr($remarks, 0, $maxLength) . '...' : $remarks;
                                                 echo "<td><span class='remarks-cell' data-full='{$remarks}' data-truncated='{$truncated}'>" . $truncated . "</span></td>";
-
                                                 echo "<td>" . htmlspecialchars($row['name']) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['shift']) . "</td>";
                                                 echo "<td>" . ucfirst(htmlspecialchars($row['approval_status'])) . "</td>";
                                                 echo "<td>";
-                                                // For pending submissions, show quick Approve/Decline buttons
                                                 if ($row['approval_status'] === 'pending') {
                                                     echo '<div class="btn-group" role="group" aria-label="Approval actions">
                                                             <form method="post" class="d-inline">
@@ -329,31 +355,102 @@ $result = $conn->query($sql);
                                                                     Approve
                                                                 </button>
                                                             </form>
-                                                            <form method="post" class="d-inline">
-                                                                <input type="hidden" name="submission_id" value="' . $row['id'] . '">
-                                                                <button type="submit" name="approval_action" value="decline" class="btn btn-danger btn-sm">
-                                                                    Decline
-                                                                </button>
-                                                            </form>
-                                                        </div>';
+                                                            <button type="button" class="btn btn-danger btn-sm decline-quick-button" data-id="' . $row['id'] . '">
+                                                                Decline
+                                                            </button>
+                                                          </div>';
                                                 }
-                                                // Always show an Edit button to update status (even if not pending)
                                                 echo '<button type="button" class="btn btn-secondary btn-sm ms-1 edit-button" 
                                                         data-id="' . $row['id'] . '" 
                                                         data-current="' . $row['approval_status'] . '">
                                                         Edit
                                                     </button>';
                                                 echo "</td>";
+                                                echo "<td>" . htmlspecialchars($row['approval_comment']) . "</td>";
                                                 echo "</tr>";
                                             }
                                         } else {
-                                            echo "<tr><td colspan='18' class='text-center'>No submissions found.</td></tr>";
+                                            echo "<tr><td colspan='19' class='text-center'>No pending submissions found.</td></tr>";
                                         }
                                         ?>
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+                    </div>
 
+                    <!-- Approved/Declined Submissions Table -->
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <h2>Approved/Declined Submissions</h2>
+                            <div class="table-responsive">
+                                <table id="otherTable" class="table table-bordered table-striped">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Date</th>
+                                            <th>Product Name</th>
+                                            <th>Machine</th>
+                                            <th>PRN</th>
+                                            <th>Mold Code</th>
+                                            <th>Cycle Time Target</th>
+                                            <th>Cycle Time Actual</th>
+                                            <th>Weight Standard</th>
+                                            <th>Weight Gross</th>
+                                            <th>Weight Net</th>
+                                            <th>Cavity Designed</th>
+                                            <th>Cavity Active</th>
+                                            <th>Remarks</th>
+                                            <th>Name</th>
+                                            <th>Shift</th>
+                                            <th>Approval Status</th>
+                                            <th>Action</th>
+                                            <th>Comment</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        if ($result_other && $result_other->num_rows > 0) {
+                                            while ($row = $result_other->fetch_assoc()) {
+                                                echo "<tr id='submission-" . $row['id'] . "'>";
+                                                echo "<td>" . $row['id'] . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['date']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['product_name']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['machine']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['prn']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['mold_code']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['cycle_time_target']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['cycle_time_actual']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['weight_standard']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['weight_gross']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['weight_net']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['cavity_designed']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['cavity_active']) . "</td>";
+                                                $maxLength = 20;
+                                                $remarks = htmlspecialchars($row['remarks'], ENT_QUOTES);
+                                                $truncated = (strlen($remarks) > $maxLength) ? substr($remarks, 0, $maxLength) . '...' : $remarks;
+                                                echo "<td><span class='remarks-cell' data-full='{$remarks}' data-truncated='{$truncated}'>" . $truncated . "</span></td>";
+                                                echo "<td>" . htmlspecialchars($row['name']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['shift']) . "</td>";
+                                                echo "<td>" . ucfirst(htmlspecialchars($row['approval_status'])) . "</td>";
+                                                echo "<td>";
+                                                // Only show Edit button as quick actions aren't needed here.
+                                                echo '<button type="button" class="btn btn-secondary btn-sm edit-button" 
+                                                        data-id="' . $row['id'] . '" 
+                                                        data-current="' . $row['approval_status'] . '">
+                                                        Edit
+                                                    </button>';
+                                                echo "</td>";
+                                                echo "<td>" . htmlspecialchars($row['approval_comment']) . "</td>";
+                                                echo "</tr>";
+                                            }
+                                        } else {
+                                            echo "<tr><td colspan='19' class='text-center'>No approved or declined submissions found.</td></tr>";
+                                        }
+                                        ?>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 
@@ -383,6 +480,12 @@ $result = $conn->query($sql);
                                             <option value="declined">Declined</option>
                                         </select>
                                     </div>
+                                    <!-- New textarea for comment -->
+                                    <div class="mb-3" id="commentDiv" style="display: none;">
+                                        <label for="approval_comment" class="form-label">Comment</label>
+                                        <textarea class="form-control" name="approval_comment" id="approval_comment"
+                                            rows="3" placeholder="Enter comment..."></textarea>
+                                    </div>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary"
@@ -393,6 +496,8 @@ $result = $conn->query($sql);
                         </form>
                     </div>
                 </div>
+
+
             </main>
             <footer class="py-4 bg-light mt-auto">
                 <div class="container-fluid px-4">
@@ -418,43 +523,105 @@ $result = $conn->query($sql);
     <!-- DataTables JS -->
     <script type="text/javascript" src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/select/1.6.0/js/dataTables.select.min.js"></script>
-    <style>
-        .highlight {
-            background-color: #ffff99 !important;
-            /* Light yellow */
-        }
-    </style>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
     <script>
         $(document).ready(function () {
-            // Initialize DataTable with fixedHeader, keys, and select enabled
-            var table = $('#submissionsTable').DataTable({
-                fixedHeader: true,
-                select: {
-                    style: 'single'
+            // Global flag to track whether responsive mode is enabled
+            var responsiveEnabled = true;
+
+            // For Pending Submissions table
+            var pendingResponsive = true;
+            var pendingTable = initPendingTable(pendingResponsive);
+
+            function initPendingTable(isResponsive) {
+                return $('#pendingTable').DataTable({
+                    fixedHeader: true,
+                    responsive: isResponsive,
+                    select: { style: 'single' },
+                    dom: 'Bfrtip',
+                    buttons: [{
+                        text: 'Toggle Responsive',
+                        action: function (e, dt, node, config) {
+                            pendingResponsive = !isResponsive; // toggle the state
+                            dt.destroy();
+                            pendingTable = initPendingTable(pendingResponsive);
+                        }
+                    }]
+                });
+            }
+
+            $(window).on('load', function () {
+                if (window.location.hash) {
+                    setTimeout(function () {
+                        var target = $(window.location.hash);
+                        if (target.length && typeof pendingTable !== 'undefined') {
+                            // Use the Select extension API to select the row
+                            pendingTable.row(target).select();
+                            // Scroll the page so the selected row is centered
+                            $('html, body').animate({
+                                scrollTop: target.offset().top - ($(window).height() / 2) + (target.outerHeight() / 2)
+                            }, 500);
+                        }
+                    }, 300);
                 }
             });
 
-            // Check if there's a hash in the URL (e.g., #submission-123)
+
+            // For Approved/Declined table
+            var otherResponsive = true;
+            var otherTable = initOtherTable(otherResponsive);
+
+            function initOtherTable(isResponsive) {
+                return $('#otherTable').DataTable({
+                    fixedHeader: true,
+                    responsive: isResponsive,
+                    select: { style: 'single' },
+                    dom: 'Bfrtip',
+                    buttons: [{
+                        text: 'Toggle Responsive',
+                        action: function (e, dt, node, config) {
+                            otherResponsive = !isResponsive; // toggle the state
+                            dt.destroy();
+                            otherTable = initOtherTable(otherResponsive);
+                        }
+                    }]
+                });
+            }
+
+            // Toggle remarks text based on responsive setting
+            function toggleRemarks() {
+                $('.remarks-cell').each(function () {
+                    var $cell = $(this);
+                    if (responsiveEnabled) {
+                        $cell.text($cell.data('full'));
+                        $cell.css('cursor', 'default');
+                        $cell.off('click');
+                    } else {
+                        $cell.text($cell.data('truncated'));
+                        $cell.css('cursor', 'pointer');
+                        $cell.off('click').on('click', function () {
+                            var fullText = $cell.data('full');
+                            var truncatedText = $cell.data('truncated');
+                            $cell.text($cell.text() === truncatedText ? fullText : truncatedText);
+                        });
+                    }
+                });
+            }
+            toggleRemarks();
+
+            // If there's a hash in the URL, scroll to and highlight that row
             if (window.location.hash) {
                 var rowId = window.location.hash;
                 var rowElement = $(rowId);
                 if (rowElement.length) {
-                    // Use the Select extension to highlight the entire row
-                    table.row(rowElement).select();
-
-                    // Calculate the scroll offset to center the row in the viewport
-                    var rowOffset = rowElement.offset().top;
-                    var rowHeight = rowElement.outerHeight();
-                    var windowHeight = $(window).height();
-                    var scrollTo = rowOffset - (windowHeight / 2) + (rowHeight / 2);
-
-                    // Animate the scroll
-                    $('html, body').animate({ scrollTop: scrollTo }, 500);
+                    var table = $.fn.dataTable.Api ? $.fn.dataTable.Api().row(rowElement) : null;
+                    $('html, body').animate({ scrollTop: rowElement.offset().top - ($(window).height() / 2) + (rowElement.outerHeight() / 2) }, 500);
                 }
             }
 
-            // Existing edit button functionality
-            $('#submissionsTable tbody').on('click', '.edit-button', function () {
+            // Edit button functionality
+            $('table').on('click', '.edit-button', function () {
                 var submissionId = $(this).data('id');
                 var currentStatus = $(this).data('current');
                 $('#edit_submission_id').val(submissionId);
@@ -462,26 +629,47 @@ $result = $conn->query($sql);
                 var editModal = new bootstrap.Modal(document.getElementById('editModal'));
                 editModal.show();
             });
+        });
 
-            $('.remarks-cell').css('cursor', 'pointer'); // Give a visual cue that it's clickable
+        $('#new_approval_status').change(function () {
+            var status = $(this).val();
+            if (status === 'declined' || status === 'pending') {
+                $('#commentDiv').show();
+            } else {
+                $('#commentDiv').hide();
+                $('#approval_comment').val('');
+            }
+        });
 
-            $('.remarks-cell').on('click', function(){
-                var $cell = $(this);
-                var fullText = $cell.data('full');
-                var truncatedText = $cell.data('truncated');
-                // If the current text is truncated, show the full text; otherwise, revert back.
-                if ($cell.text() === truncatedText) {
-                    $cell.text(fullText);
-                } else {
-                    $cell.text(truncatedText);
-                }
-            });
+        // Handle quick decline button click
+        $(document).on('click', '.decline-quick-button', function () {
+            var submissionId = $(this).data('id');
+            $('#edit_submission_id').val(submissionId);
+            $('#new_approval_status').val('declined');
+            $('#commentDiv').show();
+            $('#approval_comment').val('');
+            var editModal = new bootstrap.Modal(document.getElementById('editModal'));
+            editModal.show();
+        });        
+    </script>
+    <script>
+        // Force full page refresh on every notification click.
+        $(document).on('click', '.notification-link', function (e) {
+            e.preventDefault();
+            var href = $(this).attr('href');
+            // Split the URL by the hash (if any)
+            var parts = href.split('#');
+            var baseUrl = parts[0];
+            var hash = parts.length > 1 ? '#' + parts[1] : '';
+            // Append a timestamp parameter to ensure a fresh reload
+            if (baseUrl.indexOf('?') > -1) {
+                baseUrl += '&t=' + new Date().getTime();
+            } else {
+                baseUrl += '?t=' + new Date().getTime();
+            }
+            window.location.href = baseUrl + hash;
         });
     </script>
-
-
-
-
 
     <script src="https://cdn.datatables.net/keytable/2.6.2/js/dataTables.keyTable.min.js"></script>
 </body>
