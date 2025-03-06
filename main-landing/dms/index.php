@@ -1,50 +1,114 @@
 <?php
-session_start(); // Start the session to access session variables
+session_start(); // Start the session
 
-// Check if the user is logged in
+// Redirect to login if not logged in
 if (!isset($_SESSION['full_name'])) {
-    // If not logged in, redirect to the login page
     header("Location: ../login.html");
     exit();
 }
 
-// --- Database Connection & Notification Functionality --- //
+// ----------------- Include PHPMailer ----------------- //
+// If using Composer, include the autoloader:
+// require 'vendor/autoload.php';
+
+// Otherwise, include PHPMailer files manually (adjust the paths as needed):
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'PHPMailer/src/Exception.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
+
+// ----------------- Database Connection ----------------- //
 $servername = "localhost";
 $username = "root";
 $password = "Admin123@plvil";
 $dbname = "dailymonitoringsheet";
 
-// Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Function to get pending submissions for notifications
-function getPendingSubmissions($conn) {
-    $pending = [];
-    $sql_pending = "SELECT id, product_name, date FROM submissions WHERE approval_status = 'pending' ORDER BY date DESC";
-    $result_pending = $conn->query($sql_pending);
-    if ($result_pending && $result_pending->num_rows > 0) {
-        while ($row = $result_pending->fetch_assoc()) {
-            $pending[] = $row;
-        }
+// ----------------- Email Notification Function ----------------- //
+function sendNotificationEmail($submissionId, $productName, $recipientEmail)
+{
+    $mail = new PHPMailer(true);
+    try {
+        // SMTP server configuration
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'sentinel.dms.notifications@gmail.com';
+        $mail->Password   = 'zmys tnix xjjp jbsz';  // The 16-character app password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+
+
+
+        // Sender & recipient settings
+        $mail->setFrom('your_email@example.com', 'Your Name');
+        $mail->addAddress($recipientEmail);  // Approver's email address
+
+        // Email content
+        $mail->isHTML(true);
+        $mail->Subject = 'New Pending Submission';
+        $mail->Body = 'A new submission is pending approval.<br>
+                          <strong>Submission ID:</strong> ' . $submissionId . '<br>
+                          <strong>Product Name:</strong> ' . htmlspecialchars($productName);
+        $mail->AltBody = 'A new submission is pending approval. Submission ID: ' . $submissionId . ', Product Name: ' . $productName;
+
+        $mail->send();
+        // Optionally log a success message or perform further actions
+    } catch (Exception $e) {
+        // Log the error for troubleshooting (do not display detailed errors to the end user)
+        error_log("Mailer Error: " . $mail->ErrorInfo);
     }
-    return $pending;
 }
 
-$pending_submissions = getPendingSubmissions($conn);
-$pending_count = count($pending_submissions);
+// ----------------- Form Processing and Submission ----------------- //
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Retrieve and sanitize form inputs (additional sanitization/validation is recommended)
+    $date = $_POST['date'];
+    $product_name = $_POST['product_name'];
+    // ... capture other form fields as needed ...
+
+    // Set the submission's approval status to 'pending'
+    $approval_status = 'pending';
+
+    // Insert the submission into the database
+    $sql = "INSERT INTO submissions (product_name, date, approval_status) VALUES (?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sss", $product_name, $date, $approval_status);
+    $stmt->execute();
+
+    if ($stmt->affected_rows > 0) {
+        // Get the ID of the inserted record
+        $submissionId = $conn->insert_id;
+
+        // Send an email notification (update the recipient email as needed)
+        sendNotificationEmail($submissionId, $product_name, 'injectiondigization@gmail.com');
+
+        // Optionally, redirect the user or display a success message
+        //header("Location: submission_success.php");
+        exit();
+    } else {
+        echo "Error: " . $stmt->error;
+    }
+
+    $stmt->close();
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content=""/>
-    <meta name="author" content=""/>
+    <meta name="description" content="" />
+    <meta name="author" content="" />
     <title>DMS - Data Entry</title>
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
     <link href="../css/styles.css" rel="stylesheet" />
@@ -133,7 +197,8 @@ $pending_count = count($pending_submissions);
         <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
             <!-- Notification Dropdown -->
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle position-relative" id="notifDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <a class="nav-link dropdown-toggle position-relative" id="notifDropdown" href="#" role="button"
+                    data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fas fa-bell"></i>
                     <?php if ($pending_count > 0): ?>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -162,13 +227,16 @@ $pending_count = count($pending_submissions);
             </li>
             <!-- User Dropdown -->
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
                     <i class="fas fa-user fa-fw"></i>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li><a class="dropdown-item" href="#!">Settings</a></li>
                     <li><a class="dropdown-item" href="#!">Activity Log</a></li>
-                    <li><hr class="dropdown-divider" /></li>
+                    <li>
+                        <hr class="dropdown-divider" />
+                    </li>
                     <li><a class="dropdown-item" href="../logout.php">Logout</a></li>
                 </ul>
             </li>
@@ -200,8 +268,9 @@ $pending_count = count($pending_submissions);
                                 <a class="nav-link" href="approval.php">Approvals</a>
                             </nav>
                         </div>
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseParameters"
-                            aria-expanded="false" aria-controls="collapseParameters">
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
+                            data-bs-target="#collapseParameters" aria-expanded="false"
+                            aria-controls="collapseParameters">
                             <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
                             Parameters
                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
@@ -413,7 +482,8 @@ $pending_count = count($pending_submissions);
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
     <script src="../assets/demo/chart-area-demo.js"></script>
     <script src="../assets/demo/chart-bar-demo.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
+        crossorigin="anonymous"></script>
     <script src="../js/datatables-simple-demo.js"></script>
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>

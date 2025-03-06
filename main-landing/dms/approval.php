@@ -20,7 +20,7 @@ if (
 // Database connection details
 $servername = "localhost";
 $username = "root";
-$password = "Admin123@plvil";
+$password = "injectionadmin123";
 $dbname = "dailymonitoringsheet";
 
 // Create connection
@@ -339,10 +339,7 @@ $result_other = $conn->query($sql_other);
                                                 echo "<td>" . htmlspecialchars($row['weight_net']) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['cavity_designed']) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['cavity_active']) . "</td>";
-                                                $maxLength = 20;
-                                                $remarks = htmlspecialchars($row['remarks'], ENT_QUOTES);
-                                                $truncated = (strlen($remarks) > $maxLength) ? substr($remarks, 0, $maxLength) . '...' : $remarks;
-                                                echo "<td><span class='remarks-cell' data-full='{$remarks}' data-truncated='{$truncated}'>" . $truncated . "</span></td>";
+                                                echo "<td>" . htmlspecialchars($row['remarks'], ENT_QUOTES) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['name']) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['shift']) . "</td>";
                                                 echo "<td>" . ucfirst(htmlspecialchars($row['approval_status'])) . "</td>";
@@ -609,6 +606,7 @@ $result_other = $conn->query($sql_other);
                 });
             }
             toggleRemarks();
+
 
             // If there's a hash in the URL, scroll to and highlight that row
             if (window.location.hash) {

@@ -1,26 +1,50 @@
 <?php
-session_start(); // Start session to access the user's role
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
+session_start();
 // Check if the user is logged in
 if (!isset($_SESSION['full_name'])) {
-    // If not logged in, redirect to the login page
     header("Location: ../login.html");
     exit();
 }
 
+// Include PHPMailer files and declare namespaces at the top
+require 'PHPMailer/src/Exception.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 // Database connection details
 $servername = "localhost";
 $username = "root";
-$password = "Admin123@plvil";
+$password = "injectionadmin123";
 $dbname = "dailymonitoringsheet";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
+
+// Function to get pending submissions for notifications
+function getPendingSubmissions($conn)
+{
+    $pending = [];
+    $sql_pending = "SELECT id, product_name, `date` FROM submissions WHERE approval_status = 'pending' ORDER BY date DESC";
+    $result_pending = $conn->query($sql_pending);
+    if ($result_pending && $result_pending->num_rows > 0) {
+        while ($row = $result_pending->fetch_assoc()) {
+            $pending[] = $row;
+        }
+    }
+    return $pending;
+}
+
+$pending_submissions = getPendingSubmissions($conn);
+$pending_count = count($pending_submissions);
 
 $recordCreated = false;
 
@@ -53,14 +77,10 @@ if (isset($_GET['export_csv'])) {
         ];
         fputcsv($output, $headers);
 
-        $sql = "SELECT id, date, product_name, machine, prn, mold_code, cycle_time_target, 
-        cycle_time_actual, 
-        (cycle_time_target - cycle_time_actual) AS cycle_time_difference, 
-        weight_standard, weight_gross, weight_net, cavity_designed, cavity_active, 
-        remarks, name, shift 
-        FROM submissions
-        WHERE approval_status = 'approved'";
-
+        $sql = "SELECT id, date, product_name, machine, prn, mold_code, cycle_time_target, cycle_time_actual, 
+                (cycle_time_target - cycle_time_actual) AS cycle_time_difference, weight_standard, weight_gross, 
+                weight_net, cavity_designed, cavity_active, remarks, name, shift 
+                FROM submissions";
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
@@ -71,14 +91,12 @@ if (isset($_GET['export_csv'])) {
         fclose($output);
         exit();
     } else {
-        // Redirect or show an error message if the user is not authorized
         echo "<!DOCTYPE html>
         <html lang='en'>
         <head>
             <meta charset='UTF-8'>
             <meta name='viewport' content='width=device-width, initial-scale=1.0'>
             <title>Unauthorized Access</title>
-            <!-- Bootstrap CSS -->
             <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css' rel='stylesheet'>
         </head>
         <body class='bg-light d-flex align-items-center justify-content-center vh-100'>
@@ -94,9 +112,7 @@ if (isset($_GET['export_csv'])) {
                     </div>
                 </div>
             </div>
-            <!-- Bootstrap JS -->
             <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js'></script>
-            <!-- JavaScript to go back to the previous page -->
             <script>
                 function goBack() {
                     window.history.back();
@@ -126,35 +142,62 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['name'];
     $shift = $_POST['shift'];
 
-    $sql = "INSERT INTO submissions (
-        date, product_name, machine, prn, mold_code, 
-        cycle_time_target, cycle_time_actual, weight_standard, 
-        weight_gross, weight_net, cavity_designed, cavity_active, 
-        remarks, name, shift, approval_status
-      ) VALUES (
-        '$date', '$product_name', '$machine', '$prn', '$mold_code', 
-        '$cycle_time_target', '$cycle_time_actual', '$weight_standard', 
-        '$weight_gross', '$weight_net', '$cavity_designed', '$cavity_active', 
-        '$remarks', '$name', '$shift', 'pending'
-      )";
+    $sql = "INSERT INTO submissions (date, product_name, machine, prn, mold_code, cycle_time_target, cycle_time_actual, weight_standard, weight_gross, weight_net, cavity_designed, cavity_active, remarks, name, shift) 
+            VALUES ('$date', '$product_name', '$machine', '$prn', '$mold_code', '$cycle_time_target', '$cycle_time_actual', '$weight_standard', '$weight_gross', '$weight_net', '$cavity_designed', '$cavity_active', '$remarks', '$name', '$shift')";
 
     if ($conn->query($sql) === TRUE) {
         $recordCreated = true;
+
+        // Configure and send email notification
+        // Configure and send email notification using PHPMailer
+        $mail = new PHPMailer(true);
+        try {
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'sentinel.dms.notifications@gmail.com';
+            $mail->Password = 'zmys tnix xjjp jbsz';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            $mail->setFrom('sentinel.dms.notifications@gmail.com', 'DMS Notifications');
+            $mail->addAddress('injectiondigitization@gmail.com');
+
+            $mail->isHTML(true);
+            $mail->Subject = 'New Pending Submission Notification';
+
+            // HTML email body including clickable links
+            $mail->Body = "
+                Dear Admin,<br><br>
+                A new submission for product: <strong>{$product_name}</strong> has been created on <strong>{$date}</strong> and is pending approval.<br><br>
+                Please review it in the system by clicking <a href='http://143.198.215.249/main-landing/dms/approval.php'>here</a>.<br><br>
+                If you're not logged in, please click <a href='http://143.198.215.249/main-landing/login.html'>here</a> to log in.<br><br>
+                Regards,<br>
+                DMS System
+                ";
+
+            // Plain text alternative for email clients that do not support HTML
+            $mail->AltBody = "Dear Admin, \n\nA new submission for product: {$product_name} has been created on {$date} and is pending approval.\n\nReview it at: http://143.198.215.249/main-landing/dms/submission.php\n\nIf you're not logged in, visit: http://143.198.215.249/main-landing/login.html\n\nRegards,\nYour DMS System";
+
+            $mail->send();
+        } catch (Exception $e) {
+            echo "Email could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        }
+
     } else {
         echo "Error: " . $sql . "<br>" . $conn->error;
     }
 }
 
 // Retrieve data from database
-$sql = "SELECT id, date, product_name, machine, prn, mold_code, cycle_time_target, cycle_time_actual, 
-        (cycle_time_target - cycle_time_actual) AS cycle_time_difference, weight_standard, weight_gross, 
-        weight_net, cavity_designed, cavity_active, remarks, name, shift 
-        FROM submissions
-        WHERE approval_status = 'approved'";
-
+$sql = "SELECT id, date, product_name, machine, prn, mold_code, cycle_time_target, 
+        cycle_time_actual, 
+        (cycle_time_target - cycle_time_actual) AS cycle_time_difference, 
+        weight_standard, weight_gross, weight_net, cavity_designed, cavity_active, 
+        remarks, name, shift 
+        FROM submissions";
 $result = $conn->query($sql);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -162,24 +205,23 @@ $result = $conn->query($sql);
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="" />
-    <meta name="author" content="" />
     <title>DMS - Records</title>
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
     <link href="../css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- jQuery UI for Autocomplete -->
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
-    <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
+    <!-- DataTables Buttons CSS -->
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
+    <!-- DataTables Scroller CSS -->
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/scroller/2.2.0/css/scroller.dataTables.min.css">
     <style>
         .table-container {
             border: 1px solid #ddd;
@@ -194,14 +236,41 @@ $result = $conn->query($sql);
         <!-- Navbar Brand-->
         <a class="navbar-brand ps-3" href="../index.php">Sentinel Digitization</a>
         <!-- Sidebar Toggle-->
-        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i
-                class="fas fa-bars"></i></button>
-        <!-- Navbar Search-->
-        <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
-
-        </form>
-        <!-- Navbar-->
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
+            <i class="fas fa-bars"></i>
+        </button>
+        <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0"></form>
         <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+            <!-- Notification Dropdown -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle position-relative" id="notifDropdown" href="#" role="button"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-bell"></i>
+                    <?php if ($pending_count > 0): ?>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            <?php echo $pending_count; ?>
+                        </span>
+                    <?php endif; ?>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown">
+                    <?php if ($pending_count > 0): ?>
+                        <?php foreach ($pending_submissions as $pending): ?>
+                            <li>
+                                <a class="dropdown-item" href="approval.php#submission-<?php echo $pending['id']; ?>">
+                                    Submission #<?php echo $pending['id']; ?> -
+                                    <?php echo htmlspecialchars($pending['product_name']); ?>
+                                    <br>
+                                    <small><?php echo date("M d, Y", strtotime($pending['date'])); ?></small>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <li>
+                            <span class="dropdown-item-text">No pending submissions.</span>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </li>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
                     aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
@@ -236,14 +305,12 @@ $result = $conn->query($sql);
                         <div class="collapse show" id="collapseDMS" aria-labelledby="headingOne"
                             data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link " href="index.php">Data Entry</a>
+                                <a class="nav-link" href="index.php">Data Entry</a>
                                 <a class="nav-link active" href="#">Records</a>
                                 <a class="nav-link" href="analytics.php">Analytics</a>
                                 <a class="nav-link" href="approval.php">Approvals</a>
                             </nav>
                         </div>
-
-
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
                             data-bs-target="#collapseParameters" aria-expanded="false"
                             aria-controls="collapseParameters">
@@ -287,31 +354,30 @@ $result = $conn->query($sql);
                     <ol class="breadcrumb mb-4">
                         <li class="breadcrumb-item active">Injection Department</li>
                     </ol>
-                    <!--FORMS-->
                     <div class="container-fluid my-5">
-
                         <?php if ($recordCreated): ?>
                             <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel"
                                 aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="successModalLabel">Success</h5>
+                                            <h5 class="modal-title" id="successModalLabel">Submission Pending</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                 aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
-                                            New record created successfully.
+                                            Your submission is pending and will be reviewed by your supervisor.
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-primary"
-                                                data-bs-dismiss="modal">OK</button>
+                                            <!-- Link to the data entry page for another submission -->
+                                            <a href="index.php" class="btn btn-primary">Make Another Submission</a>
+                                            <!-- Link to remain on the records page -->
+                                            <a href="submission.php" class="btn btn-secondary">Stay on Records Page</a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         <?php endif; ?>
-
                         <div class="card">
                             <div class="card-body table-container bg-white">
                                 <div class="table-responsive">
@@ -370,15 +436,11 @@ $result = $conn->query($sql);
                                     </table>
                                 </div>
                             </div>
-
                             <div class="d-grid">
                                 <a href="?export_csv=1" class="btn btn-success m-3">Export to CSV</a>
                             </div>
                         </div>
-
                     </div>
-
-
                 </div>
             </main>
             <footer class="py-4 bg-light mt-auto">
@@ -402,26 +464,44 @@ $result = $conn->query($sql);
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
         crossorigin="anonymous"></script>
     <script src="../js/datatables-simple-demo.js"></script>
-    <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
+    <!-- Load jQuery first -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Load Bootstrap Bundle (includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- DataTables JS -->
+    <!-- Load DataTables Core JS -->
     <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+    <!-- Load DataTables Buttons extension -->
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+    <!-- Load Buttons HTML5 export -->
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+    <!-- Load Buttons Print view -->
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+    <!-- Supporting libraries for export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/scroller/2.2.0/js/dataTables.scroller.min.js"></script>
     <script>
         $(document).ready(function () {
             $('#submissionTable').DataTable({
-                "pageLength": 10,
-                "responsive": true,
-                "lengthMenu": [5, 10, 25, 50, 100, 200]
+                pageLength: 10,
+                responsive: true,
+                lengthMenu: [5, 10, 25, 50, 100, 200],
+                dom: 'lBfrtip',  // 'l' adds the length dropdown along with Buttons 'B'
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ]
             });
-        });
 
-        <?php if ($recordCreated): ?>
-            var successModal = new bootstrap.Modal(document.getElementById('successModal'));
-            successModal.show();
-        <?php endif; ?>
+            <?php if ($recordCreated): ?>
+                var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+            <?php endif; ?>
+        });
     </script>
+
+
 </body>
 
 </html>
