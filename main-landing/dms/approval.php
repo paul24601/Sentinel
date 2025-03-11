@@ -17,6 +17,14 @@ if (
     exit();
 }
 
+// Include PHPMailer files if you want to send emails from this file
+require 'PHPMailer/src/Exception.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 // Database connection details
 $servername = "localhost";
 $username = "root";
@@ -58,6 +66,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submission_id']) && is
     $stmt->bind_param("si", $new_status, $submission_id);
     if ($stmt->execute()) {
         $message = "Submission #{$submission_id} updated to " . ucfirst($new_status) . ".";
+        
+        // If declined and performed by a supervisor, send email notification
+        if ($new_status === 'declined') {
+            $mail = new PHPMailer(true);
+            try {
+                $mail->isSMTP();
+                $mail->Host = 'smtp.gmail.com';
+                $mail->SMTPAuth = true;
+                $mail->Username = 'sentinel.dms.notifications@gmail.com';
+                $mail->Password = 'zmys tnix xjjp jbsz';  // Use your actual credentials or app password
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port = 587;
+    
+                $mail->setFrom('sentinel.dms.notifications@gmail.com', 'DMS Notifications');
+                $mail->addAddress('dmsadjuster@gmail.com');
+    
+                $mail->isHTML(true);
+                $mail->Subject = 'Submission Declined Notification';
+                $mail->Body = "Submission #{$submission_id} has been declined by the supervisor.";
+                $mail->AltBody = "Submission #{$submission_id} has been declined by the supervisor.";
+    
+                $mail->send();
+            } catch (Exception $e) {
+                // Optionally log the error:
+                // error_log("Mailer Error: " . $mail->ErrorInfo);
+            }
+        }
     } else {
         $message = "Error updating submission #" . $submission_id;
     }
@@ -78,6 +113,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_submission_id']) 
         $stmt->bind_param("ssi", $new_status, $approval_comment, $submission_id);
         if ($stmt->execute()) {
             $message = "Submission #{$submission_id} updated to " . ucfirst($new_status) . ".";
+            
+            // Send email if declined by a supervisor
+            if ($new_status === 'declined') {
+                $mail = new PHPMailer(true);
+                try {
+                    $mail->isSMTP();
+                    $mail->Host = 'smtp.gmail.com';
+                    $mail->SMTPAuth = true;
+                    $mail->Username = 'sentinel.dms.notifications@gmail.com';
+                    $mail->Password = 'zmys tnix xjjp jbsz';
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                    $mail->Port = 587;
+        
+                    $mail->setFrom('sentinel.dms.notifications@gmail.com', 'DMS Notifications');
+                    $mail->addAddress('dmsadjuster@gmail.com');
+        
+                    $mail->isHTML(true);
+                    $mail->Subject = 'Submission Declined Notification';
+                    $mail->Body = "Submission #{$submission_id} has been declined by the supervisor.";
+                    $mail->AltBody = "Submission #{$submission_id} has been declined by the supervisor.";
+        
+                    $mail->send();
+                } catch (Exception $e) {
+                    // Optionally log the error
+                }
+            }
         } else {
             $message = "Error updating submission #" . $submission_id;
         }
