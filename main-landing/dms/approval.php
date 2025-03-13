@@ -131,9 +131,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_submission_id']) 
         
                     $mail->isHTML(true);
                     $mail->Subject = 'Submission Declined Notification';
-                    $mail->Body = "Submission #{$submission_id} has been declined by the supervisor.";
-                    $mail->AltBody = "Submission #{$submission_id} has been declined by the supervisor.";
-        
+                    $mail->Body = "Submission #{$submission_id} has been declined by the supervisor.<br>
+                    To edit and resubmit your submission, click <a href='http://143.198.215.249/main-landing/dms/declined_submissions.php'>here</a>.";
+                    $mail->AltBody = "Submission #{$submission_id} has been declined by the supervisor. Visit: http://143.198.215.249/main-landing/dms/declined_submissions.php to edit and resubmit.";        
                     $mail->send();
                 } catch (Exception $e) {
                     // Optionally log the error
