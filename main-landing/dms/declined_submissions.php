@@ -1,10 +1,12 @@
 <?php
-// Enable error reporting for debugging (remove in production)
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+session_start(); // Start the session to access session variables
 
-session_start();
-
+// Check if the user is logged in
+if (!isset($_SESSION['full_name'])) {
+    // If not logged in, redirect to the login page
+    header("Location: ../login.html");
+    exit();
+}
 // Database connection details
 $servername = "localhost";
 $username = "root";
@@ -96,212 +98,399 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $full_name);
 $stmt->execute();
 $result = $stmt->get_result();
+
+// Function to get pending submissions for notifications
+function getPendingSubmissions($conn)
+{
+    $pending = [];
+    $sql_pending = "SELECT id, product_name, `date` FROM submissions WHERE approval_status = 'pending' ORDER BY date DESC";
+    $result_pending = $conn->query($sql_pending);
+    if ($result_pending && $result_pending->num_rows > 0) {
+        while ($row = $result_pending->fetch_assoc()) {
+            $pending[] = $row;
+        }
+    }
+    return $pending;
+}
+
+$pending_submissions = getPendingSubmissions($conn);
+$pending_count = count($pending_submissions);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <title>Declined Submissions</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>DMS - Declined Submissions</title>
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
+    <link href="../css/styles.css" rel="stylesheet" />
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- jQuery and jQuery UI for Autocomplete -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
 </head>
 
-<body class="container mt-5">
-    <h2 class="mb-4">Your Declined Submissions</h2>
-
-    <?php if ($message): ?>
-        <div class="alert alert-info"><?php echo $message; ?></div>
-    <?php endif; ?>
-
-    <!-- Submissions Table -->
-    <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>Date</th>
-                <th>Product Name</th>
-                <th>Machine</th>
-                <th>PRN</th>
-                <th>Mold Code</th>
-                <th>Cycle Time Target</th>
-                <th>Cycle Time Actual</th>
-                <th>Weight Standard</th>
-                <th>Weight Gross</th>
-                <th>Weight Net</th>
-                <th>Cavity Designed</th>
-                <th>Cavity Active</th>
-                <th>Remarks</th>
-                <th>Shift</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php while ($row = $result->fetch_assoc()): ?>
-                <tr>
-                    <td><?php echo $row['id']; ?></td>
-                    <td><?php echo htmlspecialchars($row['date']); ?></td>
-                    <td><?php echo htmlspecialchars($row['product_name']); ?></td>
-                    <td><?php echo htmlspecialchars($row['machine']); ?></td>
-                    <td><?php echo htmlspecialchars($row['prn']); ?></td>
-                    <td><?php echo htmlspecialchars($row['mold_code']); ?></td>
-                    <td><?php echo htmlspecialchars($row['cycle_time_target']); ?></td>
-                    <td><?php echo htmlspecialchars($row['cycle_time_actual']); ?></td>
-                    <td><?php echo htmlspecialchars($row['weight_standard']); ?></td>
-                    <td><?php echo htmlspecialchars($row['weight_gross']); ?></td>
-                    <td><?php echo htmlspecialchars($row['weight_net']); ?></td>
-                    <td><?php echo htmlspecialchars($row['cavity_designed']); ?></td>
-                    <td><?php echo htmlspecialchars($row['cavity_active']); ?></td>
-                    <td><?php echo htmlspecialchars($row['remarks']); ?></td>
-                    <td><?php echo htmlspecialchars($row['shift']); ?></td>
-                    <td>
-                        <!-- The Edit button carries data attributes for all fields -->
-                        <button class="btn btn-primary btn-sm edit-btn" data-id="<?php echo $row['id']; ?>"
-                            data-date="<?php echo $row['date']; ?>"
-                            data-product_name="<?php echo htmlspecialchars($row['product_name']); ?>"
-                            data-machine="<?php echo htmlspecialchars($row['machine']); ?>"
-                            data-prn="<?php echo htmlspecialchars($row['prn']); ?>"
-                            data-mold_code="<?php echo $row['mold_code']; ?>"
-                            data-cycle_time_target="<?php echo $row['cycle_time_target']; ?>"
-                            data-cycle_time_actual="<?php echo $row['cycle_time_actual']; ?>"
-                            data-weight_standard="<?php echo $row['weight_standard']; ?>"
-                            data-weight_gross="<?php echo $row['weight_gross']; ?>"
-                            data-weight_net="<?php echo $row['weight_net']; ?>"
-                            data-cavity_designed="<?php echo $row['cavity_designed']; ?>"
-                            data-cavity_active="<?php echo $row['cavity_active']; ?>"
-                            data-remarks="<?php echo htmlspecialchars($row['remarks']); ?>"
-                            data-name="<?php echo htmlspecialchars($row['name']); ?>"
-                            data-shift="<?php echo htmlspecialchars($row['shift']); ?>">
-                            Edit
-                        </button>
-                    </td>
-                </tr>
-            <?php endwhile; ?>
-        </tbody>
-    </table>
-
-    <!-- Edit Modal -->
-    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <form action="declined_submissions.php" method="POST">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editModalLabel">Edit Submission</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<body class="sb-nav-fixed">
+    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+        <!-- Navbar Brand-->
+        <a class="navbar-brand ps-3" href="../index.php">Sentinel Digitization</a>
+        <!-- Sidebar Toggle-->
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
+            <i class="fas fa-bars"></i>
+        </button>
+        <!-- Navbar Search-->
+        <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+            <!-- (Optional search form can go here) -->
+        </form>
+        <!-- Navbar Notifications and User Dropdown-->
+        <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+            <!-- Notification Dropdown -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle position-relative" id="notifDropdown" href="#" role="button"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-bell"></i>
+                    <?php if ($pending_count > 0): ?>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            <?php echo $pending_count; ?>
+                        </span>
+                    <?php endif; ?>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown">
+                    <?php if ($pending_count > 0): ?>
+                        <?php foreach ($pending_submissions as $pending): ?>
+                            <li>
+                                <a class="dropdown-item" href="approval.php#submission-<?php echo $pending['id']; ?>">
+                                    Submission #<?php echo $pending['id']; ?> -
+                                    <?php echo htmlspecialchars($pending['product_name']); ?>
+                                    <br>
+                                    <small><?php echo date("M d, Y", strtotime($pending['date'])); ?></small>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <li>
+                            <span class="dropdown-item-text">No pending submissions.</span>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </li>
+            <!-- User Dropdown -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    <i class="fas fa-user fa-fw"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" href="#!">Settings</a></li>
+                    <li><a class="dropdown-item" href="#!">Activity Log</a></li>
+                    <li>
+                        <hr class="dropdown-divider" />
+                    </li>
+                    <li><a class="dropdown-item" href="../logout.php">Logout</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+    <div id="layoutSidenav">
+        <div id="layoutSidenav_nav">
+            <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+                <div class="sb-sidenav-menu">
+                    <div class="nav">
+                        <div class="sb-sidenav-menu-heading">Core</div>
+                        <a class="nav-link" href="../index.php">
+                            <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                            Dashboard
+                        </a>
+                        <div class="sb-sidenav-menu-heading">Systems</div>
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseDMS"
+                            aria-expanded="false" aria-controls="collapseDMS">
+                            <div class="sb-nav-link-icon"><i class="fas fa-people-roof"></i></div>
+                            DMS
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+                        <div class="collapse show" id="collapseDMS" aria-labelledby="headingOne"
+                            data-bs-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" href="index.php">Data Entry</a>
+                                <a class="nav-link" href="submission.php">Records</a>
+                                <a class="nav-link" href="analytics.php">Analytics</a>
+                                <a class="nav-link" href="approval.php">Approvals</a>
+                                <a class="nav-link active" href="#.php">Declined</a>
+                            </nav>
+                        </div>
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
+                            data-bs-target="#collapseParameters" aria-expanded="false"
+                            aria-controls="collapseParameters">
+                            <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                            Parameters
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+                        <div class="collapse" id="collapseParameters" aria-labelledby="headingOne"
+                            data-bs-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" href="../parameters/index.php">Data Entry</a>
+                                <a class="nav-link" href="../parameters/submission.php">Data Visualization</a>
+                                <a class="nav-link" href="../parameters/analytics.php">Data Analytics</a>
+                            </nav>
+                        </div>
+                        <div class="sb-sidenav-menu-heading">Admin</div>
+                        <a class="nav-link" href="../admin/users.php">
+                            <div class="sb-nav-link-icon"><i class="fas fa-user-group"></i></div>
+                            Users
+                        </a>
+                        <a class="nav-link" href="charts.html">
+                            <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                            Values
+                        </a>
+                        <a class="nav-link" href="tables.html">
+                            <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                            Analysis
+                        </a>
                     </div>
-                    <div class="modal-body">
-                        <!-- Hidden field for submission ID -->
-                        <input type="hidden" name="submission_id" value="">
-                        <div class="row">
-                            <div class="mb-3 col-md-4">
-                                <label class="form-label">Date</label>
-                                <input type="date" class="form-control" name="date" max="<?php echo date('Y-m-d'); ?>"
-                                    required>
-                            </div>
-                            <div class="mb-3 col-md-8">
-                                <label class="form-label">Product Name</label>
-                                <input type="text" class="form-control" name="product_name" required>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="mb-3 col-md-6">
-                                <label class="form-label">Machine</label>
-                                <select class="form-control" name="machine" required>
-                                    <option value="" disabled>Select a machine</option>
-                                    <option value="ARB 50">ARB 50</option>
-                                    <option value="SUM 260C">SUM 260C</option>
-                                    <option value="SUM 350">SUM 350</option>
-                                    <option value="MIT 650D">MIT 650D</option>
-                                    <option value="TOS 650A">TOS 650A</option>
-                                    <option value="CLF 750A">CLF 750A</option>
-                                    <option value="CLF 750B">CLF 750B</option>
-                                    <option value="CLF 750C">CLF 750C</option>
-                                    <option value="TOS 850A">TOS 850A</option>
-                                    <option value="TOS 850B">TOS 850B</option>
-                                    <option value="TOS 850C">TOS 850C</option>
-                                    <option value="CLF 950A">CLF 950A</option>
-                                    <option value="CLF 950B">CLF 950B</option>
-                                    <option value="MIT 1050B">MIT 1050B</option>
-                                </select>
-                            </div>
-                            <div class="mb-3 col-md-6">
-                                <label class="form-label">PRN</label>
-                                <input type="text" class="form-control" name="prn" required>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="mb-3 col-md-4">
-                                <label class="form-label">Mold Code</label>
-                                <input type="number" class="form-control" name="mold_code" max="9999" required>
-                            </div>
-                            <div class="mb-3 col-md-4">
-                                <label class="form-label">Cycle Time Target</label>
-                                <input type="number" class="form-control" name="cycle_time_target" min="0" required>
-                            </div>
-                            <div class="mb-3 col-md-4">
-                                <label class="form-label">Cycle Time Actual</label>
-                                <input type="number" class="form-control" name="cycle_time_actual" min="0" required>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="mb-3 col-md-4">
-                                <label class="form-label">Weight Standard</label>
-                                <input type="number" step="0.01" class="form-control" name="weight_standard" min="0"
-                                    required>
-                            </div>
-                            <div class="mb-3 col-md-4">
-                                <label class="form-label">Weight Gross</label>
-                                <input type="number" step="0.01" class="form-control" name="weight_gross" min="0"
-                                    required>
-                            </div>
-                            <div class="mb-3 col-md-4">
-                                <label class="form-label">Weight Net</label>
-                                <input type="number" step="0.01" class="form-control" name="weight_net" min="0"
-                                    required>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="mb-3 col-md-6">
-                                <label class="form-label">Cavity Designed</label>
-                                <input type="number" class="form-control" name="cavity_designed" min="0" required>
-                            </div>
-                            <div class="mb-3 col-md-6">
-                                <label class="form-label">Cavity Active</label>
-                                <input type="number" class="form-control" name="cavity_active" min="0" required>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Remarks</label>
-                            <textarea class="form-control" name="remarks" rows="3"></textarea>
-                        </div>
-                        <div class="row">
-                            <div class="mb-3 col-md-6">
-                                <label class="form-label">Name</label>
-                                <input type="text" class="form-control" name="name" readonly required>
-                            </div>
-                            <div class="mb-3 col-md-6">
-                                <label class="form-label">Shift</label>
-                                <select class="form-control" name="shift" required>
-                                    <option value="" disabled>Select your shift</option>
-                                    <option value="1st shift">1st Shift</option>
-                                    <option value="2nd shift">2nd Shift</option>
-                                    <option value="3rd shift">3rd Shift</option>
-                                </select>
+                </div>
+                <div class="sb-sidenav-footer">
+                    <div class="small">Logged in as:</div>
+                    <?php echo $_SESSION['full_name']; ?>
+                </div>
+            </nav>
+        </div>
+        <div id="layoutSidenav_content">
+            <main>
+                <div class="container-fluid p-4">
+                    <h2 class="mb-4">Your Declined Submissions</h2>
+
+                    <?php if ($message): ?>
+                        <div class="alert alert-info"><?php echo $message; ?></div>
+                    <?php endif; ?>
+
+                    <!-- Submissions Table -->
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Date</th>
+                                <th>Product Name</th>
+                                <th>Machine</th>
+                                <th>PRN</th>
+                                <th>Mold Code</th>
+                                <th>Cycle Time Target</th>
+                                <th>Cycle Time Actual</th>
+                                <th>Weight Standard</th>
+                                <th>Weight Gross</th>
+                                <th>Weight Net</th>
+                                <th>Cavity Designed</th>
+                                <th>Cavity Active</th>
+                                <th>Remarks</th>
+                                <th>Shift</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($row = $result->fetch_assoc()): ?>
+                                <tr>
+                                    <td><?php echo $row['id']; ?></td>
+                                    <td><?php echo htmlspecialchars($row['date']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['product_name']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['machine']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['prn']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['mold_code']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['cycle_time_target']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['cycle_time_actual']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['weight_standard']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['weight_gross']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['weight_net']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['cavity_designed']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['cavity_active']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['remarks']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['shift']); ?></td>
+                                    <td>
+                                        <!-- The Edit button carries data attributes for all fields -->
+                                        <button class="btn btn-primary btn-sm edit-btn" data-id="<?php echo $row['id']; ?>"
+                                            data-date="<?php echo $row['date']; ?>"
+                                            data-product_name="<?php echo htmlspecialchars($row['product_name']); ?>"
+                                            data-machine="<?php echo htmlspecialchars($row['machine']); ?>"
+                                            data-prn="<?php echo htmlspecialchars($row['prn']); ?>"
+                                            data-mold_code="<?php echo $row['mold_code']; ?>"
+                                            data-cycle_time_target="<?php echo $row['cycle_time_target']; ?>"
+                                            data-cycle_time_actual="<?php echo $row['cycle_time_actual']; ?>"
+                                            data-weight_standard="<?php echo $row['weight_standard']; ?>"
+                                            data-weight_gross="<?php echo $row['weight_gross']; ?>"
+                                            data-weight_net="<?php echo $row['weight_net']; ?>"
+                                            data-cavity_designed="<?php echo $row['cavity_designed']; ?>"
+                                            data-cavity_active="<?php echo $row['cavity_active']; ?>"
+                                            data-remarks="<?php echo htmlspecialchars($row['remarks']); ?>"
+                                            data-name="<?php echo htmlspecialchars($row['name']); ?>"
+                                            data-shift="<?php echo htmlspecialchars($row['shift']); ?>">
+                                            Edit
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+
+                    <!-- Edit Modal -->
+                    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <form action="declined_submissions.php" method="POST">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editModalLabel">Edit Submission</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Hidden field for submission ID -->
+                                        <input type="hidden" name="submission_id" value="">
+                                        <div class="row">
+                                            <div class="mb-3 col-md-4">
+                                                <label class="form-label">Date</label>
+                                                <input type="date" class="form-control" name="date"
+                                                    max="<?php echo date('Y-m-d'); ?>" required>
+                                            </div>
+                                            <div class="mb-3 col-md-8">
+                                                <label class="form-label">Product Name</label>
+                                                <input type="text" class="form-control" name="product_name" required>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="mb-3 col-md-6">
+                                                <label class="form-label">Machine</label>
+                                                <select class="form-control" name="machine" required>
+                                                    <option value="" disabled>Select a machine</option>
+                                                    <option value="ARB 50">ARB 50</option>
+                                                    <option value="SUM 260C">SUM 260C</option>
+                                                    <option value="SUM 350">SUM 350</option>
+                                                    <option value="MIT 650D">MIT 650D</option>
+                                                    <option value="TOS 650A">TOS 650A</option>
+                                                    <option value="CLF 750A">CLF 750A</option>
+                                                    <option value="CLF 750B">CLF 750B</option>
+                                                    <option value="CLF 750C">CLF 750C</option>
+                                                    <option value="TOS 850A">TOS 850A</option>
+                                                    <option value="TOS 850B">TOS 850B</option>
+                                                    <option value="TOS 850C">TOS 850C</option>
+                                                    <option value="CLF 950A">CLF 950A</option>
+                                                    <option value="CLF 950B">CLF 950B</option>
+                                                    <option value="MIT 1050B">MIT 1050B</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3 col-md-6">
+                                                <label class="form-label">PRN</label>
+                                                <input type="text" class="form-control" name="prn" required>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="mb-3 col-md-4">
+                                                <label class="form-label">Mold Code</label>
+                                                <input type="number" class="form-control" name="mold_code" max="9999"
+                                                    required>
+                                            </div>
+                                            <div class="mb-3 col-md-4">
+                                                <label class="form-label">Cycle Time Target</label>
+                                                <input type="number" class="form-control" name="cycle_time_target"
+                                                    min="0" required>
+                                            </div>
+                                            <div class="mb-3 col-md-4">
+                                                <label class="form-label">Cycle Time Actual</label>
+                                                <input type="number" class="form-control" name="cycle_time_actual"
+                                                    min="0" required>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="mb-3 col-md-4">
+                                                <label class="form-label">Weight Standard</label>
+                                                <input type="number" step="0.01" class="form-control"
+                                                    name="weight_standard" min="0" required>
+                                            </div>
+                                            <div class="mb-3 col-md-4">
+                                                <label class="form-label">Weight Gross</label>
+                                                <input type="number" step="0.01" class="form-control"
+                                                    name="weight_gross" min="0" required>
+                                            </div>
+                                            <div class="mb-3 col-md-4">
+                                                <label class="form-label">Weight Net</label>
+                                                <input type="number" step="0.01" class="form-control" name="weight_net"
+                                                    min="0" required>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="mb-3 col-md-6">
+                                                <label class="form-label">Cavity Designed</label>
+                                                <input type="number" class="form-control" name="cavity_designed" min="0"
+                                                    required>
+                                            </div>
+                                            <div class="mb-3 col-md-6">
+                                                <label class="form-label">Cavity Active</label>
+                                                <input type="number" class="form-control" name="cavity_active" min="0"
+                                                    required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Remarks</label>
+                                            <textarea class="form-control" name="remarks" rows="3"></textarea>
+                                        </div>
+                                        <div class="row">
+                                            <div class="mb-3 col-md-6">
+                                                <label class="form-label">Name</label>
+                                                <input type="text" class="form-control" name="name" readonly required>
+                                            </div>
+                                            <div class="mb-3 col-md-6">
+                                                <label class="form-label">Shift</label>
+                                                <select class="form-control" name="shift" required>
+                                                    <option value="" disabled>Select your shift</option>
+                                                    <option value="1st shift">1st Shift</option>
+                                                    <option value="2nd shift">2nd Shift</option>
+                                                    <option value="3rd shift">3rd Shift</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </main>
+            <footer class="py-4 bg-light mt-auto">
+                <div class="container-fluid px-4">
+                    <div class="d-flex align-items-center justify-content-between small">
+                        <div class="text-muted">Copyright &copy; 2025 Sentinel OJT</div>
+                        <div>
+                            <a href="#">Privacy Policy</a>
+                            &middot;
+                            <a href="#">Terms &amp; Conditions</a>
+                        </div>
                     </div>
-                </form>
-            </div>
+                </div>
+            </footer>
         </div>
     </div>
+    <script src="../js/scripts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+    <script src="../assets/demo/chart-area-demo.js"></script>
+    <script src="../assets/demo/chart-bar-demo.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
+        crossorigin="anonymous"></script>
+    <script src="../js/datatables-simple-demo.js"></script>
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- jQuery and Bootstrap Bundle (includes Popper) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function () {
             $('.edit-btn').on('click', function () {

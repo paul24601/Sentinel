@@ -41,7 +41,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 // Database connection
 $servername = "localhost";
 $username = "root";
-$password = "Admin123@plvil";
+$password = "injectionadmin123";
 $dbname = "dailymonitoringsheet";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -287,8 +287,11 @@ $result = $conn->query($sql);
                                             <option value="adjuster">Adjuster</option>
                                             <option value="supervisor">Supervisor</option>
                                             <option value="admin">Admin</option>
+                                            <option value="quality_assurance">Quality Assurance</option>
+                                            <option value="quality_assurance_supervisor">Quality Assurance Supervisor</option>
                                         </select>
                                     </div>
+
 
                                     <button type="submit" class="btn btn-primary">Add User</button>
                                 </form>

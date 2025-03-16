@@ -6,13 +6,11 @@ if (!isset($_SESSION['full_name'])) {
     header("Location: ../login.html");
     exit();
 }
-?>
 
-<?php
-// Database connection
+/// --- Database Connection & Notification Functionality --- //
 $servername = "localhost";
 $username = "root";
-$password = "Admin123@plvil";
+$password = "injectionadmin123"; // Change if needed
 $dbname = "dailymonitoringsheet";
 
 // Create connection
@@ -21,12 +19,10 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// ------------------------------------------------------------------
-// Get Pending Submissions for Notifications
-// ------------------------------------------------------------------
+// Function to get pending submissions for notifications
 function getPendingSubmissions($conn) {
     $pending = [];
-    $sql_pending = "SELECT id, product_name, date FROM submissions WHERE approval_status = 'pending' ORDER BY date DESC";
+    $sql_pending = "SELECT id, product_name, `date` FROM submissions WHERE approval_status = 'pending' ORDER BY `date` DESC";
     $result_pending = $conn->query($sql_pending);
     if ($result_pending && $result_pending->num_rows > 0) {
         while ($row = $result_pending->fetch_assoc()) {
@@ -174,6 +170,7 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                                 <a class="nav-link" href="dms/submission.php">Records</a>
                                 <a class="nav-link" href="dms/analytics.php">Analytics</a>
                                 <a class="nav-link" href="dms/approval.php">Approvals</a>
+                                <a class="nav-link" href="dms/declined_submissions.php">Declined</a>
                             </nav>
                         </div>
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseParameters"
