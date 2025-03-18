@@ -287,11 +287,11 @@ $result = $conn->query($sql);
                                             <option value="adjuster">Adjuster</option>
                                             <option value="supervisor">Supervisor</option>
                                             <option value="admin">Admin</option>
-                                            <option value="quality_assurance">Quality Assurance</option>
-                                            <option value="quality_assurance_supervisor">Quality Assurance Supervisor</option>
+                                            <option value="Quality Control Inspection">Quality Control Inspection</option>
+                                            <option value="Quality Assurance Engineer">Quality Assurance Engineer</option>
+                                            <option value="Quality Assurance Supervisor">Quality Assurance Supervisor</option>
                                         </select>
                                     </div>
-
 
                                     <button type="submit" class="btn btn-primary">Add User</button>
                                 </form>

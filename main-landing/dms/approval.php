@@ -3,21 +3,18 @@ session_start(); // Start the session to access session variables
 
 // Check if the user is logged in
 if (!isset($_SESSION['full_name'])) {
-    // If not logged in, redirect to the login page
     header("Location: ../login.html");
     exit();
 }
 
-// Only allow supervisors and admins to access this page
-if (
-    !isset($_SESSION['role']) ||
-    ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'supervisor')
-) {
+// Allow supervisors, admins, and QA roles to access this page
+$allowed_roles = ['admin', 'supervisor', 'Quality Assurance Engineer', 'Quality Assurance Supervisor'];
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $allowed_roles)) {
     header("Location: ../login.html");
     exit();
 }
 
-// Include PHPMailer files if you want to send emails from this file
+// Include PHPMailer files
 require 'PHPMailer/src/Exception.php';
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
@@ -39,11 +36,21 @@ if ($conn->connect_error) {
 
 $message = "";
 
-// ----- Get Pending Submissions for Notifications ----- //
+/**
+ * Get Pending Submissions for Notifications
+ * Now filters based on the current user's role.
+ */
 function getPendingSubmissions($conn)
 {
+    $role = $_SESSION['role'];
+    $where_clause = "approval_status = 'pending'";
+    if ($role === 'supervisor') {
+        $where_clause .= " AND (supervisor_status IS NULL OR supervisor_status = 'pending')";
+    } elseif (in_array($role, ['Quality Assurance Engineer', 'Quality Assurance Supervisor'])) {
+        $where_clause .= " AND (qa_status IS NULL OR qa_status = 'pending')";
+    }
     $pending = [];
-    $sql_pending = "SELECT id, product_name, date FROM submissions WHERE approval_status = 'pending' ORDER BY date DESC";
+    $sql_pending = "SELECT id, product_name, date FROM submissions WHERE $where_clause ORDER BY date DESC";
     $result_pending = $conn->query($sql_pending);
     if ($result_pending && $result_pending->num_rows > 0) {
         while ($row = $result_pending->fetch_assoc()) {
@@ -56,41 +63,80 @@ function getPendingSubmissions($conn)
 $pending_submissions = getPendingSubmissions($conn);
 $pending_count = count($pending_submissions);
 
-// ----- Process Quick Approval/Decline Actions ----- //
+// ----- Process Quick Approval/Decline Actions -----
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submission_id']) && isset($_POST['approval_action'])) {
     $submission_id = intval($_POST['submission_id']);
-    $approval_action = $_POST['approval_action']; // "approve" or "decline"
-    $new_status = ($approval_action === 'approve') ? 'approved' : 'declined';
+    $approval_action = $_POST['approval_action']; // Expected values: "approve" or "decline"
 
+    // Determine which approval column to update based on the current user's role.
+    $current_user_role = $_SESSION['role'];
+    if ($current_user_role === 'supervisor') {
+        $approval_column = 'supervisor_status';
+    } elseif (in_array($current_user_role, ['Quality Assurance Engineer', 'Quality Assurance Supervisor'])) {
+        $approval_column = 'qa_status';
+    } else {
+        die("Unauthorized action.");
+    }
+
+    // Update the individual approval column for this submission.
+    $stmt = $conn->prepare("UPDATE submissions SET $approval_column = ? WHERE id = ?");
+    if (!$stmt) {
+        die("Prepare failed: " . $conn->error);
+    }
+    $stmt->bind_param("si", $approval_action, $submission_id);
+    $stmt->execute();
+    $stmt->close();
+
+    // Retrieve the current individual statuses.
+    $stmt = $conn->prepare("SELECT supervisor_status, qa_status FROM submissions WHERE id = ?");
+    if (!$stmt) {
+        die("Prepare failed: " . $conn->error);
+    }
+    $stmt->bind_param("i", $submission_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $statuses = $result->fetch_assoc();
+    $stmt->close();
+
+    // Determine the final overall approval status.
+    if (($statuses['supervisor_status'] === 'declined') || ($statuses['qa_status'] === 'declined')) {
+        $final_status = 'declined';
+    } elseif ($statuses['supervisor_status'] === 'approved' && $statuses['qa_status'] === 'approved') {
+        $final_status = 'approved';
+    } else {
+        $final_status = 'pending';
+    }
+
+    // Update the overall approval_status in the submission.
     $stmt = $conn->prepare("UPDATE submissions SET approval_status = ? WHERE id = ?");
-    $stmt->bind_param("si", $new_status, $submission_id);
+    if (!$stmt) {
+        die("Prepare failed: " . $conn->error);
+    }
+    $stmt->bind_param("si", $final_status, $submission_id);
     if ($stmt->execute()) {
-        $message = "Submission #{$submission_id} updated to " . ucfirst($new_status) . ".";
-        
-        // If declined and performed by a supervisor, send email notification
-        if ($new_status === 'declined') {
+        $message = "Submission #{$submission_id} updated. Final status: " . ucfirst($final_status) . ".";
+        // Send email notification if declined.
+        if ($final_status === 'declined') {
             $mail = new PHPMailer(true);
             try {
                 $mail->isSMTP();
                 $mail->Host = 'smtp.gmail.com';
                 $mail->SMTPAuth = true;
                 $mail->Username = 'sentinel.dms.notifications@gmail.com';
-                $mail->Password = 'zmys tnix xjjp jbsz';  // Use your actual credentials or app password
+                $mail->Password = 'zmys tnix xjjp jbsz'; // Use secure storage for credentials
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port = 587;
-    
+
                 $mail->setFrom('sentinel.dms.notifications@gmail.com', 'DMS Notifications');
                 $mail->addAddress('dmsadjuster@gmail.com');
-    
+
                 $mail->isHTML(true);
                 $mail->Subject = 'Submission Declined Notification';
-                $mail->Body = "Submission #{$submission_id} has been declined by the supervisor.";
-                $mail->AltBody = "Submission #{$submission_id} has been declined by the supervisor.";
-    
+                $mail->Body = "Submission #{$submission_id} has been declined.";
+                $mail->AltBody = "Submission #{$submission_id} has been declined.";
                 $mail->send();
             } catch (Exception $e) {
-                // Optionally log the error:
-                // error_log("Mailer Error: " . $mail->ErrorInfo);
+                // Optionally log the mail error
             }
         }
     } else {
@@ -99,22 +145,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submission_id']) && is
     $stmt->close();
 }
 
-// ----- Process Edit Form Submission ----- //
+// ----- Process Edit Form Submission -----
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_submission_id']) && isset($_POST['new_approval_status'])) {
     $submission_id = intval($_POST['edit_submission_id']);
     $new_status = $_POST['new_approval_status'];
-    // Validate the new status
     if (in_array($new_status, ['pending', 'approved', 'declined'])) {
-        // Grab the comment from the form, if provided
         $approval_comment = isset($_POST['approval_comment']) ? $_POST['approval_comment'] : '';
-
-        // Update both the approval_status and approval_comment fields
         $stmt = $conn->prepare("UPDATE submissions SET approval_status = ?, approval_comment = ? WHERE id = ?");
+        if (!$stmt) {
+            die("Prepare failed: " . $conn->error);
+        }
         $stmt->bind_param("ssi", $new_status, $approval_comment, $submission_id);
         if ($stmt->execute()) {
             $message = "Submission #{$submission_id} updated to " . ucfirst($new_status) . ".";
-            
-            // Send email if declined by a supervisor
             if ($new_status === 'declined') {
                 $mail = new PHPMailer(true);
                 try {
@@ -125,15 +168,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_submission_id']) 
                     $mail->Password = 'zmys tnix xjjp jbsz';
                     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                     $mail->Port = 587;
-        
+
                     $mail->setFrom('sentinel.dms.notifications@gmail.com', 'DMS Notifications');
                     $mail->addAddress('dmsadjuster@gmail.com');
-        
+
                     $mail->isHTML(true);
                     $mail->Subject = 'Submission Declined Notification';
                     $mail->Body = "Submission #{$submission_id} has been declined by the supervisor.<br>
                     To edit and resubmit your submission, click <a href='http://143.198.215.249/main-landing/dms/declined_submissions.php'>here</a>.";
-                    $mail->AltBody = "Submission #{$submission_id} has been declined by the supervisor. Visit: http://143.198.215.249/main-landing/dms/declined_submissions.php to edit and resubmit.";        
+                    $mail->AltBody = "Submission #{$submission_id} has been declined by the supervisor. Visit: http://143.198.215.249/main-landing/dms/declined_submissions.php to edit and resubmit.";
                     $mail->send();
                 } catch (Exception $e) {
                     // Optionally log the error
@@ -148,16 +191,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_submission_id']) 
     }
 }
 
-
 // ----- Retrieve Pending Submissions ----- //
-$sql_pending = "SELECT * FROM submissions WHERE approval_status = 'pending' ORDER BY date DESC";
+$role = $_SESSION['role'];
+$where_clause = "approval_status = 'pending'";
+if ($role === 'supervisor') {
+    $where_clause .= " AND (supervisor_status IS NULL OR supervisor_status = 'pending')";
+} elseif (in_array($role, ['Quality Assurance Engineer', 'Quality Assurance Supervisor'])) {
+    $where_clause .= " AND (qa_status IS NULL OR qa_status = 'pending')";
+}
+$sql_pending = "SELECT * FROM submissions WHERE $where_clause ORDER BY date DESC";
 $result_pending = $conn->query($sql_pending);
 
-// ----- Retrieve Approved/Declined Submissions ----- //
+// ----- Retrieve Approved/Declined Submissions -----
 $sql_other = "SELECT * FROM submissions WHERE approval_status != 'pending' ORDER BY date DESC";
 $result_other = $conn->query($sql_other);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 

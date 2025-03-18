@@ -19,7 +19,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Check if user is logged in
+// Check if user is logged in (redundant check removed or kept for safety)
 if (!isset($_SESSION['full_name'])) {
     header("Location: login.html");
     exit();
@@ -45,6 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submission_id'])) {
     $cavity_active = intval($_POST['cavity_active']);
     $remarks = $_POST['remarks'];
     $shift = $_POST['shift'];
+    $approval_comment = $_POST['approval_comment'] ?? ''; // New field
 
     // Verify that this submission belongs to the logged-in user
     $check_sql = "SELECT * FROM submissions WHERE id = ? AND name = ?";
@@ -54,17 +55,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submission_id'])) {
     $check_result = $check_stmt->get_result();
 
     if ($check_result->num_rows > 0) {
-        // Update the submission with all the form fields and set status to pending.
-        // Notice the use of backticks for the reserved word `date`.
+        // Update the submission with all the form fields, including approval_comment,
+        // and set status to pending. Notice the use of backticks for the reserved word `date`.
         $update_sql = "UPDATE submissions 
                        SET `date` = ?, product_name = ?, machine = ?, prn = ?, mold_code = ?, 
                            cycle_time_target = ?, cycle_time_actual = ?, weight_standard = ?, 
                            weight_gross = ?, weight_net = ?, cavity_designed = ?, cavity_active = ?, 
-                           remarks = ?, shift = ?, approval_status = 'pending'
+                           remarks = ?, shift = ?, approval_comment = ?, approval_status = 'pending'
                        WHERE id = ?";
         $update_stmt = $conn->prepare($update_sql);
         $update_stmt->bind_param(
-            "ssssiiidddiissi",
+            "ssssiiidddiisssi",
             $date,
             $product_name,
             $machine,
@@ -79,6 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submission_id'])) {
             $cavity_active,
             $remarks,
             $shift,
+            $approval_comment,
             $submission_id
         );
 
@@ -289,6 +291,7 @@ $pending_count = count($pending_submissions);
                                 <th>Cavity Active</th>
                                 <th>Remarks</th>
                                 <th>Shift</th>
+                                <th>Approval Comment</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -310,9 +313,11 @@ $pending_count = count($pending_submissions);
                                     <td><?php echo htmlspecialchars($row['cavity_active']); ?></td>
                                     <td><?php echo htmlspecialchars($row['remarks']); ?></td>
                                     <td><?php echo htmlspecialchars($row['shift']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['approval_comment']); ?></td>
                                     <td>
-                                        <!-- The Edit button carries data attributes for all fields -->
-                                        <button class="btn btn-primary btn-sm edit-btn" data-id="<?php echo $row['id']; ?>"
+                                        <!-- The Edit button carries data attributes for all fields including approval_comment -->
+                                        <button class="btn btn-primary btn-sm edit-btn" 
+                                            data-id="<?php echo $row['id']; ?>"
                                             data-date="<?php echo $row['date']; ?>"
                                             data-product_name="<?php echo htmlspecialchars($row['product_name']); ?>"
                                             data-machine="<?php echo htmlspecialchars($row['machine']); ?>"
@@ -326,6 +331,7 @@ $pending_count = count($pending_submissions);
                                             data-cavity_designed="<?php echo $row['cavity_designed']; ?>"
                                             data-cavity_active="<?php echo $row['cavity_active']; ?>"
                                             data-remarks="<?php echo htmlspecialchars($row['remarks']); ?>"
+                                            data-approval_comment="<?php echo htmlspecialchars($row['approval_comment']); ?>"
                                             data-name="<?php echo htmlspecialchars($row['name']); ?>"
                                             data-shift="<?php echo htmlspecialchars($row['shift']); ?>">
                                             Edit
@@ -437,6 +443,11 @@ $pending_count = count($pending_submissions);
                                             <label class="form-label">Remarks</label>
                                             <textarea class="form-control" name="remarks" rows="3"></textarea>
                                         </div>
+                                        <!-- New Approval Comment Field -->
+                                        <div class="mb-3">
+                                            <label class="form-label">Approval Comment</label>
+                                            <textarea class="form-control" name="approval_comment" rows="3" placeholder="Enter approval comment..."></textarea>
+                                        </div>
                                         <div class="row">
                                             <div class="mb-3 col-md-6">
                                                 <label class="form-label">Name</label>
@@ -510,6 +521,7 @@ $pending_count = count($pending_submissions);
                 $('#editModal input[name="cavity_designed"]').val(button.data('cavity_designed'));
                 $('#editModal input[name="cavity_active"]').val(button.data('cavity_active'));
                 $('#editModal textarea[name="remarks"]').val(button.data('remarks'));
+                $('#editModal textarea[name="approval_comment"]').val(button.data('approval_comment'));
                 $('#editModal input[name="name"]').val(button.data('name'));
                 $('#editModal select[name="shift"]').val(button.data('shift'));
                 // Show the modal

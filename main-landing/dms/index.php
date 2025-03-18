@@ -8,6 +8,15 @@ if (!isset($_SESSION['full_name'])) {
     exit();
 }
 
+// Only allow supervisors, admins and adjusters to access this page
+if (
+    !isset($_SESSION['role']) ||
+    ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'supervisor' && $_SESSION['role'] !== 'adjuster')
+) {
+    header("Location: ../login.html");
+    exit();
+}
+
 // --- Database Connection & Notification Functionality --- //
 $servername = "localhost";
 $username = "root";
