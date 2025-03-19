@@ -4,7 +4,7 @@ session_start();
 // Database connection (replace with your actual credentials)
 $servername = "localhost";
 $username = "root";
-$password = "Admin123@plvil";
+$password = "injectionadmin123";
 $dbname = "dailymonitoringsheet";
 
 // Create connection
@@ -47,11 +47,17 @@ if ($result->num_rows > 0) {
 
         // Redirect based on the user's role if password has already been changed
         if ($user['role'] == 'supervisor') {
-            header("Location: dms/index.php");
+            header("Location: index.php");
         } else if ($user['role'] == 'adjuster') {
-            header("Location: dms/index.php");
+            header("Location: index.php");
         } else if ($user['role'] == 'admin') {
-            header("Location: dms/index.php");
+            header("Location: index.php");
+        } else if ($user['role'] == 'Quality Assurance Engineer') {
+            header("Location: index.php");
+        } else if ($user['role'] == 'Quality Assurance Supervisor') {
+            header("Location: index.php");
+        } else if ($user['role'] == 'Quality Assurance Inspector') {
+            header("Location: index.php");
         }
         exit();
     } else {

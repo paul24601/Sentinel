@@ -37,14 +37,14 @@ if ($conn->connect_error) {
 $message = "";
 
 /**
- * Get Pending Submissions for Notifications
+ * Get Pending Submissions for Notifications.
  * Now filters based on the current user's role.
  */
 function getPendingSubmissions($conn)
 {
     $role = $_SESSION['role'];
     $where_clause = "approval_status = 'pending'";
-    if ($role === 'supervisor') {
+    if (in_array($role, ['supervisor', 'admin'])) {
         $where_clause .= " AND (supervisor_status IS NULL OR supervisor_status = 'pending')";
     } elseif (in_array($role, ['Quality Assurance Engineer', 'Quality Assurance Supervisor'])) {
         $where_clause .= " AND (qa_status IS NULL OR qa_status = 'pending')";
@@ -70,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submission_id']) && is
 
     // Determine which approval column to update based on the current user's role.
     $current_user_role = $_SESSION['role'];
-    if ($current_user_role === 'supervisor') {
+    if (in_array($current_user_role, ['supervisor', 'admin'])) {
         $approval_column = 'supervisor_status';
     } elseif (in_array($current_user_role, ['Quality Assurance Engineer', 'Quality Assurance Supervisor'])) {
         $approval_column = 'qa_status';
@@ -151,50 +151,62 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_submission_id']) 
     $new_status = $_POST['new_approval_status'];
     if (in_array($new_status, ['pending', 'approved', 'declined'])) {
         $approval_comment = isset($_POST['approval_comment']) ? $_POST['approval_comment'] : '';
-        $stmt = $conn->prepare("UPDATE submissions SET approval_status = ?, approval_comment = ? WHERE id = ?");
+
+        // Determine the individual approval column based on the user's role
+        $current_user_role = $_SESSION['role'];
+        if (in_array($current_user_role, ['supervisor', 'admin'])) {
+            $approval_column = 'supervisor_status';
+        } elseif (in_array($current_user_role, ['Quality Assurance Engineer', 'Quality Assurance Supervisor'])) {
+            $approval_column = 'qa_status';
+        } else {
+            die("Unauthorized action.");
+        }
+
+        // Update the individual column and comment
+        $stmt = $conn->prepare("UPDATE submissions SET $approval_column = ?, approval_comment = ? WHERE id = ?");
         if (!$stmt) {
             die("Prepare failed: " . $conn->error);
         }
         $stmt->bind_param("ssi", $new_status, $approval_comment, $submission_id);
         if ($stmt->execute()) {
-            $message = "Submission #{$submission_id} updated to " . ucfirst($new_status) . ".";
-            if ($new_status === 'declined') {
-                $mail = new PHPMailer(true);
-                try {
-                    $mail->isSMTP();
-                    $mail->Host = 'smtp.gmail.com';
-                    $mail->SMTPAuth = true;
-                    $mail->Username = 'sentinel.dms.notifications@gmail.com';
-                    $mail->Password = 'zmys tnix xjjp jbsz';
-                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                    $mail->Port = 587;
+            $stmt->close();
 
-                    $mail->setFrom('sentinel.dms.notifications@gmail.com', 'DMS Notifications');
-                    $mail->addAddress('dmsadjuster@gmail.com');
+            // Retrieve current statuses from both columns
+            $stmt = $conn->prepare("SELECT supervisor_status, qa_status FROM submissions WHERE id = ?");
+            $stmt->bind_param("i", $submission_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $statuses = $result->fetch_assoc();
+            $stmt->close();
 
-                    $mail->isHTML(true);
-                    $mail->Subject = 'Submission Declined Notification';
-                    $mail->Body = "Submission #{$submission_id} has been declined by the supervisor.<br>
-                    To edit and resubmit your submission, click <a href='http://143.198.215.249/main-landing/dms/declined_submissions.php'>here</a>.";
-                    $mail->AltBody = "Submission #{$submission_id} has been declined by the supervisor. Visit: http://143.198.215.249/main-landing/dms/declined_submissions.php to edit and resubmit.";
-                    $mail->send();
-                } catch (Exception $e) {
-                    // Optionally log the error
-                }
+            // Determine overall approval status based on individual statuses
+            if (($statuses['supervisor_status'] === 'declined') || ($statuses['qa_status'] === 'declined')) {
+                $final_status = 'declined';
+            } elseif ($statuses['supervisor_status'] === 'approved' && $statuses['qa_status'] === 'approved') {
+                $final_status = 'approved';
+            } else {
+                $final_status = 'pending';
             }
+
+            // Update the overall approval_status accordingly
+            $stmt = $conn->prepare("UPDATE submissions SET approval_status = ? WHERE id = ?");
+            $stmt->bind_param("si", $final_status, $submission_id);
+            $stmt->execute();
+            $stmt->close();
+
+            $message = "Submission #{$submission_id} updated. Final status: " . ucfirst($final_status) . ".";
         } else {
             $message = "Error updating submission #" . $submission_id;
         }
-        $stmt->close();
     } else {
         $message = "Invalid status provided.";
     }
 }
 
-// ----- Retrieve Pending Submissions ----- //
+// ----- Retrieve Pending Submissions -----
 $role = $_SESSION['role'];
 $where_clause = "approval_status = 'pending'";
-if ($role === 'supervisor') {
+if (in_array($role, ['supervisor', 'admin'])) {
     $where_clause .= " AND (supervisor_status IS NULL OR supervisor_status = 'pending')";
 } elseif (in_array($role, ['Quality Assurance Engineer', 'Quality Assurance Supervisor'])) {
     $where_clause .= " AND (qa_status IS NULL OR qa_status = 'pending')";
@@ -218,34 +230,25 @@ $result_other = $conn->query($sql_other);
     <title>DMS - Approvals</title>
     <link href="../css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
-
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/select/1.6.0/css/select.dataTables.min.css">
-
     <!-- DataTables Buttons CSS & JS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
-
     <!-- DataTables Responsive CSS & JS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
     <style>
         .alert-bottom-right {
             position: fixed;
             bottom: 20px;
-            /* Adjust distance from bottom */
             right: 20px;
-            /* Adjust distance from right */
             z-index: 1050;
-            /* Ensure it's on top of other elements */
             max-width: 300px;
-            /* Optional: Limit width */
         }
 
         .highlight {
             background-color: #ffff99 !important;
-            /* Light yellow */
         }
     </style>
 </head>
@@ -285,7 +288,6 @@ $result_other = $conn->query($sql_other);
                                 </a>
                             </li>
                         <?php endforeach; ?>
-
                     <?php else: ?>
                         <li>
                             <span class="dropdown-item-text">No pending submissions.</span>
@@ -293,8 +295,6 @@ $result_other = $conn->query($sql_other);
                     <?php endif; ?>
                 </ul>
             </li>
-
-
             <!-- User Dropdown -->
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
@@ -309,7 +309,6 @@ $result_other = $conn->query($sql_other);
                 </ul>
             </li>
         </ul>
-
     </nav>
     <div id="layoutSidenav">
         <div id="layoutSidenav_nav">
@@ -337,8 +336,6 @@ $result_other = $conn->query($sql_other);
                                 <a class="nav-link active" href="approval.php">Approvals</a>
                             </nav>
                         </div>
-
-
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
                             data-bs-target="#collapseParameters" aria-expanded="false"
                             aria-controls="collapseParameters">
@@ -384,7 +381,6 @@ $result_other = $conn->query($sql_other);
                     </ol>
 
                     <?php if ($message):
-                        // Determine alert class based on message content
                         if (strpos($message, 'Approved') !== false) {
                             $alertClass = 'alert-success';
                         } elseif (strpos($message, 'Declined') !== false) {
@@ -399,7 +395,6 @@ $result_other = $conn->query($sql_other);
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     <?php endif; ?>
-
 
                     <!-- Pending Submissions Table -->
                     <div class="card shadow mb-4">
@@ -425,6 +420,8 @@ $result_other = $conn->query($sql_other);
                                             <th>Remarks</th>
                                             <th>Name</th>
                                             <th>Shift</th>
+                                            <th>Supervisor Status</th>
+                                            <th>QA Status</th>
                                             <th>Approval Status</th>
                                             <th>Action</th>
                                             <th>Comment</th>
@@ -451,13 +448,15 @@ $result_other = $conn->query($sql_other);
                                                 echo "<td>" . htmlspecialchars($row['remarks'], ENT_QUOTES) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['name']) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['shift']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['supervisor_status']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['qa_status']) . "</td>";
                                                 echo "<td>" . ucfirst(htmlspecialchars($row['approval_status'])) . "</td>";
                                                 echo "<td>";
                                                 if ($row['approval_status'] === 'pending') {
                                                     echo '<div class="btn-group" role="group" aria-label="Approval actions">
                                                             <form method="post" class="d-inline">
                                                                 <input type="hidden" name="submission_id" value="' . $row['id'] . '">
-                                                                <button type="submit" name="approval_action" value="approve" class="btn btn-success btn-sm">
+                                                                <button type="submit" name="approval_action" value="approved" class="btn btn-success btn-sm">
                                                                     Approve
                                                                 </button>
                                                             </form>
@@ -466,9 +465,7 @@ $result_other = $conn->query($sql_other);
                                                             </button>
                                                           </div>';
                                                 }
-                                                echo '<button type="button" class="btn btn-secondary btn-sm ms-1 edit-button" 
-                                                        data-id="' . $row['id'] . '" 
-                                                        data-current="' . $row['approval_status'] . '">
+                                                echo '<button type="button" class="btn btn-secondary btn-sm ms-1 edit-button" data-id="' . $row['id'] . '" data-current="' . $row['approval_status'] . '">
                                                         Edit
                                                     </button>';
                                                 echo "</td>";
@@ -476,7 +473,7 @@ $result_other = $conn->query($sql_other);
                                                 echo "</tr>";
                                             }
                                         } else {
-                                            echo "<tr><td colspan='19' class='text-center'>No pending submissions found.</td></tr>";
+                                            echo "<tr><td colspan='21' class='text-center'>No pending submissions found.</td></tr>";
                                         }
                                         ?>
                                     </tbody>
@@ -509,6 +506,8 @@ $result_other = $conn->query($sql_other);
                                             <th>Remarks</th>
                                             <th>Name</th>
                                             <th>Shift</th>
+                                            <th>Supervisor Status</th>
+                                            <th>QA Status</th>
                                             <th>Approval Status</th>
                                             <th>Action</th>
                                             <th>Comment</th>
@@ -538,12 +537,11 @@ $result_other = $conn->query($sql_other);
                                                 echo "<td><span class='remarks-cell' data-full='{$remarks}' data-truncated='{$truncated}'>" . $truncated . "</span></td>";
                                                 echo "<td>" . htmlspecialchars($row['name']) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['shift']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['supervisor_status']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['qa_status']) . "</td>";
                                                 echo "<td>" . ucfirst(htmlspecialchars($row['approval_status'])) . "</td>";
                                                 echo "<td>";
-                                                // Only show Edit button as quick actions aren't needed here.
-                                                echo '<button type="button" class="btn btn-secondary btn-sm edit-button" 
-                                                        data-id="' . $row['id'] . '" 
-                                                        data-current="' . $row['approval_status'] . '">
+                                                echo '<button type="button" class="btn btn-secondary btn-sm edit-button" data-id="' . $row['id'] . '" data-current="' . $row['approval_status'] . '">
                                                         Edit
                                                     </button>';
                                                 echo "</td>";
@@ -551,7 +549,7 @@ $result_other = $conn->query($sql_other);
                                                 echo "</tr>";
                                             }
                                         } else {
-                                            echo "<tr><td colspan='19' class='text-center'>No approved or declined submissions found.</td></tr>";
+                                            echo "<tr><td colspan='21' class='text-center'>No approved or declined submissions found.</td></tr>";
                                         }
                                         ?>
                                     </tbody>
@@ -559,8 +557,6 @@ $result_other = $conn->query($sql_other);
                             </div>
                         </div>
                     </div>
-
-
                 </div>
 
                 <!-- Edit Approval Status Modal -->
@@ -602,8 +598,6 @@ $result_other = $conn->query($sql_other);
                         </form>
                     </div>
                 </div>
-
-
             </main>
             <footer class="py-4 bg-light mt-auto">
                 <div class="container-fluid px-4">
@@ -633,13 +627,9 @@ $result_other = $conn->query($sql_other);
     <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
     <script>
         $(document).ready(function () {
-            // Global flag to track whether responsive mode is enabled
             var responsiveEnabled = true;
-
-            // For Pending Submissions table
             var pendingResponsive = true;
             var pendingTable = initPendingTable(pendingResponsive);
-
             function initPendingTable(isResponsive) {
                 return $('#pendingTable').DataTable({
                     fixedHeader: true,
@@ -649,22 +639,19 @@ $result_other = $conn->query($sql_other);
                     buttons: [{
                         text: 'Toggle Responsive',
                         action: function (e, dt, node, config) {
-                            pendingResponsive = !isResponsive; // toggle the state
+                            pendingResponsive = !isResponsive;
                             dt.destroy();
                             pendingTable = initPendingTable(pendingResponsive);
                         }
                     }]
                 });
             }
-
             $(window).on('load', function () {
                 if (window.location.hash) {
                     setTimeout(function () {
                         var target = $(window.location.hash);
                         if (target.length && typeof pendingTable !== 'undefined') {
-                            // Use the Select extension API to select the row
                             pendingTable.row(target).select();
-                            // Scroll the page so the selected row is centered
                             $('html, body').animate({
                                 scrollTop: target.offset().top - ($(window).height() / 2) + (target.outerHeight() / 2)
                             }, 500);
@@ -672,12 +659,8 @@ $result_other = $conn->query($sql_other);
                     }, 300);
                 }
             });
-
-
-            // For Approved/Declined table
             var otherResponsive = true;
             var otherTable = initOtherTable(otherResponsive);
-
             function initOtherTable(isResponsive) {
                 return $('#otherTable').DataTable({
                     fixedHeader: true,
@@ -687,15 +670,13 @@ $result_other = $conn->query($sql_other);
                     buttons: [{
                         text: 'Toggle Responsive',
                         action: function (e, dt, node, config) {
-                            otherResponsive = !isResponsive; // toggle the state
+                            otherResponsive = !isResponsive;
                             dt.destroy();
                             otherTable = initOtherTable(otherResponsive);
                         }
                     }]
                 });
             }
-
-            // Toggle remarks text based on responsive setting
             function toggleRemarks() {
                 $('.remarks-cell').each(function () {
                     var $cell = $(this);
@@ -715,9 +696,6 @@ $result_other = $conn->query($sql_other);
                 });
             }
             toggleRemarks();
-
-
-            // If there's a hash in the URL, scroll to and highlight that row
             if (window.location.hash) {
                 var rowId = window.location.hash;
                 var rowElement = $(rowId);
@@ -726,8 +704,6 @@ $result_other = $conn->query($sql_other);
                     $('html, body').animate({ scrollTop: rowElement.offset().top - ($(window).height() / 2) + (rowElement.outerHeight() / 2) }, 500);
                 }
             }
-
-            // Edit button functionality
             $('table').on('click', '.edit-button', function () {
                 var submissionId = $(this).data('id');
                 var currentStatus = $(this).data('current');
@@ -737,7 +713,6 @@ $result_other = $conn->query($sql_other);
                 editModal.show();
             });
         });
-
         $('#new_approval_status').change(function () {
             var status = $(this).val();
             if (status === 'declined' || status === 'pending') {
@@ -747,8 +722,6 @@ $result_other = $conn->query($sql_other);
                 $('#approval_comment').val('');
             }
         });
-
-        // Handle quick decline button click
         $(document).on('click', '.decline-quick-button', function () {
             var submissionId = $(this).data('id');
             $('#edit_submission_id').val(submissionId);
@@ -757,18 +730,15 @@ $result_other = $conn->query($sql_other);
             $('#approval_comment').val('');
             var editModal = new bootstrap.Modal(document.getElementById('editModal'));
             editModal.show();
-        });        
+        });
     </script>
     <script>
-        // Force full page refresh on every notification click.
         $(document).on('click', '.notification-link', function (e) {
             e.preventDefault();
             var href = $(this).attr('href');
-            // Split the URL by the hash (if any)
             var parts = href.split('#');
             var baseUrl = parts[0];
             var hash = parts.length > 1 ? '#' + parts[1] : '';
-            // Append a timestamp parameter to ensure a fresh reload
             if (baseUrl.indexOf('?') > -1) {
                 baseUrl += '&t=' + new Date().getTime();
             } else {
@@ -777,7 +747,6 @@ $result_other = $conn->query($sql_other);
             window.location.href = baseUrl + hash;
         });
     </script>
-
     <script src="https://cdn.datatables.net/keytable/2.6.2/js/dataTables.keyTable.min.js"></script>
 </body>
 
