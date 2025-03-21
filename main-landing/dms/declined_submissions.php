@@ -19,7 +19,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Check if user is logged in (redundant check removed or kept for safety)
+// (Redundant check can be kept for safety)
 if (!isset($_SESSION['full_name'])) {
     header("Location: login.html");
     exit();
@@ -45,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submission_id'])) {
     $cavity_active = intval($_POST['cavity_active']);
     $remarks = $_POST['remarks'];
     $shift = $_POST['shift'];
-    $approval_comment = $_POST['approval_comment'] ?? ''; // New field
+    $approval_comment = $_POST['approval_comment'] ?? '';
 
     // Verify that this submission belongs to the logged-in user
     $check_sql = "SELECT * FROM submissions WHERE id = ? AND name = ?";
@@ -55,8 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submission_id'])) {
     $check_result = $check_stmt->get_result();
 
     if ($check_result->num_rows > 0) {
-        // Update the submission with all the form fields, including approval_comment,
-        // and set status to pending. Notice the use of backticks for the reserved word `date`.
+        // Update submission and reset approval_status to pending.
         $update_sql = "UPDATE submissions 
                        SET `date` = ?, product_name = ?, machine = ?, prn = ?, mold_code = ?, 
                            cycle_time_target = ?, cycle_time_actual = ?, weight_standard = ?, 
@@ -128,12 +127,18 @@ $pending_count = count($pending_submissions);
     <meta name="description" content="" />
     <meta name="author" content="" />
     <title>DMS - Declined Submissions</title>
-    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
-    <link href="../css/styles.css" rel="stylesheet" />
-    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <!-- DataTables Responsive CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
+    <!-- DataTables Buttons CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- jQuery and jQuery UI for Autocomplete -->
+    <!-- Custom Styles -->
+    <link href="../css/styles.css" rel="stylesheet" />
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <!-- jQuery UI for Autocomplete -->
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
@@ -149,7 +154,7 @@ $pending_count = count($pending_submissions);
         </button>
         <!-- Navbar Search-->
         <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
-            <!-- (Optional search form can go here) -->
+            <!-- (Optional search form) -->
         </form>
         <!-- Navbar Notifications and User Dropdown-->
         <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
@@ -192,9 +197,7 @@ $pending_count = count($pending_submissions);
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li><a class="dropdown-item" href="#!">Settings</a></li>
                     <li><a class="dropdown-item" href="#!">Activity Log</a></li>
-                    <li>
-                        <hr class="dropdown-divider" />
-                    </li>
+                    <li><hr class="dropdown-divider" /></li>
                     <li><a class="dropdown-item" href="../logout.php">Logout</a></li>
                 </ul>
             </li>
@@ -272,75 +275,77 @@ $pending_count = count($pending_submissions);
                         <div class="alert alert-info"><?php echo $message; ?></div>
                     <?php endif; ?>
 
-                    <!-- Submissions Table -->
-                    <table class="table table-bordered table-striped">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>ID</th>
-                                <th>Date</th>
-                                <th>Product Name</th>
-                                <th>Machine</th>
-                                <th>PRN</th>
-                                <th>Mold Code</th>
-                                <th>Cycle Time Target</th>
-                                <th>Cycle Time Actual</th>
-                                <th>Weight Standard</th>
-                                <th>Weight Gross</th>
-                                <th>Weight Net</th>
-                                <th>Cavity Designed</th>
-                                <th>Cavity Active</th>
-                                <th>Remarks</th>
-                                <th>Shift</th>
-                                <th>Approval Comment</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = $result->fetch_assoc()): ?>
+                    <!-- Wrap table in a responsive container -->
+                    <div class="table-responsive">
+                        <table id="dataTable" class="table table-bordered table-striped">
+                            <thead class="table-dark">
                                 <tr>
-                                    <td><?php echo $row['id']; ?></td>
-                                    <td><?php echo htmlspecialchars($row['date']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['product_name']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['machine']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['prn']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['mold_code']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['cycle_time_target']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['cycle_time_actual']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['weight_standard']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['weight_gross']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['weight_net']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['cavity_designed']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['cavity_active']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['remarks']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['shift']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['approval_comment']); ?></td>
-                                    <td>
-                                        <!-- The Edit button carries data attributes for all fields including approval_comment -->
-                                        <button class="btn btn-primary btn-sm edit-btn" 
-                                            data-id="<?php echo $row['id']; ?>"
-                                            data-date="<?php echo $row['date']; ?>"
-                                            data-product_name="<?php echo htmlspecialchars($row['product_name']); ?>"
-                                            data-machine="<?php echo htmlspecialchars($row['machine']); ?>"
-                                            data-prn="<?php echo htmlspecialchars($row['prn']); ?>"
-                                            data-mold_code="<?php echo $row['mold_code']; ?>"
-                                            data-cycle_time_target="<?php echo $row['cycle_time_target']; ?>"
-                                            data-cycle_time_actual="<?php echo $row['cycle_time_actual']; ?>"
-                                            data-weight_standard="<?php echo $row['weight_standard']; ?>"
-                                            data-weight_gross="<?php echo $row['weight_gross']; ?>"
-                                            data-weight_net="<?php echo $row['weight_net']; ?>"
-                                            data-cavity_designed="<?php echo $row['cavity_designed']; ?>"
-                                            data-cavity_active="<?php echo $row['cavity_active']; ?>"
-                                            data-remarks="<?php echo htmlspecialchars($row['remarks']); ?>"
-                                            data-approval_comment="<?php echo htmlspecialchars($row['approval_comment']); ?>"
-                                            data-name="<?php echo htmlspecialchars($row['name']); ?>"
-                                            data-shift="<?php echo htmlspecialchars($row['shift']); ?>">
-                                            Edit
-                                        </button>
-                                    </td>
+                                    <th>ID</th>
+                                    <th>Date</th>
+                                    <th>Product Name</th>
+                                    <th>Machine</th>
+                                    <th>PRN</th>
+                                    <th>Mold Code</th>
+                                    <th>Cycle Time Target</th>
+                                    <th>Cycle Time Actual</th>
+                                    <th>Weight Standard</th>
+                                    <th>Weight Gross</th>
+                                    <th>Weight Net</th>
+                                    <th>Cavity Designed</th>
+                                    <th>Cavity Active</th>
+                                    <th>Remarks</th>
+                                    <th>Shift</th>
+                                    <th>Approval Comment</th>
+                                    <th>Action</th>
                                 </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                <?php while ($row = $result->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><?php echo $row['id']; ?></td>
+                                        <td><?php echo htmlspecialchars($row['date']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['product_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['machine']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['prn']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['mold_code']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['cycle_time_target']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['cycle_time_actual']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['weight_standard']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['weight_gross']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['weight_net']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['cavity_designed']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['cavity_active']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['remarks']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['shift']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['approval_comment']); ?></td>
+                                        <td>
+                                            <!-- Edit button with data attributes -->
+                                            <button class="btn btn-primary btn-sm edit-btn" 
+                                                data-id="<?php echo $row['id']; ?>"
+                                                data-date="<?php echo $row['date']; ?>"
+                                                data-product_name="<?php echo htmlspecialchars($row['product_name']); ?>"
+                                                data-machine="<?php echo htmlspecialchars($row['machine']); ?>"
+                                                data-prn="<?php echo htmlspecialchars($row['prn']); ?>"
+                                                data-mold_code="<?php echo $row['mold_code']; ?>"
+                                                data-cycle_time_target="<?php echo $row['cycle_time_target']; ?>"
+                                                data-cycle_time_actual="<?php echo $row['cycle_time_actual']; ?>"
+                                                data-weight_standard="<?php echo $row['weight_standard']; ?>"
+                                                data-weight_gross="<?php echo $row['weight_gross']; ?>"
+                                                data-weight_net="<?php echo $row['weight_net']; ?>"
+                                                data-cavity_designed="<?php echo $row['cavity_designed']; ?>"
+                                                data-cavity_active="<?php echo $row['cavity_active']; ?>"
+                                                data-remarks="<?php echo htmlspecialchars($row['remarks']); ?>"
+                                                data-approval_comment="<?php echo htmlspecialchars($row['approval_comment']); ?>"
+                                                data-name="<?php echo htmlspecialchars($row['name']); ?>"
+                                                data-shift="<?php echo htmlspecialchars($row['shift']); ?>">
+                                                Edit
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    </div>
 
                     <!-- Edit Modal -->
                     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel"
@@ -443,7 +448,7 @@ $pending_count = count($pending_submissions);
                                             <label class="form-label">Remarks</label>
                                             <textarea class="form-control" name="remarks" rows="3"></textarea>
                                         </div>
-                                        <!-- New Approval Comment Field -->
+                                        <!-- Approval Comment Field -->
                                         <div class="mb-3">
                                             <label class="form-label">Approval Comment</label>
                                             <textarea class="form-control" name="approval_comment" rows="3" placeholder="Enter approval comment..."></textarea>
@@ -489,24 +494,42 @@ $pending_count = count($pending_submissions);
             </footer>
         </div>
     </div>
-    <script src="../js/scripts.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-    <script src="../assets/demo/chart-area-demo.js"></script>
-    <script src="../assets/demo/chart-bar-demo.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
-        crossorigin="anonymous"></script>
-    <script src="../js/datatables-simple-demo.js"></script>
-    <!-- Bootstrap JS and Popper.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- jQuery and Bootstrap Bundle (includes Popper) -->
+    <!-- jQuery (required for DataTables and Bootstrap's JavaScript plugins) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables JS -->
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <!-- DataTables Responsive JS -->
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+    <!-- DataTables Buttons JS -->
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
     <script>
         $(document).ready(function () {
+            // Initialize DataTable with a Toggle Responsive button.
+            var responsiveEnabled = true;
+            var myTable = initTable(responsiveEnabled);
+
+            function initTable(isResponsive) {
+                return $('#dataTable').DataTable({
+                    fixedHeader: true,
+                    responsive: isResponsive,
+                    dom: 'Bfrtip',
+                    buttons: [{
+                        text: 'Toggle Responsive',
+                        action: function (e, dt, node, config) {
+                            // Toggle the responsive flag and reinitialize table
+                            responsiveEnabled = !isResponsive;
+                            dt.destroy();
+                            myTable = initTable(responsiveEnabled);
+                        }
+                    }]
+                });
+            }
+
+            // Edit button click handler to populate and show the modal
             $('.edit-btn').on('click', function () {
                 var button = $(this);
-                // Populate the modal fields using the button's data attributes
                 $('#editModal input[name="submission_id"]').val(button.data('id'));
                 $('#editModal input[name="date"]').val(button.data('date'));
                 $('#editModal input[name="product_name"]').val(button.data('product_name'));
@@ -524,7 +547,6 @@ $pending_count = count($pending_submissions);
                 $('#editModal textarea[name="approval_comment"]').val(button.data('approval_comment'));
                 $('#editModal input[name="name"]').val(button.data('name'));
                 $('#editModal select[name="shift"]').val(button.data('shift'));
-                // Show the modal
                 $('#editModal').modal('show');
             });
         });

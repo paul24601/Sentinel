@@ -24,9 +24,9 @@ use PHPMailer\PHPMailer\Exception;
 
 // Database connection details
 $servername = "localhost";
-$username = "root";
-$password = "injectionadmin123";
-$dbname = "dailymonitoringsheet";
+$username   = "root";
+$password   = "injectionadmin123";
+$dbname     = "dailymonitoringsheet";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -35,6 +35,62 @@ if ($conn->connect_error) {
 }
 
 $message = "";
+
+/**
+ * Helper function to send detailed email notifications.
+ *
+ * @param int    $submission_id    The submission ID.
+ * @param string $final_status     The overall final status ('pending', 'approved', or 'declined').
+ * @param string $approval_stage   The individual approval column updated ('supervisor_status' or 'qa_status').
+ * @param string $approval_comment The comment provided.
+ */
+function sendNotificationEmail($submission_id, $final_status, $approval_stage, $approval_comment) {
+    // Use the current session full name and current date/time for details.
+    $action_by = $_SESSION['full_name'];
+    $action_datetime = date('Y-m-d H:i:s');
+    
+    $mail = new PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'sentinel.dms.notifications@gmail.com';
+        $mail->Password   = 'zmys tnix xjjp jbsz'; // Use secure storage for credentials
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+    
+        $mail->setFrom('sentinel.dms.notifications@gmail.com', 'DMS Notifications');
+        // Add recipient(s) as needed.
+        $mail->addAddress('dmsadjuster@gmail.com');
+    
+        $mail->isHTML(true);
+    
+        // Build subject and message body based on the final status.
+        if ($final_status === 'declined') {
+            $subject = "Submission #{$submission_id} Declined Notification";
+            $body  = "Submission #{$submission_id} was <strong>declined</strong> by <strong>{$action_by}</strong> ";
+            $body .= "($approval_stage) on {$action_datetime}.<br><br>";
+            $body .= "Comment: " . nl2br(htmlspecialchars($approval_comment));
+        } elseif ($final_status === 'approved') {
+            $subject = "Submission #{$submission_id} Approved Notification";
+            $body  = "Submission #{$submission_id} has been <strong>fully approved</strong> by all required parties. ";
+            $body .= "Latest update by <strong>{$action_by}</strong> ($approval_stage) on {$action_datetime}.<br><br>";
+            $body .= "Comment: " . nl2br(htmlspecialchars($approval_comment));
+        } else { // pending update
+            $subject = "Submission #{$submission_id} Pending Notification";
+            $body  = "Submission #{$submission_id} has been marked as <strong>pending</strong> by <strong>{$action_by}</strong> ";
+            $body .= "($approval_stage) on {$action_datetime}.<br><br>";
+            $body .= "Comment: " . nl2br(htmlspecialchars($approval_comment));
+        }
+    
+        $mail->Subject = $subject;
+        $mail->Body    = $body;
+        $mail->AltBody = strip_tags($body);
+        $mail->send();
+    } catch (Exception $e) {
+        // Optionally log the error: $e->getMessage()
+    }
+}
 
 /**
  * Get Pending Submissions for Notifications.
@@ -65,8 +121,10 @@ $pending_count = count($pending_submissions);
 
 // ----- Process Quick Approval/Decline Actions -----
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submission_id']) && isset($_POST['approval_action'])) {
-    $submission_id = intval($_POST['submission_id']);
-    $approval_action = $_POST['approval_action']; // Expected values: "approve" or "decline"
+    $submission_id  = intval($_POST['submission_id']);
+    $approval_action = $_POST['approval_action']; // Expected values: "approved" or "declined"
+    // Get comment if provided.
+    $approval_comment = isset($_POST['approval_comment']) ? $_POST['approval_comment'] : '';
 
     // Determine which approval column to update based on the current user's role.
     $current_user_role = $_SESSION['role'];
@@ -115,30 +173,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submission_id']) && is
     $stmt->bind_param("si", $final_status, $submission_id);
     if ($stmt->execute()) {
         $message = "Submission #{$submission_id} updated. Final status: " . ucfirst($final_status) . ".";
-        // Send email notification if declined.
-        if ($final_status === 'declined') {
-            $mail = new PHPMailer(true);
-            try {
-                $mail->isSMTP();
-                $mail->Host = 'smtp.gmail.com';
-                $mail->SMTPAuth = true;
-                $mail->Username = 'sentinel.dms.notifications@gmail.com';
-                $mail->Password = 'zmys tnix xjjp jbsz'; // Use secure storage for credentials
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->Port = 587;
-
-                $mail->setFrom('sentinel.dms.notifications@gmail.com', 'DMS Notifications');
-                $mail->addAddress('dmsadjuster@gmail.com');
-
-                $mail->isHTML(true);
-                $mail->Subject = 'Submission Declined Notification';
-                $mail->Body = "Submission #{$submission_id} has been declined.";
-                $mail->AltBody = "Submission #{$submission_id} has been declined.";
-                $mail->send();
-            } catch (Exception $e) {
-                // Optionally log the mail error
-            }
-        }
+        // Send detailed email notification.
+        sendNotificationEmail($submission_id, $final_status, $approval_column, $approval_comment);
     } else {
         $message = "Error updating submission #" . $submission_id;
     }
@@ -148,11 +184,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submission_id']) && is
 // ----- Process Edit Form Submission -----
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_submission_id']) && isset($_POST['new_approval_status'])) {
     $submission_id = intval($_POST['edit_submission_id']);
-    $new_status = $_POST['new_approval_status'];
+    $new_status    = $_POST['new_approval_status'];
     if (in_array($new_status, ['pending', 'approved', 'declined'])) {
         $approval_comment = isset($_POST['approval_comment']) ? $_POST['approval_comment'] : '';
 
-        // Determine the individual approval column based on the user's role
+        // Determine the individual approval column based on the user's role.
         $current_user_role = $_SESSION['role'];
         if (in_array($current_user_role, ['supervisor', 'admin'])) {
             $approval_column = 'supervisor_status';
@@ -162,7 +198,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_submission_id']) 
             die("Unauthorized action.");
         }
 
-        // Update the individual column and comment
+        // Update the individual column and comment.
         $stmt = $conn->prepare("UPDATE submissions SET $approval_column = ?, approval_comment = ? WHERE id = ?");
         if (!$stmt) {
             die("Prepare failed: " . $conn->error);
@@ -171,7 +207,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_submission_id']) 
         if ($stmt->execute()) {
             $stmt->close();
 
-            // Retrieve current statuses from both columns
+            // Retrieve current statuses from both columns.
             $stmt = $conn->prepare("SELECT supervisor_status, qa_status FROM submissions WHERE id = ?");
             $stmt->bind_param("i", $submission_id);
             $stmt->execute();
@@ -179,7 +215,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_submission_id']) 
             $statuses = $result->fetch_assoc();
             $stmt->close();
 
-            // Determine overall approval status based on individual statuses
+            // Determine overall approval status based on individual statuses.
             if (($statuses['supervisor_status'] === 'declined') || ($statuses['qa_status'] === 'declined')) {
                 $final_status = 'declined';
             } elseif ($statuses['supervisor_status'] === 'approved' && $statuses['qa_status'] === 'approved') {
@@ -188,13 +224,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_submission_id']) 
                 $final_status = 'pending';
             }
 
-            // Update the overall approval_status accordingly
+            // Update the overall approval_status accordingly.
             $stmt = $conn->prepare("UPDATE submissions SET approval_status = ? WHERE id = ?");
             $stmt->bind_param("si", $final_status, $submission_id);
             $stmt->execute();
             $stmt->close();
 
             $message = "Submission #{$submission_id} updated. Final status: " . ucfirst($final_status) . ".";
+            // Send detailed email notification.
+            sendNotificationEmail($submission_id, $final_status, $approval_column, $approval_comment);
         } else {
             $message = "Error updating submission #" . $submission_id;
         }
@@ -220,24 +258,23 @@ $result_other = $conn->query($sql_other);
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="" />
     <meta name="author" content="" />
     <title>DMS - Approvals</title>
     <link href="../css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.datatables.net/select/1.6.0/css/select.dataTables.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/1.6.0/css/select.dataTables.min.css" />
     <!-- DataTables Buttons CSS & JS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css" />
     <!-- DataTables Responsive CSS & JS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css" />
     <style>
         .alert-bottom-right {
             position: fixed;
@@ -246,23 +283,20 @@ $result_other = $conn->query($sql_other);
             z-index: 1050;
             max-width: 300px;
         }
-
         .highlight {
             background-color: #ffff99 !important;
         }
     </style>
 </head>
-
 <body class="sb-nav-fixed">
+    <!-- Navigation and Sidebar (omitted for brevity; assume your existing HTML here) -->
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
-        <!-- Navbar Brand-->
         <a class="navbar-brand ps-3" href="../index.php">Sentinel Digitization</a>
-        <!-- Sidebar Toggle-->
-        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i
-                class="fas fa-bars"></i></button>
-        <!-- Navbar Search-->
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
+            <i class="fas fa-bars"></i>
+        </button>
+        <!-- Navbar Search (optional) -->
         <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0"></form>
-        <!-- Navbar-->
         <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
             <!-- Notification Dropdown -->
             <li class="nav-item dropdown">
@@ -279,8 +313,7 @@ $result_other = $conn->query($sql_other);
                     <?php if ($pending_count > 0): ?>
                         <?php foreach ($pending_submissions as $pending): ?>
                             <li>
-                                <a class="dropdown-item notification-link"
-                                    href="approval.php?refresh=1#submission-<?php echo $pending['id']; ?>">
+                                <a class="dropdown-item notification-link" href="approval.php?refresh=1#submission-<?php echo $pending['id']; ?>">
                                     Submission #<?php echo $pending['id']; ?> -
                                     <?php echo htmlspecialchars($pending['product_name']); ?>
                                     <br>
@@ -289,9 +322,7 @@ $result_other = $conn->query($sql_other);
                             </li>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <li>
-                            <span class="dropdown-item-text">No pending submissions.</span>
-                        </li>
+                        <li><span class="dropdown-item-text">No pending submissions.</span></li>
                     <?php endif; ?>
                 </ul>
             </li>
@@ -302,17 +333,18 @@ $result_other = $conn->query($sql_other);
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li><a class="dropdown-item" href="#!">Settings</a></li>
                     <li><a class="dropdown-item" href="#!">Activity Log</a></li>
-                    <li>
-                        <hr class="dropdown-divider" />
-                    </li>
+                    <li><hr class="dropdown-divider" /></li>
                     <li><a class="dropdown-item" href="../logout.php">Logout</a></li>
                 </ul>
             </li>
         </ul>
     </nav>
+    <!-- Main content area -->
     <div id="layoutSidenav">
         <div id="layoutSidenav_nav">
+            <!-- Sidebar HTML (assume your existing sidebar here) -->
             <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+                <!-- Sidebar content -->
                 <div class="sb-sidenav-menu">
                     <div class="nav">
                         <div class="sb-sidenav-menu-heading">Core</div>
@@ -327,24 +359,22 @@ $result_other = $conn->query($sql_other);
                             DMS
                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                         </a>
-                        <div class="collapse show" id="collapseDMS" aria-labelledby="headingOne"
-                            data-bs-parent="#sidenavAccordion">
+                        <div class="collapse show" id="collapseDMS" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav">
                                 <a class="nav-link" href="index.php">Data Entry</a>
                                 <a class="nav-link" href="submission.php">Records</a>
                                 <a class="nav-link" href="analytics.php">Analytics</a>
-                                <a class="nav-link active" href="approval.php">Approvals</a>
+                                <a class="nav-link" href="approval.php">Approvals</a>
+                                <a class="nav-link active" href="#.php">Declined</a>
                             </nav>
                         </div>
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
-                            data-bs-target="#collapseParameters" aria-expanded="false"
-                            aria-controls="collapseParameters">
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseParameters"
+                            aria-expanded="false" aria-controls="collapseParameters">
                             <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
                             Parameters
                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                         </a>
-                        <div class="collapse" id="collapseParameters" aria-labelledby="headingOne"
-                            data-bs-parent="#sidenavAccordion">
+                        <div class="collapse" id="collapseParameters" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav">
                                 <a class="nav-link" href="../parameters/index.php">Data Entry</a>
                                 <a class="nav-link" href="../parameters/submission.php">Data Visualization</a>
@@ -389,8 +419,7 @@ $result_other = $conn->query($sql_other);
                             $alertClass = 'alert-secondary';
                         }
                         ?>
-                        <div class="alert <?php echo $alertClass; ?> alert-dismissible fade show alert-bottom-right"
-                            role="alert">
+                        <div class="alert <?php echo $alertClass; ?> alert-dismissible fade show alert-bottom-right" role="alert">
                             <?php echo $message; ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
@@ -560,23 +589,19 @@ $result_other = $conn->query($sql_other);
                 </div>
 
                 <!-- Edit Approval Status Modal -->
-                <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel"
-                    aria-hidden="true">
+                <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <form method="post" id="editForm">
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="editModalLabel">Edit Approval Status</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <input type="hidden" name="edit_submission_id" id="edit_submission_id">
                                     <div class="mb-3">
-                                        <label for="new_approval_status" class="form-label">Select Approval
-                                            Status:</label>
-                                        <select class="form-select" name="new_approval_status" id="new_approval_status"
-                                            required>
+                                        <label for="new_approval_status" class="form-label">Select Approval Status:</label>
+                                        <select class="form-select" name="new_approval_status" id="new_approval_status" required>
                                             <option value="pending">Pending</option>
                                             <option value="approved">Approved</option>
                                             <option value="declined">Declined</option>
@@ -585,13 +610,11 @@ $result_other = $conn->query($sql_other);
                                     <!-- New textarea for comment -->
                                     <div class="mb-3" id="commentDiv" style="display: none;">
                                         <label for="approval_comment" class="form-label">Comment</label>
-                                        <textarea class="form-control" name="approval_comment" id="approval_comment"
-                                            rows="3" placeholder="Enter comment..."></textarea>
+                                        <textarea class="form-control" name="approval_comment" id="approval_comment" rows="3" placeholder="Enter comment..."></textarea>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                     <button type="submit" class="btn btn-primary">Update Status</button>
                                 </div>
                             </div>
@@ -613,6 +636,7 @@ $result_other = $conn->query($sql_other);
             </footer>
         </div>
     </div>
+    <!-- Scripts -->
     <script src="../js/scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
     <!-- Bootstrap JS and Popper.js -->
@@ -620,7 +644,7 @@ $result_other = $conn->query($sql_other);
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- DataTables JS -->
+    <!-- DataTables JS and Extensions -->
     <script type="text/javascript" src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/select/1.6.0/js/dataTables.select.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
@@ -731,8 +755,6 @@ $result_other = $conn->query($sql_other);
             var editModal = new bootstrap.Modal(document.getElementById('editModal'));
             editModal.show();
         });
-    </script>
-    <script>
         $(document).on('click', '.notification-link', function (e) {
             e.preventDefault();
             var href = $(this).attr('href');
@@ -749,5 +771,4 @@ $result_other = $conn->query($sql_other);
     </script>
     <script src="https://cdn.datatables.net/keytable/2.6.2/js/dataTables.keyTable.min.js"></script>
 </body>
-
 </html>
