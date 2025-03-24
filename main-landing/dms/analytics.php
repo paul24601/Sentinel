@@ -42,7 +42,7 @@ if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'supervisor' && $_SESSIO
 // Database connection parameters
 $servername = "localhost";
 $username = "root";
-$password = "Admin123@plvil";
+$password = "injectionadmin123";
 $dbname = "dailymonitoringsheet";
 
 // Create a connection
@@ -93,7 +93,6 @@ if ($resultRemarks->num_rows > 0) {
 }
 
 // PRODUCT VARIANCE
-// Query to fetch product names, date, machine number, and cycle time data
 $sqlProductVariance = "SELECT product_name, 
                               date,
                               machine,
@@ -114,8 +113,12 @@ if ($resultProductVariance->num_rows > 0) {
         $date = $row['date'];
         $machine = $row['machine'];
 
-        // Calculate variance percentage
-        $variancePercentage = (($actual - $target) / $target) * 100;
+        // Check if target is zero to avoid division by zero
+        if ($target == 0) {
+            $variancePercentage = 0; // Alternatively, you might want to skip this record
+        } else {
+            $variancePercentage = (($actual - $target) / $target) * 100;
+        }
 
         // Store in array
         $productVarianceData[] = [
@@ -126,6 +129,7 @@ if ($resultProductVariance->num_rows > 0) {
         ];
     }
 }
+
 
 // Fetching unique combinations of machines and mold codes with dates
 $sqlMachineMoldCombination = "SELECT product_name, CONCAT(machine, ' - ', mold_code) AS machine_mold_combination, date 

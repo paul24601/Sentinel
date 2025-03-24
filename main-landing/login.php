@@ -56,7 +56,7 @@ if ($result->num_rows > 0) {
             header("Location: index.php");
         } else if ($user['role'] == 'Quality Assurance Supervisor') {
             header("Location: index.php");
-        } else if ($user['role'] == 'Quality Assurance Inspector') {
+        } else if ($user['role'] == 'Quality Control Inspection') {
             header("Location: index.php");
         }
         exit();

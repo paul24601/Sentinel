@@ -7,8 +7,8 @@ if (!isset($_SESSION['full_name'])) {
     exit();
 }
 
-// Allow supervisors, admins, and QA roles to access this page
-$allowed_roles = ['admin', 'supervisor', 'Quality Assurance Engineer', 'Quality Assurance Supervisor'];
+// Allow supervisors, admins, QA roles, and Quality Control Inspection to access this page
+$allowed_roles = ['admin', 'supervisor', 'Quality Assurance Engineer', 'Quality Assurance Supervisor', 'Quality Control Inspection'];
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $allowed_roles)) {
     header("Location: ../login.html");
     exit();
@@ -69,17 +69,17 @@ function sendNotificationEmail($submission_id, $final_status, $approval_stage, $
         if ($final_status === 'declined') {
             $subject = "Submission #{$submission_id} Declined Notification";
             $body  = "Submission #{$submission_id} was <strong>declined</strong> by <strong>{$action_by}</strong> ";
-            $body .= "($approval_stage) on {$action_datetime}.<br><br>";
+            $body .= "({$approval_stage}) on {$action_datetime}.<br><br>";
             $body .= "Comment: " . nl2br(htmlspecialchars($approval_comment));
         } elseif ($final_status === 'approved') {
             $subject = "Submission #{$submission_id} Approved Notification";
             $body  = "Submission #{$submission_id} has been <strong>fully approved</strong> by all required parties. ";
-            $body .= "Latest update by <strong>{$action_by}</strong> ($approval_stage) on {$action_datetime}.<br><br>";
+            $body .= "Latest update by <strong>{$action_by}</strong> ({$approval_stage}) on {$action_datetime}.<br><br>";
             $body .= "Comment: " . nl2br(htmlspecialchars($approval_comment));
         } else { // pending update
             $subject = "Submission #{$submission_id} Pending Notification";
             $body  = "Submission #{$submission_id} has been marked as <strong>pending</strong> by <strong>{$action_by}</strong> ";
-            $body .= "($approval_stage) on {$action_datetime}.<br><br>";
+            $body .= "({$approval_stage}) on {$action_datetime}.<br><br>";
             $body .= "Comment: " . nl2br(htmlspecialchars($approval_comment));
         }
     
@@ -118,6 +118,10 @@ function getPendingSubmissions($conn)
 
 $pending_submissions = getPendingSubmissions($conn);
 $pending_count = count($pending_submissions);
+
+// Determine if current role is Quality Control Inspection for disabling action buttons.
+$isQCInspection = ($_SESSION['role'] === 'Quality Control Inspection');
+$disabled = $isQCInspection ? ' disabled' : '';
 
 // ----- Process Quick Approval/Decline Actions -----
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submission_id']) && isset($_POST['approval_action'])) {
@@ -364,8 +368,8 @@ $result_other = $conn->query($sql_other);
                                 <a class="nav-link" href="index.php">Data Entry</a>
                                 <a class="nav-link" href="submission.php">Records</a>
                                 <a class="nav-link" href="analytics.php">Analytics</a>
-                                <a class="nav-link" href="approval.php">Approvals</a>
-                                <a class="nav-link active" href="#.php">Declined</a>
+                                <a class="nav-link active" href="approval.php">Approvals</a>
+                                <a class="nav-link" href="#.php">Declined</a>
                             </nav>
                         </div>
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseParameters"
@@ -485,16 +489,16 @@ $result_other = $conn->query($sql_other);
                                                     echo '<div class="btn-group" role="group" aria-label="Approval actions">
                                                             <form method="post" class="d-inline">
                                                                 <input type="hidden" name="submission_id" value="' . $row['id'] . '">
-                                                                <button type="submit" name="approval_action" value="approved" class="btn btn-success btn-sm">
+                                                                <button type="submit" name="approval_action" value="approved" class="btn btn-success btn-sm"' . $disabled . '>
                                                                     Approve
                                                                 </button>
                                                             </form>
-                                                            <button type="button" class="btn btn-danger btn-sm decline-quick-button" data-id="' . $row['id'] . '">
+                                                            <button type="button" class="btn btn-danger btn-sm decline-quick-button" data-id="' . $row['id'] . '"' . $disabled . '>
                                                                 Decline
                                                             </button>
                                                           </div>';
                                                 }
-                                                echo '<button type="button" class="btn btn-secondary btn-sm ms-1 edit-button" data-id="' . $row['id'] . '" data-current="' . $row['approval_status'] . '">
+                                                echo '<button type="button" class="btn btn-secondary btn-sm ms-1 edit-button" data-id="' . $row['id'] . '" data-current="' . $row['approval_status'] . '"' . $disabled . '>
                                                         Edit
                                                     </button>';
                                                 echo "</td>";
@@ -570,7 +574,7 @@ $result_other = $conn->query($sql_other);
                                                 echo "<td>" . htmlspecialchars($row['qa_status']) . "</td>";
                                                 echo "<td>" . ucfirst(htmlspecialchars($row['approval_status'])) . "</td>";
                                                 echo "<td>";
-                                                echo '<button type="button" class="btn btn-secondary btn-sm edit-button" data-id="' . $row['id'] . '" data-current="' . $row['approval_status'] . '">
+                                                echo '<button type="button" class="btn btn-secondary btn-sm edit-button" data-id="' . $row['id'] . '" data-current="' . $row['approval_status'] . '"' . $disabled . '>
                                                         Edit
                                                     </button>';
                                                 echo "</td>";

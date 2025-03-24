@@ -11,7 +11,7 @@ if (!$id_number) {
 // Database connection (replace with your actual credentials)
 $servername = "localhost";
 $username = "root";
-$password = "Admin123@plvil";
+$password = "injectionadmin123";
 $dbname = "dailymonitoringsheet";
 
 // Create connection
@@ -38,14 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if ($stmt->execute()) {
             echo "<div class='alert alert-success'>Password changed successfully!</div>";
-            // Redirect the user to their appropriate dashboard
-            if ($_SESSION['role'] == 'supervisor') {
-                header("Location: dms/index.php");
-            } else if ($_SESSION['role'] == 'adjuster') {
-                header("Location: dms/index.php");
-            } else if ($_SESSION['role'] == 'admin') {
-                header("Location: dms/index.php");
-            }
+            header("Location: index.php");
+            exit();
         } else {
             echo "<div class='alert alert-danger'>Error updating password!</div>";
         }
@@ -76,11 +70,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <form method="POST" action="">
                             <div class="mb-3">
                                 <label for="new_password" class="form-label">New Password</label>
-                                <input required type="password" class="form-control" id="new_password" name="new_password" required>
+                                <input required type="password" class="form-control" id="new_password" name="new_password">
                             </div>
                             <div class="mb-3">
                                 <label for="confirm_password" class="form-label">Confirm Password</label>
-                                <input required type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                <input required type="password" class="form-control" id="confirm_password" name="confirm_password">
                             </div>
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary">Change Password</button>
