@@ -55,13 +55,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submission_id'])) {
     $check_result = $check_stmt->get_result();
 
     if ($check_result->num_rows > 0) {
-        // Update submission and reset approval_status to pending.
+        // Update submission and reset approval and other statuses to pending.
         $update_sql = "UPDATE submissions 
-                       SET `date` = ?, product_name = ?, machine = ?, prn = ?, mold_code = ?, 
-                           cycle_time_target = ?, cycle_time_actual = ?, weight_standard = ?, 
-                           weight_gross = ?, weight_net = ?, cavity_designed = ?, cavity_active = ?, 
-                           remarks = ?, shift = ?, approval_comment = ?, approval_status = 'pending'
-                       WHERE id = ?";
+SET `date` = ?, product_name = ?, machine = ?, prn = ?, mold_code = ?, 
+    cycle_time_target = ?, cycle_time_actual = ?, weight_standard = ?, 
+    weight_gross = ?, weight_net = ?, cavity_designed = ?, cavity_active = ?, 
+    remarks = ?, shift = ?, approval_comment = ?, 
+    approval_status = 'pending',
+    qa_status = 'pending',
+    supervisor_status = 'pending'
+WHERE id = ?";
         $update_stmt = $conn->prepare($update_sql);
         $update_stmt->bind_param(
             "ssssiiidddiisssi",
@@ -82,6 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submission_id'])) {
             $approval_comment,
             $submission_id
         );
+
 
         if ($update_stmt->execute()) {
             $message = "Submission successfully updated and resubmitted for approval.";
@@ -130,7 +134,8 @@ $pending_count = count($pending_submissions);
     <!-- DataTables CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
     <!-- DataTables Responsive CSS -->
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
     <!-- DataTables Buttons CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
     <!-- Bootstrap CSS -->
@@ -169,11 +174,13 @@ $pending_count = count($pending_submissions);
                         </span>
                     <?php endif; ?>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown">
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown"
+                    style="max-height:300px; overflow-y:auto;">
                     <?php if ($pending_count > 0): ?>
                         <?php foreach ($pending_submissions as $pending): ?>
                             <li>
-                                <a class="dropdown-item" href="approval.php#submission-<?php echo $pending['id']; ?>">
+                                <a class="dropdown-item notification-link"
+                                    href="approval.php?refresh=1#submission-<?php echo $pending['id']; ?>">
                                     Submission #<?php echo $pending['id']; ?> -
                                     <?php echo htmlspecialchars($pending['product_name']); ?>
                                     <br>
@@ -182,12 +189,11 @@ $pending_count = count($pending_submissions);
                             </li>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <li>
-                            <span class="dropdown-item-text">No pending submissions.</span>
-                        </li>
+                        <li><span class="dropdown-item-text">No pending submissions.</span></li>
                     <?php endif; ?>
                 </ul>
             </li>
+
             <!-- User Dropdown -->
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
@@ -197,7 +203,9 @@ $pending_count = count($pending_submissions);
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li><a class="dropdown-item" href="#!">Settings</a></li>
                     <li><a class="dropdown-item" href="#!">Activity Log</a></li>
-                    <li><hr class="dropdown-divider" /></li>
+                    <li>
+                        <hr class="dropdown-divider" />
+                    </li>
                     <li><a class="dropdown-item" href="../logout.php">Logout</a></li>
                 </ul>
             </li>
@@ -320,9 +328,8 @@ $pending_count = count($pending_submissions);
                                         <td><?php echo htmlspecialchars($row['approval_comment']); ?></td>
                                         <td>
                                             <!-- Edit button with data attributes -->
-                                            <button class="btn btn-primary btn-sm edit-btn" 
-                                                data-id="<?php echo $row['id']; ?>"
-                                                data-date="<?php echo $row['date']; ?>"
+                                            <button class="btn btn-primary btn-sm edit-btn"
+                                                data-id="<?php echo $row['id']; ?>" data-date="<?php echo $row['date']; ?>"
                                                 data-product_name="<?php echo htmlspecialchars($row['product_name']); ?>"
                                                 data-machine="<?php echo htmlspecialchars($row['machine']); ?>"
                                                 data-prn="<?php echo htmlspecialchars($row['prn']); ?>"
@@ -451,7 +458,8 @@ $pending_count = count($pending_submissions);
                                         <!-- Approval Comment Field -->
                                         <div class="mb-3">
                                             <label class="form-label">Approval Comment</label>
-                                            <textarea class="form-control" name="approval_comment" rows="3" placeholder="Enter approval comment..."></textarea>
+                                            <textarea class="form-control" name="approval_comment" rows="3"
+                                                placeholder="Enter approval comment..." readonly></textarea>
                                         </div>
                                         <div class="row">
                                             <div class="mb-3 col-md-6">
@@ -499,9 +507,11 @@ $pending_count = count($pending_submissions);
     <!-- Bootstrap Bundle (includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- DataTables JS -->
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" charset="utf8"
+        src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <!-- DataTables Responsive JS -->
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+    <script type="text/javascript" charset="utf8"
+        src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
     <!-- DataTables Buttons JS -->
     <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
     <script>
@@ -528,27 +538,34 @@ $pending_count = count($pending_submissions);
             }
 
             // Edit button click handler to populate and show the modal
-            $('.edit-btn').on('click', function () {
+            $(document).on('click', '.edit-btn', function () {
                 var button = $(this);
-                $('#editModal input[name="submission_id"]').val(button.data('id'));
-                $('#editModal input[name="date"]').val(button.data('date'));
-                $('#editModal input[name="product_name"]').val(button.data('product_name'));
-                $('#editModal select[name="machine"]').val(button.data('machine'));
-                $('#editModal input[name="prn"]').val(button.data('prn'));
-                $('#editModal input[name="mold_code"]').val(button.data('mold_code'));
-                $('#editModal input[name="cycle_time_target"]').val(button.data('cycle_time_target'));
-                $('#editModal input[name="cycle_time_actual"]').val(button.data('cycle_time_actual'));
-                $('#editModal input[name="weight_standard"]').val(button.data('weight_standard'));
-                $('#editModal input[name="weight_gross"]').val(button.data('weight_gross'));
-                $('#editModal input[name="weight_net"]').val(button.data('weight_net'));
-                $('#editModal input[name="cavity_designed"]').val(button.data('cavity_designed'));
-                $('#editModal input[name="cavity_active"]').val(button.data('cavity_active'));
-                $('#editModal textarea[name="remarks"]').val(button.data('remarks'));
-                $('#editModal textarea[name="approval_comment"]').val(button.data('approval_comment'));
-                $('#editModal input[name="name"]').val(button.data('name'));
-                $('#editModal select[name="shift"]').val(button.data('shift'));
-                $('#editModal').modal('show');
+                $('#editModal input[name="submission_id"]').val(button.attr('data-id'));
+                $('#editModal input[name="date"]').val(button.attr('data-date'));
+                $('#editModal input[name="product_name"]').val(button.attr('data-product_name'));
+                $('#editModal select[name="machine"]').val(button.attr('data-machine'));
+                $('#editModal input[name="prn"]').val(button.attr('data-prn'));
+                $('#editModal input[name="mold_code"]').val(button.attr('data-mold_code'));
+                $('#editModal input[name="cycle_time_target"]').val(button.attr('data-cycle_time_target'));
+                $('#editModal input[name="cycle_time_actual"]').val(button.attr('data-cycle_time_actual'));
+                $('#editModal input[name="weight_standard"]').val(button.attr('data-weight_standard'));
+                $('#editModal input[name="weight_gross"]').val(button.attr('data-weight_gross'));
+                $('#editModal input[name="weight_net"]').val(button.attr('data-weight_net'));
+                $('#editModal input[name="cavity_designed"]').val(button.attr('data-cavity_designed'));
+                $('#editModal input[name="cavity_active"]').val(button.attr('data-cavity_active'));
+                $('#editModal textarea[name="remarks"]').val(button.attr('data-remarks'));
+                // Use .attr() instead of .data() for approval comment:
+                $('#editModal textarea[name="approval_comment"]').val(button.attr('data-approval_comment'));
+                $('#editModal input[name="name"]').val(button.attr('data-name'));
+                $('#editModal select[name="shift"]').val(button.attr('data-shift'));
+
+                var editModalEl = document.getElementById('editModal');
+                var editModal = new bootstrap.Modal(editModalEl);
+                editModal.show();
             });
+
+
+
         });
     </script>
 </body>

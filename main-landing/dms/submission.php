@@ -150,39 +150,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Configure and send email notification
         // Configure and send email notification using PHPMailer
+        // Configure and send email notification using PHPMailer
         $mail = new PHPMailer(true);
         try {
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
+            // Using the same sender account for notifications
             $mail->Username = 'sentinel.dms.notifications@gmail.com';
             $mail->Password = 'zmys tnix xjjp jbsz';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
 
             $mail->setFrom('sentinel.dms.notifications@gmail.com', 'DMS Notifications');
+
+            // Email for admins/supervisors
             $mail->addAddress('injectiondigitization@gmail.com');
+            // Email for the QA team (make sure this account exists)
+            $mail->addAddress('qa.dms.notifications@gmail.com');
 
             $mail->isHTML(true);
             $mail->Subject = 'New Pending Submission Notification';
 
-            // HTML email body including clickable links
             $mail->Body = "
-                Dear Admin,<br><br>
-                A new submission for product: <strong>{$product_name}</strong> has been created on <strong>{$date}</strong> and is pending approval.<br><br>
-                Please review it in the system by clicking <a href='http://143.198.215.249/main-landing/dms/approval.php'>here</a>.<br><br>
-                If you're not logged in, please click <a href='http://143.198.215.249/main-landing/login.html'>here</a> to log in.<br><br>
-                Regards,<br>
-                DMS System
-                ";
+        Dear Team,<br><br>
+        A new submission for product: <strong>{$product_name}</strong> has been created on <strong>{$date}</strong> and is pending approval.<br><br>
+        Please review it in the system by clicking <a href='http://143.198.215.249/main-landing/dms/approval.php'>here</a>.<br><br>
+        If you're not logged in, please click <a href='http://143.198.215.249/main-landing/login.html'>here</a> to log in.<br><br>
+        Regards,<br>
+        DMS System
+    ";
 
-            // Plain text alternative for email clients that do not support HTML
-            $mail->AltBody = "Dear Admin, \n\nA new submission for product: {$product_name} has been created on {$date} and is pending approval.\n\nReview it at: http://143.198.215.249/main-landing/dms/submission.php\n\nIf you're not logged in, visit: http://143.198.215.249/main-landing/login.html\n\nRegards,\nYour DMS System";
+            $mail->AltBody = "Dear Team,\n\nA new submission for product: {$product_name} has been created on {$date} and is pending approval.\n\nReview it at: http://143.198.215.249/main-landing/dms/approval.php\n\nIf you're not logged in, visit: http://143.198.215.249/main-landing/login.html\n\nRegards,\nDMS System";
 
             $mail->send();
         } catch (Exception $e) {
             echo "Email could not be sent. Mailer Error: {$mail->ErrorInfo}";
         }
+
 
     } else {
         echo "Error: " . $sql . "<br>" . $conn->error;
@@ -252,11 +257,13 @@ $result = $conn->query($sql);
                         </span>
                     <?php endif; ?>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown">
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown"
+                    style="max-height:300px; overflow-y:auto;">
                     <?php if ($pending_count > 0): ?>
                         <?php foreach ($pending_submissions as $pending): ?>
                             <li>
-                                <a class="dropdown-item" href="approval.php#submission-<?php echo $pending['id']; ?>">
+                                <a class="dropdown-item notification-link"
+                                    href="approval.php?refresh=1#submission-<?php echo $pending['id']; ?>">
                                     Submission #<?php echo $pending['id']; ?> -
                                     <?php echo htmlspecialchars($pending['product_name']); ?>
                                     <br>
@@ -265,12 +272,11 @@ $result = $conn->query($sql);
                             </li>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <li>
-                            <span class="dropdown-item-text">No pending submissions.</span>
-                        </li>
+                        <li><span class="dropdown-item-text">No pending submissions.</span></li>
                     <?php endif; ?>
                 </ul>
             </li>
+
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
                     aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
@@ -290,55 +296,99 @@ $result = $conn->query($sql);
             <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
                 <div class="sb-sidenav-menu">
                     <div class="nav">
-                        <div class="sb-sidenav-menu-heading">Core</div>
-                        <a class="nav-link" href="../index.php">
-                            <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                            Dashboard
-                        </a>
-                        <div class="sb-sidenav-menu-heading">Systems</div>
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseDMS"
-                            aria-expanded="false" aria-controls="collapseDMS">
-                            <div class="sb-nav-link-icon"><i class="fas fa-people-roof"></i></div>
-                            DMS
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                        </a>
-                        <div class="collapse show" id="collapseDMS" aria-labelledby="headingOne"
-                            data-bs-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" href="index.php">Data Entry</a>
-                                <a class="nav-link active" href="#">Records</a>
-                                <a class="nav-link" href="analytics.php">Analytics</a>
-                                <a class="nav-link" href="approval.php">Approvals</a>
-                            </nav>
-                        </div>
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
-                            data-bs-target="#collapseParameters" aria-expanded="false"
-                            aria-controls="collapseParameters">
-                            <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                            Parameters
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                        </a>
-                        <div class="collapse" id="collapseParameters" aria-labelledby="headingOne"
-                            data-bs-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" href="../parameters/index.php">Data Entry</a>
-                                <a class="nav-link" href="../parameters/submission.php">Data Visualization</a>
-                                <a class="nav-link" href="../parameters/analytics.php">Data Analytics</a>
-                            </nav>
-                        </div>
-                        <div class="sb-sidenav-menu-heading">Admin</div>
-                        <a class="nav-link" href="../admin/users.php">
-                            <div class="sb-nav-link-icon"><i class="fas fa-user-group"></i></div>
-                            Users
-                        </a>
-                        <a class="nav-link" href="charts.html">
-                            <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
-                            Values
-                        </a>
-                        <a class="nav-link" href="tables.html">
-                            <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
-                            Analysis
-                        </a>
+                        <?php if ($_SESSION['role'] === 'Quality Control Inspection'): ?>
+                            <div class="sb-sidenav-menu-heading">Core</div>
+                            <a class="nav-link" href="../index.php">
+                                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                                Dashboard
+                            </a>
+
+                            <div class="sb-sidenav-menu-heading">Systems</div>
+                            <!-- DMS with only Records and Approvals -->
+                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseDMS"
+                                aria-expanded="false" aria-controls="collapseDMS">
+                                <div class="sb-nav-link-icon"><i class="fas fa-people-roof"></i></div>
+                                DMS
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse show" id="collapseDMS" aria-labelledby="headingOne"
+                                data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link active" href="submission.php">Records</a>
+                                    <a class="nav-link" href="approval.php">Approvals</a>
+                                </nav>
+                            </div>
+
+                            <!-- Parameters with only Records -->
+                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
+                                data-bs-target="#collapseParameters" aria-expanded="false"
+                                aria-controls="collapseParameters">
+                                <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                                Parameters
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapseParameters" aria-labelledby="headingOne"
+                                data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" href="../parameters/submission.php">Records</a>
+                                </nav>
+                            </div>
+                        <?php else: ?>
+                            <!-- Full sidebar for all other roles -->
+                            <div class="sb-sidenav-menu-heading">Core</div>
+                            <a class="nav-link" href="../index.php">
+                                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                                Dashboard
+                            </a>
+
+                            <div class="sb-sidenav-menu-heading">Systems</div>
+                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseDMS"
+                                aria-expanded="false" aria-controls="collapseDMS">
+                                <div class="sb-nav-link-icon"><i class="fas fa-people-roof"></i></div>
+                                DMS
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse show" id="collapseDMS" aria-labelledby="headingOne"
+                                data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" href="index.php">Data Entry</a>
+                                    <a class="nav-link active" href="submission.php">Records</a>
+                                    <a class="nav-link" href="analytics.php">Analytics</a>
+                                    <a class="nav-link" href="approval.php">Approvals</a>
+                                    <a class="nav-link" href="declined_submissions.php">Declined</a>
+                                </nav>
+                            </div>
+
+                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
+                                data-bs-target="#collapseParameters" aria-expanded="false"
+                                aria-controls="collapseParameters">
+                                <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                                Parameters
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapseParameters" aria-labelledby="headingOne"
+                                data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" href="../parameters/index.php">Data Entry</a>
+                                    <a class="nav-link" href="../parameters/submission.php">Data Visualization</a>
+                                    <a class="nav-link" href="../parameters/analytics.php">Data Analytics</a>
+                                </nav>
+                            </div>
+
+                            <div class="sb-sidenav-menu-heading">Admin</div>
+                            <a class="nav-link" href="../admin/users.php">
+                                <div class="sb-nav-link-icon"><i class="fas fa-user-group"></i></div>
+                                Users
+                            </a>
+                            <a class="nav-link" href="charts.html">
+                                <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                                Values
+                            </a>
+                            <a class="nav-link" href="tables.html">
+                                <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                                Analysis
+                            </a>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="sb-sidenav-footer">

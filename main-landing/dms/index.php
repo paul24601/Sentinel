@@ -30,7 +30,8 @@ if ($conn->connect_error) {
 }
 
 // Function to get pending submissions for notifications
-function getPendingSubmissions($conn) {
+function getPendingSubmissions($conn)
+{
     $pending = [];
     $sql_pending = "SELECT id, product_name, `date` FROM submissions WHERE approval_status = 'pending' ORDER BY date DESC";
     $result_pending = $conn->query($sql_pending);
@@ -50,10 +51,10 @@ $pending_count = count($pending_submissions);
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content=""/>
-    <meta name="author" content=""/>
+    <meta name="description" content="" />
+    <meta name="author" content="" />
     <title>DMS - Data Entry</title>
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
     <link href="../css/styles.css" rel="stylesheet" />
@@ -142,7 +143,8 @@ $pending_count = count($pending_submissions);
         <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
             <!-- Notification Dropdown -->
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle position-relative" id="notifDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <a class="nav-link dropdown-toggle position-relative" id="notifDropdown" href="#" role="button"
+                    data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fas fa-bell"></i>
                     <?php if ($pending_count > 0): ?>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -150,11 +152,13 @@ $pending_count = count($pending_submissions);
                         </span>
                     <?php endif; ?>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown">
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown"
+                    style="max-height:300px; overflow-y:auto;">
                     <?php if ($pending_count > 0): ?>
                         <?php foreach ($pending_submissions as $pending): ?>
                             <li>
-                                <a class="dropdown-item" href="approval.php#submission-<?php echo $pending['id']; ?>">
+                                <a class="dropdown-item notification-link"
+                                    href="approval.php?refresh=1#submission-<?php echo $pending['id']; ?>">
                                     Submission #<?php echo $pending['id']; ?> -
                                     <?php echo htmlspecialchars($pending['product_name']); ?>
                                     <br>
@@ -163,21 +167,23 @@ $pending_count = count($pending_submissions);
                             </li>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <li>
-                            <span class="dropdown-item-text">No pending submissions.</span>
-                        </li>
+                        <li><span class="dropdown-item-text">No pending submissions.</span></li>
                     <?php endif; ?>
                 </ul>
             </li>
+
             <!-- User Dropdown -->
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
                     <i class="fas fa-user fa-fw"></i>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li><a class="dropdown-item" href="#!">Settings</a></li>
                     <li><a class="dropdown-item" href="#!">Activity Log</a></li>
-                    <li><hr class="dropdown-divider" /></li>
+                    <li>
+                        <hr class="dropdown-divider" />
+                    </li>
                     <li><a class="dropdown-item" href="../logout.php">Logout</a></li>
                 </ul>
             </li>
@@ -209,8 +215,9 @@ $pending_count = count($pending_submissions);
                                 <a class="nav-link" href="approval.php">Approvals</a>
                             </nav>
                         </div>
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseParameters"
-                            aria-expanded="false" aria-controls="collapseParameters">
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
+                            data-bs-target="#collapseParameters" aria-expanded="false"
+                            aria-controls="collapseParameters">
                             <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
                             Parameters
                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
@@ -422,7 +429,8 @@ $pending_count = count($pending_submissions);
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
     <script src="../assets/demo/chart-area-demo.js"></script>
     <script src="../assets/demo/chart-bar-demo.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
+        crossorigin="anonymous"></script>
     <script src="../js/datatables-simple-demo.js"></script>
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>

@@ -35,6 +35,34 @@ if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'supervisor' && $_SESSIO
     </html>";
     exit();
 }
+// --- Database Connection & Notification Functionality --- //
+$servername = "localhost";
+$username = "root";
+$password = "injectionadmin123";
+$dbname = "dailymonitoringsheet";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Function to get pending submissions for notifications
+function getPendingSubmissions($conn)
+{
+    $pending = [];
+    $sql_pending = "SELECT id, product_name, `date` FROM submissions WHERE approval_status = 'pending' ORDER BY date DESC";
+    $result_pending = $conn->query($sql_pending);
+    if ($result_pending && $result_pending->num_rows > 0) {
+        while ($row = $result_pending->fetch_assoc()) {
+            $pending[] = $row;
+        }
+    }
+    return $pending;
+}
+
+$pending_submissions = getPendingSubmissions($conn);
+$pending_count = count($pending_submissions);
 ?>
 
 
@@ -212,6 +240,36 @@ $conn->close();
         <!-- Navbar-->
         <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
             <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle position-relative" id="notifDropdown" href="#" role="button"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-bell"></i>
+                    <?php if ($pending_count > 0): ?>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            <?php echo $pending_count; ?>
+                        </span>
+                    <?php endif; ?>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown"
+                    style="max-height:300px; overflow-y:auto;">
+                    <?php if ($pending_count > 0): ?>
+                        <?php foreach ($pending_submissions as $pending): ?>
+                            <li>
+                                <a class="dropdown-item notification-link"
+                                    href="approval.php?refresh=1#submission-<?php echo $pending['id']; ?>">
+                                    Submission #<?php echo $pending['id']; ?> -
+                                    <?php echo htmlspecialchars($pending['product_name']); ?>
+                                    <br>
+                                    <small><?php echo date("M d, Y", strtotime($pending['date'])); ?></small>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <li><span class="dropdown-item-text">No pending submissions.</span></li>
+                    <?php endif; ?>
+                </ul>
+            </li>
+
+            <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
                     aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -249,6 +307,7 @@ $conn->close();
                                 <a class="nav-link" href="submission.php">Records</a>
                                 <a class="nav-link active" href="#">Analytics</a>
                                 <a class="nav-link" href="approval.php">Approvals</a>
+                                <a class="nav-link" href="declined_submissions.php">Declined</a>
                             </nav>
                         </div>
 
