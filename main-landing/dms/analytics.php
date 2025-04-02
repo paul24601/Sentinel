@@ -81,10 +81,9 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-
 // REMARKS
-// SQL query to fetch unique product names
-$sqlProductNames = "SELECT DISTINCT product_name FROM submissions WHERE product_name IS NOT NULL ORDER BY product_name";
+// SQL query to fetch unique product names only from fully approved submissions
+$sqlProductNames = "SELECT DISTINCT product_name FROM submissions WHERE product_name IS NOT NULL AND approval_status = 'approved' ORDER BY product_name";
 $resultProductNames = $conn->query($sqlProductNames);
 
 $productNames = [];
@@ -94,12 +93,13 @@ if ($resultProductNames->num_rows > 0) {
     }
 }
 
-// SQL query to fetch product name remarks along with date, mold number, and cycle time difference
+// SQL query to fetch product remarks along with date, mold code, and cycle time difference only from fully approved submissions
 $sqlRemarks = "SELECT product_name, date, mold_code, remarks, 
                       (cycle_time_target - cycle_time_actual) AS cycle_time_difference 
                FROM submissions 
                WHERE remarks IS NOT NULL 
                  AND (cycle_time_target - cycle_time_actual) < 0
+                 AND approval_status = 'approved'
                ORDER BY product_name, date";
 
 $resultRemarks = $conn->query($sqlRemarks);
@@ -128,7 +128,8 @@ $sqlProductVariance = "SELECT product_name,
                               cycle_time_actual 
                        FROM submissions 
                        WHERE cycle_time_target IS NOT NULL 
-                       AND cycle_time_actual IS NOT NULL";
+                         AND cycle_time_actual IS NOT NULL
+                         AND approval_status = 'approved'";
 
 $resultProductVariance = $conn->query($sqlProductVariance);
 $productVarianceData = [];
@@ -143,12 +144,11 @@ if ($resultProductVariance->num_rows > 0) {
 
         // Check if target is zero to avoid division by zero
         if ($target == 0) {
-            $variancePercentage = 0; // Alternatively, you might want to skip this record
+            $variancePercentage = 0;
         } else {
             $variancePercentage = (($actual - $target) / $target) * 100;
         }
 
-        // Store in array
         $productVarianceData[] = [
             'product_name' => $productName,
             'date' => $date,
@@ -158,11 +158,12 @@ if ($resultProductVariance->num_rows > 0) {
     }
 }
 
-
-// Fetching unique combinations of machines and mold codes with dates
+// Fetching unique combinations of machines and mold codes with dates only from fully approved submissions
 $sqlMachineMoldCombination = "SELECT product_name, CONCAT(machine, ' - ', mold_code) AS machine_mold_combination, date 
                               FROM submissions 
-                              WHERE machine IS NOT NULL AND mold_code IS NOT NULL 
+                              WHERE machine IS NOT NULL 
+                                AND mold_code IS NOT NULL 
+                                AND approval_status = 'approved'
                               ORDER BY date, machine, mold_code";
 
 $resultMachineMoldCombination = $conn->query($sqlMachineMoldCombination);
@@ -177,7 +178,6 @@ if ($resultMachineMoldCombination->num_rows > 0) {
         ];
     }
 }
-
 
 $conn->close();
 ?>
@@ -561,7 +561,7 @@ $conn->close();
                             for (let i = 0; i < yValues.length; i++) {
                                 const prev = yValues[i - 1] || yValues[i];
                                 const next = yValues[i + 1] || yValues[i];
-                                smoothedYValues.push((prev + yValues[i] + next) / 3); // Simple average smoothing
+                                smoothedYValues.push((prev + yValues[i] + next) / 3);
                             }
 
                             return smoothedYValues;
@@ -596,8 +596,8 @@ $conn->close();
                                             borderColor: 'rgba(255, 99, 132, 1)',
                                             borderWidth: 2,
                                             fill: false,
-                                            pointRadius: 0, // Remove points for a smoother line
-                                            tension: 0.4 // Adds curve to the line for smoothness
+                                            pointRadius: 0,
+                                            tension: 0.4
                                         }
                                     ]
                                 },

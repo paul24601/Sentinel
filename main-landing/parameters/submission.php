@@ -780,7 +780,7 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
                             </div>
                         </div>
 
-                        <!-- Attachments -->
+                        <!-- Attachments Table -->
                         <div class="card mb-4">
                             <div class="card-header bg-dark text-white">Attachments</div>
                             <div class="card-body table-responsive">
@@ -791,6 +791,7 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
                                             <th>File Name</th>
                                             <th>Type</th>
                                             <th>Path</th>
+                                            <th>Preview</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -800,12 +801,28 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
                                                 <td><?= htmlspecialchars($row['FileName']) ?></td>
                                                 <td><?= htmlspecialchars($row['FileType']) ?></td>
                                                 <td><?= htmlspecialchars($row['FilePath']) ?></td>
+                                                <td>
+                                                    <?php if (strpos($row['FileType'], 'image') !== false): ?>
+                                                        <img src="<?= htmlspecialchars($row['FilePath']) ?>" alt="Image preview"
+                                                            style="max-width:100px;">
+                                                    <?php elseif (strpos($row['FileType'], 'video') !== false): ?>
+                                                        <video controls style="max-width:150px;">
+                                                            <source src="<?= htmlspecialchars($row['FilePath']) ?>"
+                                                                type="<?= htmlspecialchars($row['FileType']) ?>">
+                                                            Your browser does not support the video tag.
+                                                        </video>
+                                                    <?php else: ?>
+                                                        Not previewable
+                                                    <?php endif; ?>
+                                                </td>
                                             </tr>
                                         <?php endwhile; ?>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
+
+
 
                     </div>
 

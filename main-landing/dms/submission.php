@@ -77,10 +77,11 @@ if (isset($_GET['export_csv'])) {
         ];
         fputcsv($output, $headers);
 
+        // Only export fully approved submissions
         $sql = "SELECT id, date, product_name, machine, prn, mold_code, cycle_time_target, cycle_time_actual, 
                 (cycle_time_target - cycle_time_actual) AS cycle_time_difference, weight_standard, weight_gross, 
                 weight_net, cavity_designed, cavity_active, remarks, name, shift 
-                FROM submissions";
+                FROM submissions WHERE approval_status = 'approved'";
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
@@ -148,15 +149,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($conn->query($sql) === TRUE) {
         $recordCreated = true;
 
-        // Configure and send email notification
-        // Configure and send email notification using PHPMailer
         // Configure and send email notification using PHPMailer
         $mail = new PHPMailer(true);
         try {
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            // Using the same sender account for notifications
             $mail->Username = 'sentinel.dms.notifications@gmail.com';
             $mail->Password = 'zmys tnix xjjp jbsz';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
@@ -166,7 +164,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Email for admins/supervisors
             $mail->addAddress('injectiondigitization@gmail.com');
-            // Email for the QA team (make sure this account exists)
+            // Email for the QA team
             $mail->addAddress('qa.dms.notifications@gmail.com');
 
             $mail->isHTML(true);
@@ -187,20 +185,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } catch (Exception $e) {
             echo "Email could not be sent. Mailer Error: {$mail->ErrorInfo}";
         }
-
-
     } else {
         echo "Error: " . $sql . "<br>" . $conn->error;
     }
 }
 
-// Retrieve data from database
+// Retrieve data from database - only show fully approved submissions
 $sql = "SELECT id, date, product_name, machine, prn, mold_code, cycle_time_target, 
         cycle_time_actual, 
         (cycle_time_target - cycle_time_actual) AS cycle_time_difference, 
         weight_standard, weight_gross, weight_net, cavity_designed, cavity_active, 
         remarks, name, shift 
-        FROM submissions";
+        FROM submissions WHERE approval_status = 'approved'";
 $result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
@@ -550,8 +546,6 @@ $result = $conn->query($sql);
             <?php endif; ?>
         });
     </script>
-
-
 </body>
 
 </html>

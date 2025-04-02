@@ -9,7 +9,7 @@ ini_set('display_errors', 1);
 // Database connection details
 $servername = "localhost";
 $username = "root";
-$password = "Admin123@plvil";
+$password = "injectionadmin123";
 $dbname = "injectionmoldingparameters";
 
 // Create connection
@@ -506,7 +506,7 @@ function handleFileUpload($files, $uploadDir, $typeCategory, $allowedExtensions,
 }
 
 // Handle file uploads with proper validation
-$uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/Sentinel/parameter/uploads/';
+$uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/main-landing/parameters/uploads/';
 $uploadedImages = [];
 $uploadedVideos = [];
 
