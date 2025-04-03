@@ -30,7 +30,7 @@
             color: grey;
         }
 
-        /* Hide the table header */
+        /* Hide the table header for notifications */
         #notificationsTable thead {
             display: none;
         }
@@ -60,13 +60,23 @@
                                 <div class="card-body">
                                     <form method="POST" action="login.php">
                                         <div class="form-floating mb-3">
-                                            <input required class="form-control" id="requiredIDNumber" name="id_number"
-                                                type="number" placeholder="ID number" max="999999" maxlength="6" />
+                                            <input required
+                                                   class="form-control"
+                                                   id="requiredIDNumber"
+                                                   name="id_number"
+                                                   type="number"
+                                                   placeholder="ID number"
+                                                   max="999999"
+                                                   maxlength="6" />
                                             <label for="requiredIDNumber">ID number</label>
                                         </div>
                                         <div class="form-floating mb-3 password-wrapper">
-                                            <input required class="form-control" id="requiredPassword" name="password"
-                                                type="password" placeholder="Password" />
+                                            <input required
+                                                   class="form-control"
+                                                   id="requiredPassword"
+                                                   name="password"
+                                                   type="password"
+                                                   placeholder="Password" />
                                             <label for="requiredPassword">Password</label>
                                             <!-- Toggle password button -->
                                             <span class="toggle-password" onclick="togglePasswordVisibility()">
@@ -137,6 +147,7 @@
     <script src="https://cdn.datatables.net/scroller/2.2.0/js/dataTables.scroller.min.js"></script>
     <script src="js/scripts.js"></script>
     <script>
+        // Toggle password visibility
         function togglePasswordVisibility() {
             const passwordInput = document.getElementById('requiredPassword');
             const togglePasswordIcon = document.getElementById('togglePasswordIcon');
@@ -151,7 +162,7 @@
             }
         }
 
-        // Function to fetch notifications from a separate endpoint (notifications.php)
+        // Fetch notifications from notifications.php
         function fetchNotifications() {
             fetch('notifications.php')
                 .then(response => response.json())
@@ -171,23 +182,38 @@
                                 displayName = fullName;
                             }
                             const formattedDate = new Date(notification.date).toLocaleDateString();
-                            const rowText = `Submission #${notification.id} - ${notification.product_name} by ${displayName} (${formattedDate})`;
+
+                            // Determine pending status
+                            let pendingStatus = "";
+                            if (notification.pending_supervisor && notification.pending_qa) {
+                                pendingStatus = "Supervisor & QA";
+                            } else if (notification.pending_supervisor) {
+                                pendingStatus = "Supervisor";
+                            } else if (notification.pending_qa) {
+                                pendingStatus = "QA";
+                            } else {
+                                pendingStatus = "None";
+                            }
+
+                            const rowText = `Submission #${notification.id} - ${notification.product_name} by ${displayName} (${formattedDate}) [Pending: ${pendingStatus}]`;
                             tableBody += `<tr><td>${rowText}</td></tr>`;
                         });
+
+                        // Insert rows
                         $('#notificationsTable tbody').html(tableBody);
 
-                        // Initialize DataTable with Scroller (pagination is enabled but hidden via CSS)
+                        // Initialize DataTable with Scroller
                         $('#notificationsTable').DataTable({
-                            paging: true,           // Enable pagination (required for Scroller)
-                            scrollY: '200px',       // Set vertical scroll height
-                            scroller: true,         // Enable Scroller plugin
-                            searching: false,       // Disable searching
-                            info: false,            // Disable info display
-                            ordering: false,        // Disable ordering
-                            dom: 't'                // Only display table body
+                            paging: true,     // Enable pagination (required for Scroller)
+                            scrollY: '200px', // Set vertical scroll height
+                            scroller: true,   // Enable Scroller plugin
+                            searching: false, // Disable searching
+                            info: false,      // Disable info display
+                            ordering: false,  // Disable ordering
+                            dom: 't'          // Only display table body
                         });
                     } else {
-                        // If there are no notifications, display a friendly message inside the card body
+                        // No notifications
                         $('#notificationArea').html("<div class='alert alert-info mb-0'>No Pending Submissions</div>");
                     }
                 })
@@ -196,7 +222,7 @@
                 });
         }
 
-        // Fetch notifications when the page loads
+        // Fetch notifications on page load
         $(document).ready(function () {
             fetchNotifications();
         });

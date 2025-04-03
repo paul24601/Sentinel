@@ -28,21 +28,21 @@ function fetchData($conn, $tableName)
 }
 
 // Fetch data from all tables
-$productMachineInfo = fetchData($conn, 'productmachineinfo');
-$productDetails = fetchData($conn, 'productdetails');
-$materialComposition = fetchData($conn, 'materialcomposition');
-$colorantDetails = fetchData($conn, 'colorantdetails');
-$moldOperationSpecs = fetchData($conn, 'moldoperationspecs');
-$timerParameters = fetchData($conn, 'timerparameters');
+$productMachineInfo       = fetchData($conn, 'productmachineinfo');
+$productDetails           = fetchData($conn, 'productdetails');
+$materialComposition      = fetchData($conn, 'materialcomposition');
+$colorantDetails          = fetchData($conn, 'colorantdetails');
+$moldOperationSpecs       = fetchData($conn, 'moldoperationspecs');
+$timerParameters          = fetchData($conn, 'timerparameters');
 $barrelHeaterTemperatures = fetchData($conn, 'barrelheatertemperatures');
-$moldHeaterTemperatures = fetchData($conn, 'moldheatertemperatures');
-$plasticizingParameters = fetchData($conn, 'plasticizingparameters');
-$injectionParameters = fetchData($conn, 'injectionparameters');
-$ejectionParameters = fetchData($conn, 'ejectionparameters');
-$corePullSettings = fetchData($conn, 'corepullsettings');
-$additionalInformation = fetchData($conn, 'additionalinformation');
-$personnel = fetchData($conn, 'personnel');  // Added personnel
-$attachments = fetchData($conn, 'attachments');  // Added attachments
+$moldHeaterTemperatures   = fetchData($conn, 'moldheatertemperatures');
+$plasticizingParameters   = fetchData($conn, 'plasticizingparameters');
+$injectionParameters      = fetchData($conn, 'injectionparameters');
+$ejectionParameters       = fetchData($conn, 'ejectionparameters');
+$corePullSettings         = fetchData($conn, 'corepullsettings');
+$additionalInformation    = fetchData($conn, 'additionalinformation');
+$personnel                = fetchData($conn, 'personnel');  // Added personnel
+$attachments              = fetchData($conn, 'attachments');  // Added attachments
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -74,7 +74,6 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
             });
         });
     </script>
-
 </head>
 
 <body class="sb-nav-fixed">
@@ -82,12 +81,11 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
         <!-- Navbar Brand-->
         <a class="navbar-brand ps-3" href="../index.php">Sentinel Digitization</a>
         <!-- Sidebar Toggle-->
-        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i
-                class="fas fa-bars"></i></button>
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
+            <i class="fas fa-bars"></i>
+        </button>
         <!-- Navbar Search-->
-        <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
-
-        </form>
+        <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0"></form>
         <!-- Navbar-->
         <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
             <li class="nav-item dropdown">
@@ -291,7 +289,7 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
                         <!-- Material Composition -->
                         <div class="card mb-4">
                             <div class="card-header bg-warning text-white">Material Composition</div>
-                            <div class="card-body table-responsive table-responsive">
+                            <div class="card-body table-responsive">
                                 <table class="table table-bordered table-hover">
                                     <thead class="table-light">
                                         <tr>
@@ -439,23 +437,9 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
                                     <thead class="table-light">
                                         <tr>
                                             <th>ID</th>
-                                            <th>Zone 0</th>
-                                            <th>Zone 1</th>
-                                            <th>Zone 2</th>
-                                            <th>Zone 3</th>
-                                            <th>Zone 4</th>
-                                            <th>Zone 5</th>
-                                            <th>Zone 6</th>
-                                            <th>Zone 7</th>
-                                            <th>Zone 8</th>
-                                            <th>Zone 9</th>
-                                            <th>Zone 10</th>
-                                            <th>Zone 11</th>
-                                            <th>Zone 12</th>
-                                            <th>Zone 13</th>
-                                            <th>Zone 14</th>
-                                            <th>Zone 15</th>
-                                            <th>Zone 16</th>
+                                            <?php for ($i = 0; $i <= 16; $i++): ?>
+                                                <th>Zone <?= $i ?></th>
+                                            <?php endfor; ?>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -480,23 +464,9 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
                                     <thead class="table-light">
                                         <tr>
                                             <th>ID</th>
-                                            <th>Zone 0</th>
-                                            <th>Zone 1</th>
-                                            <th>Zone 2</th>
-                                            <th>Zone 3</th>
-                                            <th>Zone 4</th>
-                                            <th>Zone 5</th>
-                                            <th>Zone 6</th>
-                                            <th>Zone 7</th>
-                                            <th>Zone 8</th>
-                                            <th>Zone 9</th>
-                                            <th>Zone 10</th>
-                                            <th>Zone 11</th>
-                                            <th>Zone 12</th>
-                                            <th>Zone 13</th>
-                                            <th>Zone 14</th>
-                                            <th>Zone 15</th>
-                                            <th>Zone 16</th>
+                                            <?php for ($i = 0; $i <= 16; $i++): ?>
+                                                <th>Zone <?= $i ?></th>
+                                            <?php endfor; ?>
                                             <th>MTC Setting</th>
                                         </tr>
                                     </thead>
@@ -754,7 +724,7 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
                             </div>
                         </div>
 
-                        <!-- Add Personnel Section -->
+                        <!-- Personnel -->
                         <div class="card mb-4">
                             <div class="card-header bg-info text-white">Personnel</div>
                             <div class="card-body table-responsive">
@@ -774,7 +744,6 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
                                                 <td><?= htmlspecialchars($row['QAEName']) ?></td>
                                             </tr>
                                         <?php endwhile; ?>
-
                                     </tbody>
                                 </table>
                             </div>
@@ -796,18 +765,22 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
                                     </thead>
                                     <tbody>
                                         <?php while ($row = $attachments->fetch_assoc()): ?>
+                                            <?php 
+                                            // Convert absolute filesystem path to a public URL
+                                            $relativePath = str_replace($_SERVER['DOCUMENT_ROOT'], '', $row['FilePath']);
+                                            ?>
                                             <tr>
                                                 <td><?= htmlspecialchars($row['id']) ?></td>
                                                 <td><?= htmlspecialchars($row['FileName']) ?></td>
                                                 <td><?= htmlspecialchars($row['FileType']) ?></td>
-                                                <td><?= htmlspecialchars($row['FilePath']) ?></td>
+                                                <td><?= htmlspecialchars($relativePath) ?></td>
                                                 <td>
                                                     <?php if (strpos($row['FileType'], 'image') !== false): ?>
-                                                        <img src="<?= htmlspecialchars($row['FilePath']) ?>" alt="Image preview"
+                                                        <img src="<?= htmlspecialchars($relativePath) ?>" alt="Image preview"
                                                             style="max-width:100px;">
                                                     <?php elseif (strpos($row['FileType'], 'video') !== false): ?>
                                                         <video controls style="max-width:150px;">
-                                                            <source src="<?= htmlspecialchars($row['FilePath']) ?>"
+                                                            <source src="<?= htmlspecialchars($relativePath) ?>"
                                                                 type="<?= htmlspecialchars($row['FileType']) ?>">
                                                             Your browser does not support the video tag.
                                                         </video>
@@ -822,10 +795,7 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
                             </div>
                         </div>
 
-
-
                     </div>
-
 
                 </div>
             </main>
@@ -848,8 +818,7 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
     <script src="../assets/demo/chart-area-demo.js"></script>
     <script src="../assets/demo/chart-bar-demo.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
-        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
     <script src="../js/datatables-simple-demo.js"></script>
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
