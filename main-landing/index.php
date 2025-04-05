@@ -24,6 +24,52 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Calculate Cycle Time Monitoring Variance for approved submissions
+$sqlVariance = "SELECT (AVG(cycle_time_target) - AVG(cycle_time_actual)) * 100 AS cycle_time_monitoring_variance FROM submissions WHERE approval_status = 'approved'";
+$resultVariance = $conn->query($sqlVariance);
+if ($resultVariance && $resultVariance->num_rows > 0) {
+    $rowVariance = $resultVariance->fetch_assoc();
+    $cycleVariance = round($rowVariance['cycle_time_monitoring_variance'], 2);
+} else {
+    $cycleVariance = 0;
+}
+
+// Calculate Gross Weight Variance for approved submissions
+$sqlGrossWeight = "SELECT (AVG(weight_standard) - AVG(weight_gross)) * 100 AS gross_weight_variance FROM submissions WHERE approval_status = 'approved'";
+$resultGrossWeight = $conn->query($sqlGrossWeight);
+if ($resultGrossWeight && $resultGrossWeight->num_rows > 0) {
+    $rowGrossWeight = $resultGrossWeight->fetch_assoc();
+    $grossWeightVariance = round($rowGrossWeight['gross_weight_variance'], 2);
+} else {
+    $grossWeightVariance = 0;
+}
+
+// Cycle Time Variance Breakdown
+$sqlCycleBreakdown = "SELECT AVG(cycle_time_target) AS avg_cycle_target, AVG(cycle_time_actual) AS avg_cycle_actual FROM submissions WHERE approval_status = 'approved'";
+$resultCycleBreakdown = $conn->query($sqlCycleBreakdown);
+if ($resultCycleBreakdown && $resultCycleBreakdown->num_rows > 0) {
+    $rowCycleBreakdown = $resultCycleBreakdown->fetch_assoc();
+    $avgCycleTarget = round($rowCycleBreakdown['avg_cycle_target'], 2);
+    $avgCycleActual = round($rowCycleBreakdown['avg_cycle_actual'], 2);
+    $cycleDifference = round($avgCycleTarget - $avgCycleActual, 2);
+    $cycleVariance = round($cycleDifference * 100, 2);
+} else {
+    $avgCycleTarget = $avgCycleActual = $cycleDifference = $cycleVariance = 0;
+}
+
+// Gross Weight Variance Breakdown
+$sqlGrossBreakdown = "SELECT AVG(weight_standard) AS avg_weight_standard, AVG(weight_gross) AS avg_weight_gross FROM submissions WHERE approval_status = 'approved'";
+$resultGrossBreakdown = $conn->query($sqlGrossBreakdown);
+if ($resultGrossBreakdown && $resultGrossBreakdown->num_rows > 0) {
+    $rowGrossBreakdown = $resultGrossBreakdown->fetch_assoc();
+    $avgWeightStandard = round($rowGrossBreakdown['avg_weight_standard'], 2);
+    $avgWeightGross = round($rowGrossBreakdown['avg_weight_gross'], 2);
+    $grossDifference = round($avgWeightStandard - $avgWeightGross, 2);
+    $grossWeightVariance = round($grossDifference * 100, 2);
+} else {
+    $avgWeightStandard = $avgWeightGross = $grossDifference = $grossWeightVariance = 0;
+}
+
 // Function to get pending submissions for notifications
 function getPendingSubmissions($conn)
 {
@@ -274,37 +320,73 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                         <li class="breadcrumb-item active">Injection Department</li>
                     </ol>
 
-                    <div class="row">
-                        <div class="col-xl-3 col-md-6">
-                            <div class="card bg-primary text-white mb-4">
-                                <div class="card-body">Primary Card</div>
+                    <!-- Updated Cards Section for Metrics -->
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-5">
+                        <!-- Card 1: Cycle Time Monitoring Variance Target vs Actual -->
+                        <div class="col mb-4">
+                            <div class="card bg-primary text-white h-100" data-bs-toggle="modal"
+                                data-bs-target="#varianceBreakdownModal" style="cursor:pointer;">
+                                <div class="card-body text-center">
+                                    <h2 class="mb-0"><?php echo $cycleVariance; ?></h2>
+                                    <small>Cycle Time Monitoring Variance</small>
+                                </div>
+                                <div class="card-footer d-flex align-items-center justify-content-between">
+                                    <a class="small text-white stretched-link" href="#" data-bs-toggle="modal"
+                                        data-bs-target="#varianceBreakdownModal">View Details</a>
+                                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Internal Rejection -->
+                        <div class="col mb-4">
+                            <div class="card bg-warning text-white h-100">
+                                <div class="card-body text-center">
+                                    <h2 class="mb-0">0</h2>
+                                    <small>Internal Rejection</small>
+                                </div>
                                 <div class="card-footer d-flex align-items-center justify-content-between">
                                     <a class="small text-white stretched-link" href="#">View Details</a>
                                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-3 col-md-6">
-                            <div class="card bg-warning text-white mb-4">
-                                <div class="card-body">Warning Card</div>
+
+                        <!-- Card 3: Gross Weight Variance -->
+                        <div class="col mb-4">
+                            <div class="card bg-success text-white h-100" data-bs-toggle="modal" data-bs-target="#grossVarianceModal" style="cursor:pointer;">
+                                <div class="card-body text-center">
+                                    <h2 class="mb-0"><?php echo $grossWeightVariance; ?></h2>
+                                    <small>Gross Weight Variance</small>
+                                </div>
+                                <div class="card-footer d-flex align-items-center justify-content-between">
+                                    <a class="small text-white stretched-link" href="#" data-bs-toggle="modal" data-bs-target="#grossVarianceModal">View Details</a>
+                                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Card 4: Material Consumption -->
+                        <div class="col mb-4">
+                            <div class="card bg-danger text-white h-100">
+                                <div class="card-body text-center">
+                                    <h2 class="mb-0">0</h2>
+                                    <small>Material Consumption</small>
+                                </div>
                                 <div class="card-footer d-flex align-items-center justify-content-between">
                                     <a class="small text-white stretched-link" href="#">View Details</a>
                                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-3 col-md-6">
-                            <div class="card bg-success text-white mb-4">
-                                <div class="card-body">Success Card</div>
-                                <div class="card-footer d-flex align-items-center justify-content-between">
-                                    <a class="small text-white stretched-link" href="#">View Details</a>
-                                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+
+                        <!-- Card 5: Productivity -->
+                        <div class="col mb-4">
+                            <div class="card bg-secondary text-white h-100">
+                                <div class="card-body text-center">
+                                    <h2 class="mb-0">0</h2>
+                                    <small>Productivity</small>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 col-md-6">
-                            <div class="card bg-danger text-white mb-4">
-                                <div class="card-body">Danger Card</div>
                                 <div class="card-footer d-flex align-items-center justify-content-between">
                                     <a class="small text-white stretched-link" href="#">View Details</a>
                                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
@@ -312,6 +394,7 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                             </div>
                         </div>
                     </div>
+
                     <!-- Charts Row -->
                     <div class="row">
                         <div class="col-xl-6">
@@ -373,6 +456,80 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                         </div>
                     </div>
                 </div>
+
+                <!-- Variance Breakdown Modal for Cycle Time -->
+                <div class="modal fade" id="varianceBreakdownModal" tabindex="-1"
+                    aria-labelledby="varianceBreakdownModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title" id="varianceBreakdownModalLabel">Cycle Time Variance Breakdown
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container">
+                                    <h4 class="mb-3">Cycle Time Variance Details</h4>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Average Standard Cycle Time:</strong>
+                                                <?php echo $avgCycleTarget; ?></p>
+                                            <p><strong>Average Actual Cycle Time:</strong>
+                                                <?php echo $avgCycleActual; ?></p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Difference (Target - Actual):</strong>
+                                                <?php echo $cycleDifference; ?></p>
+                                            <p><strong>Cycle Time Monitoring Variance:</strong>
+                                                <?php echo $cycleVariance; ?></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gross Weight Variance Breakdown Modal -->
+                <div class="modal fade" id="grossVarianceModal" tabindex="-1" aria-labelledby="grossVarianceModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-success text-white">
+                                <h5 class="modal-title" id="grossVarianceModalLabel">Gross Weight Variance Breakdown
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container">
+                                    <h4 class="mb-3">Gross Weight Variance Details</h4>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Average Standard Weight:</strong>
+                                                <?php echo $avgWeightStandard; ?></p>
+                                            <p><strong>Average Gross Weight:</strong> <?php echo $avgWeightGross; ?></p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Difference (Standard - Gross):</strong>
+                                                <?php echo $grossDifference; ?></p>
+                                            <p><strong>Gross Weight Variance:</strong>
+                                                <?php echo $grossWeightVariance; ?></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </main>
 
             <footer class="py-4 bg-light mt-auto">
