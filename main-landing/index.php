@@ -3,7 +3,7 @@ session_start(); // Start the session to access session variables
 
 // Check if the user is logged in
 if (!isset($_SESSION['full_name'])) {
-    header("Location: ../login.html");
+    header("Location: login.html");
     exit();
 }
 
@@ -354,18 +354,20 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
 
                         <!-- Card 3: Gross Weight Variance -->
                         <div class="col mb-4">
-                            <div class="card bg-success text-white h-100" data-bs-toggle="modal" data-bs-target="#grossVarianceModal" style="cursor:pointer;">
+                            <div class="card bg-success text-white h-100" data-bs-toggle="modal"
+                                data-bs-target="#grossVarianceModal" style="cursor:pointer;">
                                 <div class="card-body text-center">
                                     <h2 class="mb-0"><?php echo $grossWeightVariance; ?></h2>
                                     <small>Gross Weight Variance</small>
                                 </div>
                                 <div class="card-footer d-flex align-items-center justify-content-between">
-                                    <a class="small text-white stretched-link" href="#" data-bs-toggle="modal" data-bs-target="#grossVarianceModal">View Details</a>
+                                    <a class="small text-white stretched-link" href="#" data-bs-toggle="modal"
+                                        data-bs-target="#grossVarianceModal">View Details</a>
                                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Card 4: Material Consumption -->
                         <div class="col mb-4">
                             <div class="card bg-danger text-white h-100">
@@ -404,7 +406,7 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                                     Area Chart - Daily Visits
                                 </div>
                                 <div class="card-body">
-                                    <canvas id="myAreaChart" width="100%" height="40"></canvas>
+                                    <div id="myAreaChart"></div>
                                 </div>
                             </div>
                         </div>
@@ -415,7 +417,7 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                                     Bar Chart - Daily Visits
                                 </div>
                                 <div class="card-body">
-                                    <canvas id="myBarChart" width="100%" height="40"></canvas>
+                                    <div id="myBarChart"></div>
                                 </div>
                             </div>
                         </div>
@@ -552,6 +554,8 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
         crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
     <script src="js/datatables-simple-demo.js"></script>
     <script>
         // Initialize DataTable for the visits log
@@ -570,79 +574,59 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
         var analyticsLabels = <?php echo json_encode($analyticsLabels); ?>;
         var analyticsData = <?php echo json_encode($analyticsData); ?>;
 
-        // AREA CHART
-        var ctxArea = document.getElementById("myAreaChart").getContext("2d");
-        var myAreaChart = new Chart(ctxArea, {
-            type: 'line',
-            data: {
-                labels: analyticsLabels,
-                datasets: [{
-                    label: "Visits",
-                    data: analyticsData,
-                    backgroundColor: "rgba(2,117,216,0.2)",
-                    borderColor: "rgba(2,117,216,1)",
-                    pointRadius: 5,
-                    pointBackgroundColor: "rgba(2,117,216,1)",
-                    pointBorderColor: "rgba(255,255,255,0.8)",
-                    pointHoverRadius: 5,
-                    pointHoverBackgroundColor: "rgba(2,117,216,1)",
-                    pointHitRadius: 50,
-                    pointBorderWidth: 2,
-                    fill: true
-                }]
+        // Basic AREA CHART without axis numbers
+        var optionsArea = {
+            chart: {
+                type: 'area',
+                height: 350
             },
-            options: {
-                scales: {
-                    xAxes: [{
-                        time: { unit: 'date' },
-                        gridLines: { display: false },
-                        ticks: { maxTicksLimit: 7 }
-                    }],
-                    yAxes: [{
-                        ticks: {
-                            min: 0,
-                            max: Math.max.apply(Math, analyticsData) + 1,
-                            maxTicksLimit: 5
-                        },
-                        gridLines: { color: "rgba(0, 0, 0, .125)" }
-                    }],
-                },
-                legend: { display: false }
+            series: [{
+                name: 'Visits',
+                data: analyticsData
+            }],
+            xaxis: {
+                categories: analyticsLabels,
+                labels: {
+                    show: false  // Hide x-axis labels
+                }
+            },
+            yaxis: {
+                labels: {
+                    show: false  // Hide y-axis labels
+                }
             }
-        });
+        };
 
-        // BAR CHART
-        var ctxBar = document.getElementById("myBarChart").getContext("2d");
-        var myBarChart = new Chart(ctxBar, {
-            type: 'bar',
-            data: {
-                labels: analyticsLabels,
-                datasets: [{
-                    label: "Visits",
-                    backgroundColor: "rgba(2,117,216,1)",
-                    borderColor: "rgba(2,117,216,1)",
-                    data: analyticsData
-                }]
+        var chartArea = new ApexCharts(document.querySelector("#myAreaChart"), optionsArea);
+        chartArea.render();
+
+        // Basic BAR CHART without axis numbers
+        var optionsBar = {
+            chart: {
+                type: 'bar',
+                height: 350
             },
-            options: {
-                scales: {
-                    xAxes: [{
-                        gridLines: { display: false },
-                        ticks: { maxTicksLimit: 7 }
-                    }],
-                    yAxes: [{
-                        ticks: {
-                            min: 0,
-                            max: Math.max.apply(Math, analyticsData) + 1,
-                            maxTicksLimit: 5
-                        },
-                        gridLines: { display: true }
-                    }],
-                },
-                legend: { display: false }
+            series: [{
+                name: 'Visits',
+                data: analyticsData
+            }],
+            xaxis: {
+                categories: analyticsLabels,
+                labels: {
+                    show: false  // Hide x-axis labels
+                }
+            },
+            yaxis: {
+                labels: {
+                    show: false  // Hide y-axis labels
+                }
             }
-        });
+        };
+
+        var chartBar = new ApexCharts(document.querySelector("#myBarChart"), optionsBar);
+        chartBar.render();
     </script>
+
 </body>
 
 </html>

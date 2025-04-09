@@ -159,11 +159,11 @@ $attachments              = fetchData($conn, 'attachments');  // Added attachmen
                                 DMS
                                 <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                             </a>
-                            <div class="collapse show" id="collapseDMS" aria-labelledby="headingOne"
+                            <div class="collapse" id="collapseDMS" aria-labelledby="headingOne"
                                 data-bs-parent="#sidenavAccordion">
                                 <nav class="sb-sidenav-menu-nested nav">
                                     <a class="nav-link" href="../dms/index.php">Data Entry</a>
-                                    <a class="nav-link active" href="../dms/submission.php">Records</a>
+                                    <a class="nav-link" href="../dms/submission.php">Records</a>
                                     <a class="nav-link" href="../dms/analytics.php">Analytics</a>
                                     <a class="nav-link" href="../dms/approval.php">Approvals</a>
                                     <a class="nav-link" href="../dms/declined_submissions.php">Declined</a>
@@ -177,11 +177,11 @@ $attachments              = fetchData($conn, 'attachments');  // Added attachmen
                                 Parameters
                                 <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                             </a>
-                            <div class="collapse" id="collapseParameters" aria-labelledby="headingOne"
+                            <div class="collapse show" id="collapseParameters" aria-labelledby="headingOne"
                                 data-bs-parent="#sidenavAccordion">
                                 <nav class="sb-sidenav-menu-nested nav">
                                     <a class="nav-link" href="index.php">Data Entry</a>
-                                    <a class="nav-link" href="submission.php">Data Visualization</a>
+                                    <a class="nav-link active" href="submission.php">Data Visualization</a>
                                     <a class="nav-link" href="analytics.php">Data Analytics</a>
                                 </nav>
                             </div>
