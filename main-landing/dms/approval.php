@@ -108,15 +108,18 @@ function sendNotificationEmail($submission_id, $final_status, $approval_stage, $
 
 /**
  * Get Pending Submissions for Notifications.
- * Now filters based on the current user's role.
+ * Filters submissions based on the current user's role.
  */
 function getPendingSubmissions($conn)
 {
     $role = $_SESSION['role'];
     $where_clause = "approval_status = 'pending'";
+    // For supervisor and admin, show pending supervisor approvals.
     if (in_array($role, ['supervisor', 'admin'])) {
         $where_clause .= " AND (supervisor_status IS NULL OR supervisor_status = 'pending')";
-    } elseif (in_array($role, ['Quality Assurance Engineer', 'Quality Assurance Supervisor'])) {
+    }
+    // For QA roles and Quality Control Inspection, show pending QA approvals.
+    elseif (in_array($role, ['Quality Assurance Engineer', 'Quality Assurance Supervisor', 'Quality Control Inspection'])) {
         $where_clause .= " AND (qa_status IS NULL OR qa_status = 'pending')";
     }
     $pending = [];
@@ -264,13 +267,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_submission_id']) 
         $message = "Invalid status provided.";
     }
 }
-
-// ----- Retrieve Pending Submissions -----
+// ----- Retrieve Pending Submissions for Display -----
+// Note: Update the query condition to include "Quality Control Inspection" in the QA branch.
 $role = $_SESSION['role'];
 $where_clause = "approval_status = 'pending'";
 if (in_array($role, ['supervisor', 'admin'])) {
     $where_clause .= " AND (supervisor_status IS NULL OR supervisor_status = 'pending')";
-} elseif (in_array($role, ['Quality Assurance Engineer', 'Quality Assurance Supervisor'])) {
+} elseif (in_array($role, ['Quality Assurance Engineer', 'Quality Assurance Supervisor', 'Quality Control Inspection'])) {
     $where_clause .= " AND (qa_status IS NULL OR qa_status = 'pending')";
 }
 $sql_pending = "SELECT * FROM submissions WHERE $where_clause ORDER BY date DESC";
@@ -571,7 +574,7 @@ $result_other = $conn->query($sql_other);
                                                         Edit
                                                     </button>';
                                                 echo "</td>";
-                                                echo "<td>" . htmlspecialchars((string)$row['approval_comment']) . "</td>";
+                                                echo "<td>" . htmlspecialchars((string) $row['approval_comment']) . "</td>";
                                                 echo "</tr>";
                                             }
                                         } else {
