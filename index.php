@@ -591,11 +591,14 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
         var analyticsLabels = <?php echo json_encode($analyticsLabels); ?>;
         var analyticsData = <?php echo json_encode($analyticsData); ?>;
 
-        // Basic AREA CHART without axis numbers
-        var optionsArea = {
+        // Updated LINE HISTOGRAM (stepline chart)
+        var optionsLineHistogram = {
             chart: {
-                type: 'area',
+                type: 'line', // Use a line chart
                 height: 350
+            },
+            stroke: {
+                curve: 'stepline' // Makes the line appear like stepped sections (histogram-like)
             },
             series: [{
                 name: 'Visits',
@@ -614,10 +617,10 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
             }
         };
 
-        var chartArea = new ApexCharts(document.querySelector("#myAreaChart"), optionsArea);
-        chartArea.render();
+        var chartLineHistogram = new ApexCharts(document.querySelector("#myAreaChart"), optionsLineHistogram);
+        chartLineHistogram.render();
 
-        // Basic BAR CHART without axis numbers
+        // The BAR CHART below remains unchanged
         var optionsBar = {
             chart: {
                 type: 'bar',
@@ -630,18 +633,19 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
             xaxis: {
                 categories: analyticsLabels,
                 labels: {
-                    show: false  // Hide x-axis labels
+                    show: false
                 }
             },
             yaxis: {
                 labels: {
-                    show: false  // Hide y-axis labels
+                    show: false
                 }
             }
         };
 
         var chartBar = new ApexCharts(document.querySelector("#myBarChart"), optionsBar);
         chartBar.render();
+
     </script>
 
 </body>
