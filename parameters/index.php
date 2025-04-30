@@ -148,16 +148,33 @@ if (!isset($_SESSION['full_name'])) {
                                         <div class="row mb-3 row-cols-1 row-cols-sm-3">
                                             <div class="col">
                                                 <label for="Date" class="form-label">Date</label>
-                                                <input type="date" class="form-control" name="Date">
+                                                <input type="date" class="form-control" name="Date"
+                                                    value="<?php echo date('Y-m-d'); ?>" readonly>
                                             </div>
                                             <div class="col">
                                                 <label for="Time" class="form-label">Time</label>
-                                                <input type="time" class="form-control" name="Time">
+                                                <input type="time" class="form-control" name="Time"
+                                                    value="<?php echo date('H:i'); ?>" readonly>
                                             </div>
                                             <div class="col">
                                                 <label for="MachineName" class="form-label">Machine</label>
-                                                <input type="text" class="form-control" name="MachineName"
-                                                    placeholder="Enter Machine Name">
+                                                <select class="form-control" id="MachineName" name="MachineName" required>
+                                                    <option value="" disabled selected>Select a machine</option>
+                                                    <option value="ARB 50">ARB 50</option>
+                                                    <option value="SUM 260C">SUM 260C</option>
+                                                    <option value="SUM 350">SUM 350</option>
+                                                    <option value="MIT 650D">MIT 650D</option>
+                                                    <option value="TOS 650A">TOS 650A</option>
+                                                    <option value="CLF 750A">CLF 750A</option>
+                                                    <option value="CLF 750B">CLF 750B</option>
+                                                    <option value="CLF 750C">CLF 750C</option>
+                                                    <option value="TOS 850A">TOS 850A</option>
+                                                    <option value="TOS 850B">TOS 850B</option>
+                                                    <option value="TOS 850C">TOS 850C</option>
+                                                    <option value="CLF 950A">CLF 950A</option>
+                                                    <option value="CLF 950B">CLF 950B</option>
+                                                    <option value="MIT 1050B">MIT 1050B</option>
+                                                </select>
                                             </div>
                                             <div class="col">
                                                 <label for="RunNumber" class="form-label">Run No.</label>
@@ -1779,8 +1796,10 @@ if (!isset($_SESSION['full_name'])) {
                                             <div class="col">
                                                 <label for="adjuster" class="form-label">Adjuster Name</label>
                                                 <input type="text" class="form-control" name="adjuster" id="adjuster"
-                                                    placeholder="Enter Adjuster Name">
+                                                    value="<?php echo htmlspecialchars($_SESSION['full_name']); ?>"
+                                                    readonly required>
                                             </div>
+
                                             <div class="col">
                                                 <label for="qae" class="form-label">Quality Assurance Engineer
                                                     Name</label>

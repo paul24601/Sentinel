@@ -506,7 +506,7 @@ function handleFileUpload($files, $uploadDir, $typeCategory, $allowedExtensions,
 }
 
 // Handle file uploads with proper validation
-$uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/main-landing/parameters/uploads/';
+$uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/parameters/uploads/';
 $uploadedImages = [];
 $uploadedVideos = [];
 

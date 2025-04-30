@@ -28,21 +28,21 @@ function fetchData($conn, $tableName)
 }
 
 // Fetch data from all tables
-$productMachineInfo       = fetchData($conn, 'productmachineinfo');
-$productDetails           = fetchData($conn, 'productdetails');
-$materialComposition      = fetchData($conn, 'materialcomposition');
-$colorantDetails          = fetchData($conn, 'colorantdetails');
-$moldOperationSpecs       = fetchData($conn, 'moldoperationspecs');
-$timerParameters          = fetchData($conn, 'timerparameters');
+$productMachineInfo = fetchData($conn, 'productmachineinfo');
+$productDetails = fetchData($conn, 'productdetails');
+$materialComposition = fetchData($conn, 'materialcomposition');
+$colorantDetails = fetchData($conn, 'colorantdetails');
+$moldOperationSpecs = fetchData($conn, 'moldoperationspecs');
+$timerParameters = fetchData($conn, 'timerparameters');
 $barrelHeaterTemperatures = fetchData($conn, 'barrelheatertemperatures');
-$moldHeaterTemperatures   = fetchData($conn, 'moldheatertemperatures');
-$plasticizingParameters   = fetchData($conn, 'plasticizingparameters');
-$injectionParameters      = fetchData($conn, 'injectionparameters');
-$ejectionParameters       = fetchData($conn, 'ejectionparameters');
-$corePullSettings         = fetchData($conn, 'corepullsettings');
-$additionalInformation    = fetchData($conn, 'additionalinformation');
-$personnel                = fetchData($conn, 'personnel');  // Added personnel
-$attachments              = fetchData($conn, 'attachments');  // Added attachments
+$moldHeaterTemperatures = fetchData($conn, 'moldheatertemperatures');
+$plasticizingParameters = fetchData($conn, 'plasticizingparameters');
+$injectionParameters = fetchData($conn, 'injectionparameters');
+$ejectionParameters = fetchData($conn, 'ejectionparameters');
+$corePullSettings = fetchData($conn, 'corepullsettings');
+$additionalInformation = fetchData($conn, 'additionalinformation');
+$personnel = fetchData($conn, 'personnel');  // Added personnel
+$attachments = fetchData($conn, 'attachments');  // Added attachments
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -64,16 +64,13 @@ $attachments              = fetchData($conn, 'attachments');  // Added attachmen
     <!-- jQuery UI for Autocomplete -->
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- DataTables core CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+
+    <!-- DataTables Responsive extension CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" />
+
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('table').each(function () {
-                $(this).DataTable({
-                    responsive: true
-                });
-            });
-        });
-    </script>
 </head>
 
 <body class="sb-nav-fixed">
@@ -765,7 +762,7 @@ $attachments              = fetchData($conn, 'attachments');  // Added attachmen
                                     </thead>
                                     <tbody>
                                         <?php while ($row = $attachments->fetch_assoc()): ?>
-                                            <?php 
+                                            <?php
                                             // Convert absolute filesystem path to a public URL
                                             $relativePath = str_replace($_SERVER['DOCUMENT_ROOT'], '', $row['FilePath']);
                                             ?>
@@ -814,15 +811,44 @@ $attachments              = fetchData($conn, 'attachments');  // Added attachmen
         </div>
     </div>
 
+    <script>
+        $(document).ready(function () {
+            // Target every <table> (or give them a common class, e.g. .datatable)
+            $('table').each(function () {
+                $(this).DataTable({
+                    // enable responsive
+                    responsive: true,
+                    // optional: disable auto column width, so it looks cleaner in cards
+                    autoWidth: false,
+                    // optional: preserve Bootstrap styling
+                    language: {
+                        paginate: {
+                            previous: '&laquo;',
+                            next: '&raquo;'
+                        }
+                    }
+                });
+            });
+        });
+    </script>
     <script src="../js/scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
     <script src="../assets/demo/chart-area-demo.js"></script>
     <script src="../assets/demo/chart-bar-demo.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
+        crossorigin="anonymous"></script>
     <script src="../js/datatables-simple-demo.js"></script>
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables core JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <!-- DataTables Responsive extension JS -->
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
 </body>
 
 </html>
