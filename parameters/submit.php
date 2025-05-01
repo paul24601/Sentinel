@@ -491,11 +491,13 @@ function handleFileUpload($files, $uploadDir, $typeCategory, $allowedExtensions,
         $targetPath = $uploadDir . $safeName;
 
         // Move uploaded file and log errors
-        if (move_uploaded_file($files['tmp_name'][$key], $targetPath)) {
+        $tmp = $files['tmp_name'][$key];
+        $mimeType = mime_content_type($tmp);         // e.g. "video/mp4"
+        if (move_uploaded_file($tmp, $targetPath)) {
             $uploadedFiles[] = [
-                'name' => $safeName, // Use sanitized name, not original
+                'name' => $safeName,
                 'path' => $targetPath,
-                'type' => $typeCategory
+                'type' => $mimeType,
             ];
         } else {
             error_log("Failed to move uploaded file $name to $targetPath");
