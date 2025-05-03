@@ -214,7 +214,7 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
                     </ol>
                     <!--FORMS-->
 
-                    <div class="container my-5">
+                    <div class="container-fluid my-5">
                         <!-- Product Machine Info -->
                         <div class="card mb-4">
                             <div class="card-header bg-primary text-white">Product Machine Info</div>
