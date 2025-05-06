@@ -4,7 +4,7 @@ header('Content-Type: application/json');
 // Database connection details
 $servername = "localhost";
 $username   = "root";
-$password   = "Admin123@plvil";
+$password   = "injectionadmin123";
 $dbname     = "dailymonitoringsheet";
 
 // Create connection
