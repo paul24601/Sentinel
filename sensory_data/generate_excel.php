@@ -5,7 +5,7 @@ header("Content-Disposition: attachment; filename={$table}.xls");
 header("Pragma: no-cache");
 header("Expires: 0");
 
-$conn = new mysqli("localhost", "root", "", "sensory_data");
+$conn = new mysqli("localhost", "root", "injectionadmin123", "sensory_data");
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
