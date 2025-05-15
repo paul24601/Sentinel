@@ -25,7 +25,7 @@ if ($conn->connect_error) {
 }
 
 // Calculate Cycle Time Monitoring Variance for approved submissions
-$sqlVariance = "SELECT (AVG(cycle_time_target) - AVG(cycle_time_actual)) * 100 AS cycle_time_monitoring_variance FROM submissions WHERE approval_status = 'approved'";
+$sqlVariance = "SELECT (AVG(cycle_time_target) - AVG(cycle_time_actual)) * 100 AS cycle_time_monitoring_variance FROM submissions";
 $resultVariance = $conn->query($sqlVariance);
 if ($resultVariance && $resultVariance->num_rows > 0) {
     $rowVariance = $resultVariance->fetch_assoc();
@@ -35,7 +35,7 @@ if ($resultVariance && $resultVariance->num_rows > 0) {
 }
 
 // Calculate Gross Weight Variance for approved submissions
-$sqlGrossWeight = "SELECT (AVG(weight_standard) - AVG(weight_gross)) * 100 AS gross_weight_variance FROM submissions WHERE approval_status = 'approved'";
+$sqlGrossWeight = "SELECT (AVG(weight_standard) - AVG(weight_gross)) * 100 AS gross_weight_variance FROM submissions";
 $resultGrossWeight = $conn->query($sqlGrossWeight);
 if ($resultGrossWeight && $resultGrossWeight->num_rows > 0) {
     $rowGrossWeight = $resultGrossWeight->fetch_assoc();
@@ -45,7 +45,7 @@ if ($resultGrossWeight && $resultGrossWeight->num_rows > 0) {
 }
 
 // Cycle Time Variance Breakdown
-$sqlCycleBreakdown = "SELECT AVG(cycle_time_target) AS avg_cycle_target, AVG(cycle_time_actual) AS avg_cycle_actual FROM submissions WHERE approval_status = 'approved'";
+$sqlCycleBreakdown = "SELECT AVG(cycle_time_target) AS avg_cycle_target, AVG(cycle_time_actual) AS avg_cycle_actual FROM submissions";
 $resultCycleBreakdown = $conn->query($sqlCycleBreakdown);
 if ($resultCycleBreakdown && $resultCycleBreakdown->num_rows > 0) {
     $rowCycleBreakdown = $resultCycleBreakdown->fetch_assoc();
@@ -58,7 +58,7 @@ if ($resultCycleBreakdown && $resultCycleBreakdown->num_rows > 0) {
 }
 
 // Gross Weight Variance Breakdown
-$sqlGrossBreakdown = "SELECT AVG(weight_standard) AS avg_weight_standard, AVG(weight_gross) AS avg_weight_gross FROM submissions WHERE approval_status = 'approved'";
+$sqlGrossBreakdown = "SELECT AVG(weight_standard) AS avg_weight_standard, AVG(weight_gross) AS avg_weight_gross FROM submissions";
 $resultGrossBreakdown = $conn->query($sqlGrossBreakdown);
 if ($resultGrossBreakdown && $resultGrossBreakdown->num_rows > 0) {
     $rowGrossBreakdown = $resultGrossBreakdown->fetch_assoc();
@@ -77,17 +77,10 @@ function getPendingSubmissions($conn)
     // Get the user's role from the session
     $role = $_SESSION['role'];
 
-    // Base query for submissions pending overall approval
-    $sql_pending = "SELECT id, product_name, `date` FROM submissions WHERE approval_status = 'pending'";
+    // Base query for submissions
+    $sql_pending = "SELECT id, product_name, `date` FROM submissions";
 
-    // Check the role and append additional conditions for individual approvals
-    if (in_array($role, ['supervisor', 'admin'])) {
-        $sql_pending .= " AND (supervisor_status IS NULL OR supervisor_status = 'pending')";
-    } elseif (in_array($role, ['Quality Assurance Engineer', 'Quality Assurance Supervisor', 'Quality Control Inspection'])) {
-        $sql_pending .= " AND (qa_status IS NULL OR qa_status = 'pending')";
-    }
-
-    $sql_pending .= " ORDER BY `date` DESC";
+    $sql_pending .= " ORDER BY `date` DESC LIMIT 10";
 
     $result_pending = $conn->query($sql_pending);
     if ($result_pending && $result_pending->num_rows > 0) {

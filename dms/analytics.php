@@ -54,17 +54,11 @@ function getPendingSubmissions($conn)
     // Get the user's role from the session
     $role = $_SESSION['role'];
 
-    // Base query for submissions pending overall approval
-    $sql_pending = "SELECT id, product_name, `date` FROM submissions WHERE approval_status = 'pending'";
-
-    // Check the role and append additional conditions for individual approvals
-    if (in_array($role, ['supervisor', 'admin'])) {
-        $sql_pending .= " AND (supervisor_status IS NULL OR supervisor_status = 'pending')";
-    } elseif (in_array($role, ['Quality Assurance Engineer', 'Quality Assurance Supervisor', 'Quality Control Inspection'])) {
-        $sql_pending .= " AND (qa_status IS NULL OR qa_status = 'pending')";
-    }
-
-    $sql_pending .= " ORDER BY `date` DESC";
+    // Base query for submissions
+    $sql_pending = "SELECT id, product_name, `date` FROM submissions";
+    
+    // Sort by date descending
+    $sql_pending .= " ORDER BY `date` DESC LIMIT 10";
 
     $result_pending = $conn->query($sql_pending);
     if ($result_pending && $result_pending->num_rows > 0) {
@@ -96,8 +90,8 @@ if ($conn->connect_error) {
 }
 
 // REMARKS
-// SQL query to fetch unique product names only from fully approved submissions
-$sqlProductNames = "SELECT DISTINCT product_name FROM submissions WHERE product_name IS NOT NULL AND approval_status = 'approved' ORDER BY product_name";
+// SQL query to fetch unique product names
+$sqlProductNames = "SELECT DISTINCT product_name FROM submissions WHERE product_name IS NOT NULL ORDER BY product_name";
 $resultProductNames = $conn->query($sqlProductNames);
 
 $productNames = [];
@@ -107,13 +101,12 @@ if ($resultProductNames->num_rows > 0) {
     }
 }
 
-// SQL query to fetch product remarks along with date, mold code, and cycle time difference only from fully approved submissions
+// SQL query to fetch product remarks along with date, mold code, and cycle time difference
 $sqlRemarks = "SELECT product_name, date, mold_code, remarks, 
                       (cycle_time_target - cycle_time_actual) AS cycle_time_difference 
                FROM submissions 
                WHERE remarks IS NOT NULL 
                  AND (cycle_time_target - cycle_time_actual) < 0
-                 AND approval_status = 'approved'
                ORDER BY product_name, date";
 
 $resultRemarks = $conn->query($sqlRemarks);
@@ -142,8 +135,7 @@ $sqlProductVariance = "SELECT product_name,
                               cycle_time_actual 
                        FROM submissions 
                        WHERE cycle_time_target IS NOT NULL 
-                         AND cycle_time_actual IS NOT NULL
-                         AND approval_status = 'approved'";
+                         AND cycle_time_actual IS NOT NULL";
 
 $resultProductVariance = $conn->query($sqlProductVariance);
 $productVarianceData = [];
@@ -172,12 +164,11 @@ if ($resultProductVariance->num_rows > 0) {
     }
 }
 
-// Fetching unique combinations of machines and mold codes with dates only from fully approved submissions
+// Fetching unique combinations of machines and mold codes with dates
 $sqlMachineMoldCombination = "SELECT product_name, CONCAT(machine, ' - ', mold_code) AS machine_mold_combination, date 
                               FROM submissions 
                               WHERE machine IS NOT NULL 
                                 AND mold_code IS NOT NULL 
-                                AND approval_status = 'approved'
                               ORDER BY date, machine, mold_code";
 
 $resultMachineMoldCombination = $conn->query($sqlMachineMoldCombination);

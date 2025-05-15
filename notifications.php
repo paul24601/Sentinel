@@ -15,17 +15,15 @@ if ($conn->connect_error) {
     exit();
 }
 
-// Query to select columns including supervisor_status and qa_status
+// Query to select columns that exist in the database
 $sql = "SELECT 
             id,
             product_name,
             date,
-            name,
-            supervisor_status,
-            qa_status
+            name
         FROM submissions
-        WHERE approval_status = 'pending'
-        ORDER BY date DESC";
+        ORDER BY date DESC
+        LIMIT 10";
 
 $result = $conn->query($sql);
 if (!$result) {
@@ -37,13 +35,9 @@ if (!$result) {
 $notifications = [];
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
-        // Convert 'supervisor_status' and 'qa_status' to booleans
-        // Here we consider them "pending" if the string is exactly "pending"
-        $row['pending_supervisor'] = ($row['supervisor_status'] === 'pending');
-        $row['pending_qa']        = ($row['qa_status'] === 'pending');
-
-        // (Optional) If you don't need the original columns in the JSON, remove them:
-        unset($row['supervisor_status'], $row['qa_status']);
+        // Since approval columns no longer exist, assume all are pending
+        $row['pending_supervisor'] = true;
+        $row['pending_qa'] = true;
 
         $notifications[] = $row;
     }

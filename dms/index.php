@@ -36,17 +36,11 @@ function getPendingSubmissions($conn)
     // Get the user's role from the session
     $role = $_SESSION['role'];
 
-    // Base query for submissions pending overall approval
-    $sql_pending = "SELECT id, product_name, `date` FROM submissions WHERE approval_status = 'pending'";
-
-    // Check the role and append additional conditions for individual approvals
-    if (in_array($role, ['supervisor', 'admin'])) {
-        $sql_pending .= " AND (supervisor_status IS NULL OR supervisor_status = 'pending')";
-    } elseif (in_array($role, ['Quality Assurance Engineer', 'Quality Assurance Supervisor', 'Quality Control Inspection'])) {
-        $sql_pending .= " AND (qa_status IS NULL OR qa_status = 'pending')";
-    }
-
-    $sql_pending .= " ORDER BY `date` DESC";
+    // Base query for submissions 
+    $sql_pending = "SELECT id, product_name, `date` FROM submissions";
+    
+    // Sort by date descending
+    $sql_pending .= " ORDER BY `date` DESC LIMIT 10";
 
     $result_pending = $conn->query($sql_pending);
     if ($result_pending && $result_pending->num_rows > 0) {

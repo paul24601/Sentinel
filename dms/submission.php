@@ -36,17 +36,11 @@ function getPendingSubmissions($conn)
     // Get the user's role from the session
     $role = $_SESSION['role'];
 
-    // Base query for submissions pending overall approval
-    $sql_pending = "SELECT id, product_name, `date` FROM submissions WHERE approval_status = 'pending'";
-
-    // Check the role and append additional conditions for individual approvals
-    if (in_array($role, ['supervisor', 'admin'])) {
-        $sql_pending .= " AND (supervisor_status IS NULL OR supervisor_status = 'pending')";
-    } elseif (in_array($role, ['Quality Assurance Engineer', 'Quality Assurance Supervisor', 'Quality Control Inspection'])) {
-        $sql_pending .= " AND (qa_status IS NULL OR qa_status = 'pending')";
-    }
-
-    $sql_pending .= " ORDER BY `date` DESC";
+    // Base query for submissions
+    $sql_pending = "SELECT id, product_name, `date` FROM submissions";
+    
+    // Sort by date descending
+    $sql_pending .= " ORDER BY `date` DESC LIMIT 10";
 
     $result_pending = $conn->query($sql_pending);
     if ($result_pending && $result_pending->num_rows > 0) {
@@ -157,8 +151,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['name'];
     $shift = $_POST['shift'];
 
-    $sql = "INSERT INTO submissions (date, product_name, machine, prn, mold_code, cycle_time_target, cycle_time_actual, weight_standard, weight_gross, weight_net, cavity_designed, cavity_active, remarks, name, shift, approval_status, supervisor_status, qa_status) 
-        VALUES ('$date', '$product_name', '$machine', '$prn', '$mold_code', '$cycle_time_target', '$cycle_time_actual', '$weight_standard', '$weight_gross', '$weight_net', '$cavity_designed', '$cavity_active', '$remarks', '$name', '$shift', 'approved', 'approved', 'approved')";
+    $sql = "INSERT INTO submissions (date, product_name, machine, prn, mold_code, cycle_time_target, cycle_time_actual, weight_standard, weight_gross, weight_net, cavity_designed, cavity_active, remarks, name, shift) 
+        VALUES ('$date', '$product_name', '$machine', '$prn', '$mold_code', '$cycle_time_target', '$cycle_time_actual', '$weight_standard', '$weight_gross', '$weight_net', '$cavity_designed', '$cavity_active', '$remarks', '$name', '$shift')";
 
     if ($conn->query($sql) === TRUE) {
         $recordCreated = true;
@@ -204,13 +198,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// Retrieve data from database - only show fully approved submissions
+// Retrieve data from database - show all submissions
 $sql = "SELECT id, date, product_name, machine, prn, mold_code, cycle_time_target, 
         cycle_time_actual, 
         (cycle_time_target - cycle_time_actual) AS cycle_time_difference, 
         weight_standard, weight_gross, weight_net, cavity_designed, cavity_active, 
         remarks, name, shift 
-        FROM submissions WHERE approval_status = 'approved'";
+        FROM submissions";
 $result = $conn->query($sql);
 ?>
 <!DOCTYPE html>

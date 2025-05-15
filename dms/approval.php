@@ -150,137 +150,57 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submission_id']) && is
     $current_user_role = $_SESSION['role'];
     if (in_array($current_user_role, ['supervisor', 'admin'])) {
         $approval_column = 'supervisor_status';
-        $stmt = $conn->prepare("UPDATE submissions SET supervisor_status = ?, supervisor_approver = ? WHERE id = ?");
+        $stmt = $conn->prepare("UPDATE submissions SET remarks = ? WHERE id = ?");
         if (!$stmt) {
             die("Prepare failed: " . $conn->error);
         }
-        $stmt->bind_param("ssi", $approval_action, $_SESSION['full_name'], $submission_id);
+        $stmt->bind_param("si", $approval_comment, $submission_id);
     } elseif (in_array($current_user_role, ['Quality Assurance Engineer', 'Quality Assurance Supervisor'])) {
         $approval_column = 'qa_status';
-        $stmt = $conn->prepare("UPDATE submissions SET qa_status = ?, qa_approver = ? WHERE id = ?");
+        $stmt = $conn->prepare("UPDATE submissions SET remarks = ? WHERE id = ?");
         if (!$stmt) {
             die("Prepare failed: " . $conn->error);
         }
-        $stmt->bind_param("ssi", $approval_action, $_SESSION['full_name'], $submission_id);
+        $stmt->bind_param("si", $approval_comment, $submission_id);
     } else {
         die("Unauthorized action.");
     }
     $stmt->execute();
     $stmt->close();
 
-    // Retrieve the current individual statuses and approvers.
-    $stmt = $conn->prepare("SELECT supervisor_status, qa_status, supervisor_approver, qa_approver FROM submissions WHERE id = ?");
-    if (!$stmt) {
-        die("Prepare failed: " . $conn->error);
-    }
-    $stmt->bind_param("i", $submission_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $statuses = $result->fetch_assoc();
-    $stmt->close();
-
-    // Determine the final overall approval status.
-    if (($statuses['supervisor_status'] === 'declined') || ($statuses['qa_status'] === 'declined')) {
-        $final_status = 'declined';
-    } elseif ($statuses['supervisor_status'] === 'approved' && $statuses['qa_status'] === 'approved') {
-        $final_status = 'approved';
-    } else {
-        $final_status = 'pending';
-    }
-
-    // Update the overall approval_status in the submission.
-    $stmt = $conn->prepare("UPDATE submissions SET approval_status = ? WHERE id = ?");
-    if (!$stmt) {
-        die("Prepare failed: " . $conn->error);
-    }
-    $stmt->bind_param("si", $final_status, $submission_id);
-    if ($stmt->execute()) {
-        $message = "Submission #{$submission_id} updated. Final status: " . ucfirst($final_status) . ".";
-        // Send detailed email notification, including approver names.
-        sendNotificationEmail($submission_id, $final_status, $approval_column, $approval_comment, $statuses['qa_approver'], $statuses['supervisor_approver']);
-    } else {
-        $message = "Error updating submission #" . $submission_id;
-    }
-    $stmt->close();
+    // No need to retrieve statuses since we've removed those columns
+    $message = "Submission #{$submission_id} updated.";
+    
+    // Don't try to update approval_status as the column doesn't exist anymore
 }
 
 // ----- Process Edit Form Submission -----
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_submission_id']) && isset($_POST['new_approval_status'])) {
     $submission_id = intval($_POST['edit_submission_id']);
-    $new_status = $_POST['new_approval_status'];
-    if (in_array($new_status, ['pending', 'approved', 'declined'])) {
-        $approval_comment = isset($_POST['approval_comment']) ? $_POST['approval_comment'] : '';
+    $approval_comment = isset($_POST['approval_comment']) ? $_POST['approval_comment'] : '';
 
-        // Determine the individual approval column based on the user's role.
-        $current_user_role = $_SESSION['role'];
-        if (in_array($current_user_role, ['supervisor', 'admin'])) {
-            $approval_column = 'supervisor_status';
-            $stmt = $conn->prepare("UPDATE submissions SET supervisor_status = ?, approval_comment = ?, supervisor_approver = ? WHERE id = ?");
-            if (!$stmt) {
-                die("Prepare failed: " . $conn->error);
-            }
-            $stmt->bind_param("sssi", $new_status, $approval_comment, $_SESSION['full_name'], $submission_id);
-        } elseif (in_array($current_user_role, ['Quality Assurance Engineer', 'Quality Assurance Supervisor'])) {
-            $approval_column = 'qa_status';
-            $stmt = $conn->prepare("UPDATE submissions SET qa_status = ?, approval_comment = ?, qa_approver = ? WHERE id = ?");
-            if (!$stmt) {
-                die("Prepare failed: " . $conn->error);
-            }
-            $stmt->bind_param("sssi", $new_status, $approval_comment, $_SESSION['full_name'], $submission_id);
-        } else {
-            die("Unauthorized action.");
-        }
+    // Update remarks
+    $stmt = $conn->prepare("UPDATE submissions SET remarks = ? WHERE id = ?");
+    if (!$stmt) {
+        die("Prepare failed: " . $conn->error);
+    }
+    $stmt->bind_param("si", $approval_comment, $submission_id);
 
-        if ($stmt->execute()) {
-            $stmt->close();
-
-            // Retrieve current statuses and approvers.
-            $stmt = $conn->prepare("SELECT supervisor_status, qa_status, supervisor_approver, qa_approver FROM submissions WHERE id = ?");
-            $stmt->bind_param("i", $submission_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $statuses = $result->fetch_assoc();
-            $stmt->close();
-
-            // Determine overall approval status.
-            if (($statuses['supervisor_status'] === 'declined') || ($statuses['qa_status'] === 'declined')) {
-                $final_status = 'declined';
-            } elseif ($statuses['supervisor_status'] === 'approved' && $statuses['qa_status'] === 'approved') {
-                $final_status = 'approved';
-            } else {
-                $final_status = 'pending';
-            }
-
-            // Update the overall approval_status accordingly.
-            $stmt = $conn->prepare("UPDATE submissions SET approval_status = ? WHERE id = ?");
-            $stmt->bind_param("si", $final_status, $submission_id);
-            $stmt->execute();
-            $stmt->close();
-
-            $message = "Submission #{$submission_id} updated. Final status: " . ucfirst($final_status) . ".";
-            // Send detailed email notification with approver names.
-            sendNotificationEmail($submission_id, $final_status, $approval_column, $approval_comment, $statuses['qa_approver'], $statuses['supervisor_approver']);
-        } else {
-            $message = "Error updating submission #" . $submission_id;
-        }
+    if ($stmt->execute()) {
+        $stmt->close();
+        $message = "Submission #{$submission_id} updated.";
     } else {
-        $message = "Invalid status provided.";
+        $message = "Error updating submission #" . $submission_id;
     }
 }
-// ----- Retrieve Pending Submissions for Display -----
-// Note: Update the query condition to include "Quality Control Inspection" in the QA branch.
+
+// ----- Retrieve Submissions for Display -----
 $role = $_SESSION['role'];
-$where_clause = "approval_status = 'pending'";
-if (in_array($role, ['supervisor', 'admin'])) {
-    $where_clause .= " AND (supervisor_status IS NULL OR supervisor_status = 'pending')";
-} elseif (in_array($role, ['Quality Assurance Engineer', 'Quality Assurance Supervisor', 'Quality Control Inspection'])) {
-    $where_clause .= " AND (qa_status IS NULL OR qa_status = 'pending')";
-}
-$sql_pending = "SELECT * FROM submissions WHERE $where_clause ORDER BY date DESC";
+$sql_pending = "SELECT * FROM submissions ORDER BY date DESC";
 $result_pending = $conn->query($sql_pending);
 
-// ----- Retrieve Approved/Declined Submissions -----
-$sql_other = "SELECT * FROM submissions WHERE approval_status != 'pending' ORDER BY date DESC";
+// ----- Retrieve Other Submissions -----
+$sql_other = "SELECT * FROM submissions ORDER BY date DESC";
 $result_other = $conn->query($sql_other);
 ?>
 <!DOCTYPE html>

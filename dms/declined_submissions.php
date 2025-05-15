@@ -45,7 +45,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submission_id'])) {
     $cavity_active = intval($_POST['cavity_active']);
     $remarks = $_POST['remarks'];
     $shift = $_POST['shift'];
-    $approval_comment = $_POST['approval_comment'] ?? '';
 
     // Verify that this submission belongs to the logged-in user
     $check_sql = "SELECT * FROM submissions WHERE id = ? AND name = ?";
@@ -55,19 +54,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submission_id'])) {
     $check_result = $check_stmt->get_result();
 
     if ($check_result->num_rows > 0) {
-        // Update submission and reset approval and other statuses to pending.
+        // Update submission
         $update_sql = "UPDATE submissions 
 SET `date` = ?, product_name = ?, machine = ?, prn = ?, mold_code = ?, 
     cycle_time_target = ?, cycle_time_actual = ?, weight_standard = ?, 
     weight_gross = ?, weight_net = ?, cavity_designed = ?, cavity_active = ?, 
-    remarks = ?, shift = ?, approval_comment = ?, 
-    approval_status = 'pending',
-    qa_status = 'pending',
-    supervisor_status = 'pending'
+    remarks = ?, shift = ?
 WHERE id = ?";
         $update_stmt = $conn->prepare($update_sql);
         $update_stmt->bind_param(
-            "ssssiiidddiisssi",
+            "ssssiiiddiisssi",
             $date,
             $product_name,
             $machine,
@@ -82,13 +78,12 @@ WHERE id = ?";
             $cavity_active,
             $remarks,
             $shift,
-            $approval_comment,
             $submission_id
         );
 
 
         if ($update_stmt->execute()) {
-            $message = "Submission successfully updated and resubmitted for approval.";
+            $message = "Submission successfully updated.";
         } else {
             $message = "Error updating submission: " . $conn->error;
         }
@@ -97,31 +92,25 @@ WHERE id = ?";
     }
 }
 
-// Fetch declined submissions belonging only to the logged-in user
-$sql = "SELECT * FROM submissions WHERE approval_status = 'declined' AND name = ?";
+// Fetch submissions belonging only to the logged-in user
+$sql = "SELECT * FROM submissions WHERE name = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $full_name);
 $stmt->execute();
 $result = $stmt->get_result();
 
-// Function to get pending submissions for notifications
+// Function to get submissions for notifications
 function getPendingSubmissions($conn)
 {
     $pending = [];
     // Get the user's role from the session
     $role = $_SESSION['role'];
 
-    // Base query for submissions pending overall approval
-    $sql_pending = "SELECT id, product_name, `date` FROM submissions WHERE approval_status = 'pending'";
-
-    // Check the role and append additional conditions for individual approvals
-    if (in_array($role, ['supervisor', 'admin'])) {
-        $sql_pending .= " AND (supervisor_status IS NULL OR supervisor_status = 'pending')";
-    } elseif (in_array($role, ['Quality Assurance Engineer', 'Quality Assurance Supervisor', 'Quality Control Inspection'])) {
-        $sql_pending .= " AND (qa_status IS NULL OR qa_status = 'pending')";
-    }
-
-    $sql_pending .= " ORDER BY `date` DESC";
+    // Base query for submissions
+    $sql_pending = "SELECT id, product_name, `date` FROM submissions";
+    
+    // Sort by date descending
+    $sql_pending .= " ORDER BY `date` DESC LIMIT 10";
 
     $result_pending = $conn->query($sql_pending);
     if ($result_pending && $result_pending->num_rows > 0) {
@@ -317,7 +306,6 @@ $pending_count = count($pending_submissions);
                                     <th>Cavity Active</th>
                                     <th>Remarks</th>
                                     <th>Shift</th>
-                                    <th>Approval Comment</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -339,7 +327,6 @@ $pending_count = count($pending_submissions);
                                         <td><?php echo htmlspecialchars($row['cavity_active']); ?></td>
                                         <td><?php echo htmlspecialchars($row['remarks']); ?></td>
                                         <td><?php echo htmlspecialchars($row['shift']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['approval_comment']); ?></td>
                                         <td>
                                             <!-- Edit button with data attributes -->
                                             <button class="btn btn-primary btn-sm edit-btn"
@@ -356,7 +343,6 @@ $pending_count = count($pending_submissions);
                                                 data-cavity_designed="<?php echo $row['cavity_designed']; ?>"
                                                 data-cavity_active="<?php echo $row['cavity_active']; ?>"
                                                 data-remarks="<?php echo htmlspecialchars($row['remarks']); ?>"
-                                                data-approval_comment="<?php echo htmlspecialchars($row['approval_comment']); ?>"
                                                 data-name="<?php echo htmlspecialchars($row['name']); ?>"
                                                 data-shift="<?php echo htmlspecialchars($row['shift']); ?>">
                                                 Edit
@@ -469,12 +455,6 @@ $pending_count = count($pending_submissions);
                                             <label class="form-label">Remarks</label>
                                             <textarea class="form-control" name="remarks" rows="3"></textarea>
                                         </div>
-                                        <!-- Approval Comment Field -->
-                                        <div class="mb-3">
-                                            <label class="form-label">Approval Comment</label>
-                                            <textarea class="form-control" name="approval_comment" rows="3"
-                                                placeholder="Enter approval comment..." readonly></textarea>
-                                        </div>
                                         <div class="row">
                                             <div class="mb-3 col-md-6">
                                                 <label class="form-label">Name</label>
@@ -568,8 +548,6 @@ $pending_count = count($pending_submissions);
                 $('#editModal input[name="cavity_designed"]').val(button.attr('data-cavity_designed'));
                 $('#editModal input[name="cavity_active"]').val(button.attr('data-cavity_active'));
                 $('#editModal textarea[name="remarks"]').val(button.attr('data-remarks'));
-                // Use .attr() instead of .data() for approval comment:
-                $('#editModal textarea[name="approval_comment"]').val(button.attr('data-approval_comment'));
                 $('#editModal input[name="name"]').val(button.attr('data-name'));
                 $('#editModal select[name="shift"]').val(button.attr('data-shift'));
 

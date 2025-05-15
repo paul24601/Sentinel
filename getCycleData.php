@@ -16,7 +16,6 @@ if ($conn->connect_error) {
 
 $sqlCycleChart = "SELECT DATE(`date`) as day, AVG(cycle_time_actual) as avg_cycle_time 
                   FROM submissions 
-                  WHERE approval_status = 'approved'
                   GROUP BY day 
                   ORDER BY day";
 $resultCycleChart = $conn->query($sqlCycleChart);

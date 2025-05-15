@@ -33,8 +33,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $shift = $_POST['shift'];
     $search = $_POST['search'];
 
-    $sql = "INSERT INTO submissions (date, machine, prn, product_name, cycle_time_target, cycle_time_actual, weight_standard, weight_gross, weight_net, cavity_designed, cavity_active, remarks, name, shift, search) 
-            VALUES ('$date', '$machine', '$prn', '$product_name', '$cycle_time_target', '$cycle_time_actual', '$weight_standard', '$weight_gross', '$weight_net', '$cavity_designed', '$cavity_active', '$remarks', '$name', '$shift', '$search')";
+    $sql = "INSERT INTO submissions (date, machine, prn, product_name, cycle_time_target, cycle_time_actual, weight_standard, weight_gross, weight_net, cavity_designed, cavity_active, remarks, name, shift) 
+            VALUES ('$date', '$machine', '$prn', '$product_name', '$cycle_time_target', '$cycle_time_actual', '$weight_standard', '$weight_gross', '$weight_net', '$cavity_designed', '$cavity_active', '$remarks', '$name', '$shift')";
 
     if ($conn->query($sql) === TRUE) {
         $recordCreated = true;
@@ -112,7 +112,6 @@ $result = $conn->query($sql);
                             <th>Remarks</th>
                             <th>Name</th>
                             <th>Shift</th>
-                            <th>Search</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -135,7 +134,6 @@ $result = $conn->query($sql);
                                 echo "<td>" . htmlspecialchars($row["remarks"]) . "</td>";
                                 echo "<td>" . htmlspecialchars($row["name"]) . "</td>";
                                 echo "<td>" . htmlspecialchars($row["shift"]) . "</td>";
-                                echo "<td>" . htmlspecialchars($row["search"]) . "</td>";
                                 echo "</tr>";
                             }
                         } else {
