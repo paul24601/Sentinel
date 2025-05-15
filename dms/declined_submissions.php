@@ -237,8 +237,6 @@ $pending_count = count($pending_submissions);
                                 <a class="nav-link" href="index.php">Data Entry</a>
                                 <a class="nav-link" href="submission.php">Records</a>
                                 <a class="nav-link" href="analytics.php">Analytics</a>
-                                <a class="nav-link" href="approval.php">Approvals</a>
-                                <a class="nav-link active" href="#.php">Declined</a>
                             </nav>
                         </div>
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"

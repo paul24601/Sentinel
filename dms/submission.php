@@ -319,7 +319,6 @@ $result = $conn->query($sql);
                                 data-bs-parent="#sidenavAccordion">
                                 <nav class="sb-sidenav-menu-nested nav">
                                     <a class="nav-link active" href="submission.php">Records</a>
-                                    <a class="nav-link" href="approval.php">Approvals</a>
                                 </nav>
                             </div>
 
@@ -358,8 +357,6 @@ $result = $conn->query($sql);
                                     <a class="nav-link" href="index.php">Data Entry</a>
                                     <a class="nav-link active" href="submission.php">Records</a>
                                     <a class="nav-link" href="analytics.php">Analytics</a>
-                                    <a class="nav-link" href="approval.php">Approvals</a>
-                                    <a class="nav-link" href="declined_submissions.php">Declined</a>
                                 </nav>
                             </div>
 

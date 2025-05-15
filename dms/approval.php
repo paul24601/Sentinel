@@ -318,7 +318,6 @@ $result_other = $conn->query($sql_other);
                                 data-bs-parent="#sidenavAccordion">
                                 <nav class="sb-sidenav-menu-nested nav">
                                     <a class="nav-link" href="submission.php">Records</a>
-                                    <a class="nav-link active" href="approval.php">Approvals</a>
                                 </nav>
                             </div>
                             <!-- Parameters with only Records -->
@@ -355,8 +354,6 @@ $result_other = $conn->query($sql_other);
                                     <a class="nav-link" href="index.php">Data Entry</a>
                                     <a class="nav-link" href="submission.php">Records</a>
                                     <a class="nav-link" href="analytics.php">Analytics</a>
-                                    <a class="nav-link active" href="approval.php">Approvals</a>
-                                    <a class="nav-link" href="declined_submissions.php">Declined</a>
                                 </nav>
                             </div>
                             <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"

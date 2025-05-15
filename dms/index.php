@@ -217,11 +217,9 @@ $pending_count = count($pending_submissions);
                         <div class="collapse show" id="collapseDMS" aria-labelledby="headingOne"
                             data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link active" href="#">Data Entry</a>
+                                <a class="nav-link" href="index.php">Data Entry</a>
                                 <a class="nav-link" href="submission.php">Records</a>
                                 <a class="nav-link" href="analytics.php">Analytics</a>
-                                <a class="nav-link" href="approval.php">Approvals</a>
-                                <a class="nav-link" href="declined_submissions.php">Declined</a>
                             </nav>
                         </div>
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"

@@ -240,7 +240,6 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                                 data-bs-parent="#sidenavAccordion">
                                 <nav class="sb-sidenav-menu-nested nav">
                                     <a class="nav-link" href="dms/submission.php">Records</a>
-                                    <a class="nav-link" href="dms/approval.php">Approvals</a>
                                 </nav>
                             </div>
 
@@ -279,8 +278,6 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                                     <a class="nav-link" href="dms/index.php">Data Entry</a>
                                     <a class="nav-link" href="dms/submission.php">Records</a>
                                     <a class="nav-link" href="dms/analytics.php">Analytics</a>
-                                    <a class="nav-link" href="dms/approval.php">Approvals</a>
-                                    <a class="nav-link" href="dms/declined_submissions.php">Declined</a>
                                 </nav>
                             </div>
 
