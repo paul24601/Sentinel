@@ -148,12 +148,12 @@ if (!isset($_SESSION['full_name'])) {
                                         <div class="row mb-3 row-cols-1 row-cols-sm-3">
                                             <div class="col">
                                                 <label for="Date" class="form-label">Date</label>
-                                                <input type="date" class="form-control" name="Date"
+                                                <input type="date" class="form-control" id="currentDate" name="Date"
                                                     value="<?php echo date('Y-m-d'); ?>" readonly>
                                             </div>
                                             <div class="col">
                                                 <label for="Time" class="form-label">Time</label>
-                                                <input type="time" class="form-control" name="Time"
+                                                <input type="time" class="form-control" id="currentTime" name="Time"
                                                     value="<?php echo date('H:i'); ?>" readonly>
                                             </div>
                                             <div class="col">
@@ -1983,30 +1983,200 @@ if (!isset($_SESSION['full_name'])) {
 
     <script>
         document.getElementById('autofillButton').addEventListener('click', function () {
+            // Helper function for random integer generation
             const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-
-            document.querySelectorAll('input').forEach(input => {
-                if (input.type === 'date') {
-                    input.value = '2024-01-01'; // Example fixed date
-                } else if (input.type === 'time') {
-                    input.value = '12:00'; // Example fixed time
-                } else if (input.type === 'text' || input.type === 'number') {
-                    input.value = randomInt(1, 100);
+            
+            // Helper function for random decimal generation
+            const randomDecimal = (min, max, decimals = 1) => {
+                const value = min + Math.random() * (max - min);
+                return value.toFixed(decimals);
+            };
+            
+            // Sample realistic values for different field types
+            const productNames = ['Plastic Container', 'Bottle Cap', 'Phone Case', 'Water Bottle', 'Food Container', 'Toy Box'];
+            const colors = ['Clear', 'Black', 'Blue', 'Red', 'White', 'Gray', 'Green', 'Yellow'];
+            const machines = ['ARB 50', 'SUM 260C', 'SUM 350', 'MIT 650D', 'TOS 650A', 'CLF 750A', 'CLF 750B'];
+            const materialTypes = ['PP', 'PE', 'HDPE', 'PET', 'PC', 'ABS', 'PVC'];
+            const materialBrands = ['Polypropylene A', 'Polyethylene B', 'Polycarbonate C', 'ABS Premium', 'PolyBlend X'];
+            const colorants = ['None', 'Blue Dye', 'Carbon Black', 'Titanium White', 'Red Pigment', 'Green Dye'];
+            const stabilizers = ['UV Stabilizer', 'Heat Stabilizer', 'Antioxidant', 'Light Stabilizer'];
+            const coolingMedia = ['Chilled Water', 'Glycol Solution', 'Oil Cooling'];
+            const heatingMedia = ['Hot Oil', 'Electrical', 'Steam'];
+            const moldCodes = ['MC101', 'MC202', 'MC303', 'MC404', 'MC505'];
+            const adjusterNames = ['John Smith', 'Jane Doe', 'Mike Johnson', 'Sarah Williams', 'Robert Brown'];
+            
+            // First, set the step attribute for number inputs to allow decimals
+            document.querySelectorAll('input[type="number"]').forEach(input => {
+                if (!input.hasAttribute('step') || input.getAttribute('step') === '1') {
+                    input.setAttribute('step', '0.01');
                 }
             });
-
-            document.querySelectorAll('textarea').forEach(textarea => {
-                textarea.value = 'Sample additional info'; // Text instead of number
-            });
-
-            // Autofill select fields if they exist
-            document.querySelectorAll('select').forEach(select => {
-                const options = select.options;
-                if (options.length > 0) {
-                    select.selectedIndex = randomInt(0, options.length - 1); // Randomly select an option
+            
+            // Populate fields based on their ID or name
+            document.querySelectorAll('input, select, textarea').forEach(field => {
+                // Skip the date and time inputs so they keep the real-time values
+                if (field.id === 'currentDate' || field.id === 'currentTime') {
+                    return;
+                }
+                
+                const fieldId = field.id.toLowerCase();
+                const fieldName = field.name.toLowerCase();
+                
+                // Handle different field types
+                if (field.type === 'select-one') {
+                    // For select elements, choose a random option
+                    if (field.options.length > 0) {
+                        field.selectedIndex = randomInt(0, field.options.length - 1);
+                    }
+                    return;
+                }
+                
+                // For specific field types
+                if (fieldName.includes('machine') || fieldId.includes('machine')) {
+                    field.value = machines[randomInt(0, machines.length - 1)];
+                }
+                else if (fieldName.includes('product') || fieldId.includes('product')) {
+                    field.value = productNames[randomInt(0, productNames.length - 1)];
+                }
+                else if (fieldName.includes('color') || fieldId.includes('color')) {
+                    field.value = colors[randomInt(0, colors.length - 1)];
+                }
+                else if (fieldName.includes('runnumber') || fieldId.includes('runnumber')) {
+                    field.value = 'RN' + randomInt(1000, 9999);
+                }
+                else if (fieldName.includes('category') || fieldId.includes('category')) {
+                    field.value = ['Containers', 'Caps', 'Accessories', 'Packaging', 'Automotive'][randomInt(0, 4)];
+                }
+                else if (fieldName.includes('irn') || fieldId.includes('irn')) {
+                    field.value = 'IRN' + randomInt(10000, 99999);
+                }
+                else if (fieldName.includes('moldname') || fieldId.includes('moldname')) {
+                    field.value = 'MOLD-' + String.fromCharCode(65 + randomInt(0, 25)) + randomInt(100, 999);
+                }
+                else if (fieldName.includes('prodno') || fieldId.includes('prodno')) {
+                    field.value = 'PN-' + randomInt(1000, 9999);
+                }
+                else if (fieldName.includes('cavity') || fieldId.includes('cavity')) {
+                    field.value = randomInt(1, 16);
+                }
+                else if (fieldName.includes('weight') || fieldId.includes('weight')) {
+                    field.value = randomDecimal(10, 500, 1);
+                }
+                else if (fieldName.includes('type') && (fieldName.includes('material') || fieldId.includes('material'))) {
+                    field.value = materialTypes[randomInt(0, materialTypes.length - 1)];
+                }
+                else if (fieldName.includes('brand') && (fieldName.includes('material') || fieldId.includes('material'))) {
+                    field.value = materialBrands[randomInt(0, materialBrands.length - 1)];
+                }
+                else if (fieldName.includes('mix') && (fieldName.includes('material') || fieldId.includes('material'))) {
+                    field.value = randomDecimal(1, 100, 2);
+                }
+                else if (fieldName.includes('colorant') || fieldId.includes('colorant')) {
+                    field.value = colorants[randomInt(0, colorants.length - 1)];
+                }
+                else if (fieldName.includes('stabilizer') || fieldId.includes('stabilizer')) {
+                    field.value = stabilizers[randomInt(0, stabilizers.length - 1)];
+                }
+                else if (fieldName.includes('dosage') || fieldId.includes('dosage')) {
+                    field.value = randomDecimal(0.5, 10, 1) + '%';
+                }
+                else if (fieldName.includes('mold-code') || fieldId.includes('mold-code')) {
+                    field.value = moldCodes[randomInt(0, moldCodes.length - 1)];
+                }
+                else if (fieldName.includes('clamping') || fieldId.includes('clamping')) {
+                    field.value = randomDecimal(20, 200, 1) + ' tons';
+                }
+                else if (fieldName.includes('cooling') || fieldId.includes('cooling')) {
+                    field.value = coolingMedia[randomInt(0, coolingMedia.length - 1)];
+                }
+                else if (fieldName.includes('heating') || fieldId.includes('heating')) {
+                    field.value = heatingMedia[randomInt(0, heatingMedia.length - 1)];
+                }
+                else if (fieldName.includes('operation') || fieldId.includes('operation')) {
+                    field.value = ['Auto', 'Semi-Auto', 'Manual'][randomInt(0, 2)];
+                }
+                else if (fieldName.includes('time')) {
+                    // Time values (seconds) - more realistic ranges with decimals
+                    field.value = randomDecimal(0.5, 30, 1);
+                }
+                else if (fieldName.includes('temperature') || fieldName.includes('temp') || 
+                        fieldId.includes('temperature') || fieldId.includes('temp') || 
+                        fieldName.includes('zone') || fieldId.includes('zone')) {
+                    // Temperature values with decimals
+                    field.value = randomDecimal(30, 250, 1);
+                }
+                else if (fieldName.includes('pressure') || fieldId.includes('pressure')) {
+                    // Pressure values with decimals
+                    field.value = randomDecimal(10, 200, 1);
+                }
+                else if (fieldName.includes('speed') || fieldId.includes('speed')) {
+                    // Speed values with decimals
+                    field.value = randomDecimal(10, 100, 1);
+                }
+                else if (fieldName.includes('position') || fieldId.includes('position')) {
+                    // Position values with decimals
+                    field.value = randomDecimal(10, 150, 2);
+                }
+                else if (fieldName.includes('rpm') || fieldId.includes('rpm')) {
+                    // RPM values with decimals
+                    field.value = randomDecimal(30, 180, 1);
+                }
+                else if (fieldName.includes('adjuster') || fieldId.includes('adjuster')) {
+                    // Keep the current adjuster name since it's usually the logged-in user
+                    if (!field.value) {
+                        field.value = adjusterNames[randomInt(0, adjusterNames.length - 1)];
+                    }
+                }
+                else if (fieldName.includes('qae') || fieldId.includes('qae')) {
+                    // QA Engineer name
+                    field.value = 'QA ' + adjusterNames[randomInt(0, adjusterNames.length - 1)];
+                }
+                else if (field.tagName.toLowerCase() === 'textarea') {
+                    field.value = 'Production run completed with standard parameters. All quality checks passed. Material batch: MB-' + randomInt(1000, 9999);
+                }
+                else if (field.type === 'number') {
+                    // Generic number fields get appropriate random values based on field size with decimals
+                    if (fieldName.includes('cushion')) {
+                        field.value = randomDecimal(3, 10, 2);
+                    } else {
+                        field.value = randomDecimal(1, 100, 2);
+                    }
+                }
+                else if (field.type === 'text' && !field.value) {
+                    // Generic text fields that haven't been set yet
+                    field.value = 'Sample-' + randomInt(1000, 9999);
                 }
             });
         });
+    </script>
+
+    <!-- JavaScript for real-time date and time -->
+    <script>
+        // Function to update date and time fields with real-time values
+        function updateDateTime() {
+            const now = new Date();
+            
+            // Format date as YYYY-MM-DD for the date input
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const formattedDate = `${year}-${month}-${day}`;
+            
+            // Format time as HH:MM (without seconds)
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const formattedTime = `${hours}:${minutes}`;
+            
+            // Update input values
+            document.getElementById('currentDate').value = formattedDate;
+            document.getElementById('currentTime').value = formattedTime;
+        }
+        
+        // Update date and time immediately when page loads
+        updateDateTime();
+        
+        // Update date and time every minute
+        setInterval(updateDateTime, 60000);
     </script>
 </body>
 

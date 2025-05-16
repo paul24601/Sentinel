@@ -21,15 +21,31 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Generate a unique record_id
+$record_id = 'PARAM_' . date('Ymd') . '_' . substr(uniqid(), -5);
+
+// Insert into parameter_records table
+session_start();
+$submitted_by = isset($_SESSION['full_name']) ? $_SESSION['full_name'] : 'Unknown User';
+$title = isset($_POST['MachineName']) ? $_POST['MachineName'] . ' - ' . $_POST['product'] : 'Unnamed Record';
+$description = isset($_POST['additionalInfo']) ? $_POST['additionalInfo'] : '';
+
+$sql = "INSERT INTO parameter_records (record_id, submitted_by, title, description) VALUES (?, ?, ?, ?)";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("ssss", $record_id, $submitted_by, $title, $description);
+if (!$stmt->execute()) {
+    $errors[] = "Error creating record: " . $stmt->error;
+}
+
 // Initialize variables to track errors
 $errors = [];
 
 // Insert into productmachineinfo table
 if (isset($_POST['Date'], $_POST['Time'], $_POST['MachineName'], $_POST['RunNumber'], $_POST['Category'], $_POST['IRN'])) {
-    $sql = "INSERT INTO productmachineinfo (Date, Time, MachineName, RunNumber, Category, IRN)
-            VALUES (?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO productmachineinfo (record_id, Date, Time, MachineName, RunNumber, Category, IRN)
+            VALUES (?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssss", $_POST['Date'], $_POST['Time'], $_POST['MachineName'], $_POST['RunNumber'], $_POST['Category'], $_POST['IRN']);
+    $stmt->bind_param("sssssss", $record_id, $_POST['Date'], $_POST['Time'], $_POST['MachineName'], $_POST['RunNumber'], $_POST['Category'], $_POST['IRN']);
     if (!$stmt->execute()) {
         $errors[] = "Error inserting into productmachineinfo: " . $stmt->error;
     }
@@ -37,10 +53,10 @@ if (isset($_POST['Date'], $_POST['Time'], $_POST['MachineName'], $_POST['RunNumb
 
 // Insert into productdetails table
 if (isset($_POST['product'], $_POST['color'], $_POST['mold-name'], $_POST['prodNo'], $_POST['cavity'], $_POST['grossWeight'], $_POST['netWeight'])) {
-    $sql = "INSERT INTO productdetails (ProductName, Color, MoldName, ProductNumber, CavityActive, GrossWeight, NetWeight)
-            VALUES (?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO productdetails (record_id, ProductName, Color, MoldName, ProductNumber, CavityActive, GrossWeight, NetWeight)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssidd", $_POST['product'], $_POST['color'], $_POST['mold-name'], $_POST['prodNo'], $_POST['cavity'], $_POST['grossWeight'], $_POST['netWeight']);
+    $stmt->bind_param("sssssidd", $record_id, $_POST['product'], $_POST['color'], $_POST['mold-name'], $_POST['prodNo'], $_POST['cavity'], $_POST['grossWeight'], $_POST['netWeight']);
     if (!$stmt->execute()) {
         $errors[] = "Error inserting into productdetails: " . $stmt->error;
     }
@@ -66,15 +82,16 @@ if (isset($_POST['dryingtime'], $_POST['dryingtemp'])) {
     $mix4 = isset($_POST['mix4']) ? $_POST['mix4'] : null;
 
     $sql = "INSERT INTO materialcomposition (
-                DryingTime, DryingTemperature, 
+                record_id, DryingTime, DryingTemperature, 
                 Material1_Type, Material1_Brand, Material1_MixturePercentage,
                 Material2_Type, Material2_Brand, Material2_MixturePercentage,
                 Material3_Type, Material3_Brand, Material3_MixturePercentage,
                 Material4_Type, Material4_Brand, Material4_MixturePercentage
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param(
-        "ddssdssdssdssd",
+        "sddssdssdssdssd",
+        $record_id,
         $_POST['dryingtime'],           // Drying Time
         $_POST['dryingtemp'],           // Drying Temperature
         $type1,
@@ -99,10 +116,10 @@ if (isset($_POST['dryingtime'], $_POST['dryingtemp'])) {
 
 // Insert into colorantdetails table
 if (isset($_POST['colorant'], $_POST['color'], $_POST['colorant-dosage'], $_POST['colorant-stabilizer'], $_POST['colorant-stabilizer-dosage'])) {
-    $sql = "INSERT INTO colorantdetails (Colorant, Color, Dosage, Stabilizer, StabilizerDosage)
-            VALUES (?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO colorantdetails (record_id, Colorant, Color, Dosage, Stabilizer, StabilizerDosage)
+            VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssss", $_POST['colorant'], $_POST['colorantColor'], $_POST['colorant-dosage'], $_POST['colorant-stabilizer'], $_POST['colorant-stabilizer-dosage']);
+    $stmt->bind_param("ssssss", $record_id, $_POST['colorant'], $_POST['colorantColor'], $_POST['colorant-dosage'], $_POST['colorant-stabilizer'], $_POST['colorant-stabilizer-dosage']);
     if (!$stmt->execute()) {
         $errors[] = "Error inserting into colorantdetails: " . $stmt->error;
     }
@@ -110,10 +127,10 @@ if (isset($_POST['colorant'], $_POST['color'], $_POST['colorant-dosage'], $_POST
 
 // Insert into moldoperationspecs table
 if (isset($_POST['mold-code'], $_POST['clamping-force'], $_POST['operation-type'], $_POST['cooling-media'], $_POST['heating-media'])) {
-    $sql = "INSERT INTO moldoperationspecs (MoldCode, ClampingForce, OperationType, CoolingMedia, HeatingMedia)
-            VALUES (?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO moldoperationspecs (record_id, MoldCode, ClampingForce, OperationType, CoolingMedia, HeatingMedia)
+            VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssss", $_POST['mold-code'], $_POST['clamping-force'], $_POST['operation-type'], $_POST['cooling-media'], $_POST['heating-media']);
+    $stmt->bind_param("ssssss", $record_id, $_POST['mold-code'], $_POST['clamping-force'], $_POST['operation-type'], $_POST['cooling-media'], $_POST['heating-media']);
     if (!$stmt->execute()) {
         $errors[] = "Error inserting into moldoperationspecs: " . $stmt->error;
     }
@@ -121,10 +138,10 @@ if (isset($_POST['mold-code'], $_POST['clamping-force'], $_POST['operation-type'
 
 // Insert into timerparameters table
 if (isset($_POST['fillingTime'], $_POST['holdingTime'], $_POST['moldOpenCloseTime'], $_POST['chargingTime'], $_POST['coolingTime'], $_POST['cycleTime'])) {
-    $sql = "INSERT INTO timerparameters (FillingTime, HoldingTime, MoldOpenCloseTime, ChargingTime, CoolingTime, CycleTime)
-            VALUES (?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO timerparameters (record_id, FillingTime, HoldingTime, MoldOpenCloseTime, ChargingTime, CoolingTime, CycleTime)
+            VALUES (?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("dddddd", $_POST['fillingTime'], $_POST['holdingTime'], $_POST['moldOpenCloseTime'], $_POST['chargingTime'], $_POST['coolingTime'], $_POST['cycleTime']);
+    $stmt->bind_param("sdddddd", $record_id, $_POST['fillingTime'], $_POST['holdingTime'], $_POST['moldOpenCloseTime'], $_POST['chargingTime'], $_POST['coolingTime'], $_POST['cycleTime']);
     if (!$stmt->execute()) {
         $errors[] = "Error inserting into timerparameters: " . $stmt->error;
     }
@@ -133,13 +150,14 @@ if (isset($_POST['fillingTime'], $_POST['holdingTime'], $_POST['moldOpenCloseTim
 // Insert into barrelheatertemperatures table
 if (isset($_POST['barrelHeaterZone0'], $_POST['barrelHeaterZone1'], $_POST['barrelHeaterZone2'])) {
     $sql = "INSERT INTO barrelheatertemperatures (
-                Zone0, Zone1, Zone2, Zone3, Zone4, Zone5, Zone6, Zone7, Zone8, Zone9,
+                record_id, Zone0, Zone1, Zone2, Zone3, Zone4, Zone5, Zone6, Zone7, Zone8, Zone9,
                 Zone10, Zone11, Zone12, Zone13, Zone14, Zone15, Zone16
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param(
-        "ddddddddddddddddd",
+        "sddddddddddddddddd",
+        $record_id,
         $_POST['barrelHeaterZone0'],
         $_POST['barrelHeaterZone1'],
         $_POST['barrelHeaterZone2'],
@@ -166,13 +184,14 @@ if (isset($_POST['barrelHeaterZone0'], $_POST['barrelHeaterZone1'], $_POST['barr
 // Insert into moldheatertemperatures table
 if (isset($_POST['Zone0'], $_POST['Zone1'], $_POST['MTCSetting'])) {
     $sql = "INSERT INTO moldheatertemperatures (
-                Zone0, Zone1, Zone2, Zone3, Zone4, Zone5, Zone6, Zone7, Zone8, Zone9,
+                record_id, Zone0, Zone1, Zone2, Zone3, Zone4, Zone5, Zone6, Zone7, Zone8, Zone9,
                 Zone10, Zone11, Zone12, Zone13, Zone14, Zone15, Zone16, MTCSetting
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param(
-        "dddddddddddddddddd",
+        "sdddddddddddddddddd",
+        $record_id,
         $_POST['Zone0'],
         $_POST['Zone1'],
         $_POST['Zone2'],
@@ -200,17 +219,18 @@ if (isset($_POST['Zone0'], $_POST['Zone1'], $_POST['MTCSetting'])) {
 // Insert into plasticizingparameters table
 if (isset($_POST['screwRPM1'], $_POST['screwSpeed1'], $_POST['plastPressure1'])) {
     $sql = "INSERT INTO plasticizingparameters (
-                ScrewRPM1, ScrewRPM2, ScrewRPM3,
+                record_id, ScrewRPM1, ScrewRPM2, ScrewRPM3,
                 ScrewSpeed1, ScrewSpeed2, ScrewSpeed3,
                 PlastPressure1, PlastPressure2, PlastPressure3,
                 PlastPosition1, PlastPosition2, PlastPosition3,
                 BackPressure1, BackPressure2, BackPressure3,
                 BackPressureStartPosition
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param(
-        "dddddddddddddddd",
+        "sdddddddddddddddd",
+        $record_id,
         $_POST['screwRPM1'],
         $_POST['screwRPM2'],
         $_POST['screwRPM3'],
@@ -236,7 +256,7 @@ if (isset($_POST['screwRPM1'], $_POST['screwSpeed1'], $_POST['plastPressure1']))
 // Insert into injectionparameters table
 if (isset($_POST['RecoveryPosition'], $_POST['ScrewPosition1'], $_POST['InjectionSpeed1'])) {
     $sql = "INSERT INTO injectionparameters (
-                RecoveryPosition, SecondStagePosition, Cushion,
+                record_id, RecoveryPosition, SecondStagePosition, Cushion,
                 ScrewPosition1, ScrewPosition2, ScrewPosition3,
                 InjectionSpeed1, InjectionSpeed2, InjectionSpeed3,
                 InjectionPressure1, InjectionPressure2, InjectionPressure3,
@@ -245,77 +265,44 @@ if (isset($_POST['RecoveryPosition'], $_POST['ScrewPosition1'], $_POST['Injectio
                 HoldingPressure1, HoldingPressure2, HoldingPressure3,
                 HoldingSpeed1, HoldingSpeed2, HoldingSpeed3,
                 HoldingTime1, HoldingTime2, HoldingTime3
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     // Prepare the statement
     $stmt = $conn->prepare($sql);
-
-    if ($stmt === false) {
-        die("Error preparing statement: " . $conn->error);
-    }
-
-    // Assign POST values to variables, with fallbacks
-    $RecoveryPosition = $_POST['RecoveryPosition'] ?? null;
-    $SecondStagePosition = $_POST['SecondStagePosition'] ?? null;
-    $Cushion = $_POST['Cushion'] ?? null;
-    $ScrewPosition1 = $_POST['ScrewPosition1'] ?? null;
-    $ScrewPosition2 = $_POST['ScrewPosition2'] ?? null;
-    $ScrewPosition3 = $_POST['ScrewPosition3'] ?? null;
-    $InjectionSpeed1 = $_POST['InjectionSpeed1'] ?? null;
-    $InjectionSpeed2 = $_POST['InjectionSpeed2'] ?? null;
-    $InjectionSpeed3 = $_POST['InjectionSpeed3'] ?? null;
-    $InjectionPressure1 = $_POST['InjectionPressure1'] ?? null;
-    $InjectionPressure2 = $_POST['InjectionPressure2'] ?? null;
-    $InjectionPressure3 = $_POST['InjectionPressure3'] ?? null;
-    $SuckBackPosition = $_POST['SuckBackPosition'] ?? null;
-    $SuckBackSpeed = $_POST['SuckBackSpeed'] ?? null;
-    $SuckBackPressure = $_POST['SuckBackPressure'] ?? null;
-    $SprueBreak = $_POST['SprueBreak'] ?? null;
-    $SprueBreakTime = $_POST['SprueBreakTime'] ?? null;
-    $InjectionDelay = $_POST['InjectionDelay'] ?? null;
-    $HoldingPressure1 = $_POST['HoldingPressure1'] ?? null;
-    $HoldingPressure2 = $_POST['HoldingPressure2'] ?? null;
-    $HoldingPressure3 = $_POST['HoldingPressure3'] ?? null;
-    $HoldingSpeed1 = $_POST['HoldingSpeed1'] ?? null;
-    $HoldingSpeed2 = $_POST['HoldingSpeed2'] ?? null;
-    $HoldingSpeed3 = $_POST['HoldingSpeed3'] ?? null;
-    $HoldingTime1 = $_POST['HoldingTime1'] ?? null;
-    $HoldingTime2 = $_POST['HoldingTime2'] ?? null;
-    $HoldingTime3 = $_POST['HoldingTime3'] ?? null;
-
-    // Bind the parameters
     $stmt->bind_param(
-        "ddddddddddddddddddddddddddd",
-        $RecoveryPosition,
-        $SecondStagePosition,
-        $Cushion,
-        $ScrewPosition1,
-        $ScrewPosition2,
-        $ScrewPosition3,
-        $InjectionSpeed1,
-        $InjectionSpeed2,
-        $InjectionSpeed3,
-        $InjectionPressure1,
-        $InjectionPressure2,
-        $InjectionPressure3,
-        $SuckBackPosition,
-        $SuckBackSpeed,
-        $SuckBackPressure,
-        $SprueBreak,
-        $SprueBreakTime,
-        $InjectionDelay,
-        $HoldingPressure1,
-        $HoldingPressure2,
-        $HoldingPressure3,
-        $HoldingSpeed1,
-        $HoldingSpeed2,
-        $HoldingSpeed3,
-        $HoldingTime1,
-        $HoldingTime2,
-        $HoldingTime3
+        "sddddddddddddddddddddddddddd",
+        $record_id,
+        $_POST['RecoveryPosition'],
+        $_POST['SecondStagePosition'],
+        $_POST['Cushion'],
+        $_POST['ScrewPosition1'],
+        $_POST['ScrewPosition2'],
+        $_POST['ScrewPosition3'],
+        $_POST['InjectionSpeed1'],
+        $_POST['InjectionSpeed2'],
+        $_POST['InjectionSpeed3'],
+        $_POST['InjectionPressure1'],
+        $_POST['InjectionPressure2'],
+        $_POST['InjectionPressure3'],
+        $_POST['SuckBackPosition'],
+        $_POST['SuckBackSpeed'],
+        $_POST['SuckBackPressure'],
+        $_POST['SprueBreak'],
+        $_POST['SprueBreakTime'],
+        $_POST['InjectionDelay'],
+        $_POST['HoldingPressure1'],
+        $_POST['HoldingPressure2'],
+        $_POST['HoldingPressure3'],
+        $_POST['HoldingSpeed1'],
+        $_POST['HoldingSpeed2'],
+        $_POST['HoldingSpeed3'],
+        $_POST['HoldingTime1'],
+        $_POST['HoldingTime2'],
+        $_POST['HoldingTime3']
     );
-} else {
-    echo "Required fields are missing.";
+    if (!$stmt->execute()) {
+        $errors[] = "Error inserting into injectionparameters: " . $stmt->error;
+    }
 }
 
 
@@ -323,17 +310,18 @@ if (isset($_POST['RecoveryPosition'], $_POST['ScrewPosition1'], $_POST['Injectio
 // Insert into ejectionparameters table
 if (isset($_POST['AirBlowTimeA'], $_POST['EjectorForwardPosition1'], $_POST['EjectorForwardSpeed2'])) {
     $sql = "INSERT INTO ejectionparameters (
-                AirBlowTimeA, AirBlowPositionA, AirBlowADelay,
+                record_id, AirBlowTimeA, AirBlowPositionA, AirBlowADelay,
                 AirBlowTimeB, AirBlowPositionB, AirBlowBDelay,
                 EjectorForwardPosition1, EjectorForwardPosition2, EjectorForwardSpeed1,
                 EjectorRetractPosition1, EjectorRetractPosition2, EjectorRetractSpeed1,
                 EjectorForwardSpeed2, EjectorForwardPressure1, EjectorRetractSpeed2,
                 EjectorRetractPressure1
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param(
-        "dddddddddddddddd",
+        "sdddddddddddddddd",
+        $record_id,
         $_POST['AirBlowTimeA'],
         $_POST['AirBlowPositionA'],
         $_POST['AirBlowADelay'],
@@ -398,15 +386,16 @@ if (isset($_POST['coreSetASequence'], $_POST['coreSetAPressure'], $_POST['coreSe
         ]
     ];
 
-    $sqlCore = "INSERT INTO corepullsettings (Section, Sequence, Pressure, Speed, Position, Time, LimitSwitch)
-            VALUES (?, ?, ?, ?, ?, ?, ?)";
+    $sqlCore = "INSERT INTO corepullsettings (record_id, Section, Sequence, Pressure, Speed, Position, Time, LimitSwitch)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmtCore = $conn->prepare($sqlCore);
 
     foreach ($coreSections as $section => $types) {
         foreach ($types as $type => $fields) {
             $sectionName = "Core " . ucfirst($type) . " " . $section;
             $stmtCore->bind_param(
-                "sidddds",
+                "sssdddds",
+                $record_id,
                 $sectionName,
                 $fields['sequence'],
                 $fields['pressure'],
@@ -424,9 +413,9 @@ if (isset($_POST['coreSetASequence'], $_POST['coreSetAPressure'], $_POST['coreSe
 
 // Insert into additionalinformation table
 if (isset($_POST['additionalInfo'])) {
-    $sql = "INSERT INTO additionalinformation (Info) VALUES (?)";
+    $sql = "INSERT INTO additionalinformation (record_id, Info) VALUES (?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $_POST['additionalInfo']);
+    $stmt->bind_param("ss", $record_id, $_POST['additionalInfo']);
     if (!$stmt->execute()) {
         $errors[] = "Error inserting into additionalinformation: " . $stmt->error;
     }
@@ -434,9 +423,9 @@ if (isset($_POST['additionalInfo'])) {
 
 // Insert into personnel table
 if (isset($_POST['adjuster'], $_POST['qae'])) {
-    $sql = "INSERT INTO personnel (AdjusterName, QAEName) VALUES (?, ?)";
+    $sql = "INSERT INTO personnel (record_id, AdjusterName, QAEName) VALUES (?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ss", $_POST['adjuster'], $_POST['qae']);
+    $stmt->bind_param("sss", $record_id, $_POST['adjuster'], $_POST['qae']);
     if (!$stmt->execute()) {
         $errors[] = "Error inserting into personnel: " . $stmt->error;
     }
@@ -555,12 +544,13 @@ if (isset($_FILES['uploadVideos'])) {
 
 // Insert attachments into database
 if (!empty($uploadedImages) || !empty($uploadedVideos)) {
-    $sql = "INSERT INTO attachments (FileName, FilePath, FileType) VALUES (?, ?, ?)";
+    $sql = "INSERT INTO attachments (record_id, FileName, FilePath, FileType) VALUES (?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
 
     foreach (array_merge($uploadedImages, $uploadedVideos) as $file) {
         $stmt->bind_param(
-            "sss",
+            "ssss",
+            $record_id,
             $file['name'],
             $file['path'],
             $file['type']
@@ -576,17 +566,15 @@ if (!empty($uploadedImages) || !empty($uploadedVideos)) {
 // Finalize transaction and set modal content
 if (empty($errors)) {
     $conn->commit();
-    $modalHeader = '<div class="modal-header bg-success text-white">
-                      <h5 class="modal-title" id="resultModalLabel">Success</h5>
-                    </div>';
-    $modalBody = '<div class="modal-body">All data has been submitted successfully! You will be redirected shortly.</div>';
+    session_start();
+    $_SESSION['success_message'] = "Data submitted successfully with Record ID: " . $record_id;
+    header("Location: index.php?record_id=" . $record_id);
+    exit();
 } else {
     $conn->rollback();
-    $errorMsg = implode('<br>', $errors);
-    $modalHeader = '<div class="modal-header bg-danger text-white">
-                      <h5 class="modal-title" id="resultModalLabel">Error</h5>
-                    </div>';
-    $modalBody = '<div class="modal-body">The following errors occurred:<br>' . $errorMsg . '</div>';
+    $_SESSION['error_message'] = "Errors occurred: " . implode(", ", $errors);
+    header("Location: index.php");
+    exit();
 }
 
 $conn->close();

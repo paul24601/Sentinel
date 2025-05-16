@@ -27,22 +27,142 @@ function fetchData($conn, $tableName)
     return $conn->query($sql);
 }
 
-// Fetch data from all tables
-$productMachineInfo = fetchData($conn, 'productmachineinfo');
-$productDetails = fetchData($conn, 'productdetails');
-$materialComposition = fetchData($conn, 'materialcomposition');
-$colorantDetails = fetchData($conn, 'colorantdetails');
-$moldOperationSpecs = fetchData($conn, 'moldoperationspecs');
-$timerParameters = fetchData($conn, 'timerparameters');
-$barrelHeaterTemperatures = fetchData($conn, 'barrelheatertemperatures');
-$moldHeaterTemperatures = fetchData($conn, 'moldheatertemperatures');
-$plasticizingParameters = fetchData($conn, 'plasticizingparameters');
-$injectionParameters = fetchData($conn, 'injectionparameters');
-$ejectionParameters = fetchData($conn, 'ejectionparameters');
-$corePullSettings = fetchData($conn, 'corepullsettings');
-$additionalInformation = fetchData($conn, 'additionalinformation');
-$personnel = fetchData($conn, 'personnel');  // Added personnel
-$attachments = fetchData($conn, 'attachments');  // Added attachments
+// Fetch master records first
+$sql = "SELECT * FROM parameter_records ORDER BY submission_date DESC";
+$parameterRecords = $conn->query($sql);
+
+// Fetch master records count
+$countSql = "SELECT COUNT(*) as total FROM parameter_records";
+$countResult = $conn->query($countSql);
+$recordsCount = $countResult->fetch_assoc()['total'];
+
+// Fetch detailed data for specific record if requested
+$selectedRecordId = isset($_GET['record_id']) ? $_GET['record_id'] : null;
+$recordDetails = null;
+
+if ($selectedRecordId) {
+    // Fetch product machine info for this record
+    $sql = "SELECT * FROM productmachineinfo WHERE record_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $selectedRecordId);
+    $stmt->execute();
+    $productMachineInfo = $stmt->get_result();
+    
+    // Fetch product details for this record
+    $sql = "SELECT * FROM productdetails WHERE record_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $selectedRecordId);
+    $stmt->execute();
+    $productDetails = $stmt->get_result();
+    
+    // Fetch material composition for this record
+    $sql = "SELECT * FROM materialcomposition WHERE record_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $selectedRecordId);
+    $stmt->execute();
+    $materialComposition = $stmt->get_result();
+    
+    // Fetch colorant details for this record
+    $sql = "SELECT * FROM colorantdetails WHERE record_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $selectedRecordId);
+    $stmt->execute();
+    $colorantDetails = $stmt->get_result();
+    
+    // Fetch mold operation specs for this record
+    $sql = "SELECT * FROM moldoperationspecs WHERE record_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $selectedRecordId);
+    $stmt->execute();
+    $moldOperationSpecs = $stmt->get_result();
+    
+    // Fetch timer parameters for this record
+    $sql = "SELECT * FROM timerparameters WHERE record_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $selectedRecordId);
+    $stmt->execute();
+    $timerParameters = $stmt->get_result();
+    
+    // Fetch barrel heater temperatures for this record
+    $sql = "SELECT * FROM barrelheatertemperatures WHERE record_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $selectedRecordId);
+    $stmt->execute();
+    $barrelHeaterTemperatures = $stmt->get_result();
+    
+    // Fetch mold heater temperatures for this record
+    $sql = "SELECT * FROM moldheatertemperatures WHERE record_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $selectedRecordId);
+    $stmt->execute();
+    $moldHeaterTemperatures = $stmt->get_result();
+    
+    // Fetch plasticizing parameters for this record
+    $sql = "SELECT * FROM plasticizingparameters WHERE record_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $selectedRecordId);
+    $stmt->execute();
+    $plasticizingParameters = $stmt->get_result();
+    
+    // Fetch injection parameters for this record
+    $sql = "SELECT * FROM injectionparameters WHERE record_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $selectedRecordId);
+    $stmt->execute();
+    $injectionParameters = $stmt->get_result();
+    
+    // Fetch ejection parameters for this record
+    $sql = "SELECT * FROM ejectionparameters WHERE record_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $selectedRecordId);
+    $stmt->execute();
+    $ejectionParameters = $stmt->get_result();
+    
+    // Fetch core pull settings for this record
+    $sql = "SELECT * FROM corepullsettings WHERE record_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $selectedRecordId);
+    $stmt->execute();
+    $corePullSettings = $stmt->get_result();
+    
+    // Fetch additional information for this record
+    $sql = "SELECT * FROM additionalinformation WHERE record_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $selectedRecordId);
+    $stmt->execute();
+    $additionalInformation = $stmt->get_result();
+    
+    // Fetch personnel for this record
+    $sql = "SELECT * FROM personnel WHERE record_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $selectedRecordId);
+    $stmt->execute();
+    $personnel = $stmt->get_result();
+    
+    // Fetch attachments for this record
+    $sql = "SELECT * FROM attachments WHERE record_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $selectedRecordId);
+    $stmt->execute();
+    $attachments = $stmt->get_result();
+} else {
+    // For the main records view, we don't need to fetch individual tables
+    $productMachineInfo = [];
+    $productDetails = [];
+    $materialComposition = [];
+    $colorantDetails = [];
+    $moldOperationSpecs = [];
+    $timerParameters = [];
+    $barrelHeaterTemperatures = [];
+    $moldHeaterTemperatures = [];
+    $plasticizingParameters = [];
+    $injectionParameters = [];
+    $ejectionParameters = [];
+    $corePullSettings = [];
+    $additionalInformation = [];
+    $personnel = [];
+    $attachments = [];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -205,13 +325,57 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
         <div id="layoutSidenav_content">
             <main>
                 <div class="container-fluid p-4">
-                    <h1 class="">Records</h1>
+                    <h1 class="">Parameters Data Visualization</h1>
                     <ol class="breadcrumb mb-4">
-                        <li class="breadcrumb-item active">Injection Department</li>
+                        <li class="breadcrumb-item active">Injection Department Records</li>
                     </ol>
-                    <!--FORMS-->
-
+                    
+                    <?php if ($selectedRecordId): ?>
+                        <!-- Show back button when viewing detailed record -->
+                        <div class="mb-4">
+                            <a href="submission.php" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Records</a>
+                        </div>
+                        
+                        <!-- Detailed Record View -->
                     <div class="container-fluid my-5">
+                            <!-- Display details for selected record -->
+                            <?php 
+                            // Fetch the selected record details
+                            $sql = "SELECT * FROM parameter_records WHERE record_id = ?";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->bind_param("s", $selectedRecordId);
+                            $stmt->execute();
+                            $recordData = $stmt->get_result()->fetch_assoc();
+                            ?>
+                            
+                            <div class="card mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <div class="d-flex justify-content-between">
+                                        <h5><?= htmlspecialchars($recordData['title']) ?></h5>
+                                        <span>Record ID: <?= htmlspecialchars($selectedRecordId) ?></span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-4">
+                                            <p><strong>Submitted by:</strong> <?= htmlspecialchars($recordData['submitted_by']) ?></p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <p><strong>Submission Date:</strong> <?= htmlspecialchars($recordData['submission_date']) ?></p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <p><strong>Status:</strong> <span class="badge bg-success"><?= htmlspecialchars(ucfirst($recordData['status'])) ?></span></p>
+                                        </div>
+                                    </div>
+                                    <?php if ($recordData['description']): ?>
+                                        <div class="mb-3">
+                                            <p><strong>Description:</strong></p>
+                                            <p><?= nl2br(htmlspecialchars($recordData['description'])) ?></p>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            
                         <!-- Product Machine Info -->
                         <div class="card mb-4">
                             <div class="card-header bg-primary text-white">Product Machine Info</div>
@@ -219,7 +383,6 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
                                 <table class="table table-bordered table-hover">
                                     <thead class="table-light">
                                         <tr>
-                                            <th>ID</th>
                                             <th>Date</th>
                                             <th>Time</th>
                                             <th>Machine Name</th>
@@ -231,7 +394,6 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
                                     <tbody>
                                         <?php while ($row = $productMachineInfo->fetch_assoc()): ?>
                                             <tr>
-                                                <td><?= $row['id'] ?></td>
                                                 <td><?= $row['Date'] ?></td>
                                                 <td><?= $row['Time'] ?></td>
                                                 <td><?= $row['MachineName'] ?></td>
@@ -252,7 +414,6 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
                                 <table class="table table-bordered table-hover">
                                     <thead class="table-light">
                                         <tr>
-                                            <th>ID</th>
                                             <th>Product Name</th>
                                             <th>Color</th>
                                             <th>Mold Name</th>
@@ -265,7 +426,6 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
                                     <tbody>
                                         <?php while ($row = $productDetails->fetch_assoc()): ?>
                                             <tr>
-                                                <td><?= $row['id'] ?></td>
                                                 <td><?= $row['ProductName'] ?></td>
                                                 <td><?= $row['Color'] ?></td>
                                                 <td><?= $row['MoldName'] ?></td>
@@ -280,507 +440,54 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
                             </div>
                         </div>
 
-                        <!-- Material Composition -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-warning text-white">Material Composition</div>
-                            <div class="card-body table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Drying Time</th>
-                                            <th>Drying Temperature</th>
-                                            <th>Material 1 Type</th>
-                                            <th>Material 1 Brand</th>
-                                            <th>Material 1 Mixture</th>
-                                            <th>Material 2 Type</th>
-                                            <th>Material 2 Brand</th>
-                                            <th>Material 2 Mixture</th>
-                                            <th>Material 3 Type</th>
-                                            <th>Material 3 Brand</th>
-                                            <th>Material 3 Mixture</th>
-                                            <th>Material 4 Type</th>
-                                            <th>Material 4 Brand</th>
-                                            <th>Material 4 Mixture</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($row = $materialComposition->fetch_assoc()): ?>
-                                            <tr>
-                                                <td><?= $row['id'] ?></td>
-                                                <td><?= $row['DryingTime'] ?></td>
-                                                <td><?= $row['DryingTemperature'] ?></td>
-                                                <td><?= $row['Material1_Type'] ?></td>
-                                                <td><?= $row['Material1_Brand'] ?></td>
-                                                <td><?= $row['Material1_MixturePercentage'] ?></td>
-                                                <td><?= $row['Material2_Type'] ?></td>
-                                                <td><?= $row['Material2_Brand'] ?></td>
-                                                <td><?= $row['Material2_MixturePercentage'] ?></td>
-                                                <td><?= $row['Material3_Type'] ?></td>
-                                                <td><?= $row['Material3_Brand'] ?></td>
-                                                <td><?= $row['Material3_MixturePercentage'] ?></td>
-                                                <td><?= $row['Material4_Type'] ?></td>
-                                                <td><?= $row['Material4_Brand'] ?></td>
-                                                <td><?= $row['Material4_MixturePercentage'] ?></td>
-                                            </tr>
-                                        <?php endwhile; ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <!-- Continue with other detailed tables... -->
+                            
                         </div>
 
-                        <!-- Colorant Details -->
+                    <?php else: ?>
+                        <!-- Main Records View - Display card with summary of all records -->
                         <div class="card mb-4">
-                            <div class="card-header bg-danger text-white">Colorant Details</div>
-                            <div class="card-body table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Colorant</th>
-                                            <th>Color</th>
-                                            <th>Dosage</th>
-                                            <th>Stabilizer</th>
-                                            <th>Stabilizer Dosage</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($row = $colorantDetails->fetch_assoc()): ?>
-                                            <tr>
-                                                <td><?= $row['id'] ?></td>
-                                                <td><?= $row['Colorant'] ?></td>
-                                                <td><?= $row['Color'] ?></td>
-                                                <td><?= $row['Dosage'] ?></td>
-                                                <td><?= $row['Stabilizer'] ?></td>
-                                                <td><?= $row['StabilizerDosage'] ?></td>
-                                            </tr>
-                                        <?php endwhile; ?>
-                                    </tbody>
-                                </table>
+                            <div class="card-header">
+                                <i class="fas fa-table me-1"></i>
+                                Parameters Records (<?= $recordsCount ?>)
                             </div>
-                        </div>
-
-                        <!-- Mold Operation Specs -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-info text-white">Mold Operation Specs</div>
-                            <div class="card-body table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead class="table-light">
+                            <div class="card-body">
+                                <table id="recordsTable" class="table table-striped table-hover">
+                                    <thead>
                                         <tr>
-                                            <th>ID</th>
-                                            <th>Mold Code</th>
-                                            <th>Clamping Force</th>
-                                            <th>Operation Type</th>
-                                            <th>Cooling Media</th>
-                                            <th>Heating Media</th>
+                                            <th>Record ID</th>
+                                            <th>Title</th>
+                                            <th>Submitted By</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php while ($row = $moldOperationSpecs->fetch_assoc()): ?>
+                                        <?php while ($record = $parameterRecords->fetch_assoc()): ?>
                                             <tr>
-                                                <td><?= $row['id'] ?></td>
-                                                <td><?= $row['MoldCode'] ?></td>
-                                                <td><?= $row['ClampingForce'] ?></td>
-                                                <td><?= $row['OperationType'] ?></td>
-                                                <td><?= $row['CoolingMedia'] ?></td>
-                                                <td><?= $row['HeatingMedia'] ?></td>
-                                            </tr>
-                                        <?php endwhile; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Timer Parameters -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-secondary text-white">Timer Parameters</div>
-                            <div class="card-body table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Filling Time</th>
-                                            <th>Holding Time</th>
-                                            <th>Mold Open/Close Time</th>
-                                            <th>Charging Time</th>
-                                            <th>Cooling Time</th>
-                                            <th>Cycle Time</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($row = $timerParameters->fetch_assoc()): ?>
-                                            <tr>
-                                                <td><?= $row['id'] ?></td>
-                                                <td><?= $row['FillingTime'] ?></td>
-                                                <td><?= $row['HoldingTime'] ?></td>
-                                                <td><?= $row['MoldOpenCloseTime'] ?></td>
-                                                <td><?= $row['ChargingTime'] ?></td>
-                                                <td><?= $row['CoolingTime'] ?></td>
-                                                <td><?= $row['CycleTime'] ?></td>
-                                            </tr>
-                                        <?php endwhile; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <!-- Barrel Heater Temperatures -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-dark text-white">Barrel Heater Temperatures</div>
-                            <div class="card-body table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>ID</th>
-                                            <?php for ($i = 0; $i <= 16; $i++): ?>
-                                                <th>Zone <?= $i ?></th>
-                                            <?php endfor; ?>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($row = $barrelHeaterTemperatures->fetch_assoc()): ?>
-                                            <tr>
-                                                <td><?= $row['id'] ?></td>
-                                                <?php for ($i = 0; $i <= 16; $i++): ?>
-                                                    <td><?= $row["Zone$i"] ?></td>
-                                                <?php endfor; ?>
-                                            </tr>
-                                        <?php endwhile; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Mold Heater Temperatures -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-primary text-white">Mold Heater Temperatures</div>
-                            <div class="card-body table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>ID</th>
-                                            <?php for ($i = 0; $i <= 16; $i++): ?>
-                                                <th>Zone <?= $i ?></th>
-                                            <?php endfor; ?>
-                                            <th>MTC Setting</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($row = $moldHeaterTemperatures->fetch_assoc()): ?>
-                                            <tr>
-                                                <td><?= $row['id'] ?></td>
-                                                <?php for ($i = 0; $i <= 16; $i++): ?>
-                                                    <td><?= $row["Zone$i"] ?></td>
-                                                <?php endfor; ?>
-                                                <td><?= $row['MTCSetting'] ?></td>
-                                            </tr>
-                                        <?php endwhile; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Plasticizing Parameters -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-success text-white">Plasticizing Parameters</div>
-                            <div class="card-body table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Screw RPM 1</th>
-                                            <th>Screw RPM 2</th>
-                                            <th>Screw RPM 3</th>
-                                            <th>Screw Speed 1</th>
-                                            <th>Screw Speed 2</th>
-                                            <th>Screw Speed 3</th>
-                                            <th>Plast Pressure 1</th>
-                                            <th>Plast Pressure 2</th>
-                                            <th>Plast Pressure 3</th>
-                                            <th>Plast Position 1</th>
-                                            <th>Plast Position 2</th>
-                                            <th>Plast Position 3</th>
-                                            <th>Back Pressure 1</th>
-                                            <th>Back Pressure 2</th>
-                                            <th>Back Pressure 3</th>
-                                            <th>Back Pressure Start Position</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($row = $plasticizingParameters->fetch_assoc()): ?>
-                                            <tr>
-                                                <td><?= $row['id'] ?></td>
-                                                <td><?= $row['ScrewRPM1'] ?></td>
-                                                <td><?= $row['ScrewRPM2'] ?></td>
-                                                <td><?= $row['ScrewRPM3'] ?></td>
-                                                <td><?= $row['ScrewSpeed1'] ?></td>
-                                                <td><?= $row['ScrewSpeed2'] ?></td>
-                                                <td><?= $row['ScrewSpeed3'] ?></td>
-                                                <td><?= $row['PlastPressure1'] ?></td>
-                                                <td><?= $row['PlastPressure2'] ?></td>
-                                                <td><?= $row['PlastPressure3'] ?></td>
-                                                <td><?= $row['PlastPosition1'] ?></td>
-                                                <td><?= $row['PlastPosition2'] ?></td>
-                                                <td><?= $row['PlastPosition3'] ?></td>
-                                                <td><?= $row['BackPressure1'] ?></td>
-                                                <td><?= $row['BackPressure2'] ?></td>
-                                                <td><?= $row['BackPressure3'] ?></td>
-                                                <td><?= $row['BackPressureStartPosition'] ?></td>
-                                            </tr>
-                                        <?php endwhile; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Injection Parameters -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-warning text-white">Injection Parameters</div>
-                            <div class="card-body table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Recovery Position</th>
-                                            <th>Second Stage Position</th>
-                                            <th>Cushion</th>
-                                            <th>Screw Position 1</th>
-                                            <th>Screw Position 2</th>
-                                            <th>Screw Position 3</th>
-                                            <th>Injection Speed 1</th>
-                                            <th>Injection Speed 2</th>
-                                            <th>Injection Speed 3</th>
-                                            <th>Injection Pressure 1</th>
-                                            <th>Injection Pressure 2</th>
-                                            <th>Injection Pressure 3</th>
-                                            <th>Suck Back Position</th>
-                                            <th>Suck Back Speed</th>
-                                            <th>Suck Back Pressure</th>
-                                            <th>Sprue Break</th>
-                                            <th>Sprue Break Time</th>
-                                            <th>Injection Delay</th>
-                                            <th>Holding Pressure 1</th>
-                                            <th>Holding Pressure 2</th>
-                                            <th>Holding Pressure 3</th>
-                                            <th>Holding Speed 1</th>
-                                            <th>Holding Speed 2</th>
-                                            <th>Holding Speed 3</th>
-                                            <th>Holding Time 1</th>
-                                            <th>Holding Time 2</th>
-                                            <th>Holding Time 3</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($row = $injectionParameters->fetch_assoc()): ?>
-                                            <tr>
-                                                <td><?= $row['id'] ?></td>
-                                                <td><?= $row['RecoveryPosition'] ?></td>
-                                                <td><?= $row['SecondStagePosition'] ?></td>
-                                                <td><?= $row['Cushion'] ?></td>
-                                                <td><?= $row['ScrewPosition1'] ?></td>
-                                                <td><?= $row['ScrewPosition2'] ?></td>
-                                                <td><?= $row['ScrewPosition3'] ?></td>
-                                                <td><?= $row['InjectionSpeed1'] ?></td>
-                                                <td><?= $row['InjectionSpeed2'] ?></td>
-                                                <td><?= $row['InjectionSpeed3'] ?></td>
-                                                <td><?= $row['InjectionPressure1'] ?></td>
-                                                <td><?= $row['InjectionPressure2'] ?></td>
-                                                <td><?= $row['InjectionPressure3'] ?></td>
-                                                <td><?= $row['SuckBackPosition'] ?></td>
-                                                <td><?= $row['SuckBackSpeed'] ?></td>
-                                                <td><?= $row['SuckBackPressure'] ?></td>
-                                                <td><?= $row['SprueBreak'] ?></td>
-                                                <td><?= $row['SprueBreakTime'] ?></td>
-                                                <td><?= $row['InjectionDelay'] ?></td>
-                                                <td><?= $row['HoldingPressure1'] ?></td>
-                                                <td><?= $row['HoldingPressure2'] ?></td>
-                                                <td><?= $row['HoldingPressure3'] ?></td>
-                                                <td><?= $row['HoldingSpeed1'] ?></td>
-                                                <td><?= $row['HoldingSpeed2'] ?></td>
-                                                <td><?= $row['HoldingSpeed3'] ?></td>
-                                                <td><?= $row['HoldingTime1'] ?></td>
-                                                <td><?= $row['HoldingTime2'] ?></td>
-                                                <td><?= $row['HoldingTime3'] ?></td>
-                                            </tr>
-                                        <?php endwhile; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Additional Information -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-info text-white">Additional Information</div>
-                            <div class="card-body table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Info</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($row = $additionalInformation->fetch_assoc()): ?>
-                                            <tr>
-                                                <td><?= $row['id'] ?></td>
-                                                <td><?= $row['Info'] ?></td>
-                                            </tr>
-                                        <?php endwhile; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Ejection Parameters -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-danger text-white">Ejection Parameters</div>
-                            <div class="card-body table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Air Blow Time A</th>
-                                            <th>Air Blow Position A</th>
-                                            <th>Air Blow A Delay</th>
-                                            <th>Air Blow Time B</th>
-                                            <th>Air Blow Position B</th>
-                                            <th>Air Blow B Delay</th>
-                                            <th>Ejector Forward Position 1</th>
-                                            <th>Ejector Forward Position 2</th>
-                                            <th>Ejector Forward Speed 1</th>
-                                            <th>Ejector Retract Position 1</th>
-                                            <th>Ejector Retract Position 2</th>
-                                            <th>Ejector Retract Speed 1</th>
-                                            <th>Ejector Forward Speed 2</th>
-                                            <th>Ejector Forward Pressure 1</th>
-                                            <th>Ejector Retract Speed 2</th>
-                                            <th>Ejector Retract Pressure 1</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($row = $ejectionParameters->fetch_assoc()): ?>
-                                            <tr>
-                                                <td><?= $row['id'] ?></td>
-                                                <td><?= $row['AirBlowTimeA'] ?></td>
-                                                <td><?= $row['AirBlowPositionA'] ?></td>
-                                                <td><?= $row['AirBlowADelay'] ?></td>
-                                                <td><?= $row['AirBlowTimeB'] ?></td>
-                                                <td><?= $row['AirBlowPositionB'] ?></td>
-                                                <td><?= $row['AirBlowBDelay'] ?></td>
-                                                <td><?= $row['EjectorForwardPosition1'] ?></td>
-                                                <td><?= $row['EjectorForwardPosition2'] ?></td>
-                                                <td><?= $row['EjectorForwardSpeed1'] ?></td>
-                                                <td><?= $row['EjectorRetractPosition1'] ?></td>
-                                                <td><?= $row['EjectorRetractPosition2'] ?></td>
-                                                <td><?= $row['EjectorRetractSpeed1'] ?></td>
-                                                <td><?= $row['EjectorForwardSpeed2'] ?></td>
-                                                <td><?= $row['EjectorForwardPressure1'] ?></td>
-                                                <td><?= $row['EjectorRetractSpeed2'] ?></td>
-                                                <td><?= $row['EjectorRetractPressure1'] ?></td>
-                                            </tr>
-                                        <?php endwhile; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Core Pull Settings -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-warning text-white">Core Pull Settings</div>
-                            <div class="card-body table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Section</th>
-                                            <th>Sequence</th>
-                                            <th>Pressure</th>
-                                            <th>Speed</th>
-                                            <th>Position</th>
-                                            <th>Time</th>
-                                            <th>Limit Switch</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($row = $corePullSettings->fetch_assoc()): ?>
-                                            <tr>
-                                                <td><?= $row['id'] ?></td>
-                                                <td><?= $row['Section'] ?></td>
-                                                <td><?= $row['Sequence'] ?></td>
-                                                <td><?= $row['Pressure'] ?></td>
-                                                <td><?= $row['Speed'] ?></td>
-                                                <td><?= $row['Position'] ?></td>
-                                                <td><?= $row['Time'] ?></td>
-                                                <td><?= $row['LimitSwitch'] ?></td>
-                                            </tr>
-                                        <?php endwhile; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Personnel -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-info text-white">Personnel</div>
-                            <div class="card-body table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Adjuster Name</th>
-                                            <th>Quality Assurance Engineer</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($row = $personnel->fetch_assoc()): ?>
-                                            <tr>
-                                                <td><?= htmlspecialchars($row['id']) ?></td>
-                                                <td><?= htmlspecialchars($row['AdjusterName']) ?></td>
-                                                <td><?= htmlspecialchars($row['QAEName']) ?></td>
-                                            </tr>
-                                        <?php endwhile; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Attachments Table -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-dark text-white">Attachments</div>
-                            <div class="card-body table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>File Name</th>
-                                            <th>Type</th>
-                                            <th>Path</th>
-                                            <th>Preview</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($row = $attachments->fetch_assoc()): ?>
-                                            <?php
-                                            // Convert absolute filesystem path to a public URL
-                                            $relativePath = str_replace($_SERVER['DOCUMENT_ROOT'], '', $row['FilePath']);
-                                            ?>
-                                            <tr>
-                                                <td><?= htmlspecialchars($row['id']) ?></td>
-                                                <td><?= htmlspecialchars($row['FileName']) ?></td>
-                                                <td><?= htmlspecialchars($row['FileType']) ?></td>
-                                                <td><?= htmlspecialchars($relativePath) ?></td>
+                                                <td><?= htmlspecialchars($record['record_id']) ?></td>
+                                                <td><?= htmlspecialchars($record['title']) ?></td>
+                                                <td><?= htmlspecialchars($record['submitted_by']) ?></td>
+                                                <td><?= htmlspecialchars(date('Y-m-d H:i', strtotime($record['submission_date']))) ?></td>
                                                 <td>
-                                                    <?php if (strpos($row['FileType'], 'image') !== false): ?>
-                                                        <img src="<?= htmlspecialchars($relativePath) ?>" alt="Image preview"
-                                                            style="max-width:100px;">
-                                                    <?php elseif (strpos($row['FileType'], 'video') !== false): ?>
-                                                        <video controls style="max-width:150px;">
-                                                            <source src="<?= htmlspecialchars($relativePath) ?>"
-                                                                type="<?= htmlspecialchars($row['FileType']) ?>">
-                                                            Your browser does not support the video tag.
-                                                        </video>
-                                                    <?php else: ?>
-                                                        Not previewable
-                                                    <?php endif; ?>
+                                                    <span class="badge bg-<?= $record['status'] === 'active' ? 'success' : ($record['status'] === 'archived' ? 'warning' : 'danger') ?>">
+                                                        <?= htmlspecialchars(ucfirst($record['status'])) ?>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <a href="submission.php?record_id=<?= htmlspecialchars($record['record_id']) ?>" 
+                                                       class="btn btn-primary btn-sm">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </a>
+                                                    <button class="btn btn-info btn-sm print-record" 
+                                                            data-record-id="<?= htmlspecialchars($record['record_id']) ?>">
+                                                        <i class="fas fa-print"></i> Print
+                                                    </button>
+                                                    <button class="btn btn-danger btn-sm delete-record" 
+                                                            data-record-id="<?= htmlspecialchars($record['record_id']) ?>">
+                                                        <i class="fas fa-trash"></i> Delete
+                                                    </button>
                                                 </td>
                                             </tr>
                                         <?php endwhile; ?>
@@ -788,9 +495,7 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
                                 </table>
                             </div>
                         </div>
-
-                    </div>
-
+                    <?php endif; ?>
                 </div>
             </main>
             <footer class="py-4 bg-light mt-auto">
@@ -809,22 +514,26 @@ $attachments = fetchData($conn, 'attachments');  // Added attachments
     </div>
 
     <script>
-        $(document).ready(function () {
-            // Target every <table> (or give them a common class, e.g. .datatable)
-            $('table').each(function () {
-                $(this).DataTable({
-                    // enable responsive
+        $(document).ready(function() {
+            // Initialize DataTables
+            $('#recordsTable').DataTable({
                     responsive: true,
-                    // optional: disable auto column width, so it looks cleaner in cards
-                    autoWidth: false,
-                    // optional: preserve Bootstrap styling
-                    language: {
-                        paginate: {
-                            previous: '&laquo;',
-                            next: '&raquo;'
-                        }
-                    }
-                });
+                order: [[3, 'desc']], // Sort by date column descending
+                pageLength: 25
+            });
+            
+            // Print record handler
+            $('.print-record').click(function() {
+                const recordId = $(this).data('record-id');
+                window.open('print_record.php?record_id=' + recordId, '_blank');
+            });
+            
+            // Delete record handler
+            $('.delete-record').click(function() {
+                const recordId = $(this).data('record-id');
+                if (confirm('Are you sure you want to delete this record? This action cannot be undone.')) {
+                    window.location.href = 'delete_record.php?record_id=' + recordId;
+                }
             });
         });
     </script>

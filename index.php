@@ -581,40 +581,112 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
         var analyticsLabels = <?php echo json_encode($analyticsLabels); ?>;
         var analyticsData = <?php echo json_encode($analyticsData); ?>;
 
-        // Updated LINE HISTOGRAM (stepline chart)
-        var optionsLineHistogram = {
+        // Create stock-like area chart with ApexCharts
+        var optionsAreaChart = {
             chart: {
-                type: 'line', // Use a line chart
-                height: 350
+                type: 'area',
+                height: 350,
+                zoom: {
+                    enabled: true,
+                    type: 'x',
+                    autoScaleYaxis: true
+                },
+                toolbar: {
+                    show: true,
+                    tools: {
+                        download: true,
+                        selection: true,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: true
+                    }
+                }
+            },
+            dataLabels: {
+                enabled: false
             },
             stroke: {
-                curve: 'stepline' // Makes the line appear like stepped sections (histogram-like)
+                curve: 'straight',
+                width: 2
             },
             series: [{
                 name: 'Visits',
                 data: analyticsData
             }],
+            colors: ['#2E93fA'],
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.7,
+                    opacityTo: 0.2,
+                    stops: [0, 100]
+                }
+            },
             xaxis: {
                 categories: analyticsLabels,
+                type: 'datetime',
                 labels: {
-                    show: false  // Hide x-axis labels
+                    datetimeFormatter: {
+                        year: 'yyyy',
+                        month: 'MMM yyyy',
+                        day: 'dd MMM',
+                    }
                 }
             },
             yaxis: {
                 labels: {
-                    show: false  // Hide y-axis labels
+                    formatter: function (val) {
+                        return Math.round(val);
+                    }
+                }
+            },
+            tooltip: {
+                x: {
+                    format: 'dd MMM yyyy'
+                },
+                shared: true
+            },
+            markers: {
+                size: 4,
+                strokeWidth: 2,
+                hover: {
+                    size: 6
+                }
+            },
+            grid: {
+                borderColor: '#f1f1f1',
+                row: {
+                    colors: ['transparent', 'transparent'],
+                    opacity: 0.5
                 }
             }
         };
 
-        var chartLineHistogram = new ApexCharts(document.querySelector("#myAreaChart"), optionsLineHistogram);
-        chartLineHistogram.render();
+        var chartArea = new ApexCharts(document.querySelector("#myAreaChart"), optionsAreaChart);
+        chartArea.render();
 
         // The BAR CHART below remains unchanged
         var optionsBar = {
             chart: {
                 type: 'bar',
-                height: 350
+                height: 350,
+                toolbar: {
+                    show: true
+                }
+            },
+            plotOptions: {
+                bar: {
+                    columnWidth: '60%',
+                    colors: {
+                        ranges: [{
+                            from: 0,
+                            to: 100,
+                            color: '#2E93fA'
+                        }]
+                    }
+                }
             },
             series: [{
                 name: 'Visits',
@@ -622,20 +694,31 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
             }],
             xaxis: {
                 categories: analyticsLabels,
+                type: 'datetime',
                 labels: {
-                    show: false
+                    datetimeFormatter: {
+                        year: 'yyyy',
+                        month: 'MMM yyyy',
+                        day: 'dd MMM',
+                    }
                 }
             },
             yaxis: {
                 labels: {
-                    show: false
+                    formatter: function (val) {
+                        return Math.round(val);
+                    }
+                }
+            },
+            tooltip: {
+                x: {
+                    format: 'dd MMM yyyy'
                 }
             }
         };
 
         var chartBar = new ApexCharts(document.querySelector("#myBarChart"), optionsBar);
         chartBar.render();
-
     </script>
 
 </body>
