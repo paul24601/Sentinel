@@ -9,3 +9,57 @@ a.collapsed .bi-chevron-down {
     transform: rotate(90deg);
     transition: transform 0.3s ease-in-out;
 }
+
+/* Custom styles for Parameters Module */
+.custom-heading {
+    border-left: 4px solid #007bff;
+    padding-left: 10px;
+}
+
+.parameter-section {
+    margin-bottom: 20px;
+}
+
+.attachment-thumbnail {
+    height: 180px;
+    object-fit: cover;
+}
+
+/* Record detail view styles */
+.card-header {
+    font-weight: bold;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table th {
+    white-space: nowrap;
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    .container-fluid {
+        width: 100%;
+        padding: 0;
+    }
+    .card {
+        border: 1px solid #ddd;
+        margin-bottom: 15px;
+        page-break-inside: avoid;
+    }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 0.75rem;
+    }
+    .table {
+        font-size: 0.9rem;
+    }
+}
