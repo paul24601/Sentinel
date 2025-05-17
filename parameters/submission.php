@@ -359,12 +359,28 @@ if ($selectedRecordId) {
                                     </div>
                                 </div>
                                 <div class="card-body">
+                                    <?php
+                                    // Fetch the correct date/time from productmachineinfo
+                                    $pmInfo = $productMachineInfo->fetch_assoc();
+                                    $productMachineInfo->data_seek(0); // Reset pointer for later use
+                                    
+                                    // Format the correct submission date using the actual recorded date/time
+                                    $actualDate = isset($pmInfo['Date']) ? $pmInfo['Date'] : '';
+                                    $actualTime = isset($pmInfo['Time']) ? $pmInfo['Time'] : '';
+                                    $formattedSubmissionDate = '';
+                                    
+                                    if (!empty($actualDate) && !empty($actualTime)) {
+                                        $formattedSubmissionDate = $actualDate . ' ' . $actualTime;
+                                    } else {
+                                        $formattedSubmissionDate = $recordData['submission_date'];
+                                    }
+                                    ?>
                                     <div class="row mb-3">
                                         <div class="col-md-4">
                                             <p><strong>Submitted by:</strong> <?= htmlspecialchars($recordData['submitted_by']) ?></p>
                                         </div>
                                         <div class="col-md-4">
-                                            <p><strong>Submission Date:</strong> <?= htmlspecialchars($recordData['submission_date']) ?></p>
+                                            <p><strong>Submission Date:</strong> <?= htmlspecialchars($formattedSubmissionDate) ?></p>
                                         </div>
                                         <div class="col-md-4">
                                             <p><strong>Status:</strong> <span class="badge bg-success"><?= htmlspecialchars(ucfirst($recordData['status'])) ?></span></p>
@@ -709,23 +725,22 @@ if ($selectedRecordId) {
                         <div class="card mb-4">
                             <div class="card-header bg-success text-white">Injection Parameters</div>
                             <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <p><strong>Recovery Position:</strong> <?= $injectionParameters->fetch_assoc()['RecoveryPosition'] ?? '-' ?></p>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <p><strong>Second Stage Position:</strong> <?= $injectionParameters->fetch_assoc()['SecondStagePosition'] ?? '-' ?></p>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <p><strong>Cushion:</strong> <?= $injectionParameters->fetch_assoc()['Cushion'] ?? '-' ?></p>
-                                    </div>
-                                </div>
-                                
                                 <?php 
-                                // Reset result pointer
+                                // Reset result pointer and fetch once
                                 $injectionParameters->data_seek(0);
                                 $injParams = $injectionParameters->fetch_assoc();
                                 ?>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <p><strong>Recovery Position:</strong> <?= $injParams['RecoveryPosition'] ?? '-' ?></p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p><strong>Second Stage Position:</strong> <?= $injParams['SecondStagePosition'] ?? '-' ?></p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p><strong>Cushion:</strong> <?= $injParams['Cushion'] ?? '-' ?></p>
+                                    </div>
+                                </div>
                                 
                                 <div class="table-responsive mt-3">
                                 <table class="table table-bordered table-hover">
@@ -739,7 +754,7 @@ if ($selectedRecordId) {
                                     </thead>
                                     <tbody>
                                             <?php if ($injParams): ?>
-                                                <tr>
+                                            <tr>
                                                     <th class="table-light">Screw Position</th>
                                                     <td><?= $injParams['ScrewPosition1'] ?: '-' ?></td>
                                                     <td><?= $injParams['ScrewPosition2'] ?: '-' ?></td>
@@ -861,7 +876,7 @@ if ($selectedRecordId) {
                                     </thead>
                                     <tbody>
                                             <?php if ($ejectionRow): ?>
-                                                <tr>
+                                            <tr>
                                                     <th class="table-light">Position</th>
                                                     <td><?= $ejectionRow['EjectorForwardPosition1'] ?: '-' ?></td>
                                                     <td><?= $ejectionRow['EjectorForwardPosition2'] ?: '-' ?></td>
@@ -929,18 +944,18 @@ if ($selectedRecordId) {
                                 <table class="table table-bordered table-hover">
                                     <thead class="table-light">
                                         <tr>
-                                                <th>Section</th>
-                                                <th>Sequence</th>
-                                                <th>Pressure</th>
-                                                <th>Speed</th>
-                                                <th>Position</th>
-                                                <th>Time</th>
-                                                <th>Limit Switch</th>
+                                            <th>Section</th>
+                                            <th>Sequence</th>
+                                            <th>Pressure</th>
+                                            <th>Speed</th>
+                                            <th>Position</th>
+                                            <th>Time</th>
+                                            <th>Limit Switch</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                            <?php while ($row = $corePullSettings->fetch_assoc()): ?>
-                                                <tr>
+                                        <?php while ($row = $corePullSettings->fetch_assoc()): ?>
+                                            <tr>
                                                     <td><strong><?= $row['Section'] ?></strong></td>
                                                     <td><?= $row['Sequence'] ?: '-' ?></td>
                                                     <td><?= $row['Pressure'] ?: '-' ?></td>
@@ -948,10 +963,10 @@ if ($selectedRecordId) {
                                                     <td><?= $row['Position'] ?: '-' ?></td>
                                                     <td><?= $row['Time'] ?: '-' ?></td>
                                                     <td><?= $row['LimitSwitch'] ?: '-' ?></td>
-                                                </tr>
-                                            <?php endwhile; ?>
-                                        </tbody>
-                                    </table>
+                                            </tr>
+                                        <?php endwhile; ?>
+                                    </tbody>
+                                </table>
                                 </div>
                             </div>
                         </div>
@@ -972,7 +987,7 @@ if ($selectedRecordId) {
                                 <?php endif; ?>
                             </div>
                         </div>
-                        
+
                         <!-- Personnel -->
                         <div class="card mb-4">
                             <div class="card-header bg-primary text-white">Personnel</div>
@@ -1121,7 +1136,32 @@ if ($selectedRecordId) {
                                                 <td><?= htmlspecialchars($record['record_id']) ?></td>
                                                 <td><?= htmlspecialchars($record['title']) ?></td>
                                                 <td><?= htmlspecialchars($record['submitted_by']) ?></td>
-                                                <td><?= htmlspecialchars(date('Y-m-d H:i', strtotime($record['submission_date']))) ?></td>
+                                                <td>
+                                                    <?php
+                                                    // Try to get actual date/time from productmachineinfo
+                                                    $actualDateTime = '';
+                                                    $recordId = $record['record_id'];
+                                                    
+                                                    $infoSql = "SELECT Date, Time FROM productmachineinfo WHERE record_id = ?";
+                                                    $infoStmt = $conn->prepare($infoSql);
+                                                    $infoStmt->bind_param("s", $recordId);
+                                                    $infoStmt->execute();
+                                                    $infoResult = $infoStmt->get_result();
+                                                    
+                                                    if ($infoRow = $infoResult->fetch_assoc()) {
+                                                        if (!empty($infoRow['Date']) && !empty($infoRow['Time'])) {
+                                                            $actualDateTime = htmlspecialchars($infoRow['Date'] . ' ' . $infoRow['Time']);
+                                                        }
+                                                    }
+                                                    
+                                                    // If no actual date/time found, fall back to submission_date
+                                                    if (empty($actualDateTime)) {
+                                                        $actualDateTime = htmlspecialchars(date('Y-m-d H:i', strtotime($record['submission_date'])));
+                                                    }
+                                                    
+                                                    echo $actualDateTime;
+                                                    ?>
+                                                </td>
                                                 <td>
                                                     <span class="badge bg-<?= $record['status'] === 'active' ? 'success' : ($record['status'] === 'archived' ? 'warning' : 'danger') ?>">
                                                         <?= htmlspecialchars(ucfirst($record['status'])) ?>
