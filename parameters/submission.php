@@ -579,9 +579,9 @@ if ($selectedRecordId) {
                             <div class="card-body">
                                 <h5 class="card-title">Barrel Heater Temperatures</h5>
                                 <div class="table-responsive">
-                                    <table class="table table-bordered table-hover">
-                                        <thead class="table-light">
-                                            <tr>
+                                <table class="table table-bordered table-hover">
+                                    <thead class="table-light">
+                                        <tr>
                                                 <?php 
                                                 $barrelRow = $barrelHeaterTemperatures->fetch_assoc();
                                                 if ($barrelRow) {
@@ -594,27 +594,27 @@ if ($selectedRecordId) {
                                                     $barrelHeaterTemperatures->data_seek(0);
                                                 }
                                                 ?>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php while ($row = $barrelHeaterTemperatures->fetch_assoc()): ?>
-                                                <tr>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php while ($row = $barrelHeaterTemperatures->fetch_assoc()): ?>
+                                            <tr>
                                                     <?php foreach ($row as $key => $value): ?>
                                                         <?php if ($key != 'record_id' && $key != 'id'): ?>
                                                             <td><?= $value ?: '-' ?> °C</td>
                                                         <?php endif; ?>
                                                     <?php endforeach; ?>
-                                                </tr>
-                                            <?php endwhile; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                
+                                            </tr>
+                                        <?php endwhile; ?>
+                                    </tbody>
+                                </table>
+                        </div>
+
                                 <h5 class="card-title mt-4">Mold Heater Temperatures</h5>
                                 <div class="table-responsive">
-                                    <table class="table table-bordered table-hover">
-                                        <thead class="table-light">
-                                            <tr>
+                                <table class="table table-bordered table-hover">
+                                    <thead class="table-light">
+                                        <tr>
                                                 <?php 
                                                 $moldRow = $moldHeaterTemperatures->fetch_assoc();
                                                 if ($moldRow) {
@@ -627,20 +627,20 @@ if ($selectedRecordId) {
                                                     $moldHeaterTemperatures->data_seek(0);
                                                 }
                                                 ?>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php while ($row = $moldHeaterTemperatures->fetch_assoc()): ?>
-                                                <tr>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php while ($row = $moldHeaterTemperatures->fetch_assoc()): ?>
+                                            <tr>
                                                     <?php foreach ($row as $key => $value): ?>
                                                         <?php if ($key != 'record_id' && $key != 'id'): ?>
                                                             <td><?= $value ?: '-' ?> <?= $key === 'MTCSetting' ? '' : '°C' ?></td>
                                                         <?php endif; ?>
                                                     <?php endforeach; ?>
-                                                </tr>
-                                            <?php endwhile; ?>
-                                        </tbody>
-                                    </table>
+                                            </tr>
+                                        <?php endwhile; ?>
+                                    </tbody>
+                                </table>
                                 </div>
                             </div>
                         </div>
@@ -650,16 +650,16 @@ if ($selectedRecordId) {
                             <div class="card-header bg-primary text-white">Plasticizing Parameters</div>
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <table class="table table-bordered table-hover">
-                                        <thead class="table-light">
-                                            <tr>
+                                <table class="table table-bordered table-hover">
+                                    <thead class="table-light">
+                                        <tr>
                                                 <th></th>
                                                 <th>Position 1</th>
                                                 <th>Position 2</th>
                                                 <th>Position 3</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
                                             <?php 
                                             $plasticRow = $plasticizingParameters->fetch_assoc();
                                             if ($plasticRow): 
@@ -669,7 +669,7 @@ if ($selectedRecordId) {
                                                     <td><?= $plasticRow['ScrewRPM1'] ?: '-' ?></td>
                                                     <td><?= $plasticRow['ScrewRPM2'] ?: '-' ?></td>
                                                     <td><?= $plasticRow['ScrewRPM3'] ?: '-' ?></td>
-                                                </tr>
+                                            </tr>
                                                 <tr>
                                                     <th class="table-light">Screw Speed</th>
                                                     <td><?= $plasticRow['ScrewSpeed1'] ?: '-' ?></td>
@@ -699,8 +699,8 @@ if ($selectedRecordId) {
                                                     <td colspan="3"><?= $plasticRow['BackPressureStartPosition'] ?: '-' ?></td>
                                                 </tr>
                                             <?php endif; ?>
-                                        </tbody>
-                                    </table>
+                                    </tbody>
+                                </table>
                                 </div>
                             </div>
                         </div>
@@ -728,23 +728,23 @@ if ($selectedRecordId) {
                                 ?>
                                 
                                 <div class="table-responsive mt-3">
-                                    <table class="table table-bordered table-hover">
-                                        <thead class="table-light">
-                                            <tr>
+                                <table class="table table-bordered table-hover">
+                                    <thead class="table-light">
+                                        <tr>
                                                 <th></th>
                                                 <th>Position 1</th>
                                                 <th>Position 2</th>
                                                 <th>Position 3</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
                                             <?php if ($injParams): ?>
                                                 <tr>
                                                     <th class="table-light">Screw Position</th>
                                                     <td><?= $injParams['ScrewPosition1'] ?: '-' ?></td>
                                                     <td><?= $injParams['ScrewPosition2'] ?: '-' ?></td>
                                                     <td><?= $injParams['ScrewPosition3'] ?: '-' ?></td>
-                                                </tr>
+                                            </tr>
                                                 <tr>
                                                     <th class="table-light">Injection Speed</th>
                                                     <td><?= $injParams['InjectionSpeed1'] ?: '-' ?></td>
@@ -776,8 +776,8 @@ if ($selectedRecordId) {
                                                     <td><?= $injParams['HoldingTime3'] ?: '-' ?></td>
                                                 </tr>
                                             <?php endif; ?>
-                                        </tbody>
-                                    </table>
+                                    </tbody>
+                                </table>
                                 </div>
                                 
                                 <div class="row mt-3">
@@ -789,9 +789,9 @@ if ($selectedRecordId) {
                                     </div>
                                     <div class="col-md-4">
                                         <p><strong>Suck Back Pressure:</strong> <?= $injParams['SuckBackPressure'] ?? '-' ?></p>
-                                    </div>
-                                </div>
-                                
+                            </div>
+                        </div>
+
                                 <div class="row mt-2">
                                     <div class="col-md-4">
                                         <p><strong>Sprue Break:</strong> <?= $injParams['SprueBreak'] ?? '-' ?></p>
@@ -813,24 +813,24 @@ if ($selectedRecordId) {
                                 <h5 class="mb-3">Air Blow Settings</h5>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <table class="table table-bordered table-hover">
-                                            <thead class="table-light">
-                                                <tr>
+                                <table class="table table-bordered table-hover">
+                                    <thead class="table-light">
+                                        <tr>
                                                     <th>Parameter</th>
                                                     <th>Air Blow A</th>
                                                     <th>Air Blow B</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
                                                 <?php 
                                                 $ejectionRow = $ejectionParameters->fetch_assoc();
                                                 if ($ejectionRow): 
                                                 ?>
-                                                    <tr>
+                                            <tr>
                                                         <th class="table-light">Time</th>
                                                         <td><?= $ejectionRow['AirBlowTimeA'] ?: '-' ?></td>
                                                         <td><?= $ejectionRow['AirBlowTimeB'] ?: '-' ?></td>
-                                                    </tr>
+                                            </tr>
                                                     <tr>
                                                         <th class="table-light">Position</th>
                                                         <td><?= $ejectionRow['AirBlowPositionA'] ?: '-' ?></td>
@@ -842,24 +842,24 @@ if ($selectedRecordId) {
                                                         <td><?= $ejectionRow['AirBlowBDelay'] ?: '-' ?></td>
                                                     </tr>
                                                 <?php endif; ?>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                                
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
                                 <h5 class="mt-4 mb-3">Ejector Settings</h5>
                                 <div class="table-responsive">
-                                    <table class="table table-bordered table-hover">
-                                        <thead class="table-light">
-                                            <tr>
+                                <table class="table table-bordered table-hover">
+                                    <thead class="table-light">
+                                        <tr>
                                                 <th></th>
                                                 <th>Forward Position 1</th>
                                                 <th>Forward Position 2</th>
                                                 <th>Retract Position 1</th>
                                                 <th>Retract Position 2</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
                                             <?php if ($ejectionRow): ?>
                                                 <tr>
                                                     <th class="table-light">Position</th>
@@ -867,24 +867,24 @@ if ($selectedRecordId) {
                                                     <td><?= $ejectionRow['EjectorForwardPosition2'] ?: '-' ?></td>
                                                     <td><?= $ejectionRow['EjectorRetractPosition1'] ?: '-' ?></td>
                                                     <td><?= $ejectionRow['EjectorRetractPosition2'] ?: '-' ?></td>
-                                                </tr>
+                                            </tr>
                                             <?php endif; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                
+                                    </tbody>
+                                </table>
+                        </div>
+
                                 <div class="table-responsive mt-3">
-                                    <table class="table table-bordered table-hover">
-                                        <thead class="table-light">
-                                            <tr>
+                                <table class="table table-bordered table-hover">
+                                    <thead class="table-light">
+                                        <tr>
                                                 <th></th>
                                                 <th>Forward Speed 1</th>
                                                 <th>Forward Speed 2</th>
                                                 <th>Retract Speed 1</th>
                                                 <th>Retract Speed 2</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
                                             <?php if ($ejectionRow): ?>
                                                 <tr>
                                                     <th class="table-light">Speed</th>
@@ -892,43 +892,43 @@ if ($selectedRecordId) {
                                                     <td><?= $ejectionRow['EjectorForwardSpeed2'] ?: '-' ?></td>
                                                     <td><?= $ejectionRow['EjectorRetractSpeed1'] ?: '-' ?></td>
                                                     <td><?= $ejectionRow['EjectorRetractSpeed2'] ?: '-' ?></td>
-                                                </tr>
+                                            </tr>
                                             <?php endif; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                
+                                    </tbody>
+                                </table>
+                        </div>
+
                                 <div class="table-responsive mt-3">
-                                    <table class="table table-bordered table-hover">
-                                        <thead class="table-light">
-                                            <tr>
+                                <table class="table table-bordered table-hover">
+                                    <thead class="table-light">
+                                        <tr>
                                                 <th></th>
                                                 <th>Forward Pressure</th>
                                                 <th>Retract Pressure</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
                                             <?php if ($ejectionRow): ?>
                                                 <tr>
                                                     <th class="table-light">Pressure</th>
                                                     <td><?= $ejectionRow['EjectorForwardPressure1'] ?: '-' ?></td>
                                                     <td><?= $ejectionRow['EjectorRetractPressure1'] ?: '-' ?></td>
-                                                </tr>
+                                            </tr>
                                             <?php endif; ?>
-                                        </tbody>
-                                    </table>
+                                    </tbody>
+                                </table>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Core Pull Settings -->
                         <div class="card mb-4">
                             <div class="card-header bg-secondary text-white">Core Pull Settings</div>
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <table class="table table-bordered table-hover">
-                                        <thead class="table-light">
-                                            <tr>
+                                <table class="table table-bordered table-hover">
+                                    <thead class="table-light">
+                                        <tr>
                                                 <th>Section</th>
                                                 <th>Sequence</th>
                                                 <th>Pressure</th>
@@ -936,9 +936,9 @@ if ($selectedRecordId) {
                                                 <th>Position</th>
                                                 <th>Time</th>
                                                 <th>Limit Switch</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
                                             <?php while ($row = $corePullSettings->fetch_assoc()): ?>
                                                 <tr>
                                                     <td><strong><?= $row['Section'] ?></strong></td>
@@ -960,7 +960,7 @@ if ($selectedRecordId) {
                         <div class="card mb-4">
                             <div class="card-header bg-warning text-dark">Additional Information</div>
                             <div class="card-body">
-                                <?php 
+                                            <?php
                                 $additionalInfo = $additionalInformation->fetch_assoc();
                                 if ($additionalInfo && !empty($additionalInfo['Info'])): 
                                 ?>
@@ -1006,12 +1006,67 @@ if ($selectedRecordId) {
                                             $isImage = ($fileType == 'image');
                                             $icon = $isImage ? 'fa-image' : ($fileType == 'video' ? 'fa-video' : 'fa-file');
                                             $fileName = basename($file['FileName']);
-                                            $filePath = '../' . $file['FilePath']; // Adjust path as needed
+                                            
+                                            // Flexible path handling for attachments - supports multiple server environments
+                                            $filePath = $file['FilePath'];
+                                            $baseName = basename($filePath);
+                                            
+                                            // Check various possible file locations
+                                            $possiblePaths = [
+                                                '../' . $file['FilePath'],                   // Relative path as stored
+                                                '../parameters/uploads/' . $baseName,        // Standard relative path
+                                                'uploads/' . $baseName,                      // Direct subfolder
+                                                '/var/www/html/parameters/uploads/' . $baseName, // Absolute server path
+                                                dirname(__FILE__) . '/uploads/' . $baseName  // Path relative to script
+                                            ];
+                                            
+                                            // Use the first existing file path or fallback to stored path
+                                            $filePath = '../' . $file['FilePath']; // Default fallback
+                                            foreach ($possiblePaths as $testPath) {
+                                                if (file_exists($testPath)) {
+                                                    $filePath = $testPath;
+                                                    break;
+                                                }
+                                            }
+                                            
+                                            // For display in browser, ensure we use a web-accessible path
+                                            $displayPath = $filePath;
+                                            if (strpos($displayPath, $_SERVER['DOCUMENT_ROOT']) === 0) {
+                                                // Convert absolute filesystem path to web path
+                                                $displayPath = substr($displayPath, strlen($_SERVER['DOCUMENT_ROOT']));
+                                            } else if (strpos($displayPath, '/var/www/html') === 0) {
+                                                // Handle common server path
+                                                $displayPath = substr($displayPath, strlen('/var/www/html'));
+                                            }
+                                            
+                                            // Make sure display path starts with / for web URLs
+                                            if (strpos($displayPath, '/') !== 0 && strpos($displayPath, 'http') !== 0) {
+                                                if (strpos($displayPath, '../') === 0) {
+                                                    // Keep relative paths as-is
+                                                } else {
+                                                    $displayPath = '/' . $displayPath;
+                                                }
+                                            }
                                         ?>
                                             <div class="col-md-4 col-sm-6 mb-4">
                                                 <div class="card h-100">
                                                     <?php if ($isImage): ?>
-                                                        <img src="<?= $filePath ?>" class="card-img-top attachment-thumbnail" alt="<?= $fileName ?>">
+                                                        <div class="attachment-preview position-relative">
+                                                            <img src="<?= $displayPath ?>" class="card-img-top attachment-thumbnail" alt="<?= $fileName ?>">
+                                                        </div>
+                                                    <?php elseif ($fileType == 'video'): ?>
+                                                        <div class="attachment-preview position-relative">
+                                                            <video class="card-img-top attachment-thumbnail" controls preload="metadata" 
+                                                                   onloadeddata="this.classList.add('loaded')" 
+                                                                   onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                                                <source src="<?= $displayPath ?>" type="<?= $file['FileType'] ?>">
+                                                            </video>
+                                                            <div class="text-center py-5 d-none error-message" style="background-color: #f8f9fa; height: 100%;">
+                                                                <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+                                                                <p class="mb-0">Video preview unavailable</p>
+                                                                <small class="text-muted"><?= htmlspecialchars($displayPath) ?></small>
+                                                            </div>
+                                                        </div>
                                                     <?php else: ?>
                                                         <div class="card-img-top text-center py-5 bg-light">
                                                             <i class="fas <?= $icon ?> fa-4x text-secondary"></i>
@@ -1022,10 +1077,10 @@ if ($selectedRecordId) {
                                                         <p class="card-text">
                                                             <small class="text-muted">Type: <?= $file['FileType'] ?></small>
                                                         </p>
-                                                        <a href="<?= $filePath ?>" class="btn btn-sm btn-primary" target="_blank">
+                                                        <a href="<?= $displayPath ?>" class="btn btn-sm btn-primary" target="_blank">
                                                             <i class="fas fa-eye"></i> View
                                                         </a>
-                                                        <a href="<?= $filePath ?>" class="btn btn-sm btn-secondary" download>
+                                                        <a href="<?= $displayPath ?>" class="btn btn-sm btn-secondary" download>
                                                             <i class="fas fa-download"></i> Download
                                                         </a>
                                                     </div>
@@ -1131,6 +1186,47 @@ if ($selectedRecordId) {
                 if (confirm('Are you sure you want to delete this record? This action cannot be undone.')) {
                     window.location.href = 'delete_record.php?record_id=' + recordId;
                 }
+            });
+            
+            // Better error handling for media files
+            document.querySelectorAll('video').forEach(video => {
+                video.addEventListener('error', function(e) {
+                    console.error('Video error:', e);
+                    this.style.display = 'none';
+                    const errorDiv = this.nextElementSibling;
+                    errorDiv.classList.remove('d-none');
+                    
+                    // Add more detailed error information
+                    const errorDetails = document.createElement('p');
+                    errorDetails.className = 'text-danger small mt-2';
+                    errorDetails.textContent = 'Error: ' + (e.message || 'Could not load video');
+                    errorDiv.appendChild(errorDetails);
+                });
+                
+                // Add a timeout to detect videos that don't load
+                setTimeout(() => {
+                    if (video.readyState === 0) { // HAVE_NOTHING state
+                        const event = new Event('error');
+                        video.dispatchEvent(event);
+                    }
+                }, 3000);
+            });
+            
+            // Check image loading too
+            document.querySelectorAll('.attachment-thumbnail[src]').forEach(img => {
+                img.addEventListener('error', function() {
+                    this.style.display = 'none';
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'text-center py-5';
+                    errorDiv.style.backgroundColor = '#f8f9fa';
+                    errorDiv.style.height = '100%';
+                    errorDiv.innerHTML = `
+                        <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+                        <p class="mb-0">Image preview unavailable</p>
+                        <small class="text-muted">${img.getAttribute('src')}</small>
+                    `;
+                    this.parentNode.appendChild(errorDiv);
+                });
             });
         });
     </script>

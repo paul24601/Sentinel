@@ -432,37 +432,60 @@ if (isset($_POST['adjuster'], $_POST['qae'])) {
 }
 
 // Modified File Upload Handling
-function handleFileUpload($files, $uploadDir, $typeCategory, $allowedExtensions, $maxSize, $irn, $date, $time, $machineNumber, $runNumber)
+function handleFileUpload($files, $uploadDir, $relativePath, $typeCategory, $allowedExtensions, $maxSize, $irn, $date, $time, $machineNumber, $runNumber)
 {
     $uploadedFiles = [];
+    $errors = [];
 
     if (!isset($files['name']) || !is_array($files['name'])) {
-        return $uploadedFiles;
+        return ['files' => $uploadedFiles, 'errors' => ["No {$typeCategory} files found"]];
+    }
+
+    // Ensure upload directory exists
+    if (!file_exists($uploadDir)) {
+        if (!mkdir($uploadDir, 0777, true)) {
+            return ['files' => $uploadedFiles, 'errors' => ["Failed to create upload directory: {$uploadDir}"]];
+        }
+    }
+
+    if (!is_writable($uploadDir)) {
+        @chmod($uploadDir, 0777); // Try to make it writable
+        if (!is_writable($uploadDir)) {
+            return ['files' => $uploadedFiles, 'errors' => ["Upload directory is not writable: {$uploadDir}"]];
+        }
     }
 
     foreach ($files['name'] as $key => $name) {
+        if (empty($name)) continue; // Skip empty file slots
+        
         if ($files['error'][$key] !== UPLOAD_ERR_OK) {
-            error_log("Upload error for file $name: Code " . $files['error'][$key]);
+            $errorMessages = [
+                UPLOAD_ERR_INI_SIZE => "The uploaded file exceeds the upload_max_filesize directive in php.ini",
+                UPLOAD_ERR_FORM_SIZE => "The uploaded file exceeds the MAX_FILE_SIZE directive in the HTML form",
+                UPLOAD_ERR_PARTIAL => "The uploaded file was only partially uploaded",
+                UPLOAD_ERR_NO_FILE => "No file was uploaded",
+                UPLOAD_ERR_NO_TMP_DIR => "Missing a temporary folder",
+                UPLOAD_ERR_CANT_WRITE => "Failed to write file to disk",
+                UPLOAD_ERR_EXTENSION => "File upload stopped by extension"
+            ];
+            
+            $errorMessage = isset($errorMessages[$files['error'][$key]]) 
+                ? $errorMessages[$files['error'][$key]] 
+                : "Unknown upload error";
+                
+            $errors[] = "Error uploading {$name}: {$errorMessage}";
             continue;
         }
 
         $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
         if (!in_array($ext, $allowedExtensions)) {
-            error_log("Invalid extension for file $name");
+            $errors[] = "Invalid file extension for {$name}. Allowed: " . implode(', ', $allowedExtensions);
             continue;
         }
 
         if ($files['size'][$key] > $maxSize) {
-            error_log("File $name exceeds size limit");
+            $errors[] = "File {$name} exceeds size limit of " . ($maxSize / 1000000) . "MB";
             continue;
-        }
-
-        // Create upload directory if not exists
-        if (!is_dir($uploadDir)) {
-            if (!mkdir($uploadDir, 0755, true)) {
-                error_log("Failed to create directory: $uploadDir");
-                continue;
-            }
         }
 
         // Generate unique and safe filename
@@ -484,22 +507,50 @@ function handleFileUpload($files, $uploadDir, $typeCategory, $allowedExtensions,
         $mimeType = mime_content_type($tmp);         // e.g. "video/mp4"
         if (move_uploaded_file($tmp, $targetPath)) {
             $uploadedFiles[] = [
-                'name' => $safeName,
-                'path' => $targetPath,
+                'name' => $name, // Store original filename for display
+                'saveName' => $safeName,
+                'path' => $relativePath . $safeName,
                 'type' => $mimeType,
             ];
         } else {
-            error_log("Failed to move uploaded file $name to $targetPath");
-            error_log("Check permissions for: " . $uploadDir);
+            $errors[] = "Failed to move uploaded file {$name} to {$targetPath}. PHP error: " . error_get_last()['message'] ?? 'Unknown error';
         }
     }
-    return $uploadedFiles;
+    
+    return ['files' => $uploadedFiles, 'errors' => $errors];
 }
 
 // Handle file uploads with proper validation
-$uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/parameters/uploads/';
+// Determine the correct path for uploads - try both server-style and local paths
+$serverPath = '/var/www/html/parameters/uploads/'; // Cloud server path
+$localPath = $_SERVER['DOCUMENT_ROOT'] . '/Sentinel/parameters/uploads/'; // Local XAMPP path
+$alternativePath = dirname(__FILE__) . '/uploads/'; // Relative to current script
+
+// Test which path is valid and writable
+if (is_dir($serverPath) && is_writable($serverPath)) {
+    $uploadDir = $serverPath;
+} elseif (is_dir($localPath) && is_writable($localPath)) {
+    $uploadDir = $localPath;
+} else {
+    // Create uploads directory if it doesn't exist
+    if (!is_dir($alternativePath)) {
+        mkdir($alternativePath, 0777, true);
+    }
+    $uploadDir = $alternativePath;
+}
+
+// Make absolutely sure the directory exists and is writable
+if (!is_dir($uploadDir)) {
+    mkdir($uploadDir, 0777, true);
+}
+@chmod($uploadDir, 0777);
+
+// Log the path being used for debugging
+error_log("Using upload directory: " . $uploadDir);
+$relativePath = 'parameters/uploads/';
 $uploadedImages = [];
 $uploadedVideos = [];
+$fileUploadErrors = [];
 
 // Sanitize parameters for filename
 $irn = preg_replace('/[^A-Za-z0-9]/', '', $_POST['IRN']);
@@ -508,14 +559,12 @@ $timeFormatted = preg_replace('/[^0-9]/', '', $_POST['Time']); // HHMMSS
 $machineNumber = preg_replace('/[^A-Za-z0-9]/', '', $_POST['MachineName']);
 $runNumber = preg_replace('/[^A-Za-z0-9]/', '', $_POST['RunNumber']);
 
-// Handle file uploads with proper validation
-$uploadedImages = [];
-$uploadedVideos = [];
-
-if (isset($_FILES['uploadImages'])) {
-    $uploadedImages = handleFileUpload(
+// Process file uploads
+if (isset($_FILES['uploadImages']) && !empty($_FILES['uploadImages']['name'][0])) {
+    $imageUploadResult = handleFileUpload(
         $_FILES['uploadImages'],
         $uploadDir,
+        $relativePath,
         'image',
         ['jpg', 'jpeg', 'png', 'gif'],
         5000000, // 5MB
@@ -525,12 +574,16 @@ if (isset($_FILES['uploadImages'])) {
         $machineNumber,
         $runNumber
     );
+    
+    $uploadedImages = $imageUploadResult['files'];
+    $fileUploadErrors = array_merge($fileUploadErrors, $imageUploadResult['errors']);
 }
 
-if (isset($_FILES['uploadVideos'])) {
-    $uploadedVideos = handleFileUpload(
+if (isset($_FILES['uploadVideos']) && !empty($_FILES['uploadVideos']['name'][0])) {
+    $videoUploadResult = handleFileUpload(
         $_FILES['uploadVideos'],
         $uploadDir,
+        $relativePath,
         'video',
         ['mp4', 'avi', 'mov', 'mkv'],
         50000000, // 50MB
@@ -540,6 +593,14 @@ if (isset($_FILES['uploadVideos'])) {
         $machineNumber,
         $runNumber
     );
+    
+    $uploadedVideos = $videoUploadResult['files'];
+    $fileUploadErrors = array_merge($fileUploadErrors, $videoUploadResult['errors']);
+}
+
+// Add file upload errors to the main errors array
+if (!empty($fileUploadErrors)) {
+    $errors = array_merge($errors ?? [], $fileUploadErrors);
 }
 
 // Insert attachments into database
@@ -566,13 +627,16 @@ if (!empty($uploadedImages) || !empty($uploadedVideos)) {
 // Finalize transaction and set modal content
 if (empty($errors)) {
     $conn->commit();
-    session_start();
     $_SESSION['success_message'] = "Data submitted successfully with Record ID: " . $record_id;
+    if (!empty($uploadedImages) || !empty($uploadedVideos)) {
+        $fileCount = count($uploadedImages) + count($uploadedVideos);
+        $_SESSION['success_message'] .= " with $fileCount attachment(s)";
+    }
     header("Location: index.php?record_id=" . $record_id);
     exit();
 } else {
     $conn->rollback();
-    $_SESSION['error_message'] = "Errors occurred: " . implode(", ", $errors);
+    $_SESSION['error_message'] = "Errors occurred: " . implode("<br>", $errors);
     header("Location: index.php");
     exit();
 }

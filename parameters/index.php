@@ -130,6 +130,26 @@ if (!isset($_SESSION['full_name'])) {
                     <ol class="breadcrumb mb-4">
                         <li class="breadcrumb-item active">Injection Department</li>
                     </ol>
+                    
+                    <!-- Notification container -->
+                    <div id="notification-container">
+                        <?php if (isset($_SESSION['success_message'])): ?>
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <?= $_SESSION['success_message'] ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            <?php unset($_SESSION['success_message']); ?>
+                        <?php endif; ?>
+                        
+                        <?php if (isset($_SESSION['error_message'])): ?>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <?= $_SESSION['error_message'] ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            <?php unset($_SESSION['error_message']); ?>
+                        <?php endif; ?>
+                    </div>
+                    
                     <!--FORMS-->
                     <div class="container-fluid my-5">
                         <div class="card shadow">
@@ -1900,84 +1920,157 @@ if (!isset($_SESSION['full_name'])) {
     <script>
         const MAX_IMAGES = 5;
         const MAX_VIDEOS = 2;
-        const imageFiles = new DataTransfer();
-        const videoFiles = new DataTransfer();
+        let selectedImageFiles = [];
+        let selectedVideoFiles = [];
 
         // Image Handler
         document.getElementById('uploadImages').addEventListener('change', (e) => {
             const files = Array.from(e.target.files);
 
-            // Clear existing if over limit
-            if (imageFiles.items.length + files.length > MAX_IMAGES) {
+            // Check if adding these files would exceed the limit
+            if (selectedImageFiles.length + files.length > MAX_IMAGES) {
                 alert(`Maximum ${MAX_IMAGES} images allowed`);
-                e.target.value = '';
                 return;
             }
 
+            // Store the files and create previews
             files.forEach(file => {
                 if (!file.type.startsWith('image/')) return;
-                imageFiles.items.add(file);
 
+                selectedImageFiles.push(file);
                 const reader = new FileReader();
-                reader.onload = () => createImagePreview(reader.result);
+                reader.onload = () => createImagePreview(reader.result, selectedImageFiles.length - 1);
                 reader.readAsDataURL(file);
             });
-
-            // Update input files
-            e.target.files = imageFiles.files;
-            showPreviews();
         });
 
         // Video Handler
         document.getElementById('uploadVideos').addEventListener('change', (e) => {
             const files = Array.from(e.target.files);
 
-            if (videoFiles.items.length + files.length > MAX_VIDEOS) {
+            // Check if adding these files would exceed the limit
+            if (selectedVideoFiles.length + files.length > MAX_VIDEOS) {
                 alert(`Maximum ${MAX_VIDEOS} videos allowed`);
-                e.target.value = '';
                 return;
             }
 
+            // Store the files and create previews
             files.forEach(file => {
                 if (!file.type.startsWith('video/')) return;
-                videoFiles.items.add(file);
-                createVideoPreview(URL.createObjectURL(file));
-            });
 
-            e.target.files = videoFiles.files;
-            showPreviews();
+                selectedVideoFiles.push(file);
+                createVideoPreview(URL.createObjectURL(file), selectedVideoFiles.length - 1);
+            });
         });
 
         // Preview Creation
-        function createImagePreview(url) {
+        function createImagePreview(url, index) {
             const preview = document.createElement('div');
             preview.className = 'position-relative';
             preview.innerHTML = `
-        <img src="${url}" class="img-thumbnail" style="width: 100px; height: 100px">
-        <button type="button" class="btn-close bg-danger position-absolute top-0 end-0 m-1"></button>
+                <img src="${url}" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+                <button type="button" class="btn-close bg-danger position-absolute top-0 end-0 m-1" data-index="${index}"></button>
     `;
-            preview.querySelector('button').onclick = () => removePreview(preview, imageFiles);
+            preview.querySelector('button').onclick = (e) => removeImagePreview(e.target.dataset.index);
             document.getElementById('imagePreviews').appendChild(preview);
         }
 
-        function createVideoPreview(url) {
+        function createVideoPreview(url, index) {
             const preview = document.createElement('div');
             preview.className = 'position-relative';
             preview.innerHTML = `
-        <video controls class="img-thumbnail" style="width: 150px; height: 150px">
+                <video controls class="img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
             <source src="${url}" type="video/mp4">
         </video>
-        <button type="button" class="btn-close bg-danger position-absolute top-0 end-0 m-1"></button>
+                <button type="button" class="btn-close bg-danger position-absolute top-0 end-0 m-1" data-index="${index}"></button>
     `;
-            preview.querySelector('button').onclick = () => removePreview(preview, videoFiles);
+            preview.querySelector('button').onclick = (e) => removeVideoPreview(e.target.dataset.index);
             document.getElementById('videoPreviews').appendChild(preview);
         }
 
-        // Removal Logic
-        function removePreview(previewElement, fileList) {
-            const index = Array.from(previewElement.parentElement.children).indexOf(previewElement);
-            fileList.items.remove(index);
-            previewElement.remove();
+        // Remove previews
+        function removeImagePreview(index) {
+            selectedImageFiles.splice(index, 1);
+            refreshImagePreviews();
+        }
+
+        function removeVideoPreview(index) {
+            selectedVideoFiles.splice(index, 1);
+            refreshVideoPreviews();
+        }
+
+        // Refresh all previews
+        function refreshImagePreviews() {
+            const container = document.getElementById('imagePreviews');
+            container.innerHTML = '';
+            
+            selectedImageFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = () => createImagePreview(reader.result, index);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function refreshVideoPreviews() {
+            const container = document.getElementById('videoPreviews');
+            container.innerHTML = '';
+            
+            selectedVideoFiles.forEach((file, index) => {
+                createVideoPreview(URL.createObjectURL(file), index);
+            });
+        }
+
+        // Add form submission handler
+        document.querySelector('form').addEventListener('submit', function(e) {
+            // Create new FormData from the form
+            const formData = new FormData(this);
+            
+            // Clear existing files and add our selected files
+            formData.delete('uploadImages[]');
+            formData.delete('uploadVideos[]');
+            
+            selectedImageFiles.forEach(file => {
+                formData.append('uploadImages[]', file);
+            });
+            
+            selectedVideoFiles.forEach(file => {
+                formData.append('uploadVideos[]', file);
+            });
+            
+            // Update the form data before submission
+            // Note: This approach doesn't require DataTransfer API
+        });
+
+        // Check for any success/error messages in the session
+        document.addEventListener('DOMContentLoaded', function() {
+            <?php if (isset($_SESSION['success_message'])): ?>
+                showNotification('<?= htmlspecialchars($_SESSION['success_message']) ?>', 'success');
+                <?php unset($_SESSION['success_message']); ?>
+            <?php endif; ?>
+            
+            <?php if (isset($_SESSION['error_message'])): ?>
+                showNotification('<?= htmlspecialchars($_SESSION['error_message']) ?>', 'danger');
+                <?php unset($_SESSION['error_message']); ?>
+            <?php endif; ?>
+        });
+
+        // Notification function
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-4`;
+            notification.style.zIndex = '9999';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 150);
+            }, 5000);
         }
     </script>
 
@@ -1985,7 +2078,7 @@ if (!isset($_SESSION['full_name'])) {
         document.getElementById('autofillButton').addEventListener('click', function () {
             // Helper function for random integer generation
             const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-            
+
             // Helper function for random decimal generation
             const randomDecimal = (min, max, decimals = 1) => {
                 const value = min + Math.random() * (max - min);

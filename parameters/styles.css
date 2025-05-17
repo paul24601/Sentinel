@@ -20,9 +20,26 @@ a.collapsed .bi-chevron-down {
     margin-bottom: 20px;
 }
 
+/* Attachment preview styles */
+.attachment-preview {
+    height: 200px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
 .attachment-thumbnail {
-    height: 180px;
-    object-fit: cover;
+    max-height: 200px;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.attachment-preview video {
+    max-height: 200px;
+    max-width: 100%;
 }
 
 /* Record detail view styles */
