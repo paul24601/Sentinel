@@ -333,9 +333,10 @@ $pending_count = count($pending_submissions);
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="cycle-time-actual" class="form-label">Actual</label>
-                                                <input required type="number" class="form-control"
-                                                    id="cycle_time_actual" name="cycle_time_actual"
-                                                    placeholder="Enter actual cycle time" min="0" required>
+                                                <select required class="form-control" id="cycle_time_actual" name="cycle_time_actual" required>
+                                                    <option value="" disabled selected>Select cycle time</option>
+                                                </select>
+                                                <input type="hidden" id="selected_cycle_time_id" name="selected_cycle_time_id">
                                             </div>
                                         </div>
                                     </div>
@@ -442,6 +443,44 @@ $pending_count = count($pending_submissions);
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    function loadCycleTimes() {
+        $.ajax({
+            url: 'fetch_cycle_times.php',
+            method: 'GET',
+            success: function(data) {
+                const select = $('#cycle_time_actual');
+                select.empty();
+                select.append('<option value="" disabled selected>Select cycle time</option>');
+                
+                data.forEach(function(item) {
+                    const option = $('<option></option>')
+                        .val(item.cycle_time)
+                        .text(`Cycle Time: ${item.cycle_time}s - Machine: ${item.machine} - ${new Date(item.timestamp).toLocaleString()}`);
+                    option.data('id', item.id);
+                    select.append(option);
+                });
+            },
+            error: function(xhr, status, error) {
+                console.error('Error loading cycle times:', error);
+            }
+        });
+    }
+
+    // Load cycle times when page loads
+    $(document).ready(function() {
+        loadCycleTimes();
+        
+        // Update hidden input when selection changes
+        $('#cycle_time_actual').change(function() {
+            const selectedOption = $(this).find('option:selected');
+            $('#selected_cycle_time_id').val(selectedOption.data('id'));
+        });
+        
+        // Refresh cycle times every 30 seconds
+        setInterval(loadCycleTimes, 30000);
+    });
+    </script>
 </body>
 
 </html>

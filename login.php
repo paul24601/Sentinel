@@ -1,19 +1,6 @@
 <?php
 session_start();
-
-// Database connection (replace with your actual credentials)
-$servername = "localhost";
-$username = "root";
-$password = "injectionadmin123";
-$dbname = "dailymonitoringsheet";
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+require_once 'includes/db_connection.php';
 
 // Fetch data from the form
 $id_number = $_POST['id_number'] ?? '';
@@ -37,6 +24,7 @@ if ($result->num_rows > 0) {
         $_SESSION['id_number'] = $user['id_number'];
         $_SESSION['full_name'] = $user['full_name'];
         $_SESSION['role'] = $user['role'];
+        $_SESSION['last_activity'] = time(); // Initialize session timeout
 
         // Check if the user has changed their password (password_changed column)
         if ($user['password_changed'] == 0) {
@@ -51,7 +39,7 @@ if ($result->num_rows > 0) {
         } else if ($user['role'] == 'adjuster') {
             header("Location: index.php");
         } else if ($user['role'] == 'admin') {
-            header("Location: index.php");
+            header("Location: admin/dashboard.php");
         } else if ($user['role'] == 'Quality Assurance Engineer') {
             header("Location: index.php");
         } else if ($user['role'] == 'Quality Assurance Supervisor') {

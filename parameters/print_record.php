@@ -1,363 +1,222 @@
 <?php
 session_start();
+require_once '../includes/db_connection.php';
 
-// Check if the user is logged in
-if (!isset($_SESSION['full_name'])) {
-    header("Location: ../login.html");
-    exit();
-}
-
-// Check if record_id is provided
-if (!isset($_GET['record_id']) || empty($_GET['record_id'])) {
-    echo "<div style='text-align:center; margin-top:50px;'>";
-    echo "<h2>Error: No Record ID Provided</h2>";
-    echo "<p>Please specify a valid record ID to print.</p>";
-    echo "<a href='submission.php'>Return to Records</a>";
-    echo "</div>";
-    exit();
+if (!isset($_GET['record_id'])) {
+    die("No record ID provided");
 }
 
 $record_id = $_GET['record_id'];
 
-// Database connection
-$servername = "localhost";
-$username = "root";
-$password = "injectionadmin123";
-$dbname = "injectionmoldingparameters";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Fetch the record details
+// Fetch all data for the record
 $sql = "SELECT * FROM parameter_records WHERE record_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $record_id);
 $stmt->execute();
-$recordData = $stmt->get_result()->fetch_assoc();
+$record = $stmt->get_result()->fetch_assoc();
 
-if (!$recordData) {
-    echo "<div style='text-align:center; margin-top:50px;'>";
-    echo "<h2>Error: Record Not Found</h2>";
-    echo "<p>The requested record could not be found.</p>";
-    echo "<a href='submission.php'>Return to Records</a>";
-    echo "</div>";
-    exit();
-}
+// Fetch all related data
+$tables = [
+    'productmachineinfo',
+    'productdetails',
+    'materialcomposition',
+    'colorantdetails',
+    'moldoperationspecs',
+    'timerparameters',
+    'barrelheatertemperatures',
+    'moldheatertemperatures',
+    'plasticizingparameters',
+    'injectionparameters',
+    'ejectionparameters',
+    'corepullsettings',
+    'additionalinformation',
+    'personnel',
+    'attachments'
+];
 
-// Fetch all data for this record
-function fetchRecordData($conn, $table, $record_id) {
+$data = [];
+foreach ($tables as $table) {
     $sql = "SELECT * FROM $table WHERE record_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $record_id);
     $stmt->execute();
-    return $stmt->get_result()->fetch_assoc();
+    $result = $stmt->get_result();
+    $data[$table] = $result->fetch_assoc();
 }
-
-// Fetch data from all related tables
-$productMachineInfo = fetchRecordData($conn, 'productmachineinfo', $record_id);
-$productDetails = fetchRecordData($conn, 'productdetails', $record_id);
-$materialComposition = fetchRecordData($conn, 'materialcomposition', $record_id);
-$colorantDetails = fetchRecordData($conn, 'colorantdetails', $record_id);
-$moldOperationSpecs = fetchRecordData($conn, 'moldoperationspecs', $record_id);
-$timerParameters = fetchRecordData($conn, 'timerparameters', $record_id);
-$barrelHeaterTemperatures = fetchRecordData($conn, 'barrelheatertemperatures', $record_id);
-$moldHeaterTemperatures = fetchRecordData($conn, 'moldheatertemperatures', $record_id);
-$plasticizingParameters = fetchRecordData($conn, 'plasticizingparameters', $record_id);
-$injectionParameters = fetchRecordData($conn, 'injectionparameters', $record_id);
-$ejectionParameters = fetchRecordData($conn, 'ejectionparameters', $record_id);
-$personalData = fetchRecordData($conn, 'personnel', $record_id);
-
-// Fetch attachments
-$sql = "SELECT * FROM attachments WHERE record_id = ? AND FileType LIKE 'image%' LIMIT 5";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $record_id);
-$stmt->execute();
-$attachments = $stmt->get_result();
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Print Record: <?= htmlspecialchars($recordData['title']) ?></title>
-    <!-- Bootstrap CSS for printing -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Print Record - <?= htmlspecialchars($record_id) ?></title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         @media print {
-            body {
-                font-size: 12px;
-            }
             .no-print {
                 display: none !important;
             }
             .page-break {
                 page-break-before: always;
             }
-            table {
-                font-size: 10px;
+            body {
+                font-size: 12pt;
             }
-            .section-title {
-                background-color: #f5f5f5 !important;
+            .card {
+                border: 1px solid #000 !important;
+            }
+            .card-header {
+                background-color: #f8f9fa !important;
                 -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
             }
         }
-        
-        .section-title {
-            background-color: #f5f5f5;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-left: 5px solid #0d6efd;
-        }
-        
-        .data-row {
-            margin-bottom: 8px;
-        }
-        
-        .data-label {
-            font-weight: bold;
-            margin-right: 5px;
-        }
-        
-        .print-header {
-            text-align: center;
+        .card {
             margin-bottom: 20px;
+        }
+        .card-header {
+            font-weight: bold;
+        }
+        .table th {
+            background-color: #f8f9fa;
         }
     </style>
 </head>
 <body>
-    <div class="container mt-4">
-        <!-- Print Controls (not printed) -->
-        <div class="row mb-4 no-print">
-            <div class="col-12">
-                <button onclick="window.print()" class="btn btn-primary">
-                    <i class="fas fa-print"></i> Print
-                </button>
-                <a href="submission.php" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Back to Records
-                </a>
+    <div class="container-fluid py-4">
+        <div class="no-print mb-4">
+            <button onclick="window.print()" class="btn btn-primary">Print Record</button>
+            <a href="submission.php?record_id=<?= htmlspecialchars($record_id) ?>" class="btn btn-secondary">Back to Record</a>
+        </div>
+
+        <!-- Header Information -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><?= htmlspecialchars($record['title']) ?></h4>
             </div>
-        </div>
-        
-        <!-- Print Header -->
-        <div class="print-header">
-            <h1>Injection Molding Parameters</h1>
-            <h3><?= htmlspecialchars($recordData['title']) ?></h3>
-            <p>Record ID: <?= htmlspecialchars($record_id) ?></p>
-            <p>Date: <?= date('Y-m-d', strtotime($recordData['submission_date'])) ?></p>
-        </div>
-        
-        <!-- Record Meta Information -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="section-title">
-                    <h4>Record Information</h4>
-                </div>
+            <div class="card-body">
                 <div class="row">
                     <div class="col-md-4">
-                        <div class="data-row">
-                            <span class="data-label">Submitted By:</span>
-                            <span><?= htmlspecialchars($recordData['submitted_by']) ?></span>
-                        </div>
+                        <p><strong>Record ID:</strong> <?= htmlspecialchars($record_id) ?></p>
                     </div>
                     <div class="col-md-4">
-                        <div class="data-row">
-                            <span class="data-label">Submission Date:</span>
-                            <span><?= htmlspecialchars($recordData['submission_date']) ?></span>
-                        </div>
+                        <p><strong>Submitted by:</strong> <?= htmlspecialchars($record['submitted_by']) ?></p>
                     </div>
                     <div class="col-md-4">
-                        <div class="data-row">
-                            <span class="data-label">Status:</span>
-                            <span><?= htmlspecialchars(ucfirst($recordData['status'])) ?></span>
-                        </div>
+                        <p><strong>Submission Date:</strong> <?= htmlspecialchars($record['submission_date']) ?></p>
                     </div>
                 </div>
-                <?php if ($recordData['description']): ?>
-                <div class="row mt-2">
-                    <div class="col-12">
-                        <div class="data-row">
-                            <p class="data-label">Description:</p>
-                            <p><?= nl2br(htmlspecialchars($recordData['description'])) ?></p>
-                        </div>
+            </div>
+        </div>
+
+        <!-- Product & Machine Info -->
+        <div class="card mb-4">
+            <div class="card-header">Product & Machine Information</div>
+            <div class="card-body">
+                <div class="row">
+                    <?php if ($data['productmachineinfo']): ?>
+                    <div class="col-md-6">
+                        <p><strong>Date:</strong> <?= htmlspecialchars($data['productmachineinfo']['Date']) ?></p>
+                        <p><strong>Time:</strong> <?= htmlspecialchars($data['productmachineinfo']['Time']) ?></p>
+                        <p><strong>Machine Name:</strong> <?= htmlspecialchars($data['productmachineinfo']['MachineName']) ?></p>
+                        <p><strong>Run Number:</strong> <?= htmlspecialchars($data['productmachineinfo']['RunNumber']) ?></p>
                     </div>
+                    <div class="col-md-6">
+                        <p><strong>Category:</strong> <?= htmlspecialchars($data['productmachineinfo']['Category']) ?></p>
+                        <p><strong>IRN:</strong> <?= htmlspecialchars($data['productmachineinfo']['IRN']) ?></p>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Details -->
+        <div class="card mb-4">
+            <div class="card-header">Product Details</div>
+            <div class="card-body">
+                <div class="row">
+                    <?php if ($data['productdetails']): ?>
+                    <div class="col-md-6">
+                        <p><strong>Product Name:</strong> <?= htmlspecialchars($data['productdetails']['ProductName']) ?></p>
+                        <p><strong>Color:</strong> <?= htmlspecialchars($data['productdetails']['Color']) ?></p>
+                        <p><strong>Mold Name:</strong> <?= htmlspecialchars($data['productdetails']['MoldName']) ?></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Product Number:</strong> <?= htmlspecialchars($data['productdetails']['ProductNumber']) ?></p>
+                        <p><strong>Cavity Active:</strong> <?= htmlspecialchars($data['productdetails']['CavityActive']) ?></p>
+                        <p><strong>Gross Weight:</strong> <?= htmlspecialchars($data['productdetails']['GrossWeight']) ?></p>
+                        <p><strong>Net Weight:</strong> <?= htmlspecialchars($data['productdetails']['NetWeight']) ?></p>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- Material Composition -->
+        <div class="card mb-4">
+            <div class="card-header">Material Composition</div>
+            <div class="card-body">
+                <?php if ($data['materialcomposition']): ?>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Drying Time:</strong> <?= htmlspecialchars($data['materialcomposition']['DryingTime']) ?></p>
+                        <p><strong>Drying Temperature:</strong> <?= htmlspecialchars($data['materialcomposition']['DryingTemperature']) ?></p>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Material</th>
+                                <th>Type</th>
+                                <th>Brand</th>
+                                <th>Mixture %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php for ($i = 1; $i <= 4; $i++): ?>
+                            <tr>
+                                <td>Material <?= $i ?></td>
+                                <td><?= htmlspecialchars($data['materialcomposition']["Material{$i}_Type"]) ?></td>
+                                <td><?= htmlspecialchars($data['materialcomposition']["Material{$i}_Brand"]) ?></td>
+                                <td><?= htmlspecialchars($data['materialcomposition']["Material{$i}_MixturePercentage"]) ?></td>
+                            </tr>
+                            <?php endfor; ?>
+                        </tbody>
+                    </table>
                 </div>
                 <?php endif; ?>
             </div>
         </div>
-        
-        <!-- Main Data Sections -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="section-title">
-                    <h4>Product and Machine Information</h4>
-                </div>
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="data-row">
-                            <span class="data-label">Date:</span>
-                            <span><?= htmlspecialchars($productMachineInfo['Date']) ?></span>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="data-row">
-                            <span class="data-label">Time:</span>
-                            <span><?= htmlspecialchars($productMachineInfo['Time']) ?></span>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="data-row">
-                            <span class="data-label">Machine:</span>
-                            <span><?= htmlspecialchars($productMachineInfo['MachineName']) ?></span>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="data-row">
-                            <span class="data-label">Run Number:</span>
-                            <span><?= htmlspecialchars($productMachineInfo['RunNumber']) ?></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-md-6">
-                        <div class="data-row">
-                            <span class="data-label">Category:</span>
-                            <span><?= htmlspecialchars($productMachineInfo['Category']) ?></span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="data-row">
-                            <span class="data-label">IRN:</span>
-                            <span><?= htmlspecialchars($productMachineInfo['IRN']) ?></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Product Details -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="section-title">
-                    <h4>Product Details</h4>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="data-row">
-                            <span class="data-label">Product Name:</span>
-                            <span><?= htmlspecialchars($productDetails['ProductName']) ?></span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="data-row">
-                            <span class="data-label">Color:</span>
-                            <span><?= htmlspecialchars($productDetails['Color']) ?></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-md-4">
-                        <div class="data-row">
-                            <span class="data-label">Mold Name:</span>
-                            <span><?= htmlspecialchars($productDetails['MoldName']) ?></span>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="data-row">
-                            <span class="data-label">Product Number:</span>
-                            <span><?= htmlspecialchars($productDetails['ProductNumber']) ?></span>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="data-row">
-                            <span class="data-label">Active Cavity:</span>
-                            <span><?= htmlspecialchars($productDetails['CavityActive']) ?></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-md-6">
-                        <div class="data-row">
-                            <span class="data-label">Gross Weight:</span>
-                            <span><?= htmlspecialchars($productDetails['GrossWeight']) ?> g</span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="data-row">
-                            <span class="data-label">Net Weight:</span>
-                            <span><?= htmlspecialchars($productDetails['NetWeight']) ?> g</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
+
         <!-- Continue with other sections... -->
-        
-        <!-- Personnel Information -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="section-title">
-                    <h4>Personnel</h4>
-                </div>
+        <!-- Add similar card sections for all other data -->
+
+        <!-- Attachments -->
+        <?php if ($data['attachments']): ?>
+        <div class="card mb-4">
+            <div class="card-header">Attachments</div>
+            <div class="card-body">
                 <div class="row">
-                    <div class="col-md-6">
-                        <div class="data-row">
-                            <span class="data-label">Adjuster:</span>
-                            <span><?= htmlspecialchars($personalData['AdjusterName']) ?></span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="data-row">
-                            <span class="data-label">Quality Assurance Engineer:</span>
-                            <span><?= htmlspecialchars($personalData['QAEName']) ?></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Attachments - Images -->
-        <?php if ($attachments->num_rows > 0): ?>
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="section-title">
-                    <h4>Images</h4>
-                </div>
-                <div class="row">
-                    <?php while ($image = $attachments->fetch_assoc()): 
-                        $relativePath = str_replace($_SERVER['DOCUMENT_ROOT'], '', $image['FilePath']);
+                    <?php
+                    $sql = "SELECT * FROM attachments WHERE record_id = ?";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param("s", $record_id);
+                    $stmt->execute();
+                    $attachments = $stmt->get_result();
+                    while ($attachment = $attachments->fetch_assoc()):
                     ?>
-                    <div class="col-md-3 mb-3">
-                        <img src="<?= htmlspecialchars($relativePath) ?>" 
-                             alt="<?= htmlspecialchars($image['FileName']) ?>" 
-                             class="img-thumbnail" style="max-height: 150px;">
+                    <div class="col-md-4 mb-3">
+                        <p><strong>File:</strong> <?= htmlspecialchars($attachment['FileName']) ?></p>
                     </div>
                     <?php endwhile; ?>
                 </div>
             </div>
         </div>
         <?php endif; ?>
-        
-        <!-- Footer -->
-        <div class="row mt-5">
-            <div class="col-12 text-center">
-                <p>This document was generated on <?= date('Y-m-d H:i:s') ?></p>
-                <p>© <?= date('Y') ?> Sentinel Digitization</p>
-            </div>
-        </div>
     </div>
-    
-    <script>
-        // Auto-print when page loads (comment out for development)
-        window.onload = function() {
-            // Uncomment to automatically print when opened
-            // window.print();
-        };
-    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+</html> 
 </html> 

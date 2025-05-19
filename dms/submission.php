@@ -135,27 +135,55 @@ if (isset($_GET['export_csv'])) {
 
 // Insert form data into database
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $date = $_POST['date'];
-    $product_name = $_POST['product_name'];
-    $machine = $_POST['machine'];
-    $prn = $_POST['prn'];
-    $mold_code = $_POST['mold_code'];
-    $cycle_time_target = $_POST['cycle_time_target'];
-    $cycle_time_actual = $_POST['cycle_time_actual'];
-    $weight_standard = $_POST['weight_standard'];
-    $weight_gross = $_POST['weight_gross'];
-    $weight_net = $_POST['weight_net'];
-    $cavity_designed = $_POST['cavity_designed'];
-    $cavity_active = $_POST['cavity_active'];
-    $remarks = $_POST['remarks'];
-    $name = $_POST['name'];
-    $shift = $_POST['shift'];
+    // Database connection for DMS
+    $dms_conn = new mysqli("localhost", "root", "injectionadmin123", "dailymonitoringsheet");
+    if ($dms_conn->connect_error) {
+        die("Connection failed: " . $dms_conn->connect_error);
+    }
 
-    $sql = "INSERT INTO submissions (date, product_name, machine, prn, mold_code, cycle_time_target, cycle_time_actual, weight_standard, weight_gross, weight_net, cavity_designed, cavity_active, remarks, name, shift) 
-        VALUES ('$date', '$product_name', '$machine', '$prn', '$mold_code', '$cycle_time_target', '$cycle_time_actual', '$weight_standard', '$weight_gross', '$weight_net', '$cavity_designed', '$cavity_active', '$remarks', '$name', '$shift')";
+    // Database connection for sensory data
+    $sensory_conn = new mysqli("localhost", "root", "injectionadmin123", "sensory_data");
+    if ($sensory_conn->connect_error) {
+        die("Connection failed: " . $sensory_conn->connect_error);
+    }
 
-    if ($conn->query($sql) === TRUE) {
-        $recordCreated = true;
+    // Insert into submissions table
+    $sql = "INSERT INTO submissions (date, product_name, machine, prn, mold_code, cycle_time_target, 
+            cycle_time_actual, weight_standard, weight_gross, weight_net, cavity_designed, 
+            cavity_active, remarks, name, shift) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    $stmt = $dms_conn->prepare($sql);
+    $stmt->bind_param("sssssddddddsss", 
+        $_POST['date'],
+        $_POST['product_name'],
+        $_POST['machine'],
+        $_POST['prn'],
+        $_POST['mold_code'],
+        $_POST['cycle_time_target'],
+        $_POST['cycle_time_actual'],
+        $_POST['weight_standard'],
+        $_POST['weight_gross'],
+        $_POST['weight_net'],
+        $_POST['cavity_designed'],
+        $_POST['cavity_active'],
+        $_POST['remarks'],
+        $_POST['name'],
+        $_POST['shift']
+    );
+
+    if ($stmt->execute()) {
+        $submission_id = $stmt->insert_id;
+
+        // Record the used cycle time
+        if (isset($_POST['selected_cycle_time_id'])) {
+            $cycle_time_id = $_POST['selected_cycle_time_id'];
+            $used_sql = "INSERT INTO used_cycle_times (cycle_time_id, submission_id) VALUES (?, ?)";
+            $used_stmt = $sensory_conn->prepare($used_sql);
+            $used_stmt->bind_param("ii", $cycle_time_id, $submission_id);
+            $used_stmt->execute();
+            $used_stmt->close();
+        }
 
         // Configure and send email notification using PHPMailer
         $mail = new PHPMailer(true);
@@ -180,22 +208,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             $mail->Body = "
         Dear Team,<br><br>
-        A new submission for product: <strong>{$product_name}</strong> has been created on <strong>{$date}</strong> and is pending approval.<br><br>
+        A new submission for product: <strong>{$stmt->get_result()->fetch_assoc()['product_name']}</strong> has been created on <strong>{$stmt->get_result()->fetch_assoc()['date']}</strong> and is pending approval.<br><br>
         Please review it in the system by clicking <a href='http://143.198.215.249/main-landing/dms/approval.php'>here</a>.<br><br>
         If you're not logged in, please click <a href='http://143.198.215.249/main-landing/login.html'>here</a> to log in.<br><br>
         Regards,<br>
         DMS System
     ";
 
-            $mail->AltBody = "Dear Team,\n\nA new submission for product: {$product_name} has been created on {$date} and is pending approval.\n\nReview it at: http://143.198.215.249/main-landing/dms/approval.php\n\nIf you're not logged in, visit: http://143.198.215.249/main-landing/login.html\n\nRegards,\nDMS System";
+            $mail->AltBody = "Dear Team,\n\nA new submission for product: {$stmt->get_result()->fetch_assoc()['product_name']} has been created on {$stmt->get_result()->fetch_assoc()['date']} and is pending approval.\n\nReview it at: http://143.198.215.249/main-landing/dms/approval.php\n\nIf you're not logged in, visit: http://143.198.215.249/main-landing/login.html\n\nRegards,\nDMS System";
 
             $mail->send();
         } catch (Exception $e) {
             echo "Email could not be sent. Mailer Error: {$mail->ErrorInfo}";
         }
+
+        header("Location: index.php?success=1");
     } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        header("Location: index.php?error=1");
     }
+
+    $stmt->close();
+    $dms_conn->close();
+    $sensory_conn->close();
 }
 
 // Retrieve data from database - show all submissions
