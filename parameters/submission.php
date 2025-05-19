@@ -1,5 +1,5 @@
 <?php
-session_start(); // Start the session to access session variables
+require_once 'session_config.php';
 
 // Check if the user is logged in
 if (!isset($_SESSION['full_name'])) {
@@ -1137,7 +1137,7 @@ if ($selectedRecordId) {
                                                 <td><?= htmlspecialchars($record['title']) ?></td>
                                                 <td><?= htmlspecialchars($record['submitted_by']) ?></td>
                                                 <td>
-                                                    <?php
+                                            <?php
                                                     // Try to get actual date/time from productmachineinfo
                                                     $actualDateTime = '';
                                                     $recordId = $record['record_id'];

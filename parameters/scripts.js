@@ -147,20 +147,20 @@ document.getElementById('autofillButton').addEventListener('click', function () 
 // Session timeout handling
 let sessionTimeout;
 const TIMEOUT_DURATION = 30 * 60 * 1000; // 30 minutes in milliseconds
-const WARNING_DURATION = 5 * 60 * 1000; // 5 minutes warning before timeout
+const WARNING_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
 
-function resetSessionTimeout() {
+function resetSessionTimer() {
     clearTimeout(sessionTimeout);
     sessionTimeout = setTimeout(showTimeoutWarning, TIMEOUT_DURATION - WARNING_DURATION);
 }
 
 function showTimeoutWarning() {
-    // Create and show the warning modal
-    const modalHtml = `
+    // Create warning modal
+    const warningModal = `
         <div class="modal fade" id="sessionTimeoutModal" tabindex="-1" role="dialog" aria-labelledby="sessionTimeoutModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <div class="modal-header bg-warning">
+                    <div class="modal-header">
                         <h5 class="modal-title" id="sessionTimeoutModalLabel">Session Timeout Warning</h5>
                     </div>
                     <div class="modal-body">
@@ -178,13 +178,13 @@ function showTimeoutWarning() {
 
     // Add modal to body if it doesn't exist
     if (!document.getElementById('sessionTimeoutModal')) {
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        document.body.insertAdjacentHTML('beforeend', warningModal);
     }
 
     // Show the modal
     $('#sessionTimeoutModal').modal('show');
 
-    // Set timeout for actual logout
+    // Set timeout for actual session expiration
     setTimeout(logout, WARNING_DURATION);
 }
 
@@ -194,11 +194,14 @@ function extendSession() {
         url: 'refresh_session.php',
         method: 'POST',
         success: function(response) {
+            // Hide the warning modal
             $('#sessionTimeoutModal').modal('hide');
-            resetSessionTimeout();
+            // Reset the session timer
+            resetSessionTimer();
         },
         error: function() {
-            alert('Failed to extend session. Please try again.');
+            // If the refresh fails, log out
+            logout();
         }
     });
 }
@@ -207,11 +210,11 @@ function logout() {
     window.location.href = '../login.html';
 }
 
-// Reset timeout on user activity
-document.addEventListener('mousemove', resetSessionTimeout);
-document.addEventListener('keypress', resetSessionTimeout);
-document.addEventListener('click', resetSessionTimeout);
-document.addEventListener('scroll', resetSessionTimeout);
+// Reset timer on user activity
+document.addEventListener('mousemove', resetSessionTimer);
+document.addEventListener('keypress', resetSessionTimer);
+document.addEventListener('click', resetSessionTimer);
+document.addEventListener('scroll', resetSessionTimer);
 
-// Initialize timeout on page load
-resetSessionTimeout();
+// Initialize the session timer when the page loads
+document.addEventListener('DOMContentLoaded', resetSessionTimer);
