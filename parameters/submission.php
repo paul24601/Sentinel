@@ -201,11 +201,12 @@ if ($selectedRecordId) {
         <!-- Navbar Brand-->
         <a class="navbar-brand ps-3" href="../index.php">Sentinel Digitization</a>
         <!-- Sidebar Toggle-->
-        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
-            <i class="fas fa-bars"></i>
-        </button>
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i
+                class="fas fa-bars"></i></button>
         <!-- Navbar Search-->
-        <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0"></form>
+        <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+
+        </form>
         <!-- Navbar-->
         <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
             <li class="nav-item dropdown">
@@ -1114,9 +1115,22 @@ if ($selectedRecordId) {
                     <?php else: ?>
                         <!-- Main Records View - Display card with summary of all records -->
                         <div class="card mb-4">
-                            <div class="card-header">
-                                <i class="fas fa-table me-1"></i>
-                                Parameters Records (<?= $recordsCount ?>)
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-table me-1"></i>
+                                    Parameters Records (<?= $recordsCount ?>)
+                                </div>
+                                <div class="btn-group">
+                                    <a href="export_data.php?format=pdf" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-file-pdf"></i> Export PDF
+                                    </a>
+                                    <a href="export_data.php?format=excel" class="btn btn-success btn-sm">
+                                        <i class="fas fa-file-excel"></i> Export Excel
+                                    </a>
+                                    <a href="export_data.php?format=sql" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-database"></i> Export SQL
+                                    </a>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <table id="recordsTable" class="table table-striped table-hover">

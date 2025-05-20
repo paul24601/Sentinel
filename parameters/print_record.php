@@ -124,6 +124,17 @@ while ($row = $result->fetch_assoc()) {
                 <a href="submission.php" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Back to Records
                 </a>
+                <div class="btn-group">
+                    <a href="export_data.php?record_id=<?= htmlspecialchars($record_id) ?>&format=pdf" class="btn btn-danger">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </a>
+                    <a href="export_data.php?record_id=<?= htmlspecialchars($record_id) ?>&format=excel" class="btn btn-success">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </a>
+                    <a href="export_data.php?record_id=<?= htmlspecialchars($record_id) ?>&format=sql" class="btn btn-info">
+                        <i class="fas fa-database"></i> Export SQL
+                    </a>
+                </div>
             </div>
         </div>
         <!-- Print Header -->
