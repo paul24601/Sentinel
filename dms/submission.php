@@ -154,7 +154,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $dms_conn->prepare($sql);
-    $stmt->bind_param("sssssddddddsss", 
+    $stmt->bind_param("sssisdddddiisss", 
         $_POST['date'],
         $_POST['product_name'],
         $_POST['machine'],
@@ -185,7 +185,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $used_stmt->close();
         }
 
-        // Configure and send email notification using PHPMailer
+        // Before sending the email, get the submission data
+        $get_submission = "SELECT product_name, date FROM submissions WHERE id = ?";
+        $get_stmt = $dms_conn->prepare($get_submission);
+        $get_stmt->bind_param("i", $submission_id);
+        $get_stmt->execute();
+        $submission_result = $get_stmt->get_result();
+        $submission_data = $submission_result->fetch_assoc();
+
+        // Now use the data in your email
         $mail = new PHPMailer(true);
         try {
             $mail->isSMTP();
@@ -197,10 +205,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $mail->Port = 587;
 
             $mail->setFrom('sentinel.dms.notifications@gmail.com', 'DMS Notifications');
-
-            // Email for admins/supervisors
             $mail->addAddress('injectiondigitization@gmail.com');
-            // Email for the QA team
             $mail->addAddress('qa.dms.notifications@gmail.com');
 
             $mail->isHTML(true);
@@ -208,19 +213,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             $mail->Body = "
         Dear Team,<br><br>
-        A new submission for product: <strong>{$stmt->get_result()->fetch_assoc()['product_name']}</strong> has been created on <strong>{$stmt->get_result()->fetch_assoc()['date']}</strong> and is pending approval.<br><br>
+        A new submission for product: <strong>{$submission_data['product_name']}</strong> has been created on <strong>{$submission_data['date']}</strong> and is pending approval.<br><br>
         Please review it in the system by clicking <a href='http://143.198.215.249/main-landing/dms/approval.php'>here</a>.<br><br>
         If you're not logged in, please click <a href='http://143.198.215.249/main-landing/login.html'>here</a> to log in.<br><br>
         Regards,<br>
         DMS System
     ";
 
-            $mail->AltBody = "Dear Team,\n\nA new submission for product: {$stmt->get_result()->fetch_assoc()['product_name']} has been created on {$stmt->get_result()->fetch_assoc()['date']} and is pending approval.\n\nReview it at: http://143.198.215.249/main-landing/dms/approval.php\n\nIf you're not logged in, visit: http://143.198.215.249/main-landing/login.html\n\nRegards,\nDMS System";
+            $mail->AltBody = "Dear Team,\n\nA new submission for product: {$submission_data['product_name']} has been created on {$submission_data['date']} and is pending approval.\n\nReview it at: http://143.198.215.249/main-landing/dms/approval.php\n\nIf you're not logged in, visit: http://143.198.215.249/main-landing/login.html\n\nRegards,\nDMS System";
 
             $mail->send();
         } catch (Exception $e) {
             echo "Email could not be sent. Mailer Error: {$mail->ErrorInfo}";
         }
+
+        $get_stmt->close();
 
         header("Location: index.php?success=1");
     } else {

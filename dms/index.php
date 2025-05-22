@@ -111,26 +111,6 @@ $pending_count = count($pending_submissions);
                     return false;
                 }
             });
-
-            // PRN Autocomplete setup
-            $("#prn").autocomplete({
-                source: function (request, response) {
-                    $.ajax({
-                        url: "autocomplete_prn.php",
-                        dataType: "json",
-                        data: { term: request.term },
-                        success: function (data) {
-                            response(data);
-                        }
-                    });
-                },
-                select: function (event, ui) {
-                    // Additional actions when a PRN is selected (if needed)
-                },
-                focus: function (event, ui) {
-                    return false;
-                }
-            });
         });
     </script>
 </head>
@@ -333,10 +313,16 @@ $pending_count = count($pending_submissions);
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="cycle-time-actual" class="form-label">Actual</label>
-                                                <select required class="form-control" id="cycle_time_actual" name="cycle_time_actual" required>
-                                                    <option value="" disabled selected>Select cycle time</option>
-                                                </select>
+                                                <div class="input-group">
+                                                    <select required class="form-control" id="cycle_time_actual" name="cycle_time_actual" required>
+                                                        <option value="" disabled selected>Select cycle time</option>
+                                                    </select>
+                                                    <button type="button" class="btn btn-outline-secondary" id="refresh_cycle_times">
+                                                        <i class="fas fa-sync-alt"></i>
+                                                    </button>
+                                                </div>
                                                 <input type="hidden" id="selected_cycle_time_id" name="selected_cycle_time_id">
+                                                <small class="text-muted" id="cycle_time_details"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -445,19 +431,37 @@ $pending_count = count($pending_submissions);
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     function loadCycleTimes() {
+        const machine = $('#machine').val();
+        if (!machine) {
+            $('#cycle_time_actual').html('<option value="" disabled selected>Select machine first</option>');
+            return;
+        }
+
         $.ajax({
-            url: 'fetch_cycle_times.php',
+            url: 'fetch_auto_cycle_time.php',
             method: 'GET',
+            data: { machine: machine },
             success: function(data) {
                 const select = $('#cycle_time_actual');
                 select.empty();
                 select.append('<option value="" disabled selected>Select cycle time</option>');
                 
+                if (data.length === 0) {
+                    select.append('<option value="" disabled>No recent cycle times available</option>');
+                    return;
+                }
+                
                 data.forEach(function(item) {
                     const option = $('<option></option>')
                         .val(item.cycle_time)
-                        .text(`Cycle Time: ${item.cycle_time}s - Machine: ${item.machine} - ${new Date(item.timestamp).toLocaleString()}`);
+                        .text(item.cycle_time);
                     option.data('id', item.id);
+                    option.data('details', {
+                        temp1: item.temp1,
+                        temp2: item.temp2,
+                        pressure: item.pressure,
+                        timestamp: item.timestamp
+                    });
                     select.append(option);
                 });
             },
@@ -469,16 +473,80 @@ $pending_count = count($pending_submissions);
 
     // Load cycle times when page loads
     $(document).ready(function() {
-        loadCycleTimes();
-        
-        // Update hidden input when selection changes
-        $('#cycle_time_actual').change(function() {
-            const selectedOption = $(this).find('option:selected');
-            $('#selected_cycle_time_id').val(selectedOption.data('id'));
+        // Load cycle times when machine is selected
+        $('#machine').change(function() {
+            loadCycleTimes();
         });
         
-        // Refresh cycle times every 30 seconds
-        setInterval(loadCycleTimes, 30000);
+        // Manual refresh button
+        $('#refresh_cycle_times').click(function() {
+            loadCycleTimes();
+        });
+        
+        // Update hidden input and details when selection changes
+        $('#cycle_time_actual').change(function() {
+            const selectedOption = $(this).find('option:selected');
+            const details = selectedOption.data('details');
+            $('#selected_cycle_time_id').val(selectedOption.data('id'));
+            
+            // Update details display
+            if (details) {
+                const detailsHtml = `
+                    <div class="mt-2">
+                        <strong>Details:</strong><br>
+                        Temperature 1: ${details.temp1}°C<br>
+                        Temperature 2: ${details.temp2}°C<br>
+                        Pressure: ${details.pressure}g<br>
+                        Recorded: ${new Date(details.timestamp).toLocaleString()}
+                    </div>
+                `;
+                $('#cycle_time_details').html(detailsHtml);
+            } else {
+                $('#cycle_time_details').html('');
+            }
+        });
+        
+        // Auto-refresh cycle times every 30 seconds if machine is selected
+        setInterval(function() {
+            if ($('#machine').val()) {
+                loadCycleTimes();
+            }
+        }, 30000);
+    });
+    </script>
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="successModalLabel">Success!</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center">
+                        <i class="fas fa-check-circle text-success" style="font-size: 48px;"></i>
+                        <p class="mt-3">Your submission has been successfully recorded.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" onclick="window.location.href='index.php'">New Submission</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    $(document).ready(function() {
+        // Check for success parameter in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === '1') {
+            // Show success modal
+            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
+            
+            // Remove success parameter from URL without refreshing the page
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
     });
     </script>
 </body>
