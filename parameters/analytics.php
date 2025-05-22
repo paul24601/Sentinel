@@ -67,17 +67,17 @@ $result = $conn->query("
 ");
 $stats['avg_cycle_time'] = round($result->fetch_assoc()['avg_cycle_time'], 2);
 
-// Records by month
+// Records by day (last 30 days)
 $result = $conn->query("
-    SELECT DATE_FORMAT(submission_date, '%Y-%m') as month, COUNT(*) as count 
+    SELECT DATE(submission_date) as day, COUNT(*) as count 
     FROM parameter_records 
-    GROUP BY month 
-    ORDER BY month DESC 
-    LIMIT 12
+    WHERE submission_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+    GROUP BY day 
+    ORDER BY day ASC
 ");
-$stats['monthly_records'] = [];
+$stats['daily_records'] = [];
 while ($row = $result->fetch_assoc()) {
-    $stats['monthly_records'][$row['month']] = $row['count'];
+    $stats['daily_records'][$row['day']] = $row['count'];
 }
 
 // Average temperatures by zone
@@ -333,11 +333,11 @@ while ($row = $result->fetch_assoc()) {
                         <div class="col-md-6">
                             <div class="card">
                                 <div class="card-header">
-                                    <h5 class="card-title mb-0">Monthly Records</h5>
+                                    <h5 class="card-title mb-0">Daily Records (Last 30 Days)</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="chart-container">
-                                        <canvas id="monthlyChart"></canvas>
+                                        <canvas id="dailyChart"></canvas>
                                     </div>
                                 </div>
                             </div>
@@ -423,21 +423,45 @@ while ($row = $result->fetch_assoc()) {
             }
         });
 
-        // Monthly Records Chart
-        new Chart(document.getElementById('monthlyChart'), {
+        // Daily Records Chart
+        new Chart(document.getElementById('dailyChart'), {
             type: 'line',
             data: {
-                labels: <?= json_encode(array_keys($stats['monthly_records'])) ?>,
+                labels: <?= json_encode(array_keys($stats['daily_records'])) ?>,
                 datasets: [{
                     label: 'Records',
-                    data: <?= json_encode(array_values($stats['monthly_records'])) ?>,
+                    data: <?= json_encode(array_values($stats['daily_records'])) ?>,
                     borderColor: '#0d6efd',
-                    tension: 0.1
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    fill: true,
+                    tension: 0.4
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
             }
         });
 

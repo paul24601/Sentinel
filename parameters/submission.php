@@ -1121,14 +1121,14 @@ if ($selectedRecordId) {
                                     Parameters Records (<?= $recordsCount ?>)
                                 </div>
                                 <div class="btn-group">
-                                    <a href="export_data.php?format=pdf" class="btn btn-danger btn-sm">
-                                        <i class="fas fa-file-pdf"></i> Export PDF
+                                    <a href="export_data.php?format=pdf" class="btn btn-danger btn-sm" target="_blank">
+                                        <i class="fas fa-file-pdf"></i> Export All PDF
                                     </a>
-                                    <a href="export_data.php?format=excel" class="btn btn-success btn-sm">
-                                        <i class="fas fa-file-excel"></i> Export Excel
+                                    <a href="export_data.php?format=excel" class="btn btn-success btn-sm" target="_blank">
+                                        <i class="fas fa-file-excel"></i> Export All Excel
                                     </a>
-                                    <a href="export_data.php?format=sql" class="btn btn-primary btn-sm">
-                                        <i class="fas fa-database"></i> Export SQL
+                                    <a href="export_data.php?format=sql" class="btn btn-primary btn-sm" target="_blank">
+                                        <i class="fas fa-database"></i> Export All SQL
                                     </a>
                                 </div>
                             </div>

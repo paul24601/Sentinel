@@ -2271,6 +2271,188 @@ if (!isset($_SESSION['full_name'])) {
         // Update date and time every minute
         setInterval(updateDateTime, 60000);
     </script>
+
+    <script>
+    // Add form validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const requiredFields = form.querySelectorAll('[required]');
+        
+        // Add validation styles
+        requiredFields.forEach(field => {
+            field.classList.add('required-field');
+            const label = field.previousElementSibling;
+            if (label) {
+                label.innerHTML += ' <span class="text-danger">*</span>';
+            }
+        });
+
+        // Add input validation
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.classList.add('is-invalid');
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                showNotification('Please fill in all required fields', 'danger');
+            }
+        });
+
+        // Add real-time validation
+        requiredFields.forEach(field => {
+            field.addEventListener('input', function() {
+                if (this.value.trim()) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                }
+            });
+        });
+
+        // Add number input validation
+        const numberInputs = form.querySelectorAll('input[type="number"]');
+        numberInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                const value = parseFloat(this.value);
+                const min = parseFloat(this.min);
+                const max = parseFloat(this.max);
+                
+                if (value < min) {
+                    this.value = min;
+                } else if (value > max) {
+                    this.value = max;
+                }
+            });
+        });
+
+        // Add section collapse/expand all functionality
+        const addCollapseAllButton = () => {
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'mb-3';
+            buttonContainer.innerHTML = `
+                <button type="button" class="btn btn-outline-secondary me-2" id="expandAll">
+                    <i class="fas fa-expand-alt"></i> Expand All
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="collapseAll">
+                    <i class="fas fa-compress-alt"></i> Collapse All
+                </button>
+            `;
+            form.insertBefore(buttonContainer, form.firstChild);
+
+            document.getElementById('expandAll').addEventListener('click', () => {
+                document.querySelectorAll('.collapse').forEach(collapse => {
+                    bootstrap.Collapse.getInstance(collapse)?.show();
+                });
+            });
+
+            document.getElementById('collapseAll').addEventListener('click', () => {
+                document.querySelectorAll('.collapse').forEach(collapse => {
+                    bootstrap.Collapse.getInstance(collapse)?.hide();
+                });
+            });
+        };
+
+        addCollapseAllButton();
+
+        // Add form progress indicator
+        const addProgressIndicator = () => {
+            const sections = document.querySelectorAll('.collapse');
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'progress mb-4';
+            progressContainer.innerHTML = `
+                <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+            `;
+            form.insertBefore(progressContainer, form.firstChild);
+
+            const updateProgress = () => {
+                const filledFields = form.querySelectorAll('input[required]:not([value=""]), select[required]:not([value=""]), textarea[required]:not([value=""])').length;
+                const totalFields = requiredFields.length;
+                const progress = (filledFields / totalFields) * 100;
+                progressContainer.querySelector('.progress-bar').style.width = `${progress}%`;
+                progressContainer.querySelector('.progress-bar').setAttribute('aria-valuenow', progress);
+            };
+
+            form.addEventListener('input', updateProgress);
+            updateProgress();
+        };
+
+        addProgressIndicator();
+
+        // Add form autosave
+        const addAutosave = () => {
+            const AUTOSAVE_KEY = 'parameter_form_autosave';
+            
+            const saveForm = () => {
+                const formData = new FormData(form);
+                const data = {};
+                formData.forEach((value, key) => {
+                    data[key] = value;
+                });
+                localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(data));
+            };
+
+            const loadForm = () => {
+                const saved = localStorage.getItem(AUTOSAVE_KEY);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    Object.entries(data).forEach(([key, value]) => {
+                        const field = form.querySelector(`[name="${key}"]`);
+                        if (field) {
+                            field.value = value;
+                        }
+                    });
+                    updateProgress();
+                }
+            };
+
+            form.addEventListener('input', saveForm);
+            loadForm();
+
+            // Clear autosave on successful submission
+            form.addEventListener('submit', () => {
+                localStorage.removeItem(AUTOSAVE_KEY);
+            });
+        };
+
+        addAutosave();
+    });
+
+    // Add styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .required-field {
+            border-left: 3px solid #dc3545;
+        }
+        .required-field.is-valid {
+            border-left: 3px solid #198754;
+        }
+        .progress {
+            height: 10px;
+        }
+        .collapse {
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+        .card {
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+    `;
+    document.head.appendChild(style);
+    </script>
 </body>
 
 </html>
