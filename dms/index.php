@@ -432,9 +432,39 @@ $pending_count = count($pending_submissions);
     <script>
     function loadCycleTimes() {
         const machine = $('#machine').val();
+        const cycleTimeContainer = $('#cycle_time_actual').parent();
+        const cycleTimeDetails = $('#cycle_time_details');
+
+        // If not CLF 750A, show input box instead of dropdown
+        if (machine && machine !== 'CLF 750A') {
+            // Replace the select element with an input
+            cycleTimeContainer.html(`
+                <input type="number" class="form-control" id="cycle_time_actual" name="cycle_time_actual" 
+                       placeholder="Enter actual cycle time" step="0.01" min="0" required>
+            `);
+            cycleTimeDetails.html(''); // Clear any existing details
+            $('#selected_cycle_time_id').val(''); // Clear the hidden input
+            return;
+        }
+
+        // For CLF 750A, show the dropdown with auto-cycle times
         if (!machine) {
             $('#cycle_time_actual').html('<option value="" disabled selected>Select machine first</option>');
             return;
+        }
+
+        // Restore the select element if it was previously changed to input
+        if ($('#cycle_time_actual').is('input')) {
+            cycleTimeContainer.html(`
+                <div class="input-group">
+                    <select required class="form-control" id="cycle_time_actual" name="cycle_time_actual" required>
+                        <option value="" disabled selected>Select cycle time</option>
+                    </select>
+                    <button type="button" class="btn btn-outline-secondary" id="refresh_cycle_times">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            `);
         }
 
         $.ajax({
@@ -452,9 +482,26 @@ $pending_count = count($pending_submissions);
                 }
                 
                 data.forEach(function(item) {
+                    // Format the timestamp
+                    const timestamp = new Date(item.timestamp);
+                    const formattedDate = timestamp.toLocaleDateString();
+                    const formattedTime = timestamp.toLocaleTimeString();
+                    
+                    // Create detailed tooltip text
+                    const tooltipText = `ID: ${item.id} | Recorded: ${formattedDate} ${formattedTime} | T1: ${item.temp1}°C, T2: ${item.temp2}°C | P: ${item.pressure}g`;
+                    
+                    // Create a simpler display text but with visual indicators
+                    const displayText = `${item.cycle_time}s ⌚ (ID: ${item.id})`;
+                    
                     const option = $('<option></option>')
                         .val(item.cycle_time)
-                        .text(item.cycle_time);
+                        .text(displayText)
+                        .attr('title', tooltipText) // Add tooltip with full details
+                        .css({
+                            'font-family': 'monospace',  // Use monospace font for better readability
+                            'white-space': 'pre'         // Preserve spacing
+                        });
+                    
                     option.data('id', item.id);
                     option.data('details', {
                         temp1: item.temp1,
@@ -463,6 +510,12 @@ $pending_count = count($pending_submissions);
                         timestamp: item.timestamp
                     });
                     select.append(option);
+                });
+
+                // Initialize Bootstrap tooltips
+                $('[title]').tooltip({
+                    placement: 'top',
+                    trigger: 'hover'
                 });
             },
             error: function(xhr, status, error) {
@@ -479,12 +532,13 @@ $pending_count = count($pending_submissions);
         });
         
         // Manual refresh button
-        $('#refresh_cycle_times').click(function() {
+        $(document).on('click', '#refresh_cycle_times', function() {
             loadCycleTimes();
         });
         
         // Update hidden input and details when selection changes
-        $('#cycle_time_actual').change(function() {
+        $(document).on('change', '#cycle_time_actual', function() {
+            if ($(this).is('select')) {
             const selectedOption = $(this).find('option:selected');
             const details = selectedOption.data('details');
             $('#selected_cycle_time_id').val(selectedOption.data('id'));
@@ -503,12 +557,13 @@ $pending_count = count($pending_submissions);
                 $('#cycle_time_details').html(detailsHtml);
             } else {
                 $('#cycle_time_details').html('');
+                }
             }
         });
         
-        // Auto-refresh cycle times every 30 seconds if machine is selected
+        // Auto-refresh cycle times every 30 seconds if machine is CLF 750A
         setInterval(function() {
-            if ($('#machine').val()) {
+            if ($('#machine').val() === 'CLF 750A') {
                 loadCycleTimes();
             }
         }, 30000);

@@ -14,16 +14,17 @@ if ($conn->connect_error) {
 
 // Check if 'cycle_status' parameter is received
 if (isset($_GET['cycle_status'])) {
-    $cycle_status = intval($_GET['cycle_status']); // Ensure integer value (0 or 1)
-    $cycle_time = isset($_GET['cycle_time']) ? intval($_GET['cycle_time']) : 0; // Get cycle duration if available
-    $recycle_time = isset($_GET['recycle_time']) ? intval($_GET['recycle_time']) : 0; // Get recycle time if available
+    $cycle_status = intval($_GET['cycle_status']);
+    $cycle_time = isset($_GET['cycle_time']) ? intval($_GET['cycle_time']) : 0;
+    $recycle_time = isset($_GET['recycle_time']) ? intval($_GET['recycle_time']) : 0;
+    $machine = isset($_GET['machine']) ? $conn->real_escape_string($_GET['machine']) : '';
 
     if ($cycle_status == 1) {
-        // Insert a new row with cycle_status = 1, including the last recorded recycle time
-        $stmt = $conn->prepare("INSERT INTO production_cycle (cycle_status, cycle_time, recycle_time, timestamp) VALUES (1, 0, ?, NOW())");
-        $stmt->bind_param("i", $recycle_time);
+        // INSERT new cycle with status = 1
+        $stmt = $conn->prepare("INSERT INTO production_cycle (cycle_status, cycle_time, recycle_time, machine, timestamp) VALUES (1, 0, ?, ?, NOW())");
+        $stmt->bind_param("is", $recycle_time, $machine);
     } else {
-        // Update the latest row where cycle_status = 1, setting cycle_status = 0, cycle_time
+        // UPDATE last cycle with status = 1 → status = 0 and set cycle_time
         $stmt = $conn->prepare("UPDATE production_cycle 
                                 SET cycle_status = 0, cycle_time = ? 
                                 WHERE cycle_status = 1 
@@ -31,7 +32,6 @@ if (isset($_GET['cycle_status'])) {
         $stmt->bind_param("i", $cycle_time);
     }
 
-    // Execute the query
     if ($stmt->execute()) {
         echo "Status updated successfully!";
     } else {

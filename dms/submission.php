@@ -154,7 +154,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $dms_conn->prepare($sql);
-    $stmt->bind_param("sssisdddddiisss", 
+    $stmt->bind_param("sssssdddddiisss", 
         $_POST['date'],
         $_POST['product_name'],
         $_POST['machine'],
@@ -175,8 +175,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($stmt->execute()) {
         $submission_id = $stmt->insert_id;
 
-        // Record the used cycle time
-        if (isset($_POST['selected_cycle_time_id'])) {
+        // Record the used cycle time only for CLF 750A and when a cycle time ID is provided
+        if ($_POST['machine'] === 'CLF 750A' && !empty($_POST['selected_cycle_time_id'])) {
             $cycle_time_id = $_POST['selected_cycle_time_id'];
             $used_sql = "INSERT INTO used_cycle_times (cycle_time_id, submission_id) VALUES (?, ?)";
             $used_stmt = $sensory_conn->prepare($used_sql);

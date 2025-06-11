@@ -297,12 +297,28 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                                 </nav>
                             </div>
 
+                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
+                                data-bs-target="#collapseProduction" aria-expanded="false"
+                                aria-controls="collapseProduction">
+                                <div class="sb-nav-link-icon"><i class="fas fa-sheet-plastic"></i></div>
+                                Production
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapseProduction" aria-labelledby="headingOne"
+                                data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" href="production_report/index.php">Data Entry</a>
+                                    <a class="nav-link" href="#">Data Visualization</a>
+                                    <a class="nav-link" href="#">Data Analytics</a>
+                                </nav>
+                            </div>
+
                             <div class="sb-sidenav-menu-heading">Admin</div>
                             <a class="nav-link" href="admin/users.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-user-group"></i></div>
                                 Users
                             </a>
-                            <a class="nav-link" href="charts.html">
+                            <a class="nav-link" href="admin/product_parameters.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                                 Values
                             </a>
