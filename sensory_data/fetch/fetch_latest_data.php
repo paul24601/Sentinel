@@ -25,7 +25,7 @@ if ($type === 'realtime') {
     }
 } else {
     // Fetch latest production cycle data
-    $sql = "SELECT tempC_01, tempC_02, pressure, cycle_status FROM production_cycle ORDER BY timestamp DESC LIMIT 1";
+    $sql = "SELECT tempC_01, tempC_02, pressure, cycle_status, product FROM production_cycle ORDER BY id DESC LIMIT 1";
     $result = $conn->query($sql);
 
     $data = $result->fetch_assoc() ?: ["error" => "No data found"];

@@ -295,24 +295,8 @@ $result_parameters = $conn->query($sql_parameters);
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label for="product_name" class="form-label">Product Name</label>
-                                        <select class="form-select" id="product_name" name="product_name" required>
-                                            <option value="" disabled selected>Select a product</option>
-                                            <?php
-                                            if ($result_missing && $result_missing->num_rows > 0) {
-                                                while ($row = $result_missing->fetch_assoc()) {
-                                                    echo "<option value='" . htmlspecialchars($row['product_name']) . "'>" .
-                                                        htmlspecialchars($row['product_name']) . " (New)</option>";
-                                                }
-                                            }
-                                            if ($result_parameters && $result_parameters->num_rows > 0) {
-                                                $result_parameters->data_seek(0);
-                                                while ($row = $result_parameters->fetch_assoc()) {
-                                                    echo "<option value='" . htmlspecialchars($row['product_name']) . "'>" .
-                                                        htmlspecialchars($row['product_name']) . " (Update)</option>";
-                                                }
-                                            }
-                                            ?>
-                                        </select>
+                                        <input type="text" class="form-control" id="product_name" name="product_name"
+                                            required>
                                     </div>
                                     <div class="col-md-6">
                                         <label for="mold_code" class="form-label">Mold Code</label>
@@ -450,14 +434,22 @@ $result_parameters = $conn->query($sql_parameters);
             // Handle edit button clicks
             $('.edit-btn').click(function () {
                 const productData = JSON.parse($(this).data('product'));
+                
+                // Set the product name in the dropdown
                 $('#product_name').val(productData.product_name);
+                
+                // Populate other fields
                 $('#mold_code').val(productData.mold_code);
                 $('#cycle_time_target').val(productData.cycle_time_target);
                 $('#weight_standard').val(productData.weight_standard);
                 $('#cavity_designed').val(productData.cavity_designed);
+                
+                // Update form state
                 $('#formAction').val('update');
                 $('#submitBtn').text('Update Parameters');
                 $('#deleteBtn').show();
+                
+                // Scroll to form
                 $('html, body').animate({
                     scrollTop: $("#parameterForm").offset().top - 100
                 }, 500);
@@ -480,6 +472,18 @@ $result_parameters = $conn->query($sql_parameters);
                 }
                 form.classList.add('was-validated');
             });
+
+            // Add success message handling
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('success') === '1') {
+                alert('Operation completed successfully!');
+                // Remove success parameter from URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (urlParams.get('error') === '1') {
+                alert('An error occurred. Please try again.');
+                // Remove error parameter from URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
         });
     </script>
     

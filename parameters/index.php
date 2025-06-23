@@ -203,13 +203,29 @@ if (!isset($_SESSION['full_name'])) {
                                             </div>
                                             <div class="col">
                                                 <label for="Category" class="form-label">Category</label>
-                                                <input type="text" class="form-control" name="Category"
-                                                    placeholder="Enter Category">
+                                                <select class="form-control" name="Category" required>
+                                                    <option value="" disabled selected>Select Category</option>
+                                                    <option value="Colorant Testing">Colorant Testing</option>
+                                                    <option value="Machine Preventive Maintenance">Machine Preventive Maintenance</option>
+                                                    <option value="Mass Production">Mass Production</option>
+                                                    <option value="Material Testing">Material Testing</option>
+                                                    <option value="Mold Preventive Maintenance">Mold Preventive Maintenance</option>
+                                                    <option value="New Mold Testing">New Mold Testing</option>
+                                                    <option value="Product Improvement">Product Improvement</option>
+                                                </select>
                                             </div>
                                             <div class="col">
                                                 <label for="IRN" class="form-label">IRN</label>
                                                 <input type="text" class="form-control" name="IRN"
                                                     placeholder="Enter IRN">
+                                            </div>
+                                            <div class="col">
+                                                <label for="startTime" class="form-label">Start Time</label>
+                                                <input type="time" class="form-control" name="startTime" required>
+                                            </div>
+                                            <div class="col">
+                                                <label for="endTime" class="form-label">End Time</label>
+                                                <input type="time" class="form-control" name="endTime" required>
                                             </div>
                                         </div>
                                     </div>
@@ -230,8 +246,7 @@ if (!isset($_SESSION['full_name'])) {
                                         <div class="row mb-3 row-cols-1 row-cols-md-3 row-cols-sm-2">
                                             <div class="col">
                                                 <label for="product" class="form-label">Product Name</label>
-                                                <input type="text" class="form-control" name="product"
-                                                    placeholder="Enter Product">
+                                                <input type="text" class="form-control" name="product" id="product" placeholder="Enter Product Name" required>
                                             </div>
                                             <div class="col">
                                                 <label for="color" class="form-label">Color</label>
@@ -239,14 +254,14 @@ if (!isset($_SESSION['full_name'])) {
                                                     placeholder="Enter Color">
                                             </div>
                                             <div class="col">
-                                                <label for="mold-name" class="form-label">Mold Name</label>
-                                                <input type="text" class="form-control" name="mold-name"
-                                                    placeholder="Enter Mold Name">
-                                            </div>
-                                            <div class="col">
                                                 <label for="prodNo" class="form-label">Product Number</label>
                                                 <input type="text" class="form-control" name="prodNo"
                                                     placeholder="Product Number">
+                                            </div>
+                                            <div class="col">
+                                                <label for="mold-name" class="form-label">Mold Name</label>
+                                                <input type="text" class="form-control" name="mold-name"
+                                                    placeholder="Enter Mold Name">
                                             </div>
                                             <div class="col">
                                                 <label for="cavity" class="form-label">Number of Cavity (Active)</label>
@@ -1923,6 +1938,295 @@ if (!isset($_SESSION['full_name'])) {
         let selectedImageFiles = [];
         let selectedVideoFiles = [];
 
+        // Product list for autocomplete
+        const productList = [
+            "120L Trash Bin Cover",
+            "120L Trash Bin Screws",
+            "12oz Shell Plastic Crate",
+            "12oz Shell Plastic Crate (COKE)",
+            "12oz Shell Plastic Crate (PEPSI)",
+            "16L Square Pail Body",
+            "1L Container Body",
+            "1L Shell Plastic Crate",
+            "1L Shell Plastic Crate (Coke)",
+            "1L Shell Plastic Crate (Pepsi)",
+            "2.6L Square Pail Cover",
+            "2.8L Basin Cover",
+            "20F BODY",
+            "20F COVER",
+            "24B Crate",
+            "25F Body",
+            "25F/55F Cover",
+            "25F/55F Pin",
+            "2FT HANGER",
+            "3.5L Cover Wonder Mayo",
+            "3.5L P. Jar Body",
+            "30F Body",
+            "30F/50F Cover",
+            "36-2M",
+            "36-B2",
+            "36-BJ",
+            "50-BJ Bottom",
+            "50-BJ Cover",
+            "50-BJ Frame",
+            "50-BJ Sides",
+            "50-BJ Sliding Lock",
+            "50-BJ Top",
+            "50F Body",
+            "55F Body",
+            "80F Body",
+            "80F cover",
+            "8oz Shell Plastic Crate",
+            "8oz Shell Plastic Crate (COKE)",
+            "8oz Shell Plastic Crate (PEPSI)",
+            "9-B2",
+            "Adjustable Footing - Dispenser Body",
+            "Aries Side Chair",
+            "B-2",
+            "B1",
+            "B1-A",
+            "B1-C",
+            "B1-P",
+            "Bale Handle",
+            "Banera",
+            "Bin Box",
+            "CF-1J",
+            "CF-1JN",
+            "Chick Crate",
+            "Chicken House Footing  8\" w/ Slot",
+            "Chicken House Footing 10\" w/ Slot",
+            "Chicken House Footing 12\"",
+            "Chicken House Footing 12\" w/ Slot",
+            "Chicken House Footing 8\"",
+            "Chicken House Matting 2x2",
+            "Chicken House Matting 2x4",
+            "Chicken House Footing 10\"",
+            "CL-1",
+            "CL-1B",
+            "CL-10",
+            "CL-2",
+            "CL-2B",
+            "CL-3",
+            "CL-4",
+            "CL-4B",
+            "CL-5",
+            "CL-6",
+            "CL-7",
+            "CL-8",
+            "CL-9",
+            "Closure Cap",
+            "Closure Spout (Bridge)",
+            "CM-1",
+            "CM-2",
+            "CM-2B",
+            "CM-2F",
+            "CM-2J",
+            "CM-3",
+            "CM-3B",
+            "CM-4",
+            "CM-4F",
+            "CM-5",
+            "CM-6",
+            "CM-7",
+            "CM-8",
+            "CNS-1",
+            "CNS-1C",
+            "CNS-2",
+            "CNS-2C",
+            "CNS-3",
+            "CNS-3C",
+            "CP-1 Collapsible Crate BASE",
+            "CP-1 Collapsible Crate HANDLE",
+            "CP-1 Collapsible Long/Short Side",
+            "CP-2 Collapsible BASE",
+            "CP-2 Collapsible Crate Arrowlock",
+            "CP-2 Collapsible Crate Pin Long",
+            "CP-2 Collapsible Crate Pin Short",
+            "CP-2 Collapsible LONG SIDE",
+            "CP-2 Collapsible SHORT SIDE",
+            "Crate Cover #1",
+            "Crate Cover #2",
+            "Crate Cover #3",
+            "Crate Cover #4",
+            "Crate Cover #5",
+            "Crate Lavel Holder",
+            "Crate Tag Holder #2",
+            "Crate Tag Holder #3",
+            "Crate Tag Holder 4-1",
+            "Crown Stool",
+            "CS-1",
+            "Customizable Trolley Bracket #125",
+            "Customizable Trolley Bracket #75",
+            "Customizable Trolley Bracket Support",
+            "Divider 3\" - 400 (SHORT)",
+            "Divider 3\" - 600 (LONG)",
+            "Divider 7\" - 400 (SHORT)",
+            "DIvider 7\" - 600 (LONG)",
+            "Drying Tray (small)",
+            "Drying Tray PROFOOD",
+            "DW-1",
+            "DW-2",
+            "Egg Tray SML",
+            "Egg Tray XL",
+            "EZ-3 CRATE",
+            "EZ-4 CRATE",
+            "EZ-5 CRATE",
+            "Food Court Tray",
+            "Grass matting",
+            "H1 Intellect Left Handed L/R",
+            "H1 Mega Intellect Left Handed L/R",
+            "H1-B LEG L/R",
+            "H2 Intellect Left Handed L/R",
+            "H2 Mega Intellect Left Handed L/R",
+            "H20J",
+            "H3 Intellect Left Handed L/R",
+            "H3 Mega Intellect Left Handed L/R",
+            "HYDROPHONICS NET CUP",
+            "Intellect Side Chair",
+            "Kiddie Chair",
+            "Kiddie Desk Compartment",
+            "Kiddie Desk Top",
+            "Kiddie Hinge",
+            "Kiddie Leg Cap",
+            "Kiddie Side Deco",
+            "LCC Bottom",
+            "LCC LENGTH Side",
+            "LCC Open Top Cover",
+            "LCC Sliding Door",
+            "LCC Top Cover",
+            "LCC WIDTH Side",
+            "Leg Footing",
+            "Leo Arm Chair",
+            "Leo Side Chair",
+            "Lid Spout Closure",
+            "N-30",
+            "N-50",
+            "N-75",
+            "N-120",
+            "Park Bench Leg",
+            "Park Bench pad",
+            "PB-1",
+            "PB-1L",
+            "PB-NS1",
+            "Pig Pallet",
+            "Pisces Arm Chair",
+            "Pisces Side Chair",
+            "PL-1",
+            "PL-1P",
+            "PL-1PN",
+            "PL-2",
+            "PL-2S",
+            "PL-3J",
+            "PL-3JS",
+            "PM-1",
+            "PM-1S",
+            "PM-2",
+            "PM-2H",
+            "PM-2PC",
+            "PM-2S",
+            "PM-5",
+            "PM-5S",
+            "PNS-1",
+            "PNS-2",
+            "PNS-2C",
+            "PNS-3",
+            "PNS-3C",
+            "Profood Round Tray",
+            "Round Table 32\"",
+            "Round Table 37\"",
+            "Soap Crate 1",
+            "Spout Cover",
+            "Spout Natural",
+            "Square Table Top 30\"",
+            "Table Leg",
+            "Table Plug",
+            "Table Top Dispenser Body",
+            "TABLET SEAT & BACK REST",
+            "Tansan Table Top",
+            "TD-1",
+            "TD-2",
+            "TD-3",
+            "TD-4",
+            "TD-5",
+            "TD-6",
+            "TD-7",
+            "TL-1",
+            "TL-2",
+            "TP131",
+            "TP131.5",
+            "TP331J",
+            "TP381.5J",
+            "TP382J",
+            "Trolley 1 Cart 620 x 400 x 60 mm",
+            "Tubular hanger",
+            "Tumbler 20 oz",
+            "Tumbler 9.5 oz",
+            "Tumbler L 12 oz",
+            "Tumbler L 16 oz",
+            "UTILITY BIN 10L RECTANGULAR",
+            "VP1 Body",
+            "VP1 Cover",
+            "GROCERY BASKET HANDLE",
+            "GROCERY BASKET",
+            "TD-8",
+            "TRASH BIN LEVER",
+            "TRASH BIN PEDAL",
+            "BUS BOX 5\"",
+            "TUNA LOIN COVER",
+            "INTELLECT MEGA L/R",
+            "TRASH BIN PUSH PIN",
+            "N-130",
+            "TABLET SEAT",
+            "TABLET BACKREST",
+            "COLOR SWATCH",
+            "PB-NS1 LOCK",
+            "24B CRATE COVER",
+            "PL-3JPC",
+            "4 COMPARTMENT CUTLERY TRAY",
+            "PBL-CL2",
+            "8oz FULL DEPTH",
+            "H1 INTELLECT SIDECHAIR",
+            "MEGA SIDECHAIR",
+            "H3 INTELLECT SIDE CHAIR",
+            "MEGA LEFT HANDED L/R",
+            "TD-9",
+            "ET-3",
+            "30L TRASHBIN COVER",
+            "30L TRASHBIN SWING LID",
+            "30L TRASHBIN BODY",
+            "800ml Crate",
+            "PNS-2S",
+            "BUS BOX 7\"",
+            "EZ-2 CRATE",
+            "SETTING TRAY",
+            "EZ COVER",
+            "N-70",
+            "Donut Tray",
+            "Cake Crate",
+            "1.5L Coke Foot Crate",
+            "7L Wilkins Foot Crate"
+        ];
+
+        // Initialize autocomplete for product input
+        $(document).ready(function() {
+            $("#product").autocomplete({
+                source: function(request, response) {
+                    const term = request.term.toLowerCase();
+                    const matches = productList.filter(product => 
+                        product.toLowerCase().includes(term)
+                    );
+                    response(matches);
+                },
+                minLength: 1,
+                delay: 100,
+                autoFocus: true,
+                classes: {
+                    "ui-autocomplete": "dropdown-menu",
+                    "ui-menu-item": "dropdown-item"
+                }
+            });
+        });
+
         // Image Handler
         document.getElementById('uploadImages').addEventListener('change', (e) => {
             const files = Array.from(e.target.files);
@@ -2449,6 +2753,44 @@ if (!isset($_SESSION['full_name'])) {
         .card:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Autocomplete styling */
+        .ui-autocomplete {
+            max-height: 200px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            background-color: #fff;
+            z-index: 9999;
+        }
+        
+        .ui-menu-item {
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #f8f9fa;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+        
+        .ui-menu-item:last-child {
+            border-bottom: none;
+        }
+        
+        .ui-menu-item:hover,
+        .ui-menu-item.ui-state-focus {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+        
+        .ui-menu-item.ui-state-active {
+            background-color: #0d6efd;
+            color: #fff;
+        }
+        
+        .ui-helper-hidden-accessible {
+            display: none;
         }
     `;
     document.head.appendChild(style);
