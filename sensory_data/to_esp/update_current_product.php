@@ -13,7 +13,14 @@ if (!isset($_POST['product'])) {
     exit;
 }
 
+// Check if machine parameter is set
+if (!isset($_POST['machine'])) {
+    echo json_encode(["status" => "error", "message" => "No machine specified"]);
+    exit;
+}
+
 $product = $_POST['product'];
+$machine = $_POST['machine'];
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -34,12 +41,12 @@ if ($result === false || $result->num_rows == 0) {
 $row = $result->fetch_assoc();
 $lastId = $row['id'];
 
-// Update the product field of the latest row
-$stmt = $conn->prepare("UPDATE production_cycle SET product = ? WHERE id = ?");
+// Update the product and machine fields of the latest row
+$stmt = $conn->prepare("UPDATE production_cycle SET product = ?, machine = ? WHERE id = ?");
 if ($stmt) {
-    $stmt->bind_param("si", $product, $lastId);
+    $stmt->bind_param("ssi", $product, $machine, $lastId);
     if ($stmt->execute()) {
-        echo json_encode(["status" => "success", "message" => "Product updated successfully"]);
+        echo json_encode(["status" => "success", "message" => "Product and machine updated successfully"]);
     } else {
         echo json_encode(["status" => "error", "message" => "Execute failed: " . $stmt->error]);
     }

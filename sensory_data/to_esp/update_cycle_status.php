@@ -46,6 +46,22 @@ if (isset($_GET['cycle_status'])) {
             $stmt->close();
 
         } elseif ($cycle_status == 0) {
+
+            // 👇 NEW FILTER: If cycle_time < 10, clear last row
+            if ($cycle_time < 10) {
+                $stmt_clear = $conn->prepare("UPDATE production_cycle 
+                                              SET cycle_status = 0, cycle_time = 0, recycle_time = 0, machine = '', timestamp = NOW()
+                                              WHERE id = ?");
+                $stmt_clear->bind_param("i", $lastId);
+                if ($stmt_clear->execute()) {
+                    echo "Ignored: cycle_time < 10 sec — latest row cleared.";
+                } else {
+                    echo "Error clearing row: " . $stmt_clear->error;
+                }
+                $stmt_clear->close();
+                exit;
+            }
+
             // Rule 3: Close the current cycle and insert a new row with same product
             $stmt1 = $conn->prepare("UPDATE production_cycle 
                                      SET cycle_status = 0, cycle_time = ?, timestamp = NOW()
