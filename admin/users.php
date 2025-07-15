@@ -51,6 +51,16 @@ if ($conn->connect_error) {
     die("<div class='alert alert-danger'>Connection failed: " . $conn->connect_error . "</div>");
 }
 
+// Fetch all departments for the form
+$departments = [];
+$dept_sql = "SELECT id, name FROM departments ORDER BY name";
+$dept_result = $conn->query($dept_sql);
+if ($dept_result && $dept_result->num_rows > 0) {
+    while ($dept_row = $dept_result->fetch_assoc()) {
+        $departments[] = $dept_row;
+    }
+}
+
 // Handle the form submission to add a new user
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
     $id_number   = $_POST['id_number'] ?? '';
@@ -75,6 +85,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
     $stmt->bind_param("ssss", $id_number, $full_name, $hashed_password, $role);
 
     if ($stmt->execute()) {
+        // Handle department assignment
+        if (isset($_POST['departments']) && is_array($_POST['departments'])) {
+            $dept_stmt = $conn->prepare("INSERT INTO user_departments (user_id_number, department_id) VALUES (?, ?)");
+            foreach ($_POST['departments'] as $dept_id) {
+                $dept_stmt->bind_param("si", $id_number, $dept_id);
+                $dept_stmt->execute();
+            }
+            $dept_stmt->close();
+        }
         echo "<div class='alert alert-success alert-dismissible fade show' role='alert'>
                 User added successfully!
                 <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
@@ -119,6 +138,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_user_password_ch
 // Fetch all users from the database
 $sql = "SELECT id_number, full_name, role, password_changed FROM users";
 $result = $conn->query($sql);
+
+// Fetch user departments for display
+$user_departments_map = [];
+$ud_sql = "SELECT ud.user_id_number, d.name FROM user_departments ud JOIN departments d ON ud.department_id = d.id";
+$ud_result = $conn->query($ud_sql);
+if ($ud_result && $ud_result->num_rows > 0) {
+    while ($ud_row = $ud_result->fetch_assoc()) {
+        $user_departments_map[$ud_row['user_id_number']][] = $ud_row['name'];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -293,6 +322,22 @@ $result = $conn->query($sql);
                                         </select>
                                     </div>
 
+                                    <div class="mb-3">
+                                        <label class="form-label">Departments (select one or more):</label>
+                                        <div class="row">
+                                            <?php foreach ($departments as $dept): ?>
+                                                <div class="col-md-3">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="departments[]" value="<?= $dept['id'] ?>" id="dept<?= $dept['id'] ?>">
+                                                        <label class="form-check-label" for="dept<?= $dept['id'] ?>">
+                                                            <?= htmlspecialchars($dept['name']) ?>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+
                                     <button type="submit" class="btn btn-primary">Add User</button>
                                 </form>
                             </div>
@@ -311,6 +356,7 @@ $result = $conn->query($sql);
                                                 <th scope="col">Full Name</th>
                                                 <th scope="col">Role</th>
                                                 <th scope="col">Password Changed</th>
+                                                <th scope="col">Departments</th>
                                                 <th scope="col">Actions</th>
                                             </tr>
                                         </thead>
@@ -332,6 +378,7 @@ $result = $conn->query($sql);
                                                         <td>" . $row['full_name'] . "</td>
                                                         <td>" . $row['role'] . "</td>
                                                         <td>" . ($row['password_changed'] ? 'Yes' : 'No') . "</td>
+                                                        <td>" . ($user_departments_map[$row['id_number']] ?? '<span class="text-muted">None</span>') . "</td>
                                                         <td>
                                                             <form method='POST' action=''>
                                                                 <input type='hidden' name='user_id' value='" . $row['id_number'] . "'>

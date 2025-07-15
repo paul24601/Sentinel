@@ -290,10 +290,9 @@ if (!isset($_SESSION['full_name'])) {
                                             href="#collapseMaterialComposition" role="button" aria-expanded="false"
                                             aria-controls="collapseMaterialComposition">
                                             Material Composition
-                                            <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
+                                            <i class="bi bi-chevron-down float-end"></i>
                                         </a>
                                     </h4>
-                                    <!-- materials -->
                                     <div class="collapse show" id="collapseMaterialComposition">
                                         <!-- Drying -->
                                         <div class="row mb-3">
@@ -311,27 +310,26 @@ if (!isset($_SESSION['full_name'])) {
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <!-- Material 1 -->
-                                        <h6>Material 1</h6>
+                                        <!-- Material 1 (Required) -->
+                                        <h6>Material 1 <span class="text-danger">*</span></h6>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="type1" class="form-label">Type 1</label>
                                                 <input type="text" class="form-control" name="type1" id="type1"
-                                                    placeholder="Enter Type 1">
+                                                    placeholder="Enter Type 1" required>
                                             </div>
                                             <div class="col">
                                                 <label for="brand1" class="form-label">Brand 1</label>
                                                 <input type="text" class="form-control" name="brand1" id="brand1"
-                                                    placeholder="Enter Brand 1">
+                                                    placeholder="Enter Brand 1" required>
                                             </div>
                                             <div class="col">
                                                 <label for="mix1" class="form-label">Mixture 1</label>
                                                 <input type="number" class="form-control" name="mix1" id="mix1"
-                                                    placeholder="% Mixture 1">
+                                                    placeholder="% Mixture 1" required>
                                             </div>
                                         </div>
-
+                                        <!-- Material 2-4 (Optional) -->
                                         <h6>Material 2</h6>
                                         <div class="row mb-3">
                                             <div class="col">
@@ -350,7 +348,6 @@ if (!isset($_SESSION['full_name'])) {
                                                     placeholder="% Mixture 2">
                                             </div>
                                         </div>
-
                                         <h6>Material 3</h6>
                                         <div class="row mb-3">
                                             <div class="col">
@@ -369,7 +366,6 @@ if (!isset($_SESSION['full_name'])) {
                                                     placeholder="% Mixture 3">
                                             </div>
                                         </div>
-
                                         <h6>Material 4</h6>
                                         <div class="row mb-3">
                                             <div class="col">
@@ -389,20 +385,33 @@ if (!isset($_SESSION['full_name'])) {
                                             </div>
                                         </div>
                                     </div>
+                                    <!-- Add JS validation to ensure at least Material 1 is filled -->
+                                    <script>
+                                    // ... existing code ...
+                                    // Material validation
+                                    $(document).ready(function() {
+                                        $('form').on('submit', function(e) {
+                                            if (!$('#type1').val() || !$('#brand1').val() || !$('#mix1').val()) {
+                                                showNotification('At least one material (Material 1) is required.', 'danger');
+                                                e.preventDefault();
+                                            }
+                                        });
+                                    });
+                                    // ... existing code ...
+                                    </script>
 
                                     <!-- Add a horizontal line to separate sections -->
                                     <hr class="my-4"> <!-- Adds some margin space around the horizontal line -->
 
-                                    <!-- Section 4: Colorant Details -->
+                                    <!-- Section 4: Colorant Details (Optional) -->
                                     <h4>
                                         <a class="text-decoration-none" data-bs-toggle="collapse"
                                             href="#collapseColorantDetails" role="button" aria-expanded="false"
                                             aria-controls="collapseColorantDetails">
                                             Colorant Details
-                                            <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
+                                            <i class="bi bi-chevron-down float-end"></i>
                                         </a>
                                     </h4>
-                                    <!-- colorants -->
                                     <div class="collapse show" id="collapseColorantDetails">
                                         <div class="row mb-3">
                                             <div class="col">
@@ -448,7 +457,7 @@ if (!isset($_SESSION['full_name'])) {
                                             href="#collapseMoldandOperationSpecs" role="button" aria-expanded="false"
                                             aria-controls="collapseMoldandOperationSpecs">
                                             Mold and Operation Specifications
-                                            <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
+                                            <i class="bi bi-chevron-down float-end"></i>
                                         </a>
                                     </h4>
                                     <div class="collapse show" id="collapseMoldandOperationSpecs">
@@ -466,16 +475,24 @@ if (!isset($_SESSION['full_name'])) {
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
-                                                <label for="operation-type" class="form-label">Operation</label>
-                                                <input type="text" class="form-control" name="operation-type"
-                                                    id="operation-type" placeholder="Enter Type of Operation">
+                                                <label for="operation-type" class="form-label">Operation <span class="text-danger">*</span></label>
+                                                <select class="form-control" name="operation-type" id="operation-type" required>
+                                                    <option value="" disabled selected>Select Operation</option>
+                                                    <option value="Manual">Manual</option>
+                                                    <option value="Semi-Auto">Semi-Auto</option>
+                                                    <option value="Auto">Auto</option>
+                                                </select>
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
-                                                <label for="cooling-media" class="form-label">Cooling Media</label>
-                                                <input type="text" class="form-control" name="cooling-media"
-                                                    id="cooling-media" placeholder="Enter Cooling Media">
+                                                <label for="cooling-media" class="form-label">Cooling Media <span class="text-danger">*</span></label>
+                                                <select class="form-control" name="cooling-media" id="cooling-media" required>
+                                                    <option value="" disabled selected>Select Cooling Media</option>
+                                                    <option value="Normal">Normal</option>
+                                                    <option value="Chilled">Chilled</option>
+                                                    <option value="MTC">MTC</option>
+                                                </select>
                                             </div>
                                             <div class="col">
                                                 <label for="heating-media" class="form-label">Heating Media</label>
@@ -563,22 +580,23 @@ if (!isset($_SESSION['full_name'])) {
                                                 <!-- Barrel Heater input s -->
                                                 <div class="col">
                                                     <label for="barrelHeaterZone0" class="form-label">Barrel Heater Zone
-                                                        0 (°C)</label>
+                                                        0 (°C) <span class="text-danger">*</span></label>
                                                     <input type="number" class="form-control" name="barrelHeaterZone0"
-                                                        id="barrelHeaterZone0" placeholder="Barrel Heater Zone 0 (°C)">
+                                                        id="barrelHeaterZone0" placeholder="Barrel Heater Zone 0 (°C)" required>
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone1" class="form-label">Barrel Heater Zone
-                                                        1 (°C)</label>
+                                                        1 (°C) <span class="text-danger">*</span></label>
                                                     <input type="number" class="form-control" name="barrelHeaterZone1"
-                                                        id="barrelHeaterZone1" placeholder="Barrel Heater Zone 1 (°C)">
+                                                        id="barrelHeaterZone1" placeholder="Barrel Heater Zone 1 (°C)" required>
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone2" class="form-label">Barrel Heater Zone
-                                                        2 (°C)</label>
+                                                        2 (°C) <span class="text-danger">*</span></label>
                                                     <input type="number" class="form-control" name="barrelHeaterZone2"
-                                                        id="barrelHeaterZone2" placeholder="Barrel Heater Zone 2 (°C)">
+                                                        id="barrelHeaterZone2" placeholder="Barrel Heater Zone 2 (°C)" required>
                                                 </div>
+                                                <!-- The rest are optional -->
                                                 <div class="col">
                                                     <label for="barrelHeaterZone3" class="form-label">Barrel Heater Zone
                                                         3 (°C)</label>
@@ -2794,6 +2812,20 @@ if (!isset($_SESSION['full_name'])) {
         }
     `;
     document.head.appendChild(style);
+    </script>
+
+    <script>
+    // ... existing code ...
+    // Barrel heater validation
+    $(document).ready(function() {
+        $('form').on('submit', function(e) {
+            if (!$('#barrelHeaterZone0').val() || !$('#barrelHeaterZone1').val() || !$('#barrelHeaterZone2').val()) {
+                showNotification('At least 3 Barrel Heater Zones are required.', 'danger');
+                e.preventDefault();
+            }
+        });
+    });
+    // ... existing code ...
     </script>
 </body>
 

@@ -81,6 +81,8 @@
     <div class="login-wrapper w-100 m-3" style="max-width: 380px;">
         <!-- Login Card -->
         <div class="card p-4">
+            <!-- Alert placeholder for login notifications -->
+            <div id="login-alert-placeholder"></div>
             <div class="text-center mb-3">
                 <img src="logo.png" alt="Sentinel Logo" style="height:40px;">
             </div>
@@ -108,17 +110,8 @@
                 </button>
             </form>
         </div>
-
-        <!-- Notifications Card -->
-        <div class="card mt-4 p-3">
-            <h6 class="mb-2">Notifications</h6>
-            <ul class="list-group" style="max-height:200px; overflow-y:auto;">
-                <!-- JS will populate this -->
-            </ul>
-        </div>
     </div>
 
-    <!-- Scripts -->
     <script>
         // Toggle password visibility
         function togglePassword() {
@@ -139,45 +132,16 @@
             document.getElementById('btnSpinner').classList.remove('d-none');
         });
 
-        // Fetch and render notifications
-        function fetchNotifications() {
-            fetch('notifications.php')
-                .then(res => res.json())
-                .then(data => {
-                    const ul = document.querySelector('.list-group');
-                    if (data && data.length > 0) {
-                        ul.innerHTML = data.map(n => {
-                            const parts = n.name.trim().split(/\s+/);
-                            const displayName = parts.length >= 2
-                                ? `${parts[0].charAt(0)}. ${parts[parts.length - 1]}`
-                                : n.name;
-                            const date = new Date(n.date).toLocaleDateString();
-                            let pending = n.pending_supervisor && n.pending_qa
-                                ? 'Supervisor & QA'
-                                : n.pending_supervisor
-                                    ? 'Supervisor'
-                                    : n.pending_qa
-                                        ? 'QA'
-                                        : 'None';
-                            return `<li class="list-group-item">
-                        Submission #${n.id} &ndash; ${n.product_name}
-                        by ${displayName} (${date})
-                        [Pending: ${pending}]
-                      </li>`;
-                        }).join('');
-                    } else {
-                        ul.innerHTML = '<li class="list-group-item text-center text-muted">No Pending Submissions</li>';
-                    }
-                })
-                .catch(err => {
-                    console.error('Error fetching notifications:', err);
-                    document.querySelector('.list-group').innerHTML =
-                        '<li class="list-group-item text-center text-danger">Error loading notifications</li>';
-                });
-        }
-
-        // Kick off on load
-        document.addEventListener('DOMContentLoaded', fetchNotifications);
+        // Show alert if message is present in URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            const alertPlaceholder = document.getElementById('login-alert-placeholder');
+            if (params.has('error')) {
+                alertPlaceholder.innerHTML = `<div class='alert alert-danger alert-dismissible fade show' role='alert'>${decodeURIComponent(params.get('error'))}<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button></div>`;
+            } else if (params.has('success')) {
+                alertPlaceholder.innerHTML = `<div class='alert alert-success alert-dismissible fade show' role='alert'>${decodeURIComponent(params.get('success'))}<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button></div>`;
+            }
+        });
     </script>
 
 </body>
