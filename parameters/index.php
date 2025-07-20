@@ -7,8 +7,55 @@ if (!isset($_SESSION['full_name'])) {
     header("Location: ../login.html");
     exit();
 }
-
 ?>
+<?php
+$clonedData = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
+    $recordId = $_POST['clone_record_id'];
+
+    $conn = new mysqli("localhost", "root", "injectionadmin123", "injectionmoldingparameters");
+    if ($conn->connect_error) {
+        die("DB connection failed: " . $conn->connect_error);
+    }
+
+    $clonedData = [];
+
+    // Load all necessary tables and combine fields
+    $tables = [
+        'productmachineinfo',
+        'productdetails',
+        'materialcomposition',
+        'colorantdetails',
+        'moldoperationspecs',
+        'timerparameters',
+        'barrelheatertemperatures',
+        'moldheatertemperatures',
+        'plasticizingparameters',
+        'injectionparameters',
+        'ejectionparameters',
+        'corepullsettings',
+        'additionalinformation',
+        'personnel'
+    ];
+
+    foreach ($tables as $table) {
+        $sql = "SELECT * FROM $table WHERE record_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $recordId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $clonedData = array_merge($clonedData, $row);
+        }
+        $stmt->close();
+    }
+
+    $conn->close();
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -130,7 +177,7 @@ if (!isset($_SESSION['full_name'])) {
                     <ol class="breadcrumb mb-4">
                         <li class="breadcrumb-item active">Injection Department</li>
                     </ol>
-                    
+
                     <!-- Notification container -->
                     <div id="notification-container">
                         <?php if (isset($_SESSION['success_message'])): ?>
@@ -140,7 +187,7 @@ if (!isset($_SESSION['full_name'])) {
                             </div>
                             <?php unset($_SESSION['success_message']); ?>
                         <?php endif; ?>
-                        
+
                         <?php if (isset($_SESSION['error_message'])): ?>
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 <?= $_SESSION['error_message'] ?>
@@ -149,11 +196,19 @@ if (!isset($_SESSION['full_name'])) {
                             <?php unset($_SESSION['error_message']); ?>
                         <?php endif; ?>
                     </div>
-                    
+
                     <!--FORMS-->
                     <div class="container-fluid my-5">
                         <div class="card shadow">
                             <div class="card-body">
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-outline-secondary me-2" id="expandAll">
+                                        <i class="fas fa-expand-alt"></i> Expand All
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" id="collapseAll">
+                                        <i class="fas fa-compress-alt"></i> Collapse All
+                                    </button>
+                                </div>
                                 <form action="submit.php" method="POST" enctype="multipart/form-data">
                                     <!-- Section 1: Product and Machine Information -->
                                     <h4>
@@ -178,7 +233,8 @@ if (!isset($_SESSION['full_name'])) {
                                             </div>
                                             <div class="col">
                                                 <label for="MachineName" class="form-label">Machine</label>
-                                                <select class="form-control" id="MachineName" name="MachineName" required>
+                                                <select class="form-control" id="MachineName" name="MachineName"
+                                                    required>
                                                     <option value="" disabled selected>Select a machine</option>
                                                     <option value="ARB 50">ARB 50</option>
                                                     <option value="SUM 260C">SUM 260C</option>
@@ -206,10 +262,12 @@ if (!isset($_SESSION['full_name'])) {
                                                 <select class="form-control" name="Category" required>
                                                     <option value="" disabled selected>Select Category</option>
                                                     <option value="Colorant Testing">Colorant Testing</option>
-                                                    <option value="Machine Preventive Maintenance">Machine Preventive Maintenance</option>
+                                                    <option value="Machine Preventive Maintenance">Machine Preventive
+                                                        Maintenance</option>
                                                     <option value="Mass Production">Mass Production</option>
                                                     <option value="Material Testing">Material Testing</option>
-                                                    <option value="Mold Preventive Maintenance">Mold Preventive Maintenance</option>
+                                                    <option value="Mold Preventive Maintenance">Mold Preventive
+                                                        Maintenance</option>
                                                     <option value="New Mold Testing">New Mold Testing</option>
                                                     <option value="Product Improvement">Product Improvement</option>
                                                 </select>
@@ -246,7 +304,8 @@ if (!isset($_SESSION['full_name'])) {
                                         <div class="row mb-3 row-cols-1 row-cols-md-3 row-cols-sm-2">
                                             <div class="col">
                                                 <label for="product" class="form-label">Product Name</label>
-                                                <input type="text" class="form-control" name="product" id="product" placeholder="Enter Product Name" required>
+                                                <input type="text" class="form-control" name="product" id="product"
+                                                    placeholder="Enter Product Name" required>
                                             </div>
                                             <div class="col">
                                                 <label for="color" class="form-label">Color</label>
@@ -265,7 +324,7 @@ if (!isset($_SESSION['full_name'])) {
                                             </div>
                                             <div class="col">
                                                 <label for="cavity" class="form-label">Number of Cavity (Active)</label>
-                                                <input type="number" class="form-control" name="cavity"
+                                                <input type="number" step="any" class="form-control" name="cavity"
                                                     placeholder="Number of Cavity">
                                             </div>
                                             <div class="col">
@@ -298,13 +357,13 @@ if (!isset($_SESSION['full_name'])) {
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="dryingtime" class="form-label">Drying Time</label>
-                                                <input type="number" class="form-control" name="dryingtime"
+                                                <input type="number" step="any" class="form-control" name="dryingtime"
                                                     placeholder="Select Drying Time">
                                             </div>
                                             <div class="col">
                                                 <label for="dryingtemp" class="form-label">Drying Temperature</label>
                                                 <div class="input-group">
-                                                    <input type="number" class="form-control" name="dryingtemp"
+                                                    <input type="number" step="any" class="form-control" name="dryingtemp"
                                                         placeholder="Enter Temperature" min="0" max="300" step="0.1">
                                                     <span class="input-group-text">°C</span>
                                                 </div>
@@ -325,7 +384,7 @@ if (!isset($_SESSION['full_name'])) {
                                             </div>
                                             <div class="col">
                                                 <label for="mix1" class="form-label">Mixture 1</label>
-                                                <input type="number" class="form-control" name="mix1" id="mix1"
+                                                <input type="number" step="any" class="form-control" name="mix1" id="mix1"
                                                     placeholder="% Mixture 1" required>
                                             </div>
                                         </div>
@@ -344,7 +403,7 @@ if (!isset($_SESSION['full_name'])) {
                                             </div>
                                             <div class="col">
                                                 <label for="mix2" class="form-label">Mixture 2</label>
-                                                <input type="number" class="form-control" name="mix2" id="mix2"
+                                                <input type="number" step="any" class="form-control" name="mix2" id="mix2"
                                                     placeholder="% Mixture 2">
                                             </div>
                                         </div>
@@ -362,7 +421,7 @@ if (!isset($_SESSION['full_name'])) {
                                             </div>
                                             <div class="col">
                                                 <label for="mix3" class="form-label">Mixture 3</label>
-                                                <input type="number" class="form-control" name="mix3" id="mix3"
+                                                <input type="number" step="any" class="form-control" name="mix3" id="mix3"
                                                     placeholder="% Mixture 3">
                                             </div>
                                         </div>
@@ -380,24 +439,24 @@ if (!isset($_SESSION['full_name'])) {
                                             </div>
                                             <div class="col">
                                                 <label for="mix4" class="form-label">Mixture 4</label>
-                                                <input type="number" class="form-control" name="mix4" id="mix4"
+                                                <input type="number" step="any" class="form-control" name="mix4" id="mix4"
                                                     placeholder="% Mixture 4">
                                             </div>
                                         </div>
                                     </div>
                                     <!-- Add JS validation to ensure at least Material 1 is filled -->
                                     <script>
-                                    // ... existing code ...
-                                    // Material validation
-                                    $(document).ready(function() {
-                                        $('form').on('submit', function(e) {
-                                            if (!$('#type1').val() || !$('#brand1').val() || !$('#mix1').val()) {
-                                                showNotification('At least one material (Material 1) is required.', 'danger');
-                                                e.preventDefault();
-                                            }
+                                        // ... existing code ...
+                                        // Material validation
+                                        $(document).ready(function () {
+                                            $('form').on('submit', function (e) {
+                                                if (!$('#type1').val() || !$('#brand1').val() || !$('#mix1').val()) {
+                                                    showNotification('At least one material (Material 1) is required.', 'danger');
+                                                    e.preventDefault();
+                                                }
+                                            });
                                         });
-                                    });
-                                    // ... existing code ...
+                                        // ... existing code ...
                                     </script>
 
                                     <!-- Add a horizontal line to separate sections -->
@@ -475,8 +534,10 @@ if (!isset($_SESSION['full_name'])) {
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
-                                                <label for="operation-type" class="form-label">Operation <span class="text-danger">*</span></label>
-                                                <select class="form-control" name="operation-type" id="operation-type" required>
+                                                <label for="operation-type" class="form-label">Operation <span
+                                                        class="text-danger">*</span></label>
+                                                <select class="form-control" name="operation-type" id="operation-type"
+                                                    required>
                                                     <option value="" disabled selected>Select Operation</option>
                                                     <option value="Manual">Manual</option>
                                                     <option value="Semi-Auto">Semi-Auto</option>
@@ -486,8 +547,10 @@ if (!isset($_SESSION['full_name'])) {
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
-                                                <label for="cooling-media" class="form-label">Cooling Media <span class="text-danger">*</span></label>
-                                                <select class="form-control" name="cooling-media" id="cooling-media" required>
+                                                <label for="cooling-media" class="form-label">Cooling Media <span
+                                                        class="text-danger">*</span></label>
+                                                <select class="form-control" name="cooling-media" id="cooling-media"
+                                                    required>
                                                     <option value="" disabled selected>Select Cooling Media</option>
                                                     <option value="Normal">Normal</option>
                                                     <option value="Chilled">Chilled</option>
@@ -518,35 +581,35 @@ if (!isset($_SESSION['full_name'])) {
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="fillingTime" class="form-label">Filling Time (s)</label>
-                                                <input type="number" class="form-control" name="fillingTime"
+                                                <input type="number" step="any" class="form-control" name="fillingTime"
                                                     id="fillingTime" placeholder="Filling Time">
                                             </div>
                                             <div class="col">
                                                 <label for="holdingTime" class="form-label">Holding Time (s)</label>
-                                                <input type="number" class="form-control" name="holdingTime"
+                                                <input type="number" step="any" class="form-control" name="holdingTime"
                                                     id="holdingTime" placeholder="Holding Time">
                                             </div>
                                             <div class="col">
                                                 <label for="moldOpenCloseTime" class="form-label">Mold Open-Close Time
                                                     (s)</label>
-                                                <input type="number" class="form-control" name="moldOpenCloseTime"
+                                                <input type="number" step="any" class="form-control" name="moldOpenCloseTime"
                                                     id="moldOpenCloseTime" placeholder="Mold Open-Close Time">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="chargingTime" class="form-label">Charging Time (s)</label>
-                                                <input type="number" class="form-control" name="chargingTime"
+                                                <input type="number" step="any" class="form-control" name="chargingTime"
                                                     id="chargingTime" placeholder="Charging Time">
                                             </div>
                                             <div class="col">
                                                 <label for="coolingTime" class="form-label">Cooling Time (s)</label>
-                                                <input type="number" class="form-control" name="coolingTime"
+                                                <input type="number" step="any" class="form-control" name="coolingTime"
                                                     id="coolingTime" placeholder="Cooling Time">
                                             </div>
                                             <div class="col">
                                                 <label for="cycleTime" class="form-label">Cycle Time (s)</label>
-                                                <input type="number" class="form-control" name="cycleTime"
+                                                <input type="number" step="any" class="form-control" name="cycleTime"
                                                     id="cycleTime" placeholder="Cycle Time">
                                             </div>
                                         </div>
@@ -581,69 +644,72 @@ if (!isset($_SESSION['full_name'])) {
                                                 <div class="col">
                                                     <label for="barrelHeaterZone0" class="form-label">Barrel Heater Zone
                                                         0 (°C) <span class="text-danger">*</span></label>
-                                                    <input type="number" class="form-control" name="barrelHeaterZone0"
-                                                        id="barrelHeaterZone0" placeholder="Barrel Heater Zone 0 (°C)" required>
+                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone0"
+                                                        id="barrelHeaterZone0" placeholder="Barrel Heater Zone 0 (°C)"
+                                                        required>
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone1" class="form-label">Barrel Heater Zone
                                                         1 (°C) <span class="text-danger">*</span></label>
-                                                    <input type="number" class="form-control" name="barrelHeaterZone1"
-                                                        id="barrelHeaterZone1" placeholder="Barrel Heater Zone 1 (°C)" required>
+                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone1"
+                                                        id="barrelHeaterZone1" placeholder="Barrel Heater Zone 1 (°C)"
+                                                        required>
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone2" class="form-label">Barrel Heater Zone
                                                         2 (°C) <span class="text-danger">*</span></label>
-                                                    <input type="number" class="form-control" name="barrelHeaterZone2"
-                                                        id="barrelHeaterZone2" placeholder="Barrel Heater Zone 2 (°C)" required>
+                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone2"
+                                                        id="barrelHeaterZone2" placeholder="Barrel Heater Zone 2 (°C)"
+                                                        required>
                                                 </div>
                                                 <!-- The rest are optional -->
                                                 <div class="col">
                                                     <label for="barrelHeaterZone3" class="form-label">Barrel Heater Zone
                                                         3 (°C)</label>
-                                                    <input type="number" class="form-control" name="barrelHeaterZone3"
+                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone3"
                                                         id="barrelHeaterZone3" placeholder="Barrel Heater Zone 3 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone4" class="form-label">Barrel Heater Zone
                                                         4 (°C)</label>
-                                                    <input type="number" class="form-control" name="barrelHeaterZone4"
+                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone4"
                                                         id="barrelHeaterZone4" placeholder="Barrel Heater Zone 4 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone5" class="form-label">Barrel Heater Zone
                                                         5 (°C)</label>
-                                                    <input type="number" class="form-control" name="barrelHeaterZone5"
+                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone5"
                                                         id="barrelHeaterZone5" placeholder="Barrel Heater Zone 5 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone6" class="form-label">Barrel Heater Zone
                                                         6 (°C)</label>
-                                                    <input type="number" class="form-control" name="barrelHeaterZone6"
+                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone6"
                                                         id="barrelHeaterZone6" placeholder="Barrel Heater Zone 6 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone7" class="form-label">Barrel Heater Zone
                                                         7 (°C)</label>
-                                                    <input type="number" class="form-control" name="barrelHeaterZone7"
+                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone7"
                                                         id="barrelHeaterZone7" placeholder="Barrel Heater Zone 7 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone8" class="form-label">Barrel Heater Zone
                                                         8 (°C)</label>
-                                                    <input type="number" class="form-control" name="barrelHeaterZone8"
+                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone8"
                                                         id="barrelHeaterZone8" placeholder="Barrel Heater Zone 8 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone9" class="form-label">Barrel Heater Zone
                                                         9 (°C)</label>
-                                                    <input type="number" class="form-control" name="barrelHeaterZone9"
+                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone9"
                                                         id="barrelHeaterZone9" placeholder="Barrel Heater Zone 9 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone10" class="form-label">Barrel Heater
                                                         Zone 10
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="barrelHeaterZone10"
+                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone10"
                                                         id="barrelHeaterZone10"
                                                         placeholder="Barrel Heater Zone 10 (°C)">
                                                 </div>
@@ -651,7 +717,7 @@ if (!isset($_SESSION['full_name'])) {
                                                     <label for="barrelHeaterZone11" class="form-label">Barrel Heater
                                                         Zone 11
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="barrelHeaterZone11"
+                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone11"
                                                         id="barrelHeaterZone11"
                                                         placeholder="Barrel Heater Zone 11 (°C)">
                                                 </div>
@@ -659,7 +725,7 @@ if (!isset($_SESSION['full_name'])) {
                                                     <label for="barrelHeaterZone12" class="form-label">Barrel Heater
                                                         Zone 12
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="barrelHeaterZone12"
+                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone12"
                                                         id="barrelHeaterZone12"
                                                         placeholder="Barrel Heater Zone 12 (°C)">
                                                 </div>
@@ -667,7 +733,7 @@ if (!isset($_SESSION['full_name'])) {
                                                     <label for="barrelHeaterZone13" class="form-label">Barrel Heater
                                                         Zone 13
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="barrelHeaterZone13"
+                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone13"
                                                         id="barrelHeaterZone13"
                                                         placeholder="Barrel Heater Zone 13 (°C)">
                                                 </div>
@@ -675,7 +741,7 @@ if (!isset($_SESSION['full_name'])) {
                                                     <label for="barrelHeaterZone14" class="form-label">Barrel Heater
                                                         Zone 14
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="barrelHeaterZone14"
+                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone14"
                                                         id="barrelHeaterZone14"
                                                         placeholder="Barrel Heater Zone 14 (°C)">
                                                 </div>
@@ -683,7 +749,7 @@ if (!isset($_SESSION['full_name'])) {
                                                     <label for="barrelHeaterZone15" class="form-label">Barrel Heater
                                                         Zone 15
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="barrelHeaterZone15"
+                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone15"
                                                         id="barrelHeaterZone15"
                                                         placeholder="Barrel Heater Zone 15 (°C)">
                                                 </div>
@@ -691,7 +757,7 @@ if (!isset($_SESSION['full_name'])) {
                                                     <label for="barrelHeaterZone16" class="form-label">Barrel Heater
                                                         Zone 16
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="barrelHeaterZone16"
+                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone16"
                                                         id="barrelHeaterZone16"
                                                         placeholder="Barrel Heater Zone 16 (°C)">
                                                 </div>
@@ -712,108 +778,108 @@ if (!isset($_SESSION['full_name'])) {
                                                 <div class="col">
                                                     <label for="Zone0" class="form-label">Mold Heater Zone 0
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="Zone0" id="Zone0"
+                                                    <input type="number" step="any" class="form-control" name="Zone0" id="Zone0"
                                                         placeholder="Mold Heater Zone 0 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone1" class="form-label">Mold Heater Zone 1
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="Zone1" id="Zone1"
+                                                    <input type="number" step="any" class="form-control" name="Zone1" id="Zone1"
                                                         placeholder="Mold Heater Zone 1 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone2" class="form-label">Mold Heater Zone 2
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="Zone2" id="Zone2"
+                                                    <input type="number" step="any" class="form-control" name="Zone2" id="Zone2"
                                                         placeholder="Mold Heater Zone 2 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone3" class="form-label">Mold Heater Zone 3
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="Zone3" id="Zone3"
+                                                    <input type="number" step="any" class="form-control" name="Zone3" id="Zone3"
                                                         placeholder="Mold Heater Zone 3 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone4" class="form-label">Mold Heater Zone 4
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="Zone4" id="Zone4"
+                                                    <input type="number" step="any" class="form-control" name="Zone4" id="Zone4"
                                                         placeholder="Mold Heater Zone 4 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone5" class="form-label">Mold Heater Zone 5
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="Zone5" id="Zone5"
+                                                    <input type="number" step="any" class="form-control" name="Zone5" id="Zone5"
                                                         placeholder="Mold Heater Zone 5 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone6" class="form-label">Mold Heater Zone 6
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="Zone6" id="Zone6"
+                                                    <input type="number" step="any" class="form-control" name="Zone6" id="Zone6"
                                                         placeholder="Mold Heater Zone 6 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone7" class="form-label">Mold Heater Zone 7
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="Zone7" id="Zone7"
+                                                    <input type="number" step="any" class="form-control" name="Zone7" id="Zone7"
                                                         placeholder="Mold Heater Zone 7 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone8" class="form-label">Mold Heater Zone 8
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="Zone8" id="Zone8"
+                                                    <input type="number" step="any" class="form-control" name="Zone8" id="Zone8"
                                                         placeholder="Mold Heater Zone 8 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone9" class="form-label">Mold Heater Zone 9
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="Zone9" id="Zone9"
+                                                    <input type="number" step="any" class="form-control" name="Zone9" id="Zone9"
                                                         placeholder="Mold Heater Zone 9 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone10" class="form-label">Mold Heater Zone 10
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="Zone10" id="Zone10"
+                                                    <input type="number" step="any" class="form-control" name="Zone10" id="Zone10"
                                                         placeholder="Mold Heater Zone 10 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone11" class="form-label">Mold Heater Zone 11
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="Zone11" id="Zone11"
+                                                    <input type="number" step="any" class="form-control" name="Zone11" id="Zone11"
                                                         placeholder="Mold Heater Zone 11 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone12" class="form-label">Mold Heater Zone 12
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="Zone12" id="Zone12"
+                                                    <input type="number" step="any" class="form-control" name="Zone12" id="Zone12"
                                                         placeholder="Mold Heater Zone 12 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone13" class="form-label">Mold Heater Zone 13
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="Zone13" id="Zone13"
+                                                    <input type="number" step="any" class="form-control" name="Zone13" id="Zone13"
                                                         placeholder="Mold Heater Zone 13 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone14" class="form-label">Mold Heater Zone 14
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="Zone14" id="Zone14"
+                                                    <input type="number" step="any" class="form-control" name="Zone14" id="Zone14"
                                                         placeholder="Mold Heater Zone 14 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone15" class="form-label">Mold Heater Zone 15
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="Zone15" id="Zone15"
+                                                    <input type="number" step="any" class="form-control" name="Zone15" id="Zone15"
                                                         placeholder="Mold Heater Zone 15 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone16" class="form-label">Mold Heater Zone 16
                                                         (°C)</label>
-                                                    <input type="number" class="form-control" name="Zone16" id="Zone16"
+                                                    <input type="number" step="any" class="form-control" name="Zone16" id="Zone16"
                                                         placeholder="Mold Heater Zone 16 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="MTCSetting" class="form-label">MTC Setting</label>
-                                                    <input type="number" class="form-control" name="MTCSetting"
+                                                    <input type="number" step="any" class="form-control" name="MTCSetting"
                                                         id="MTCSetting" placeholder="MTC Setting">
                                                 </div>
                                             </div>
@@ -849,32 +915,32 @@ if (!isset($_SESSION['full_name'])) {
                                             <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-6 g-3">
                                                 <div class="col">
                                                     <label for="moldOpenPos1" class="form-label">Position 1</label>
-                                                    <input type="number" class="form-control" name="moldOpenPos1"
+                                                    <input type="number" step="any" class="form-control" name="moldOpenPos1"
                                                         id="moldOpenPos1" placeholder="Position 1">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPos2" class="form-label">Position 2</label>
-                                                    <input type="number" class="form-control" name="moldOpenPos2"
+                                                    <input type="number" step="any" class="form-control" name="moldOpenPos2"
                                                         id="moldOpenPos2" placeholder="Position 2">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPos3" class="form-label">Position 3</label>
-                                                    <input type="number" class="form-control" name="moldOpenPos3"
+                                                    <input type="number" step="any" class="form-control" name="moldOpenPos3"
                                                         id="moldOpenPos3" placeholder="Position 3">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPos4" class="form-label">Position 4</label>
-                                                    <input type="number" class="form-control" name="moldOpenPos4"
+                                                    <input type="number" step="any" class="form-control" name="moldOpenPos4"
                                                         id="moldOpenPos4" placeholder="Position 4">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPos5" class="form-label">Position 5</label>
-                                                    <input type="number" class="form-control" name="moldOpenPos5"
+                                                    <input type="number" step="any" class="form-control" name="moldOpenPos5"
                                                         id="moldOpenPos5" placeholder="Position 5">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPos6" class="form-label">Position 6</label>
-                                                    <input type="number" class="form-control" name="moldOpenPos6"
+                                                    <input type="number" step="any" class="form-control" name="moldOpenPos6"
                                                         id="moldOpenPos6" placeholder="Position 6">
                                                 </div>
                                             </div>
@@ -883,32 +949,32 @@ if (!isset($_SESSION['full_name'])) {
                                             <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-6 g-3">
                                                 <div class="col">
                                                     <label for="moldOpenSpd1" class="form-label">Speed 1</label>
-                                                    <input type="number" class="form-control" name="moldOpenSpd1"
+                                                    <input type="number" step="any" class="form-control" name="moldOpenSpd1"
                                                         id="moldOpenSpd1" placeholder="Speed 1">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenSpd2" class="form-label">Speed 2</label>
-                                                    <input type="number" class="form-control" name="moldOpenSpd2"
+                                                    <input type="number" step="any" class="form-control" name="moldOpenSpd2"
                                                         id="moldOpenSpd2" placeholder="Speed 2">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenSpd3" class="form-label">Speed 3</label>
-                                                    <input type="number" class="form-control" name="moldOpenSpd3"
+                                                    <input type="number" step="any" class="form-control" name="moldOpenSpd3"
                                                         id="moldOpenSpd3" placeholder="Speed 3">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenSpd4" class="form-label">Speed 4</label>
-                                                    <input type="number" class="form-control" name="moldOpenSpd4"
+                                                    <input type="number" step="any" class="form-control" name="moldOpenSpd4"
                                                         id="moldOpenSpd4" placeholder="Speed 4">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenSpd5" class="form-label">Speed 5</label>
-                                                    <input type="number" class="form-control" name="moldOpenSpd5"
+                                                    <input type="number" step="any" class="form-control" name="moldOpenSpd5"
                                                         id="moldOpenSpd5" placeholder="Speed 5">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenSpd6" class="form-label">Speed 6</label>
-                                                    <input type="number" class="form-control" name="moldOpenSpd6"
+                                                    <input type="number" step="any" class="form-control" name="moldOpenSpd6"
                                                         id="moldOpenSpd6" placeholder="Speed 6">
                                                 </div>
                                             </div>
@@ -917,32 +983,32 @@ if (!isset($_SESSION['full_name'])) {
                                             <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-6 g-3">
                                                 <div class="col">
                                                     <label for="moldOpenPressure1" class="form-label">Pressure 1</label>
-                                                    <input type="number" class="form-control" name="moldOpenPressure1"
+                                                    <input type="number" step="any" class="form-control" name="moldOpenPressure1"
                                                         id="moldOpenPressure1" placeholder="Pressure 1">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPressure2" class="form-label">Pressure 2</label>
-                                                    <input type="number" class="form-control" name="moldOpenPressure2"
+                                                    <input type="number" step="any" class="form-control" name="moldOpenPressure2"
                                                         id="moldOpenPressure2" placeholder="Pressure 2">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPressure3" class="form-label">Pressure 3</label>
-                                                    <input type="number" class="form-control" name="moldOpenPressure3"
+                                                    <input type="number" step="any" class="form-control" name="moldOpenPressure3"
                                                         id="moldOpenPressure3" placeholder="Pressure 3">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPressure4" class="form-label">Pressure 4</label>
-                                                    <input type="number" class="form-control" name="moldOpenPressure4"
+                                                    <input type="number" step="any" class="form-control" name="moldOpenPressure4"
                                                         id="moldOpenPressure4" placeholder="Pressure 4">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPressure5" class="form-label">Pressure 5</label>
-                                                    <input type="number" class="form-control" name="moldOpenPressure5"
+                                                    <input type="number" step="any" class="form-control" name="moldOpenPressure5"
                                                         id="moldOpenPressure5" placeholder="Pressure 5">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPressure6" class="form-label">Pressure 6</label>
-                                                    <input type="number" class="form-control" name="moldOpenPressure6"
+                                                    <input type="number" step="any" class="form-control" name="moldOpenPressure6"
                                                         id="moldOpenPressure6" placeholder="Pressure 6">
                                                 </div>
                                             </div>
@@ -963,32 +1029,32 @@ if (!isset($_SESSION['full_name'])) {
                                             <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-6 g-3">
                                                 <div class="col">
                                                     <label for="moldClosePos1" class="form-label">Position 1</label>
-                                                    <input type="number" class="form-control" name="moldClosePos1"
+                                                    <input type="number" step="any" class="form-control" name="moldClosePos1"
                                                         id="moldClosePos1" placeholder="Position 1">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldClosePos2" class="form-label">Position 2</label>
-                                                    <input type="number" class="form-control" name="moldClosePos2"
+                                                    <input type="number" step="any" class="form-control" name="moldClosePos2"
                                                         id="moldClosePos2" placeholder="Position 2">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldClosePos3" class="form-label">Position 3</label>
-                                                    <input type="number" class="form-control" name="moldClosePos3"
+                                                    <input type="number" step="any" class="form-control" name="moldClosePos3"
                                                         id="moldClosePos3" placeholder="Position 3">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldClosePos4" class="form-label">Position 4</label>
-                                                    <input type="number" class="form-control" name="moldClosePos4"
+                                                    <input type="number" step="any" class="form-control" name="moldClosePos4"
                                                         id="moldClosePos4" placeholder="Position 4">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldClosePos5" class="form-label">Position 5</label>
-                                                    <input type="number" class="form-control" name="moldClosePos5"
+                                                    <input type="number" step="any" class="form-control" name="moldClosePos5"
                                                         id="moldClosePos5" placeholder="Position 5">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldClosePos6" class="form-label">Position 6</label>
-                                                    <input type="number" class="form-control" name="moldClosePos6"
+                                                    <input type="number" step="any" class="form-control" name="moldClosePos6"
                                                         id="moldClosePos6" placeholder="Position 6">
                                                 </div>
                                             </div>
@@ -997,32 +1063,32 @@ if (!isset($_SESSION['full_name'])) {
                                             <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-6 g-3">
                                                 <div class="col">
                                                     <label for="moldCloseSpd1" class="form-label">Speed 1</label>
-                                                    <input type="number" class="form-control" name="moldCloseSpd1"
+                                                    <input type="number" step="any" class="form-control" name="moldCloseSpd1"
                                                         id="moldCloseSpd1" placeholder="Speed 1">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldCloseSpd2" class="form-label">Speed 2</label>
-                                                    <input type="number" class="form-control" name="moldCloseSpd2"
+                                                    <input type="number" step="any" class="form-control" name="moldCloseSpd2"
                                                         id="moldCloseSpd2" placeholder="Speed 2">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldCloseSpd3" class="form-label">Speed 3</label>
-                                                    <input type="number" class="form-control" name="moldCloseSpd3"
+                                                    <input type="number" step="any" class="form-control" name="moldCloseSpd3"
                                                         id="moldCloseSpd3" placeholder="Speed 3">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldCloseSpd4" class="form-label">Speed 4</label>
-                                                    <input type="number" class="form-control" name="moldCloseSpd4"
+                                                    <input type="number" step="any" class="form-control" name="moldCloseSpd4"
                                                         id="moldCloseSpd4" placeholder="Speed 4">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldCloseSpd5" class="form-label">Speed 5</label>
-                                                    <input type="number" class="form-control" name="moldCloseSpd5"
+                                                    <input type="number" step="any" class="form-control" name="moldCloseSpd5"
                                                         id="moldCloseSpd5" placeholder="Speed 5">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldCloseSpd6" class="form-label">Speed 6</label>
-                                                    <input type="number" class="form-control" name="moldCloseSpd6"
+                                                    <input type="number" step="any" class="form-control" name="moldCloseSpd6"
                                                         id="moldCloseSpd6" placeholder="Speed 6">
                                                 </div>
                                             </div>
@@ -1032,25 +1098,25 @@ if (!isset($_SESSION['full_name'])) {
                                                 <div class="col">
                                                     <label for="moldClosePressure1" class="form-label">Pressure
                                                         1</label>
-                                                    <input type="number" class="form-control" name="moldClosePressure1"
+                                                    <input type="number" step="any" class="form-control" name="moldClosePressure1"
                                                         id="moldClosePressure1" placeholder="Pressure 1">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldClosePressure2" class="form-label">Pressure
                                                         2</label>
-                                                    <input type="number" class="form-control" name="moldClosePressure2"
+                                                    <input type="number" step="any" class="form-control" name="moldClosePressure2"
                                                         id="moldClosePressure2" placeholder="Pressure 2">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldClosePressure3" class="form-label">Pressure
                                                         3</label>
-                                                    <input type="number" class="form-control" name="moldClosePressure3"
+                                                    <input type="number" step="any" class="form-control" name="moldClosePressure3"
                                                         id="moldClosePressure3" placeholder="Pressure 3">
                                                 </div>
                                                 <div class="col">
-                                                    <label for="pclorlp" class="form-label">PLC/LP</label>
+                                                    <label for="pclorlp" class="form-label">PCL/LP</label>
                                                     <input type="text" class="form-control" name="pclorlp" id="pclorlp"
-                                                        placeholder="PLC/LP">
+                                                        placeholder="PCL/LP">
                                                 </div>
                                                 <div class="col">
                                                     <label for="pchorhp" class="form-label">PCH/HP</label>
@@ -1060,7 +1126,7 @@ if (!isset($_SESSION['full_name'])) {
                                                 <div class="col">
                                                     <label for="lowPresTimeLimit" class="form-label">Low Pressure Time
                                                         Limit</label>
-                                                    <input type="number" class="form-control" name="lowPresTimeLimit"
+                                                    <input type="number" step="any" class="form-control" name="lowPresTimeLimit"
                                                         id="lowPresTimeLimit" placeholder="Low Pressure Time Limit">
                                                 </div>
                                             </div>
@@ -1083,85 +1149,85 @@ if (!isset($_SESSION['full_name'])) {
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="screwRPM1" class="form-label">Screw RPM 1</label>
-                                                <input type="number" class="form-control" name="screwRPM1"
+                                                <input type="number" step="any" class="form-control" name="screwRPM1"
                                                     id="screwRPM1" placeholder="Screw RPM 1">
                                             </div>
                                             <div class="col">
                                                 <label for="screwRPM2" class="form-label">Screw RPM 2</label>
-                                                <input type="number" class="form-control" name="screwRPM2"
+                                                <input type="number" step="any" class="form-control" name="screwRPM2"
                                                     id="screwRPM2" placeholder="Screw RPM 2">
                                             </div>
                                             <div class="col">
                                                 <label for="screwRPM3" class="form-label">Screw RPM 3</label>
-                                                <input type="number" class="form-control" name="screwRPM3"
+                                                <input type="number" step="any" class="form-control" name="screwRPM3"
                                                     id="screwRPM3" placeholder="Screw RPM 3">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="screwSpeed1" class="form-label">Screw Speed 1</label>
-                                                <input type="number" class="form-control" name="screwSpeed1"
+                                                <input type="number" step="any" class="form-control" name="screwSpeed1"
                                                     id="screwSpeed1" placeholder="Screw Speed 1">
                                             </div>
                                             <div class="col">
                                                 <label for="screwSpeed2" class="form-label">Screw Speed 2</label>
-                                                <input type="number" class="form-control" name="screwSpeed2"
+                                                <input type="number" step="any" class="form-control" name="screwSpeed2"
                                                     id="screwSpeed2" placeholder="Screw Speed 2">
                                             </div>
                                             <div class="col">
                                                 <label for="screwSpeed3" class="form-label">Screw Speed 3</label>
-                                                <input type="number" class="form-control" name="screwSpeed3"
+                                                <input type="number" step="any" class="form-control" name="screwSpeed3"
                                                     id="screwSpeed3" placeholder="Screw Speed 3">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="plastPressure1" class="form-label">Plast Pressure 1</label>
-                                                <input type="number" class="form-control" name="plastPressure1"
+                                                <input type="number" step="any" class="form-control" name="plastPressure1"
                                                     id="plastPressure1" placeholder="Plast Pressure 1">
                                             </div>
                                             <div class="col">
                                                 <label for="plastPressure2" class="form-label">Plast Pressure 2</label>
-                                                <input type="number" class="form-control" name="plastPressure2"
+                                                <input type="number" step="any" class="form-control" name="plastPressure2"
                                                     id="plastPressure2" placeholder="Plast Pressure 2">
                                             </div>
                                             <div class="col">
                                                 <label for="plastPressure3" class="form-label">Plast Pressure 3</label>
-                                                <input type="number" class="form-control" name="plastPressure3"
+                                                <input type="number" step="any" class="form-control" name="plastPressure3"
                                                     id="plastPressure3" placeholder="Plast Pressure 3">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="plastPosition1" class="form-label">Plast Position 1</label>
-                                                <input type="number" class="form-control" name="plastPosition1"
+                                                <input type="number" step="any" class="form-control" name="plastPosition1"
                                                     id="plastPosition1" placeholder="Plast Position 1">
                                             </div>
                                             <div class="col">
                                                 <label for="plastPosition2" class="form-label">Plast Position 2</label>
-                                                <input type="number" class="form-control" name="plastPosition2"
+                                                <input type="number" step="any" class="form-control" name="plastPosition2"
                                                     id="plastPosition2" placeholder="Plast Position 2">
                                             </div>
                                             <div class="col">
                                                 <label for="plastPosition3" class="form-label">Plast Position 3</label>
-                                                <input type="number" class="form-control" name="plastPosition3"
+                                                <input type="number" step="any" class="form-control" name="plastPosition3"
                                                     id="plastPosition3" placeholder="Plast Position 3">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="backPressure1" class="form-label">Back Pressure 1</label>
-                                                <input type="number" class="form-control" name="backPressure1"
+                                                <input type="number" step="any" class="form-control" name="backPressure1"
                                                     id="backPressure1" placeholder="Back Pressure 1">
                                             </div>
                                             <div class="col">
                                                 <label for="backPressure2" class="form-label">Back Pressure 2</label>
-                                                <input type="number" class="form-control" name="backPressure2"
+                                                <input type="number" step="any" class="form-control" name="backPressure2"
                                                     id="backPressure2" placeholder="Back Pressure 2">
                                             </div>
                                             <div class="col">
                                                 <label for="backPressure3" class="form-label">Back Pressure 3</label>
-                                                <input type="number" class="form-control" name="backPressure3"
+                                                <input type="number" step="any" class="form-control" name="backPressure3"
                                                     id="backPressure3" placeholder="Back Pressure 3">
                                             </div>
                                         </div>
@@ -1170,7 +1236,7 @@ if (!isset($_SESSION['full_name'])) {
                                                 <label for="backPressureStartPosition" class="form-label">Back Pressure
                                                     Start
                                                     Position</label>
-                                                <input type="number" class="form-control"
+                                                <input type="number" step="any" class="form-control"
                                                     name="backPressureStartPosition" id="backPressureStartPosition"
                                                     placeholder="Back Pressure Start Position">
                                             </div>
@@ -1194,52 +1260,52 @@ if (!isset($_SESSION['full_name'])) {
                                             <div class="col">
                                                 <label for="RecoveryPosition" class="form-label">Recovery Position
                                                     (mm)</label>
-                                                <input type="number" class="form-control" name="RecoveryPosition"
+                                                <input type="number" step="any" class="form-control" name="RecoveryPosition"
                                                     id="RecoveryPosition" placeholder="Recovery Position">
                                             </div>
                                             <div class="col">
                                                 <label for="SecondStagePosition" class="form-label">Second Stage
                                                     Position (mm)</label>
-                                                <input type="number" class="form-control" name="SecondStagePosition"
+                                                <input type="number" step="any" class="form-control" name="SecondStagePosition"
                                                     id="SecondStagePosition" placeholder="Second Stage Position">
                                             </div>
                                             <div class="col">
                                                 <label for="Cushion" class="form-label">Cushion (mm)</label>
-                                                <input type="number" class="form-control" name="Cushion" id="Cushion"
+                                                <input type="number" step="any" class="form-control" name="Cushion" id="Cushion"
                                                     placeholder="Cushion">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="screwPosition1" class="form-label">Screw Position 1</label>
-                                                <input type="number" class="form-control" name="ScrewPosition1"
+                                                <input type="number" step="any" class="form-control" name="ScrewPosition1"
                                                     id="screwPosition1" placeholder="Screw Position 1">
                                             </div>
                                             <div class="col">
                                                 <label for="screwPosition2" class="form-label">Screw Position 2</label>
-                                                <input type="number" class="form-control" name="ScrewPosition2"
+                                                <input type="number" step="any" class="form-control" name="ScrewPosition2"
                                                     id="screwPosition2" placeholder="Screw Position 2">
                                             </div>
                                             <div class="col">
                                                 <label for="screwPosition3" class="form-label">Screw Position 3</label>
-                                                <input type="number" class="form-control" name="ScrewPosition3"
+                                                <input type="number" step="any" class="form-control" name="ScrewPosition3"
                                                     id="screwPosition3" placeholder="Screw Position 3">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="INJSpeed1" class="form-label">Injection Speed 1</label>
-                                                <input type="number" class="form-control" name="InjectionSpeed1"
+                                                <input type="number" step="any" class="form-control" name="InjectionSpeed1"
                                                     id="injectionSpeed1" placeholder="Injection Speed 1">
                                             </div>
                                             <div class="col">
                                                 <label for="INJSpeed2" class="form-label">Injection Speed 2</label>
-                                                <input type="number" class="form-control" name="InjectionSpeed2"
+                                                <input type="number" step="any" class="form-control" name="InjectionSpeed2"
                                                     id="injectionSpeed2" placeholder="Injection Speed 2">
                                             </div>
                                             <div class="col">
                                                 <label for="INJSpeed3" class="form-label">Injection Speed 3</label>
-                                                <input type="number" class="form-control" name="InjectionSpeed3"
+                                                <input type="number" step="any" class="form-control" name="InjectionSpeed3"
                                                     id="injectionSpeed3" placeholder="Injection Speed 3">
                                             </div>
                                         </div>
@@ -1247,53 +1313,53 @@ if (!isset($_SESSION['full_name'])) {
                                             <div class="col">
                                                 <label for="INJPressure1" class="form-label">Injection Pressure
                                                     1</label>
-                                                <input type="number" class="form-control" name="InjectionPressure1"
+                                                <input type="number" step="any" class="form-control" name="InjectionPressure1"
                                                     id="injectionPressure1" placeholder="Injection Pressure 1">
                                             </div>
                                             <div class="col">
                                                 <label for="INJPressure2" class="form-label">Injection Pressure
                                                     2</label>
-                                                <input type="number" class="form-control" name="InjectionPressure2"
+                                                <input type="number" step="any" class="form-control" name="InjectionPressure2"
                                                     id="injectionPressure2" placeholder="Injection Pressure 2">
                                             </div>
                                             <div class="col">
                                                 <label for="INJPressure3" class="form-label">Injection Pressure
                                                     3</label>
-                                                <input type="number" class="form-control" name="InjectionPressure3"
+                                                <input type="number" step="any" class="form-control" name="InjectionPressure3"
                                                     id="injectionPressure3" placeholder="Injection Pressure 3">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="SuckBackPos" class="form-label">Suck Back Position</label>
-                                                <input type="number" class="form-control" name="SuckBackPosition"
+                                                <input type="number" step="any" class="form-control" name="SuckBackPosition"
                                                     id="suckBackPosition" placeholder="Suck Back Position">
                                             </div>
                                             <div class="col">
                                                 <label for="SuckBackSpeed" class="form-label">Suck Back Speed</label>
-                                                <input type="number" class="form-control" name="SuckBackSpeed"
+                                                <input type="number" step="any" class="form-control" name="SuckBackSpeed"
                                                     id="suckBackSpeed" placeholder="Suck Back Speed">
                                             </div>
                                             <div class="col">
                                                 <label for="SuckBackPres" class="form-label">Suck Back Pressure</label>
-                                                <input type="number" class="form-control" name="SuckBackPressure"
+                                                <input type="number" step="any" class="form-control" name="SuckBackPressure"
                                                     id="suckBackPressure" placeholder="Suck Back Pressure">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="ScrewPosition4" class="form-label">Screw Position 4</label>
-                                                <input type="number" class="form-control" name="ScrewPosition4"
+                                                <input type="number" step="any" class="form-control" name="ScrewPosition4"
                                                     id="screwPosition4" placeholder="Screw Position 4">
                                             </div>
                                             <div class="col">
                                                 <label for="ScrewPosition5" class="form-label">Screw Position 5</label>
-                                                <input type="number" class="form-control" name="ScrewPosition5"
+                                                <input type="number" step="any" class="form-control" name="ScrewPosition5"
                                                     id="ScrewPosition5" placeholder="Screw Position 5">
                                             </div>
                                             <div class="col">
                                                 <label for="ScrewPosition6" class="form-label">Screw Position 6</label>
-                                                <input type="number" class="form-control" name="ScrewPosition6"
+                                                <input type="number" step="any" class="form-control" name="ScrewPosition6"
                                                     id="ScrewPosition6" placeholder="Screw Position 6">
                                             </div>
                                         </div>
@@ -1301,19 +1367,19 @@ if (!isset($_SESSION['full_name'])) {
                                             <div class="col">
                                                 <label for="InjectionSpeed4" class="form-label">Injection Speed
                                                     4</label>
-                                                <input type="number" class="form-control" name="InjectionSpeed4"
+                                                <input type="number" step="any" class="form-control" name="InjectionSpeed4"
                                                     id="InjectionSpeed4" placeholder="Injection Speed 4">
                                             </div>
                                             <div class="col">
                                                 <label for="InjectionSpeed5" class="form-label">Injection Speed
                                                     5</label>
-                                                <input type="number" class="form-control" name="InjectionSpeed5"
+                                                <input type="number" step="any" class="form-control" name="InjectionSpeed5"
                                                     id="InjectionSpeed5" placeholder="Injection Speed 5">
                                             </div>
                                             <div class="col">
                                                 <label for="InjectionSpeed6" class="form-label">Injection Speed
                                                     6</label>
-                                                <input type="number" class="form-control" name="InjectionSpeed6"
+                                                <input type="number" step="any" class="form-control" name="InjectionSpeed6"
                                                     id="InjectionSpeed6" placeholder="Injection Speed 6">
                                             </div>
                                         </div>
@@ -1321,87 +1387,87 @@ if (!isset($_SESSION['full_name'])) {
                                             <div class="col">
                                                 <label for="InjectionPressure4" class="form-label">Injection Pressure
                                                     4</label>
-                                                <input type="number" class="form-control" name="InjectionPressure4"
+                                                <input type="number" step="any" class="form-control" name="InjectionPressure4"
                                                     id="InjectionPressure4" placeholder="Injection Pressure 4">
                                             </div>
                                             <div class="col">
                                                 <label for="InjectionPressure5" class="form-label">Injection Pressure
                                                     5</label>
-                                                <input type="number" class="form-control" name="InjectionPressure5"
+                                                <input type="number" step="any" class="form-control" name="InjectionPressure5"
                                                     id="InjectionPressure5" placeholder="Injection Pressure 5">
                                             </div>
                                             <div class="col">
                                                 <label for="InjectionPressure6" class="form-label">Injection Pressure
                                                     6</label>
-                                                <input type="number" class="form-control" name="InjectionPressure6"
+                                                <input type="number" step="any" class="form-control" name="InjectionPressure6"
                                                     id="InjectionPressure6" placeholder="Injection Pressure 6">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="SprueBreak" class="form-label">Sprue Break</label>
-                                                <input type="number" class="form-control" name="SprueBreak"
+                                                <input type="number" step="any" class="form-control" name="SprueBreak"
                                                     id="SprueBreak" placeholder="Sprue Break">
                                             </div>
                                             <div class="col">
                                                 <label for="SprueBreakTime" class="form-label">Sprue Break Time</label>
-                                                <input type="number" class="form-control" name="SprueBreakTime"
+                                                <input type="number" step="any" class="form-control" name="SprueBreakTime"
                                                     id="SprueBreakTime" placeholder="Sprue Break Time">
                                             </div>
                                             <div class="col">
                                                 <label for="InjectionDelay" class="form-label">Injection Delay</label>
-                                                <input type="number" class="form-control" name="InjectionDelay"
+                                                <input type="number" step="any" class="form-control" name="InjectionDelay"
                                                     id="InjectionDelay" placeholder="Injection Delay">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="HoldingPres1" class="form-label">Holding Pressure 1</label>
-                                                <input type="number" class="form-control" name="HoldingPressure1"
+                                                <input type="number" step="any" class="form-control" name="HoldingPressure1"
                                                     id="HoldingPres1" placeholder="Holding Pressure 1">
                                             </div>
                                             <div class="col">
-                                                <label for="HoldingPres2" class="form-label">Sprue Break Time</label>
-                                                <input type="number" class="form-control" name="HoldingPressure2"
+                                                <label for="HoldingPres2" class="form-label">Holding Pressure 2</label>
+                                                <input type="number" step="any" class="form-control" name="HoldingPressure2"
                                                     id="HoldingPres2" placeholder="Holding Pressure 2">
                                             </div>
                                             <div class="col">
                                                 <label for="HoldingPres3" class="form-label">Holding Pressure 3</label>
-                                                <input type="number" class="form-control" name="HoldingPressure3"
+                                                <input type="number" step="any" class="form-control" name="HoldingPressure3"
                                                     id="HoldingPres3" placeholder="Holding Pressure 3">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="HoldingSpeed1" class="form-label">Holding Speed 1</label>
-                                                <input type="number" class="form-control" name="HoldingSpeed1"
+                                                <input type="number" step="any" class="form-control" name="HoldingSpeed1"
                                                     id="HoldingSpeed1" placeholder="Holding Speed 1">
                                             </div>
                                             <div class="col">
                                                 <label for="HoldingSpeed2" class="form-label">Holding Speed 2</label>
-                                                <input type="number" class="form-control" name="HoldingSpeed2"
+                                                <input type="number" step="any" class="form-control" name="HoldingSpeed2"
                                                     id="HoldingSpeed2" placeholder="Holding Speed 2">
                                             </div>
                                             <div class="col">
                                                 <label for="HoldingSpeed3" class="form-label">Holding Speed 3</label>
-                                                <input type="number" class="form-control" name="HoldingSpeed3"
+                                                <input type="number" step="any" class="form-control" name="HoldingSpeed3"
                                                     id="HoldingSpeed3" placeholder="Holding Speed 3">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="HoldingTime1" class="form-label">Holding Time 1</label>
-                                                <input type="number" class="form-control" name="HoldingTime1"
+                                                <input type="number" step="any" class="form-control" name="HoldingTime1"
                                                     id="HoldingTime1" placeholder="Holding Time 1">
                                             </div>
                                             <div class="col">
                                                 <label for="HoldingTime2" class="form-label">Holding Time 2</label>
-                                                <input type="number" class="form-control" name="HoldingTime2"
+                                                <input type="number" step="any" class="form-control" name="HoldingTime2"
                                                     id="HoldingTime2" placeholder="Holding Time 2">
                                             </div>
                                             <div class="col">
                                                 <label for="HoldingTime3" class="form-label">Holding Time 3</label>
-                                                <input type="number" class="form-control" name="HoldingTime3"
+                                                <input type="number" step="any" class="form-control" name="HoldingTime3"
                                                     id="HoldingTime3" placeholder="Holding Time 3">
                                             </div>
                                         </div>
@@ -1423,36 +1489,36 @@ if (!isset($_SESSION['full_name'])) {
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="AirBlowTimeA" class="form-label">Air Blow Time A</label>
-                                                <input type="number" class="form-control" name="AirBlowTimeA"
+                                                <input type="number" step="any" class="form-control" name="AirBlowTimeA"
                                                     id="airBlowTimeA" placeholder="Air Blow Time A">
                                             </div>
                                             <div class="col">
                                                 <label for="AirBlowPositionA" class="form-label">Air Blow Position
                                                     A</label>
-                                                <input type="number" class="form-control" name="AirBlowPositionA"
+                                                <input type="number" step="any" class="form-control" name="AirBlowPositionA"
                                                     id="airBlowPositionA" placeholder="Air Blow Position A">
                                             </div>
                                             <div class="col">
                                                 <label for="AB A Delay" class="form-label">Air Blow A Delay</label>
-                                                <input type="number" class="form-control" name="AirBlowADelay"
+                                                <input type="number" step="any" class="form-control" name="AirBlowADelay"
                                                     id="airBlowADelay" placeholder="Air Blow A Delay">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="AirBlowTimeB" class="form-label">Air Blow Time B</label>
-                                                <input type="number" class="form-control" name="AirBlowTimeB"
+                                                <input type="number" step="any" class="form-control" name="AirBlowTimeB"
                                                     id="airBlowTimeB" placeholder="Air Blow Time B">
                                             </div>
                                             <div class="col">
                                                 <label for="AirBlowPositionB" class="form-label">Air Blow Position
                                                     B</label>
-                                                <input type="number" class="form-control" name="AirBlowPositionB"
+                                                <input type="number" step="any" class="form-control" name="AirBlowPositionB"
                                                     id="airBlowPositionB" placeholder="Air Blow Position B">
                                             </div>
                                             <div class="col">
                                                 <label for="AirBlowBDelay" class="form-label">Air Blow B Delay</label>
-                                                <input type="number" class="form-control" name="AirBlowBDelay"
+                                                <input type="number" step="any" class="form-control" name="AirBlowBDelay"
                                                     id="airBlowBDelay" placeholder="Air Blow B Delay">
                                             </div>
                                         </div>
@@ -1461,7 +1527,7 @@ if (!isset($_SESSION['full_name'])) {
                                                 <label for="EjectorForwardPosition1" class="form-label">Ejector Forward
                                                     Position
                                                     1</label>
-                                                <input type="number" class="form-control" name="EjectorForwardPosition1"
+                                                <input type="number" step="any" class="form-control" name="EjectorForwardPosition1"
                                                     id="EjectorForwardPosition1"
                                                     placeholder="Ejector Forward Position 1">
                                             </div>
@@ -1469,13 +1535,13 @@ if (!isset($_SESSION['full_name'])) {
                                                 <label for="EjectorForwardPosition2" class="form-label">Ejector Forward
                                                     Position
                                                     2</label>
-                                                <input type="number" class="form-control" name="EjectorForwardPosition2"
+                                                <input type="number" step="any" class="form-control" name="EjectorForwardPosition2"
                                                     id="EjectorForwardPosition2"
                                                     placeholder="Ejector Forward Position 2">
                                             </div>
                                             <div class="col">
                                                 <label for="EFSpeed1" class="form-label">Ejector Forward Speed 1</label>
-                                                <input type="number" class="form-control" name="EjectorForwardSpeed1"
+                                                <input type="number" step="any" class="form-control" name="EjectorForwardSpeed1"
                                                     id="ejectorForwardSpeed1" placeholder="Ejector Forward Speed 1">
                                             </div>
                                         </div>
@@ -1484,7 +1550,7 @@ if (!isset($_SESSION['full_name'])) {
                                                 <label for="EjectorRetractPosition1" class="form-label">Ejector Retract
                                                     Position
                                                     1</label>
-                                                <input type="number" class="form-control" name="EjectorRetractPosition1"
+                                                <input type="number" step="any" class="form-control" name="EjectorRetractPosition1"
                                                     id="ejectorRetractPosition1"
                                                     placeholder="Ejector Retract Position 1">
                                             </div>
@@ -1492,7 +1558,7 @@ if (!isset($_SESSION['full_name'])) {
                                                 <label for="EjectorRetractPosition2" class="form-label">Ejector Retract
                                                     Position
                                                     2</label>
-                                                <input type="number" class="form-control" name="EjectorRetractPosition2"
+                                                <input type="number" step="any" class="form-control" name="EjectorRetractPosition2"
                                                     id="ejectorRetractPosition2"
                                                     placeholder="Ejector Retract Position 2">
                                             </div>
@@ -1500,7 +1566,7 @@ if (!isset($_SESSION['full_name'])) {
                                                 <label for="Ejector Retract Speed1" class="form-label">Ejector Retract
                                                     Speed
                                                     1</label>
-                                                <input type="number" class="form-control" name="EjectorRetractSpeed1"
+                                                <input type="number" step="any" class="form-control" name="EjectorRetractSpeed1"
                                                     id="ejectorRetractSpeed1" placeholder="Ejector Retract Speed 1">
                                             </div>
                                         </div>
@@ -1508,19 +1574,19 @@ if (!isset($_SESSION['full_name'])) {
                                             <div class="col">
                                                 <label for="EjectorForwardPosition" class="form-label">Ejector Forward
                                                     Position</label>
-                                                <input type="number" class="form-control" name="EjectorForwardPosition"
+                                                <input type="number" step="any" class="form-control" name="EjectorForwardPosition"
                                                     id="ejectorForwardPosition" placeholder="Ejector Forward Position">
                                             </div>
                                             <div class="col">
                                                 <label for="EjectorForwardTime" class="form-label">Ejector Forward
                                                     Time</label>
-                                                <input type="number" class="form-control" name="EjectorForwardTime"
+                                                <input type="number" step="any" class="form-control" name="EjectorForwardTime"
                                                     id="ejectorForwardTime" placeholder="Ejector Forward Time">
                                             </div>
                                             <div class="col">
                                                 <label for="EjectorRetractPosition" class="form-label">Ejector Retract
                                                     Position</label>
-                                                <input type="number" class="form-control" name="EjectorRetractPosition"
+                                                <input type="number" step="any" class="form-control" name="EjectorRetractPosition"
                                                     id="ejectorRetractPosition" placeholder="Ejector Retract Position">
                                             </div>
                                         </div>
@@ -1528,20 +1594,20 @@ if (!isset($_SESSION['full_name'])) {
                                             <div class="col">
                                                 <label for="EjectorRetractTime" class="form-label">Ejector Retract
                                                     Time</label>
-                                                <input type="number" class="form-control" name="EjectorRetractTime"
+                                                <input type="number" step="any" class="form-control" name="EjectorRetractTime"
                                                     id="ejectorRetractTime" placeholder="Ejector Retract Time">
                                             </div>
                                             <div class="col">
                                                 <label for="EjectorForwardSpeed2" class="form-label">Ejector Forward
                                                     Speed 2</label>
-                                                <input type="number" class="form-control" name="EjectorForwardSpeed2"
+                                                <input type="number" step="any" class="form-control" name="EjectorForwardSpeed2"
                                                     id="ejectorForwardSpeed2" placeholder="Ejector Forward Speed2">
                                             </div><!--sub field-->
                                             <div class="col">
                                                 <label for="EjectorForwardPressure1" class="form-label">Ejector Forward
                                                     Pressure
                                                     1</label>
-                                                <input type="number" class="form-control" name="EjectorForwardPressure1"
+                                                <input type="number" step="any" class="form-control" name="EjectorForwardPressure1"
                                                     id="ejectorForwardPressure1"
                                                     placeholder="Ejector Forward Pressure 1">
                                             </div>
@@ -1550,19 +1616,19 @@ if (!isset($_SESSION['full_name'])) {
                                             <div class="col">
                                                 <label for="EjectorForwardSpeed2" class="form-label">Ejector Forward
                                                     Speed 2</label>
-                                                <input type="number" class="form-control" name="EjectorForwardSpeed2"
+                                                <input type="number" step="any" class="form-control" name="EjectorForwardSpeed2"
                                                     id="ejectorForwardSpeed2" placeholder="Ejector Forward Speed 2">
                                             </div>
                                             <!--sub field-->
                                             <div class="col">
                                                 <label for="EjectorForward" class="form-label">Ejector Forward</label>
-                                                <input type="number" class="form-control" name="EjectorForward"
+                                                <input type="number" step="any" class="form-control" name="EjectorForward"
                                                     id="ejectorForward" placeholder="Ejector Forward">
                                             </div>
                                             <div class="col">
                                                 <label for="EjectorRetractSpeed2" class="form-label">Ejector Retract
                                                     Speed 2</label>
-                                                <input type="number" class="form-control" name="EjectorRetractSpeed2"
+                                                <input type="number" step="any" class="form-control" name="EjectorRetractSpeed2"
                                                     id="ejectorRetractSpeed2" placeholder="Ejector Retract Speed 2">
                                             </div>
                                         </div>
@@ -1572,20 +1638,20 @@ if (!isset($_SESSION['full_name'])) {
                                                 <label for="EjectorRetractPressure1" class="form-label">Ejector Retract
                                                     Pressure
                                                     1</label>
-                                                <input type="number" class="form-control" name="EjectorRetractPressure1"
+                                                <input type="number" step="any" class="form-control" name="EjectorRetractPressure1"
                                                     id="ejectorRetractPressure1"
                                                     placeholder="Ejector Retract Pressure 1">
                                             </div>
                                             <div class="col">
                                                 <label for="EjectorRetractSpeed2" class="form-label">Ejector Retract
                                                     Speed 2</label>
-                                                <input type="number" class="form-control" name="EjectorRetractSpeed2"
+                                                <input type="number" step="any" class="form-control" name="EjectorRetractSpeed2"
                                                     id="ejectorRetractSpeed2" placeholder="Ejector Retract Speed 2">
                                             </div>
                                             <!--sub field-->
                                             <div class="col">
                                                 <label for="EjectorRetract" class="form-label">Ejector Retract</label>
-                                                <input type="number" class="form-control" name="EjectorRetract"
+                                                <input type="number" step="any" class="form-control" name="EjectorRetract"
                                                     id="ejectorRetract" placeholder="Ejector Retract">
                                             </div>
                                         </div>
@@ -1617,19 +1683,19 @@ if (!isset($_SESSION['full_name'])) {
                                                 <div class="col">
                                                     <label for="coreSetASequence" class="form-label">Core Set A
                                                         Sequence</label>
-                                                    <input type="number" class="form-control" name="coreSetASequence"
+                                                    <input type="number" step="any" class="form-control" name="coreSetASequence"
                                                         id="coreSetASequence" placeholder="Core Set A Sequence">
                                                 </div>
                                                 <div class="col">
                                                     <label for="coreSetAPressure" class="form-label">Core Set A Pressure
                                                         ()</label>
-                                                    <input type="number" class="form-control" name="coreSetAPressure"
+                                                    <input type="number" step="any" class="form-control" name="coreSetAPressure"
                                                         id="coreSetAPressure" placeholder="Core Set A Pressure">
                                                 </div>
                                                 <div class="col">
                                                     <label for="coreSetASpeed" class="form-label">Core Set A
                                                         Speed</label>
-                                                    <input type="number" class="form-control" name="coreSetASpeed"
+                                                    <input type="number" step="any" class="form-control" name="coreSetASpeed"
                                                         id="coreSetASpeed" placeholder="Core Set A Speed">
                                                 </div>
                                             </div>
@@ -1637,18 +1703,18 @@ if (!isset($_SESSION['full_name'])) {
                                                 <div class="col">
                                                     <label for="coreSetAPosition" class="form-label">Core Set A
                                                         Position</label>
-                                                    <input type="number" class="form-control" name="coreSetAPosition"
+                                                    <input type="number" step="any" class="form-control" name="coreSetAPosition"
                                                         id="coreSetAPosition" placeholder="Core Set A Position">
                                                 </div>
                                                 <div class="col">
                                                     <label for="coreSetATime" class="form-label">Core Set A Time</label>
-                                                    <input type="number" class="form-control" name="coreSetATime"
+                                                    <input type="number" step="any" class="form-control" name="coreSetATime"
                                                         id="coreSetATime" placeholder="Core Set A Time">
                                                 </div>
                                                 <div class="col">
                                                     <label for="coreSetALimitSwitch" class="form-label">Core Set A Limit
                                                         Switch</label>
-                                                    <input type="number" class="form-control" name="coreSetALimitSwitch"
+                                                    <input type="number" step="any" class="form-control" name="coreSetALimitSwitch"
                                                         id="coreSetALimitSwitch" placeholder="Core Set A Limit Switch">
                                                 </div>
                                             </div>
@@ -1667,20 +1733,20 @@ if (!isset($_SESSION['full_name'])) {
                                                 <div class="col">
                                                     <label for="corePullASequence" class="form-label">Core Pull A
                                                         Sequence</label>
-                                                    <input type="number" class="form-control" name="corePullASequence"
+                                                    <input type="number" step="any" class="form-control" name="corePullASequence"
                                                         id="corePullASequence" placeholder="Core Pull A Sequence">
                                                 </div>
                                                 <div class="col">
                                                     <label for="corePullAPressure" class="form-label">Core Pull A
                                                         Pressure
                                                         ()</label>
-                                                    <input type="number" class="form-control" name="corePullAPressure"
+                                                    <input type="number" step="any" class="form-control" name="corePullAPressure"
                                                         id="corePullAPressure" placeholder="Core Pull A Pressure">
                                                 </div>
                                                 <div class="col">
                                                     <label for="corePullASpeed" class="form-label">Core Pull A
                                                         Speed</label>
-                                                    <input type="number" class="form-control" name="corePullASpeed"
+                                                    <input type="number" step="any" class="form-control" name="corePullASpeed"
                                                         id="corePullASpeed" placeholder="Core Pull A Speed">
                                                 </div>
                                             </div>
@@ -1688,20 +1754,20 @@ if (!isset($_SESSION['full_name'])) {
                                                 <div class="col">
                                                     <label for="corePullAPosition" class="form-label">Core Pull A
                                                         Position</label>
-                                                    <input type="number" class="form-control" name="corePullAPosition"
+                                                    <input type="number" step="any" class="form-control" name="corePullAPosition"
                                                         id="corePullAPosition" placeholder="Core Pull A Position">
                                                 </div>
                                                 <div class="col">
                                                     <label for="corePullATime" class="form-label">Core Pull A
                                                         Time</label>
-                                                    <input type="number" class="form-control" name="corePullATime"
+                                                    <input type="number" step="any" class="form-control" name="corePullATime"
                                                         id="corePullATime" placeholder="Core Pull A Time">
                                                 </div>
                                                 <div class="col">
                                                     <label for="corePullALimitSwitch" class="form-label">Core Pull A
                                                         Limit
                                                         Switch</label>
-                                                    <input type="number" class="form-control"
+                                                    <input type="number" step="any" class="form-control"
                                                         name="corePullALimitSwitch" id="corePullALimitSwitch"
                                                         placeholder="Core Pull A Limit Switch">
                                                 </div>
@@ -1721,19 +1787,19 @@ if (!isset($_SESSION['full_name'])) {
                                                 <div class="col">
                                                     <label for="coreSetBSequence" class="form-label">Core Set B
                                                         Sequence</label>
-                                                    <input type="number" class="form-control" name="coreSetBSequence"
+                                                    <input type="number" step="any" class="form-control" name="coreSetBSequence"
                                                         id="coreSetBSequence" placeholder="Core Set B Sequence">
                                                 </div>
                                                 <div class="col">
                                                     <label for="coreSetBPressure" class="form-label">Core Set B Pressure
                                                         ()</label>
-                                                    <input type="number" class="form-control" name="coreSetBPressure"
+                                                    <input type="number" step="any" class="form-control" name="coreSetBPressure"
                                                         id="coreSetBPressure" placeholder="Core Set B Pressure">
                                                 </div>
                                                 <div class="col">
                                                     <label for="coreSetBSpeed" class="form-label">Core Set B
                                                         Speed</label>
-                                                    <input type="number" class="form-control" name="coreSetBSpeed"
+                                                    <input type="number" step="any" class="form-control" name="coreSetBSpeed"
                                                         id="coreSetBSpeed" placeholder="Core Set B Speed">
                                                 </div>
                                             </div>
@@ -1741,18 +1807,18 @@ if (!isset($_SESSION['full_name'])) {
                                                 <div class="col">
                                                     <label for="coreSetBPosition" class="form-label">Core Set B
                                                         Position</label>
-                                                    <input type="number" class="form-control" name="coreSetBPosition"
+                                                    <input type="number" step="any" class="form-control" name="coreSetBPosition"
                                                         id="coreSetBPosition" placeholder="Core Set B Position">
                                                 </div>
                                                 <div class="col">
                                                     <label for="coreSetBTime" class="form-label">Core Set B Time</label>
-                                                    <input type="number" class="form-control" name="coreSetBTime"
+                                                    <input type="number" step="any" class="form-control" name="coreSetBTime"
                                                         id="coreSetBTime" placeholder="Core Set B Time">
                                                 </div>
                                                 <div class="col">
                                                     <label for="coreSetBLimitSwitch" class="form-label">Core Set B Limit
                                                         Switch</label>
-                                                    <input type="number" class="form-control" name="coreSetBLimitSwitch"
+                                                    <input type="number" step="any" class="form-control" name="coreSetBLimitSwitch"
                                                         id="coreSetBLimitSwitch" placeholder="Core Set B Limit Switch">
                                                 </div>
                                             </div>
@@ -1770,20 +1836,20 @@ if (!isset($_SESSION['full_name'])) {
                                                 <div class="col">
                                                     <label for="corePullBSequence" class="form-label">Core Pull B
                                                         Sequence</label>
-                                                    <input type="number" class="form-control" name="corePullBSequence"
+                                                    <input type="number" step="any" class="form-control" name="corePullBSequence"
                                                         id="corePullBSequence" placeholder="Core Pull B Sequence">
                                                 </div>
                                                 <div class="col">
                                                     <label for="corePullBPressure" class="form-label">Core Pull B
                                                         Pressure
                                                         ()</label>
-                                                    <input type="number" class="form-control" name="corePullBPressure"
+                                                    <input type="number" step="any" class="form-control" name="corePullBPressure"
                                                         id="corePullBPressure" placeholder="Core Pull B Pressure">
                                                 </div>
                                                 <div class="col">
                                                     <label for="corePullBSpeed" class="form-label">Core Pull B
                                                         Speed</label>
-                                                    <input type="number" class="form-control" name="corePullBSpeed"
+                                                    <input type="number" step="any" class="form-control" name="corePullBSpeed"
                                                         id="corePullBSpeed" placeholder="Core Pull B Speed">
                                                 </div>
                                             </div>
@@ -1791,20 +1857,20 @@ if (!isset($_SESSION['full_name'])) {
                                                 <div class="col">
                                                     <label for="corePullBPosition" class="form-label">Core Pull B
                                                         Position</label>
-                                                    <input type="number" class="form-control" name="corePullBPosition"
+                                                    <input type="number" step="any" class="form-control" name="corePullBPosition"
                                                         id="corePullBPosition" placeholder="Core Pull B Position">
                                                 </div>
                                                 <div class="col">
                                                     <label for="corePullBTime" class="form-label">Core Pull B
                                                         Time</label>
-                                                    <input type="number" class="form-control" name="corePullBTime"
+                                                    <input type="number" step="any" class="form-control" name="corePullBTime"
                                                         id="corePullBTime" placeholder="Core Pull B Time">
                                                 </div>
                                                 <div class="col">
                                                     <label for="corePullBLimitSwitch" class="form-label">Core Pull B
                                                         Limit
                                                         Switch</label>
-                                                    <input type="number" class="form-control"
+                                                    <input type="number" step="any" class="form-control"
                                                         name="corePullBLimitSwitch" id="corePullBLimitSwitch"
                                                         placeholder="Core Pull B Limit Switch">
                                                 </div>
@@ -1909,8 +1975,8 @@ if (!isset($_SESSION['full_name'])) {
                                     <!-- Add a horizontal line to separate sections -->
                                     <hr class="my-4"> <!-- Adds some margin space around the horizontal line -->
 
-                                    <button type="button" id="autofillButton"
-                                        class="btn btn-secondary mt-4">Autofill</button>
+                                    <button type="button" id="autofillButton" class="btn btn-secondary mt-4"
+                                        disabled>Autofill</button>
 
 
                                     <!-- Submit Button -->
@@ -2226,11 +2292,11 @@ if (!isset($_SESSION['full_name'])) {
         ];
 
         // Initialize autocomplete for product input
-        $(document).ready(function() {
+        $(document).ready(function () {
             $("#product").autocomplete({
-                source: function(request, response) {
+                source: function (request, response) {
                     const term = request.term.toLowerCase();
-                    const matches = productList.filter(product => 
+                    const matches = productList.filter(product =>
                         product.toLowerCase().includes(term)
                     );
                     response(matches);
@@ -2325,7 +2391,7 @@ if (!isset($_SESSION['full_name'])) {
         function refreshImagePreviews() {
             const container = document.getElementById('imagePreviews');
             container.innerHTML = '';
-            
+
             selectedImageFiles.forEach((file, index) => {
                 const reader = new FileReader();
                 reader.onload = () => createImagePreview(reader.result, index);
@@ -2336,40 +2402,40 @@ if (!isset($_SESSION['full_name'])) {
         function refreshVideoPreviews() {
             const container = document.getElementById('videoPreviews');
             container.innerHTML = '';
-            
+
             selectedVideoFiles.forEach((file, index) => {
                 createVideoPreview(URL.createObjectURL(file), index);
             });
         }
 
         // Add form submission handler
-        document.querySelector('form').addEventListener('submit', function(e) {
+        document.querySelector('form').addEventListener('submit', function (e) {
             // Create new FormData from the form
             const formData = new FormData(this);
-            
+
             // Clear existing files and add our selected files
             formData.delete('uploadImages[]');
             formData.delete('uploadVideos[]');
-            
+
             selectedImageFiles.forEach(file => {
                 formData.append('uploadImages[]', file);
             });
-            
+
             selectedVideoFiles.forEach(file => {
                 formData.append('uploadVideos[]', file);
             });
-            
+
             // Update the form data before submission
             // Note: This approach doesn't require DataTransfer API
         });
 
         // Check for any success/error messages in the session
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             <?php if (isset($_SESSION['success_message'])): ?>
                 showNotification('<?= htmlspecialchars($_SESSION['success_message']) ?>', 'success');
                 <?php unset($_SESSION['success_message']); ?>
             <?php endif; ?>
-            
+
             <?php if (isset($_SESSION['error_message'])): ?>
                 showNotification('<?= htmlspecialchars($_SESSION['error_message']) ?>', 'danger');
                 <?php unset($_SESSION['error_message']); ?>
@@ -2385,9 +2451,9 @@ if (!isset($_SESSION['full_name'])) {
                 ${message}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             `;
-            
+
             document.body.appendChild(notification);
-            
+
             // Auto-dismiss after 5 seconds
             setTimeout(() => {
                 notification.classList.remove('show');
@@ -2406,7 +2472,7 @@ if (!isset($_SESSION['full_name'])) {
                 const value = min + Math.random() * (max - min);
                 return value.toFixed(decimals);
             };
-            
+
             // Sample realistic values for different field types
             const productNames = ['Plastic Container', 'Bottle Cap', 'Phone Case', 'Water Bottle', 'Food Container', 'Toy Box'];
             const colors = ['Clear', 'Black', 'Blue', 'Red', 'White', 'Gray', 'Green', 'Yellow'];
@@ -2419,24 +2485,24 @@ if (!isset($_SESSION['full_name'])) {
             const heatingMedia = ['Hot Oil', 'Electrical', 'Steam'];
             const moldCodes = ['MC101', 'MC202', 'MC303', 'MC404', 'MC505'];
             const adjusterNames = ['John Smith', 'Jane Doe', 'Mike Johnson', 'Sarah Williams', 'Robert Brown'];
-            
+
             // First, set the step attribute for number inputs to allow decimals
             document.querySelectorAll('input[type="number"]').forEach(input => {
                 if (!input.hasAttribute('step') || input.getAttribute('step') === '1') {
                     input.setAttribute('step', '0.01');
                 }
             });
-            
+
             // Populate fields based on their ID or name
             document.querySelectorAll('input, select, textarea').forEach(field => {
                 // Skip the date and time inputs so they keep the real-time values
                 if (field.id === 'currentDate' || field.id === 'currentTime') {
                     return;
                 }
-                
+
                 const fieldId = field.id.toLowerCase();
                 const fieldName = field.name.toLowerCase();
-                
+
                 // Handle different field types
                 if (field.type === 'select-one') {
                     // For select elements, choose a random option
@@ -2445,7 +2511,7 @@ if (!isset($_SESSION['full_name'])) {
                     }
                     return;
                 }
-                
+
                 // For specific field types
                 if (fieldName.includes('machine') || fieldId.includes('machine')) {
                     field.value = machines[randomInt(0, machines.length - 1)];
@@ -2514,9 +2580,9 @@ if (!isset($_SESSION['full_name'])) {
                     // Time values (seconds) - more realistic ranges with decimals
                     field.value = randomDecimal(0.5, 30, 1);
                 }
-                else if (fieldName.includes('temperature') || fieldName.includes('temp') || 
-                        fieldId.includes('temperature') || fieldId.includes('temp') || 
-                        fieldName.includes('zone') || fieldId.includes('zone')) {
+                else if (fieldName.includes('temperature') || fieldName.includes('temp') ||
+                    fieldId.includes('temperature') || fieldId.includes('temp') ||
+                    fieldName.includes('zone') || fieldId.includes('zone')) {
                     // Temperature values with decimals
                     field.value = randomDecimal(30, 250, 1);
                 }
@@ -2570,186 +2636,189 @@ if (!isset($_SESSION['full_name'])) {
         // Function to update date and time fields with real-time values
         function updateDateTime() {
             const now = new Date();
-            
+
             // Format date as YYYY-MM-DD for the date input
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const day = String(now.getDate()).padStart(2, '0');
             const formattedDate = `${year}-${month}-${day}`;
-            
+
             // Format time as HH:MM (without seconds)
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const formattedTime = `${hours}:${minutes}`;
-            
+
             // Update input values
             document.getElementById('currentDate').value = formattedDate;
             document.getElementById('currentTime').value = formattedTime;
         }
-        
+
         // Update date and time immediately when page loads
         updateDateTime();
-        
+
         // Update date and time every minute
         setInterval(updateDateTime, 60000);
     </script>
 
     <script>
-    // Add form validation
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('form');
-        const requiredFields = form.querySelectorAll('[required]');
-        
-        // Add validation styles
-        requiredFields.forEach(field => {
-            field.classList.add('required-field');
-            const label = field.previousElementSibling;
-            if (label) {
-                label.innerHTML += ' <span class="text-danger">*</span>';
-            }
-        });
+        // Add form validation
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.querySelector('form');
+            const requiredFields = form.querySelectorAll('[required]');
 
-        // Add input validation
-        form.addEventListener('submit', function(e) {
-            let isValid = true;
+            // Add validation styles
             requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    isValid = false;
-                    field.classList.add('is-invalid');
-                } else {
-                    field.classList.remove('is-invalid');
+                field.classList.add('required-field');
+                const label = field.previousElementSibling;
+                if (label) {
+                    label.innerHTML += ' <span class="text-danger">*</span>';
                 }
             });
 
-            if (!isValid) {
-                e.preventDefault();
-                showNotification('Please fill in all required fields', 'danger');
-            }
-        });
+            // Add input validation
+            form.addEventListener('submit', function (e) {
+                let isValid = true;
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.classList.add('is-invalid');
+                    } else {
+                        field.classList.remove('is-invalid');
+                    }
+                });
 
-        // Add real-time validation
-        requiredFields.forEach(field => {
-            field.addEventListener('input', function() {
-                if (this.value.trim()) {
-                    this.classList.remove('is-invalid');
-                    this.classList.add('is-valid');
-                } else {
-                    this.classList.remove('is-valid');
+                if (!isValid) {
+                    e.preventDefault();
+                    showNotification('Please fill in all required fields', 'danger');
                 }
             });
-        });
 
-        // Add number input validation
-        const numberInputs = form.querySelectorAll('input[type="number"]');
-        numberInputs.forEach(input => {
-            input.addEventListener('input', function() {
-                const value = parseFloat(this.value);
-                const min = parseFloat(this.min);
-                const max = parseFloat(this.max);
-                
-                if (value < min) {
-                    this.value = min;
-                } else if (value > max) {
-                    this.value = max;
-                }
-            });
-        });
-
-        // Add section collapse/expand all functionality
-        const addCollapseAllButton = () => {
-            const buttonContainer = document.createElement('div');
-            buttonContainer.className = 'mb-3';
-            buttonContainer.innerHTML = `
-                <button type="button" class="btn btn-outline-secondary me-2" id="expandAll">
-                    <i class="fas fa-expand-alt"></i> Expand All
-                </button>
-                <button type="button" class="btn btn-outline-secondary" id="collapseAll">
-                    <i class="fas fa-compress-alt"></i> Collapse All
-                </button>
-            `;
-            form.insertBefore(buttonContainer, form.firstChild);
-
-            document.getElementById('expandAll').addEventListener('click', () => {
-                document.querySelectorAll('.collapse').forEach(collapse => {
-                    bootstrap.Collapse.getInstance(collapse)?.show();
+            // Add real-time validation
+            requiredFields.forEach(field => {
+                field.addEventListener('input', function () {
+                    if (this.value.trim()) {
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                    } else {
+                        this.classList.remove('is-valid');
+                    }
                 });
             });
 
-            document.getElementById('collapseAll').addEventListener('click', () => {
-                document.querySelectorAll('.collapse').forEach(collapse => {
-                    bootstrap.Collapse.getInstance(collapse)?.hide();
+            // Add number input validation
+            const numberInputs = form.querySelectorAll('input[type="number"]');
+            numberInputs.forEach(input => {
+                input.addEventListener('input', function () {
+                    const value = parseFloat(this.value);
+                    const min = parseFloat(this.min);
+                    const max = parseFloat(this.max);
+
+                    if (value < min) {
+                        this.value = min;
+                    } else if (value > max) {
+                        this.value = max;
+                    }
                 });
             });
-        };
 
-        addCollapseAllButton();
+            // // Add section collapse/expand all functionality
+            // const addCollapseAllButton = () => {
+            //     const buttonContainer = document.createElement('div');
+            //     buttonContainer.className = 'mb-3';
+            //     buttonContainer.innerHTML = `
+            //         <button type="button" class="btn btn-outline-secondary me-2" id="expandAll">
+            //             <i class="fas fa-expand-alt"></i> Expand All
+            //         </button>
+            //         <button type="button" class="btn btn-outline-secondary" id="collapseAll">
+            //             <i class="fas fa-compress-alt"></i> Collapse All
+            //         </button>
+            //     `;
+            //     form.insertBefore(buttonContainer, form.firstChild);
 
-        // Add form progress indicator
-        const addProgressIndicator = () => {
-            const sections = document.querySelectorAll('.collapse');
-            const progressContainer = document.createElement('div');
-            progressContainer.className = 'progress mb-4';
-            progressContainer.innerHTML = `
+            //     document.getElementById('expandAll').addEventListener('click', () => {
+            //         document.querySelectorAll('.collapse').forEach(collapse => {
+            //             // Only expand if not already shown
+            //             if (!collapse.classList.contains('show')) {
+            //                 bootstrap.Collapse.getOrCreateInstance(collapse).show();
+            //             }
+            //         });
+            //     });
+
+            //     document.getElementById('collapseAll').addEventListener('click', () => {
+            //         document.querySelectorAll('.collapse.show').forEach(collapse => {
+            //             bootstrap.Collapse.getOrCreateInstance(collapse).hide();
+            //         });
+            //     });
+            // };
+
+            // addCollapseAllButton();
+
+            // Add form progress indicator
+            const addProgressIndicator = () => {
+                const sections = document.querySelectorAll('.collapse');
+                const progressContainer = document.createElement('div');
+                progressContainer.className = 'progress mb-4';
+                progressContainer.innerHTML = `
                 <div class="progress-bar" role="progressbar" style="width: 0%"></div>
             `;
-            form.insertBefore(progressContainer, form.firstChild);
+                form.insertBefore(progressContainer, form.firstChild);
 
-            const updateProgress = () => {
-                const filledFields = form.querySelectorAll('input[required]:not([value=""]), select[required]:not([value=""]), textarea[required]:not([value=""])').length;
-                const totalFields = requiredFields.length;
-                const progress = (filledFields / totalFields) * 100;
-                progressContainer.querySelector('.progress-bar').style.width = `${progress}%`;
-                progressContainer.querySelector('.progress-bar').setAttribute('aria-valuenow', progress);
+                const updateProgress = () => {
+                    const filledFields = form.querySelectorAll('input[required]:not([value=""]), select[required]:not([value=""]), textarea[required]:not([value=""])').length;
+                    const totalFields = requiredFields.length;
+                    const progress = (filledFields / totalFields) * 100;
+                    progressContainer.querySelector('.progress-bar').style.width = `${progress}%`;
+                    progressContainer.querySelector('.progress-bar').setAttribute('aria-valuenow', progress);
+                };
+
+                form.addEventListener('input', updateProgress);
+                updateProgress();
             };
 
-            form.addEventListener('input', updateProgress);
-            updateProgress();
-        };
+            addProgressIndicator();
 
-        addProgressIndicator();
+            // Add form autosave
+            const addAutosave = () => {
+                const AUTOSAVE_KEY = 'parameter_form_autosave';
 
-        // Add form autosave
-        const addAutosave = () => {
-            const AUTOSAVE_KEY = 'parameter_form_autosave';
-            
-            const saveForm = () => {
-                const formData = new FormData(form);
-                const data = {};
-                formData.forEach((value, key) => {
-                    data[key] = value;
-                });
-                localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(data));
-            };
-
-            const loadForm = () => {
-                const saved = localStorage.getItem(AUTOSAVE_KEY);
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    Object.entries(data).forEach(([key, value]) => {
-                        const field = form.querySelector(`[name="${key}"]`);
-                        if (field) {
-                            field.value = value;
-                        }
+                const saveForm = () => {
+                    const formData = new FormData(form);
+                    const data = {};
+                    formData.forEach((value, key) => {
+                        data[key] = value;
                     });
-                    updateProgress();
-                }
+                    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(data));
+                };
+
+                const loadForm = () => {
+                    const saved = localStorage.getItem(AUTOSAVE_KEY);
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        Object.entries(data).forEach(([key, value]) => {
+                            const field = form.querySelector(`[name="${key}"]`);
+                            if (field) {
+                                field.value = value;
+                            }
+                        });
+                        updateProgress();
+                    }
+                };
+
+                form.addEventListener('input', saveForm);
+                loadForm();
+
+                // Clear autosave on successful submission
+                form.addEventListener('submit', () => {
+                    localStorage.removeItem(AUTOSAVE_KEY);
+                });
             };
 
-            form.addEventListener('input', saveForm);
-            loadForm();
+            addAutosave();
+        });
 
-            // Clear autosave on successful submission
-            form.addEventListener('submit', () => {
-                localStorage.removeItem(AUTOSAVE_KEY);
-            });
-        };
-
-        addAutosave();
-    });
-
-    // Add styles
-    const style = document.createElement('style');
-    style.textContent = `
+        // Add styles
+        const style = document.createElement('style');
+        style.textContent = `
         .required-field {
             border-left: 3px solid #dc3545;
         }
@@ -2811,22 +2880,53 @@ if (!isset($_SESSION['full_name'])) {
             display: none;
         }
     `;
-    document.head.appendChild(style);
+        document.head.appendChild(style);
     </script>
 
     <script>
-    // ... existing code ...
-    // Barrel heater validation
-    $(document).ready(function() {
-        $('form').on('submit', function(e) {
-            if (!$('#barrelHeaterZone0').val() || !$('#barrelHeaterZone1').val() || !$('#barrelHeaterZone2').val()) {
-                showNotification('At least 3 Barrel Heater Zones are required.', 'danger');
-                e.preventDefault();
-            }
+        // Barrel heater validation
+        $(document).ready(function () {
+            $('form').on('submit', function (e) {
+                if (!$('#barrelHeaterZone0').val() || !$('#barrelHeaterZone1').val() || !$('#barrelHeaterZone2').val()) {
+                    showNotification('At least 3 Barrel Heater Zones are required.', 'danger');
+                    e.preventDefault();
+                }
+            });
         });
-    });
-    // ... existing code ...
     </script>
+
+    <script>
+        $(document).ready(function () {
+            // Only expand/collapse the collapsible sections inside the form
+            $('#expandAll').on('click', function () {
+                $('form .collapse').collapse('show');
+            });
+
+            $('#collapseAll').on('click', function () {
+                $('form .collapse').collapse('hide');
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            <?php if (!empty($clonedData)): ?>
+                const clonedData = <?= json_encode($clonedData) ?>;
+                for (const field in clonedData) {
+                    const value = clonedData[field];
+                    const input = document.querySelector(`[name="${field}"]`);
+                    if (input) {
+                        if (input.type === "checkbox") {
+                            input.checked = !!value;
+                        } else {
+                            input.value = value;
+                        }
+                    }
+                }
+            <?php endif; ?>
+        });
+    </script>
+
 </body>
 
 </html>

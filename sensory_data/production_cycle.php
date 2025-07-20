@@ -6,395 +6,200 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Get $machine from URL (GET parameter)
+$machine = isset($_GET['machine']) ? $_GET['machine'] : null;
+
 $sql = "SELECT * FROM production_cycle ORDER BY timestamp DESC";
 $result = $conn->query($sql);
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Production Cycle</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+    <meta charset="UTF-8">
+    <title>Production Cycle | TS - Sensory Data </title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="images/logo-2.png">
 
-        body {
-            background: linear-gradient(to bottom, #1a1a1a, #1a1a1a, #1a1a1a, #1a1a1a, #1a1a1a, #1a1a1a, #1a1a1a,rgb(27, 37, 23));
-            background-attachment: fixed;
-            font-family: 'Montserrat', sans-serif;
-            text-align: center;
-            margin: 54px;
-            color: white;
-        }
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+    <link href='https://cdn.boxicons.com/fonts/basic/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-        .logo {
-            height: 80px;
-        }
-
-        /* Nav Bar */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color:rgb(16, 16, 16);
-            padding: 10px 54px;
-            box-shadow: 0 0 48px #417630;
-            margin: -54px -54px 0px -54px;
-        }
-
-        .navbar .logo {
-            height: 50px;
-        }
-
-        .navbar ul {
-            list-style: none;
-            display: flex;
-            padding: 0;
-        }
-
-        .navbar ul li {
-            margin: 0 15px;
-        }
-
-        .navbar ul li a {
-            text-decoration: none;
-            color: white;
-            font-size: 18px;
-        }
-
-        .navbar ul li a:hover {
-            color: #f4a261;
-        }
-        /* Nav Bar */
-
-        .section {
-            overflow-x: hidden;
-            background-color:rgb(16, 16, 16);
-            padding: 32px;
-            border-radius: 10px;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
-            margin: 20px 0px;
-        }
-
-        .content-header {
-            margin: 0 0 24px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Production Parameters */
-        .status-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            animation: pulse 1.5s infinite;
-        }
-
-        .inactive { background-color: red; }
-        .active { background-color: green; }
-
-        .inactive-border {border-left: 10px solid; border-left-color: red;}
-        .active-border {border-left: 10px solid; border-left-color: green;}
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.3); opacity: 0.6; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .card-container {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .card {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            background-color: #1a1a1a;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
-            width: -webkit-fill-available;
-            text-align: center;
-            position: relative;
-        }
-
-        .temperature1-card {
-            border-left: 10px solid;
-            border-left-color: #FFB347; /* Matches the orange graph */
-        }
-
-        .temperature2-card {
-            border-left: 10px solid;
-            border-left-color: #FF6347; /* Matches the red graph */
-        }
-        
-        .product-card {
-            border-left: 10px solid;
-            border-left-color: #417630; /* Matches the green graph */
-        }
-
-        h2 {
-            margin: 0;
-        }
-
-        .chart-container {
-            width: 120px;  /* Set fixed width for proper alignment */
-            height: 120px; /* Ensures circular charts don't get squished */
-            margin: 10px auto; /* Centers the chart */
-            position: relative;
-        }
-        
-        canvas {
-            display: block;
-            width: 100% !important;
-            height: 100% !important;
-        }
-        /* Production Parameters */
-
-        /* Table */
-        .table-controls {
-            margin-left: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .btn-download {
-            display: inline-block;
-            margin-top: 24px;
-            padding: 10px 20px;
-            background-color: #417630;
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            border-radius: 5px;
-        }
-
-        .btn-download:hover {
-            background-color: #365b25;
-        }
-
-        .styled-table {
-            margin: 0;
-            border-collapse: collapse;
-            font-size: 0.9em;
-            width: -webkit-fill-available;
-            background-color: #1a1a1a;
-            color: white;
-            border-radius: 5px;
-            overflow: hidden;
-            box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .styled-table thead tr {
-            background-color: #417630;
-            color: #ffffff;
-            text-align: center;
-        }
-
-        .styled-table th, .styled-table td {
-            padding: 12px 15px;
-            text-align: center;
-        }
-
-        .styled-table tbody tr {
-            border-bottom: 1px solid #444;
-        }
-
-        .styled-table tbody tr:nth-of-type(even) {
-            background-color: #333;
-        }
-
-        .styled-table tbody tr:last-of-type {
-            border-bottom: 2px solid #417630;
-        }
-
-        .styled-table tbody tr.active-row {
-            font-weight: bold;
-            color: #009879;
-        }
-
-        #show-entries, #filter-month {
-            padding: 8px;
-            background-color: #222;
-            color: white;
-            border: 1px solid #417630;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        /* Table */
-
-        label {
-            color: white;
-            font-size: 16px;
-            margin-right: 5px;
-        }
-    </style>
-</head>
-<div>
+    <link rel="stylesheet" href="css/webpage_defaults.css">
+    <link rel="stylesheet" href="css/production_cycle.css">
+    <link rel="stylesheet" href="css/table.css">
     
-    <!-- Nav Bar -->
-        <div class="navbar">
-            <img src="/sensory_data/pics/logo 1.png" alt="logo" class="logo">
-            <ul>
-                <li><a href="#">Production Cycle</a></li>
-                <li><a href="weight_data.php">Weight Data</a></li>
-                <li class="dropdown">
-                    <a href="realtime_parameters.php">Real-time Parameters</a>
-                    <div class="dropdown-content">
-                        <ul>
-                            <li><a href="motor_temperatures.php">Motor Temperatures</a></li>
-                            <li><a href="water_flow.php">Water Flow</a></li>
-                            <li><a href="air_flow.php">Air Flow</a></li>
-                        </ul>
-                    </div>
-                </li>
-            </ul>
+</head>
+<body>
+    <script src="script/navbar-sidebar.js"></script>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <!-- Sidebar Toggle (Logo) -->
+        <div id="sidebarToggle">
+            <i class="fa fa-bars" style="color: #417630; font-size: 2rem; cursor: pointer;"></i> 
+            <a href="#"><img src="images/logo-1.png" style="height: 36px"></a>
         </div>
+        
 
-        <style>
-            .navbar ul {
-                list-style-type: none;
-            }
+        <!-- Right Icon with Logout Dropdown -->
+        <div class="navbar-right" style="position: relative;">
+            <i class="fa fa-user-circle" style="font-size: 2rem; color:#417630; cursor:pointer;" id="userIcon"></i>
+            <div id="userDropdown">
+                <a href="#">Settings</a>
+                <a href="#">Logout</a>
+            </div>
+        </div>
+    </div>
 
-            .navbar ul li {
-                display: inline-block;
-                position: relative;
-            }
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="tabs">
+            <p>CORE</p>
+            <div class="sidebar-link-group">
+                <a href="dashboard.php" class="sidebar-link"><i class='bx  bx-dashboard-alt'></i> Dashboard</a>
+            </div>
+            <p>SYSTEMS</p>
+            <div class="sidebar-link-group">
+                <a href="#" class="sidebar-link sidebar-active">
+                    <i class='bx  bx-timer'></i> Production Cycle
+                    <span class="fa fa-caret-down" style="margin-left:8px;"></span>
+                </a>
+                <div class="sidebar-submenu">
+                    <a href="production_cycle.php?machine=CLF750A" onclick="setMachineSession('CLF750A')">CLF 750A</a>
+                    <a href="production_cycle.php?machine=CLF750B" onclick="setMachineSession('CLF750B')">CLF 750B</a>
+                    <a href="production_cycle.php?machine=CLF750C" onclick="setMachineSession('CLF750C')">CLF 750C</a>
+                </div>
+            </div>
+            <div class="sidebar-link-group">
+                <a href="#" class="sidebar-link">
+                    <i class='bx  bx-chart-network'></i>  Real-time Parameters
+                    <span class="fa fa-caret-down" style="margin-left:8px;"></span>
+                </a>
+                <div class="sidebar-submenu" style="display:none;">
+                    <a href="motor_temperatures.php">Motor Temperatures</a>
+                    <a href="#">Coolant Flow Rates</a>
+                </div>
+            </div>
+            <div class="sidebar-link-group">
+                <a href="#" class="sidebar-link">
+                    <i class='bx  bx-dumbbell'></i> Weight Data
+                    <span class="fa fa-caret-down" style="margin-left:8px;"></span>
+                </a>
+                <div class="sidebar-submenu" style="display:none;">
+                    <a href="weights.php">Gross/Net Weights</a>
+                </div>
+            </div>
+        </div>
+        <div id="sidebar-footer" class="sidebar-footer">
+            <span style="font-size: 0.75rem; color: #646464">Logged in as:</span>
+            <span>User123</span>
+        </div>
+    </div>
 
-            .dropdown {
-                position: relative;
-                display: inline-block;
-                cursor: pointer;
-            }
+    <!-- Main -->
+    <div class="main-content">
 
-            .dropdown-content {
-                position: absolute;
-                background-color: rgb(16, 16, 16);
-                min-width: 180px;
-                box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-                z-index: 1;
-                opacity: 0;
-                transform: translateY(-10px);
-                visibility: hidden;
-                transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
-            }
-
-            .dropdown-content li {
-                padding: 12px 0px;
-            }
-
-            .dropdown-content ul {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-                flex-direction: column;
-            }
-
-            .dropdown:hover .dropdown-content {
-                opacity: 1;
-                transform: translateY(0);
-                visibility: visible;
-            }
-        </style>
-    <!-- Nav Bar -->
-
-    <h1 style="text-align: left; color:rgb(78, 187, 42);">PRODUCTION CYCLE</h1>
-
-    <!-- Production Parameters -->
+        <div class="header">
+            <div class="header-left">
+                <h3>Production Cycle</h3>
+                <span>Technical Service Department - Sensory Data</span>
+            </div>
+            <div class="header-right">
+                <h2><?php echo htmlspecialchars($machine ? $machine : 'No Machine Selected'); ?></h2>
+            </div>
+        </div>
+        
+        <!-- Production Status -->
         <div class="section">
             <div class="content-header">
-                <h2>Production Parameters</h2>
+                <h2 style="margin: 0;">Production Status</h2>
             </div>
 
+            <?php
+            // Fetch the latest row from the database for the cards
+            $machine_safe = preg_replace('/[^a-z0-9_]/', '', strtolower($machine));
+            $latest = [
+                'cycle_status' => 0,
+                'tempC_01' => 0,
+                'tempC_02' => 0,
+                'product' => 'N/A'
+            ];
+            if ($machine_safe) {
+                $latest_sql = "SELECT * FROM production_cycle_" . $machine_safe . " ORDER BY timestamp DESC LIMIT 1";
+                $latest_result = $conn->query($latest_sql);
+                if ($latest_result && $latest_result->num_rows > 0) {
+                    $row = $latest_result->fetch_assoc();
+                    $latest = array_merge($latest, $row);
+                }
+            }
+            ?>
+
+            <!-- Production Cards -->
             <div class="card-container">
-                <!-- Machine Status -->
-                <div id="status-card" class="card status-card">
+                <!-- Status Card -->
+                <div id="status-card" class="card machine-card <?php echo ($latest['cycle_status'] == 1) ? 'active-border' : 'inactive-border'; ?>">
                     <div class="status-container">
-                        <div id="status-indicator" class="status-indicator inactive"></div>
-                        <h2 id="machine-status">Mold Closed</h2>
+                        <div id="status-indicator" class="status-indicator <?php echo ($latest['cycle_status'] == 1) ? 'active' : 'inactive'; ?>"></div>
+                        <h2 id="machine-status"><?php echo ($latest['cycle_status'] == 1) ? 'Mold Closed' : 'Mold Open'; ?></h2>
                     </div>
-                    <p>Injection Status</p>
+                    <p style="font-size: 0.75rem">Injection Status</p>
                 </div>
 
-                <!-- Temperature 1 -->
+                <!-- Temperature 1 Card -->
                 <div class="card temperature1-card">
-                    <h2 id="temp1-value">25°C</h2>
-                    <p>Temperature 1</p>
+                    <h2 id="temp1-value"><?php echo htmlspecialchars($latest['tempC_01']); ?>°C</h2>
+                    <p style="font-size: 0.75rem">Motor Temperature 1</p>
                     <div class="chart-container">
                         <canvas id="chartTemp1"></canvas>
                     </div>
                 </div>
-                
-                <!-- Temperature 2 -->
+
+                <!-- Temperature 2 Card -->
                 <div class="card temperature2-card">
-                    <h2 id="temp2-value">30°C</h2>
-                    <p>Temperature 2</p>
+                    <h2 id="temp2-value"><?php echo htmlspecialchars($latest['tempC_02']); ?>°C</h2>
+                    <p style="font-size: 0.75rem">Motor Temperature 2</p>
                     <div class="chart-container">
                         <canvas id="chartTemp2"></canvas>
                     </div>
                 </div>
-                
-                <!-- Product -->
-                <div id="status-card" class="card product-card">
-                    <div class="status-container">
-                        <h2 id="product-status">Pepsi</h2>
-                    </div>
-                    <p>Product</p>
+
+                <!-- Product Card -->
+                <div class="card product-card">
+                    <h2 id="product-status"><?php echo htmlspecialchars($latest['product']); ?></h2>
+                    <p style="font-size: 0.75rem">Current Product</p>
                 </div>
             </div>
-        
+
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
             <script>
-                let temp1Chart, temp2Chart, pressureChart;
+                let temp1Chart, temp2Chart;
 
-                function updateCharts(temp1, temp2, pressure) {
+                function updateCharts(temp1, temp2) {
                     temp1Chart.data.datasets[0].data = [temp1, 100 - temp1];
                     temp2Chart.data.datasets[0].data = [temp2, 100 - temp2];
-
                     temp1Chart.update();
                     temp2Chart.update();
                 }
 
                 function fetchData() {
-                    $.ajax({
-                        url: "fetch/fetch_latest_data.php", // Replace with your actual PHP script
-                        method: "GET",
-                        dataType: "json",
-                        success: function (data) {
-                            // Update Values
-                            $("#temp1-value").text(data.tempC_01 + "°C");
-                            $("#temp2-value").text(data.tempC_02 + "°C");
+                    fetch("fetch/fetch_production_status.php?machine=<?php echo urlencode($machine); ?>")
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById("temp1-value").textContent = data.tempC_01 + "°C";
+                            document.getElementById("temp2-value").textContent = data.tempC_02 + "°C";
+                            document.getElementById("product-status").textContent = data.product;
 
-                            // Update Charts
+                            // Update status
+                            document.getElementById("machine-status").textContent = data.cycle_status == 1 ? "Mold Closed" : "Mold Open";
+                            document.getElementById("status-indicator").className = "status-indicator " + (data.cycle_status == 1 ? "active" : "inactive");
+                            document.getElementById("status-card").className = "card machine-card " + (data.cycle_status == 1 ? "active-border" : "inactive-border");
+
+                            // Update charts
                             updateCharts(data.tempC_01, data.tempC_02);
-
-                            // Update Injection Status
-                            if (data.cycle_status == 1) {
-                                $("#machine-status").text("Mold Closed");
-                                $("#status-indicator").removeClass("inactive").addClass("active");
-                                $("#status-card").removeClass("inactive-border").addClass("active-border");
-                                $("#product-status").text(data.product);
-                            } else {
-                                $("#machine-status").text("Mold Open");
-                                $("#status-indicator").removeClass("active").addClass("inactive");
-                                $("#status-card").removeClass("active-border").addClass("inactive-border");
-                                $("#product-status").text(data.product);
-                            }
-                        }
-                    });
+                        });
                 }
 
                 document.addEventListener("DOMContentLoaded", function () {
@@ -420,142 +225,105 @@ $result = $conn->query($sql);
                         });
                     }
 
-                    // Initialize Charts
-                    temp1Chart = createChart(document.getElementById("chartTemp1"), 25, 100, "#FFB347");
-                    temp2Chart = createChart(document.getElementById("chartTemp2"), 30, 100, "#FF6347");
+                    // Initialize Charts with PHP values
+                    temp1Chart = createChart(document.getElementById("chartTemp1"), <?php echo (int)$latest['tempC_01']; ?>, 100, "#FFB347");
+                    temp2Chart = createChart(document.getElementById("chartTemp2"), <?php echo (int)$latest['tempC_02']; ?>, 100, "#FF6347");
 
-                    // Fetch Data Every 8 Seconds
-                    fetchData(); // Initial Fetch
+                    // Fetch Data Every 1 Second
                     setInterval(fetchData, 1000);
                 });
             </script>
         </div>
-    <!-- Production Parameters -->
 
-    <!-- Table -->
+        <!-- Status History -->
         <div class="section">
             <div class="content-header">
-                <h2>Cycle History</h2>
+                <h2>Status History</h2>
 
-                <div class="table-controls">
-                    <div class="table-controls">
-                        <div class="by_number">
-                            <label for="show-entries">Show</label>
-                            <select id="show-entries" onchange="updateTableDisplay()">
-                                <option value="5">5</option>
-                                <option value="10" selected>10</option>
-                                <option value="20">20</option>
-                                <option value="50">50</option>
-                            </select>
-                        </div>
-                        
-                        <div style="margin-left: 20px;" class="by_month">
-                            <label for="show-entries">Filter by month</label>
-                            <select id="filter-month" onchange="updateTableDisplay()">
-                                <option value="1">January</option>
-                                <option value="2">February</option>
-                                <option value="3">March</option>
-                                <option value="4">April</option>
-                                <option value="5">May</option>
-                                <option value="6">June</option>
-                                <option value="7">July</option>
-                                <option value="8">August</option>
-                                <option value="9">September</option>
-                                <option value="10">October</option>
-                                <option value="11">November</option>
-                                <option value="12">December</option>
-                            </select>
-                        </div>
+                <div class="section-controls">
+                    <div class="by_number">
+                        <label for="show-entries">Show</label>
+                        <select id="show-entries">
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                    <div class="by_month">
+                        <label for="filter-month">Filter by month</label>
+                        <select id="filter-month">
+                            <option value="0">All</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
                     </div>
                 </div>
             </div>
 
+            <div class="table-responsive">
+                <table class="styled-table" id="sensorTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cycle Time (seconds)</th>
+                            <th>Recycle Time (seconds)</th>
+                            <th>Motor Temperature 1 (°C)</th>
+                            <th>Motor Temperature 2 (°C)</th>
+                            <th>Product</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Table rows will be loaded here via AJAX -->
+                    </tbody>
+                </table>
+            </div>
+
             <script>
-                function updateTableDisplay() {
-                    let rows = document.querySelectorAll("#sensorTable tbody tr");
-                    let showCount = parseInt(document.getElementById("show-entries").value);
-                    let selectedMonth = parseInt(document.getElementById("filter-month").value); // Get selected month
-                    let currentYear = new Date().getFullYear(); // Get current year
+                // Pass PHP $machine_safe to JS
+                const machineSafe = "<?php echo $machine_safe; ?>";
 
-                    let visibleRows = 0;
-                    rows.forEach(row => {
-                        let timestampCell = row.cells[row.cells.length - 1].innerText; // Get timestamp
-                        let rowDate = new Date(timestampCell);
-                        let rowMonth = rowDate.getMonth() + 1; // JS months are 0-based
-                        let rowYear = rowDate.getFullYear();
-
-                        // Show only if the row is in the selected month & year
-                        if (rowMonth === selectedMonth && rowYear === currentYear) {
-                            row.style.display = visibleRows < showCount ? "" : "none";
-                            visibleRows++;
-                        } else {
-                            row.style.display = "none";
-                        }
-                    });
+                function fetchTableData() {
+                    const showEntries = document.getElementById('show-entries').value;
+                    const filterMonth = document.getElementById('filter-month').value;
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('GET', `fetch/fetch_production_cycle_table.php?machine=${encodeURIComponent(machineSafe)}&show=${showEntries}&month=${filterMonth}`, true);
+                    xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        document.getElementById('table-body').innerHTML = xhr.responseText;
+                    }
+                    };
+                    xhr.send();
                 }
 
-                // Automatically set the filter-month dropdown to the current month
+                // Update table when controls change
+                document.getElementById('show-entries').addEventListener('change', fetchTableData);
+                document.getElementById('filter-month').addEventListener('change', fetchTableData);
+
+                // Set default month to current month
                 document.addEventListener("DOMContentLoaded", function () {
-                    let currentMonth = new Date().getMonth() + 1; // Get current month (1-based)
+                    let currentMonth = new Date().getMonth() + 1;
                     document.getElementById("filter-month").value = currentMonth;
-                    updateTableDisplay();
+                    fetchTableData();
                 });
-                // Initial setup
-                document.addEventListener("DOMContentLoaded", updateTableDisplay);
             </script>
-
-            <table id="sensorTable" class="styled-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Cycle Time (seconds)</th>
-                        <th>Recycle Time (seconds)</th>
-                        <th>Temperature_01 (°C)</th>
-                        <th>Temperature_02 (°C)</th>
-                        <th>Machine</th>
-                        <th>Product</th>
-                        <th>Timestamp</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $conn = new mysqli("localhost", "root", "injectionadmin123", "sensory_data");
-                    if ($conn->connect_error) {
-                        die("Connection failed: " . $conn->connect_error);
-                    }
-                    $sql = "SELECT * FROM production_cycle ORDER BY timestamp DESC";
-                    $result = $conn->query($sql);
-
-                    // Flag to track if we're at the first (latest) entry
-                    $isFirstRow = true;
-
-                    while ($row = $result->fetch_assoc()) {
-                        // Skip the first (latest) row if both cycle_time and recycle_time are 0
-                        if ($isFirstRow && $row['cycle_time'] == 0 && $row['recycle_time'] == 0) {
-                            $isFirstRow = false;
-                            continue;
-                        }
-                        $isFirstRow = false;
-                        ?>
-                        <tr>
-                            <td><?php echo $row['id']; ?></td>
-                            <td><?php echo $row['cycle_time']; ?></td>
-                            <td><?php echo $row['recycle_time']; ?></td>
-                            <td><?php echo $row['tempC_01']; ?></td>
-                            <td><?php echo $row['tempC_02']; ?></td>
-                            <td><?php echo $row['machine']; ?></td>
-                            <td><?php echo $row['product']; ?></td>
-                            <td><?php echo $row['timestamp']; ?></td>
-                        </tr>
-                    <?php }
-                    $conn->close(); ?>
-                </tbody>
-            </table>
-                    
-            <a href="generate_pdf.php?table=production_cycle" class="btn-download">Download PDF</a>
-            <a href="generate_excel.php?table=production_cycle" class="btn-download" style="margin-left: 20px;">Download Excel</a>
+            
+            <div class="table-download">
+                <a href="#" class="btn-download">Download PDF</a>
+                <a href="#" class="btn-download">Download Excel</a>
+            </div>
         </div>
-    <!-- Table -->
-
+    </div>
 </body>
 </html>

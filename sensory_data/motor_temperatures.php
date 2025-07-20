@@ -5,506 +5,287 @@ $conn = new mysqli("localhost", "root", "injectionadmin123", "sensory_data");
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-
-$sql = "SELECT * FROM realtime_parameters ORDER BY timestamp DESC";
-$result = $conn->query($sql);
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Real-time Parameters | Motor Temperatures</title>
+    <meta charset="UTF-8">
+    <title>Motor Temperatures | TS - Sensory Data</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="images/logo-2.png">
+
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+    <link href='https://cdn.boxicons.com/fonts/basic/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link rel="stylesheet" href="css/webpage_defaults.css">
+    <link rel="stylesheet" href="css/motor_temperatures.css">
+    <link rel="stylesheet" href="css/table.css">
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
-
-        body {
-            background: linear-gradient(to bottom, #1a1a1a, #1a1a1a, #1a1a1a, #1a1a1a, #1a1a1a, #1a1a1a, #1a1a1a, #304728);
-            background-attachment: fixed;
-            font-family: 'Montserrat', sans-serif;
-            text-align: center;
-            margin: 54px;
-            color: white;
-        }
-
-        .logo {
-            height: 80px;
-        }
-
-        /* Nav Bar*/
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color:rgb(16, 16, 16);
-            padding: 10px 54px;
-            box-shadow: 0 0 48px #417630;
-            margin: -54px -54px 0px -54px;
-        }
-
-        .navbar .logo {
-            height: 50px;
-        }
-
-        .navbar ul {
-            list-style: none;
-            display: flex;
-            padding: 0;
-        }
-
-        .navbar ul li {
-            margin: 0 15px;
-        }
-        
-        .navbar ul li a {
-            text-decoration: none;
-            color: white;
-            font-size: 18px;
-        }
-
-        .navbar ul li a:hover {
-            color: #f4a261;
-        }
-        /* Cards */
-
-        .content-header {
-            margin: 0 0 24px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .section {
-            overflow-x: hidden;
-            background-color:rgb(16, 16, 16);
-            padding: 32px;
-            border-radius: 10px;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
-            margin: 20px 0px;
-        }
-        
-        .btn-download {
-            display: inline-block;
-            margin-top: 24px;
-            padding: 10px 20px;
-            background-color: #417630;
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            border-radius: 5px;
-        }
-
-        h2 {
-            margin: 0px;
-        }
-
-        .container {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .content {
-            width: 50%;
-        }
-
-        /* Real-time Parameters */
-        .card-container {
-            display: flex;
-            gap: 20px;
-        }
-
-        .card {
-            width: -webkit-fill-available;
-            background-color: #1a1a1a;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
-            text-align: center;
-        }
-
-        .temperature1-card {
-            border-left: 10px solid;
-            border-left-color: #FFB347;
-        }
-
-        .temperature2-card {
-            border-left: 10px solid;
-            border-left-color: #FF6347;
-        }
-
-        .chart-container {
-            width: 100%;
-            height: 50px;
-        }
-
-        canvas {
-            width: 100% !important;
-            height: 50px !important;
-        }
-        /* Real-time Parameters */
-
-        .btn {
-            cursor: pointer;
-            border: none;
-            font-family: inherit;
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #417630;
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            border-radius: 5px;
-        }
-
-        .btn:hover {
-            background-color: #365b25;
-        }
-
-        /* Table */
-        .styled-table {
-            margin-top: 0px;
-            width: -webkit-fill-available;
-            border-collapse: collapse;
-            font-size: 0.9em;
-            font-family: 'Montserrat', sans-serif;
-            min-width: 400px;
-            background-color: #1a1a1a;
-            color: white;
-            border-radius: 5px;
-            overflow: hidden;
-            box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .styled-table thead tr {
-            background-color: #417630;
-            color: white;
-            text-align: center;
-        }
-
-        .styled-table th, .styled-table td {
-            padding: 12px 15px;
-            text-align: center;
-        }
-
-        .styled-table tbody tr {
-            border-bottom: 1px solid #444;
-        }
-
-        .styled-table tbody tr:nth-of-type(even) {
-            background-color: #333;
-        }
-
-        .styled-table tbody tr:last-of-type {
-            border-bottom: 2px solid #417630;
-        }
-
-        .styled-table tbody tr.active-row {
-            font-weight: bold;
-            color: #009879;
-        }
-
-        #show-entries, #filter-month, #month-select {
-            cursor: pointer;
-            padding: 11px;
-            background-color: #222;
-            color: white;
-            border: 1px solid #417630;
-            border-radius: 5px;
-            font-size: 14px;
-            height: fit-content;
-        }
-
-        #month-select {
-            margin: 0px 20px;
-        }
-
-        label {
-            color: white;
-            font-size: 16px;
-            margin-right: 5px;
-        }
-        
-        .table-controls {
-            margin-left: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        /* Table */
-    </style>
 </head>
 <body>
-    <!-- Nav Bar -->
-        <div class="navbar">
-            <img src="/sensory_data/pics/logo 1.png" alt="logo" class="logo">
-            <ul>
-                <li><a href="production_cycle.php">Production Cycle</a></li>
-                <li class="dropdown">
-                    <a href="realtime_parameters.php">Real-time Parameters</a>
-                    <div class="dropdown-content">
-                        <ul>
-                            <li><a href="#">Motor Temperatures</a></li>
-                            <li><a href="water_flow.php">Water Flow</a></li>
-                            <li><a href="air_flow.php">Air Flow</a></li>
-                        </ul>
-                    </div>
-                </li>
-            </ul>
+    <script src="script/navbar-sidebar.js"></script>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <!-- Sidebar Toggle (Logo) -->
+        <div id="sidebarToggle">
+            <i class="fa fa-bars" style="color: #417630; font-size: 2rem; cursor: pointer;"></i> 
+            <a href="#"><img src="images/logo-1.png" style="height: 36px"></a>
         </div>
+        
 
-        <style>
-            .navbar ul {
-                list-style-type: none;
-            }
+        <!-- Right Icon with Logout Dropdown -->
+        <div class="navbar-right" style="position: relative;">
+            <i class="fa fa-user-circle" style="font-size: 2rem; color:#417630; cursor:pointer;" id="userIcon"></i>
+            <div id="userDropdown">
+                <a href="#">Settings</a>
+                <a href="#">Logout</a>
+            </div>
+        </div>
+    </div>
 
-            .navbar ul li {
-                display: inline-block;
-                position: relative;
-            }
-
-            .dropdown {
-                position: relative;
-                display: inline-block;
-                cursor: pointer;
-            }
-
-            .dropdown-content {
-                position: absolute;
-                background-color: rgb(16, 16, 16);
-                min-width: 180px;
-                box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-                z-index: 1;
-                opacity: 0;
-                transform: translateY(-10px);
-                visibility: hidden;
-                transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
-            }
-
-            .dropdown-content li {
-                padding: 12px 0px;
-            }
-
-            .dropdown-content ul {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-                flex-direction: column;
-            }
-
-            .dropdown:hover .dropdown-content {
-                opacity: 1;
-                transform: translateY(0);
-                visibility: visible;
-            }
-        </style>
-    <!-- Nav Bar -->
-    
-    <h1 style="text-align: left; color:rgb(78, 187, 42);">MOTOR TEMPERATURES</h1>
-
-    <!-- Cards -->
-        <div class="section">
-                <div class="content-header">
-                    <h2>Real-time Parameters</h2>
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="tabs">
+            <p>CORE</p>
+            <div class="sidebar-link-group">
+                <a href="dashboard.php" class="sidebar-link"><i class='bx  bx-dashboard-alt'></i> Dashboard</a>
+            </div>
+            <p>SYSTEMS</p>
+            <div class="sidebar-link-group">
+                <a href="#" class="sidebar-link">
+                    <i class='bx  bx-timer'></i> Production Cycle
+                    <span class="fa fa-caret-down" style="margin-left:8px;"></span>
+                </a>
+                <div class="sidebar-submenu">
+                    <a href="production_cycle.php?machine=CLF750A" onclick="setMachineSession('CLF750A')">CLF 750A</a>
+                    <a href="production_cycle.php?machine=CLF750B" onclick="setMachineSession('CLF750B')">CLF 750B</a>
+                    <a href="production_cycle.php?machine=CLF750C" onclick="setMachineSession('CLF750C')">CLF 750C</a>
                 </div>
-                
-                <?php
+            </div>
+            <div class="sidebar-link-group">
+                <a href="#" class="sidebar-link sidebar-active">
+                    <i class='bx  bx-chart-network'></i>  Real-time Parameters
+                    <span class="fa fa-caret-down" style="margin-left:8px;"></span>
+                </a>
+                <div class="sidebar-submenu" style="display:none;">
+                    <a href="#">Motor Temperatures</a>
+                    <a href="#">Coolant Flow Rates</a>
+                </div>
+            </div>
+            <div class="sidebar-link-group">
+                <a href="#" class="sidebar-link">
+                    <i class='bx  bx-dumbbell'></i> Weight Data
+                    <span class="fa fa-caret-down" style="margin-left:8px;"></span>
+                </a>
+                <div class="sidebar-submenu" style="display:none;">
+                    <a href="weights.php">Gross/Net Weights</a>
+                </div>
+            </div>
+        </div>
+        <div id="sidebar-footer" class="sidebar-footer">
+            <span style="font-size: 0.75rem; color: #646464">Logged in as:</span>
+            <span>User123</span>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main-content">
+
+        <div class="header">
+            <div class="header-left">
+                <h3>Motor Temperatures</h3>
+                <span>Technical Service Department - Sensory Data</span>
+            </div>
+            <div class="header-right">
+            </div>
+        </div>
+        
+        <!-- Real-time Temperatures -->
+        <div class="section">
+            <div class="content-header">
+                <h2 style="margin: 0;">Real-time Temperatures</h2>
+            </div>
+
+            <!-- Machine Selection (Realtime) -->
+            <div class="machine-tabs">
+                <label for="machine-select-realtime" style="display:none;">Select Machine:</label>
+                <div id="machine-tab-list-realtime" class="machine-tab-list">
+                    <button class="machine-tab active" data-machine="CLF 750A" onclick="selectMachineTabRealtime(this)">CLF 750A</button>
+                    <button class="machine-tab" data-machine="CLF 750B" onclick="selectMachineTabRealtime(this)">CLF 750B</button>
+                    <button class="machine-tab" data-machine="CLF 750C" onclick="selectMachineTabRealtime(this)">CLF 750C</button>
+                </div>
+            </div>
+
+            <script>
+                // Real-time section machine tab logic
+                function selectMachineTabRealtime(tab) {
+                    document.querySelectorAll('#machine-tab-list-realtime .machine-tab').forEach(b => b.classList.remove('active'));
+                    tab.classList.add('active');
+                    // Call your chart update logic here
+                    updateChartRealtime(tab.getAttribute('data-machine'));
+                }
+
+                function updateChartRealtime(machine) {
+                    // You can implement machine-specific chart update logic here if needed
+                    // For now, just refetch data (or filter by machine if your backend supports it)
+                    fetchRealtimeData(machine);
+                }
+            </script>
+            
+            <!-- Cards -->
+            <div class="card-container">
+                <div class="card-row"> 
+                    <?php
                     // Fetch the latest row from the database
                     $sql = "SELECT motor_tempC_01, motor_tempC_02 FROM motor_temperatures ORDER BY timestamp DESC LIMIT 1";
                     $result = $conn->query($sql);
                     $data = $result->fetch_assoc();
-                ?>
-                
-                <div class="card-container">
+                    ?>
+
                     <div class="card temperature1-card">
                         <h2 id="temp01-value">--°C</h2>
-                        <p>Temp 01</p>
+                        <p>Motor 01</p>
                         <div class="chart-container">
-                            <canvas id="chartTemp01"></canvas>
+                            <!-- You can set width/height here via attributes or CSS -->
+                            <canvas id="chartTemp01" width="150" height="60"></canvas>
                         </div>
                     </div>
 
                     <div class="card temperature2-card">
                         <h2 id="temp02-value">--°C</h2>
-                        <p>Temp 02</p>
+                        <p>Motor 02</p>
                         <div class="chart-container">
-                            <canvas id="chartTemp02"></canvas>
+                            <canvas id="chartTemp02" width="150" height="60"></canvas>
                         </div>
-                    </div>
+                     </div>
                 </div>
 
-                <script>
-                    document.addEventListener("DOMContentLoaded", function() {
-                        let chartTemp01, chartTemp02;
-
-                        function fetchRealtimeData() {
-                            fetch("fetch/fetch_motor_temp.php?type=realtime")
-                                .then(response => response.json())
-                                .then(data => {
-                                    // Update text values
-                                    document.getElementById("temp01-value").innerText = data.motor_tempC_01[0] + "°C";
-                                    document.getElementById("temp02-value").innerText = data.motor_tempC_02[0] + "°C";
-
-                                    // Update charts dynamically
-                                    updateChart(chartTemp01, data.motor_tempC_01.reverse());
-                                    updateChart(chartTemp02, data.motor_tempC_02.reverse());
-                                })
-                                .catch(error => console.error("Error fetching real-time data:", error));
-                        }
-
-                        function createChart(canvasId, color) {
-                            return new Chart(document.getElementById(canvasId), {
-                                type: "line",
-                                data: {
-                                    labels: Array.from({length: 10}, (_, i) => i + 1),
-                                    datasets: [{
-                                        data: [],
-                                        borderColor: color,
-                                        borderWidth: 2,
-                                        pointRadius: 2,
-                                        fill: false,
-                                        tension: 0.3
-                                    }]
-                                },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    scales: {
-                                        x: { display: false },
-                                        y: { display: false }
-                                    },
-                                    plugins: { legend: { display: false } }
-                                }
-                            });
-                        }
-
-                        function updateChart(chart, newData) {
-                            if (chart) {
-                                chart.data.datasets[0].data = newData;
-                                chart.update();
-                            }
-                        }
-
-                        // Initialize charts
-                        chartTemp01 = createChart("chartTemp01", "#FFB347");
-                        chartTemp02 = createChart("chartTemp02", "#FF6347");
-
-                        // Fetch initial data
-                        fetchRealtimeData();
-
-                        // Auto-update every 5 seconds
-                        setInterval(fetchRealtimeData, 5000);
-                    });
-                </script>
-            </div>
-        </div>
-    <!-- Cards -->
-
-    <!-- Graph -->
-        <div class="section">
-            <div class="content-header">
-                <h2 style="text-align: left">Average Readings</h2>
-
-                <div class="table-controls">
-                    <button class="btn" onclick="changeMonth(-1)">&#9665;</button>
-                    <select id="month-select" onchange="updateChart()">
-                        <?php
-                        for ($m = 1; $m <= 12; $m++) {
-                            $monthName = date('F', mktime(0, 0, 0, $m, 1));
-                            $selected = ($m == date('m')) ? "selected" : "";
-                            echo "<option value='$m' $selected>$monthName</option>";
-                        }
-                        ?>
-                    </select>
-                    <button class="btn" onclick="changeMonth(1)">&#9655;</button>
+                <div class="remarks">
+                    <h2>Remarks</h2>
+                    <span>Normal</span>
+                    <p>Motor temperatures are monitored in real-time to ensure optimal performance and prevent overheating. The data is updated every 5 seconds.</p>
+                    <h2>Recommendations</h2>
+                    <p>None</p>
                 </div>
             </div>
-            
-            <div style="box-shadow: 2px 2px 10px rgba(0,0,0,0.3); background: #1a1a1a; padding: 12px; border-radius: 10px;">
-                <div class="data">
-                    <div class="content-data">
-                        <div class="chart">
-                            <div id="chart"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
             <script>
-                var chart;
+                let chartTemp01, chartTemp02;
 
-                function fetchChartData(month) {
-                    fetch(`fetch/fetch_motor_temp_chart.php?month=${month}`)
+                function fetchRealtimeData(machine) {
+                    let url = "fetch/fetch_motor_temp.php?type=realtime";
+                    if (machine) {
+                        url += "&machine=" + encodeURIComponent(machine);
+                    }
+
+                    fetch(url)
                         .then(response => response.json())
                         .then(data => {
-                            chart.updateOptions({
-                                series: [
-                                    { name: 'Motor Temperature 1 (°C)', data: data.motor_tempC_01 },
-                                    { name: 'Motor Temperature 2 (°C)', data: data.motor_tempC_02 }
-                                ],
-                                xaxis: { categories: data.days }
-                            });
+                            const temp01 = data.motor_tempC_01;
+                            const temp02 = data.motor_tempC_02;
+
+                            const hasData = Array.isArray(temp01) && temp01.length > 0 && Array.isArray(temp02) && temp02.length > 0;
+
+                            if (hasData) {
+                                document.getElementById("temp01-value").innerText = temp01[0] + "°C";
+                                document.getElementById("temp02-value").innerText = temp02[0] + "°C";
+                                updateChart(chartTemp01, temp01.slice().reverse());
+                                updateChart(chartTemp02, temp02.slice().reverse());
+
+                                document.querySelector(".remarks span").innerText = "Normal";
+                                document.querySelector(".remarks p").innerText =
+                                    "Motor temperatures are monitored in real-time to ensure optimal performance and prevent overheating. The data is updated every 5 seconds.";
+                                document.querySelector(".remarks h2 + p").innerText = "None";
+                            } else {
+                                document.getElementById("temp01-value").innerText = "--";
+                                document.getElementById("temp02-value").innerText = "--";
+                                updateChart(chartTemp01, []);
+                                updateChart(chartTemp02, []);
+
+                                document.querySelector(".remarks span").innerText = "No data found";
+                                document.querySelector(".remarks p").innerText = "No motor temperature data available for the selected machine.";
+                                document.querySelector(".remarks h2 + p").innerText = "Please check if the machine is active.";
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error fetching real-time data:", error);
+                            document.getElementById("temp01-value").innerText = "--";
+                            document.getElementById("temp02-value").innerText = "--";
+                            updateChart(chartTemp01, []);
+                            updateChart(chartTemp02, []);
+
+                            document.querySelector(".remarks span").innerText = "Error";
+                            document.querySelector(".remarks p").innerText = "Unable to fetch real-time data.";
+                            document.querySelector(".remarks h2 + p").innerText = "Check network or server issues.";
                         });
                 }
 
-                function changeMonth(step) {
-                    let select = document.getElementById('month-select');
-                    let newMonth = parseInt(select.value) + step;
+                function createChart(canvasId, color) {
+                    return new Chart(document.getElementById(canvasId), {
+                        type: "line",
+                        data: {
+                            labels: Array.from({ length: 10 }, (_, i) => i + 1),
+                            datasets: [{
+                                data: [],
+                                borderColor: color,
+                                borderWidth: 2,
+                                pointRadius: 2,
+                                fill: false,
+                                tension: 0.3
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: { display: false },
+                                y: { display: false }
+                            },
+                            plugins: { legend: { display: false } }
+                        }
+                    });
+                }
 
-                    if (newMonth >= 1 && newMonth <= 12) {
-                        select.value = newMonth;
-                        updateChart();
+                function updateChart(chart, newData) {
+                    if (chart) {
+                        chart.data.datasets[0].data = newData;
+                        chart.update();
                     }
                 }
 
-                function updateChart() {
-                    let selectedMonth = document.getElementById('month-select').value;
-                    fetchChartData(selectedMonth);
-                }
-
                 document.addEventListener("DOMContentLoaded", function () {
-                    var options = {
-                        series: [],
-                        chart: {
-                            height: 400,
-                            type: 'area',
-                            background: '#1a1a1a',
-                            foreColor: '#ffffff'
-                        },
-                        colors: ['#FFB347', '#FF6347'],
-                        dataLabels: { enabled: false },
-                        stroke: { curve: 'smooth', width: 2 },
-                        grid: { borderColor: '#444', strokeDashArray: 5 },
-                        xaxis: { categories: [] },
-                        yaxis: { labels: { style: { colors: '#F8F8F8' } } },
-                        tooltip: { theme: "dark" },
-                        fill: {
-                            type: 'gradient',
-                            gradient: { shade: 'dark', type: "vertical", gradientToColors: ['#365b25', '#2a4720', '#4d7c3d'], stops: [0, 100] }
-                        },
-                        legend: { labels: { colors: '#ffffff' } }
-                    };
+                    chartTemp01 = createChart("chartTemp01", "#FFB347");
+                    chartTemp02 = createChart("chartTemp02", "#FF6347");
 
-                    chart = new ApexCharts(document.querySelector("#chart"), options);
-                    chart.render();
+                    // Fetch initial data for default machine
+                    let defaultMachine = document.querySelector('#machine-tab-list-realtime .machine-tab.active').getAttribute('data-machine');
+                    fetchRealtimeData(defaultMachine);
 
-                    updateChart();
+                    // Auto-update every 5 seconds for the selected machine
+                    setInterval(function () {
+                        let machine = document.querySelector('#machine-tab-list-realtime .machine-tab.active').getAttribute('data-machine');
+                        fetchRealtimeData(machine);
+                    }, 5000);
                 });
             </script>
-        </div>
-    </div>
-    <!-- Graph -->
 
-    <!-- Table -->
+        </div>
+
+        <!-- Temperature History -->
         <div class="section">
             <div class="content-header">
-                <h2>Parameter History</h2>
+                <h2>Temperature History</h2>
 
-                <div class="table-controls">
+                <div class="section-controls">
                     <div class="by_number">
                         <label for="show-entries">Show</label>
-                        <select id="show-entries" onchange="reloadPage()">
+                        <select id="show-entries">
                             <option value="5">5</option>
                             <option value="10" selected>10</option>
                             <option value="20">20</option>
@@ -512,9 +293,10 @@ $result = $conn->query($sql);
                         </select>
                     </div>
 
-                    <div class="by_month" style="margin-left: 20px;">
+                    <div class="by_month">
                         <label for="filter-month">Filter by month</label>
-                        <select id="filter-month" onchange="reloadPage()">
+                        <select id="filter-month">
+                            <option value="0">All</option>
                             <option value="1">January</option>
                             <option value="2">February</option>
                             <option value="3">March</option>
@@ -532,64 +314,83 @@ $result = $conn->query($sql);
                 </div>
             </div>
 
+            <!-- Machine Selection (History) -->
+            <div class="machine-tabs" style="margin-bottom: 18px;">
+                <label for="machine-select-history" style="display:none;">Select Machine:</label>
+                <div id="machine-tab-list-history" class="machine-tab-list">
+                    <button class="machine-tab active" data-machine="CLF 750A" onclick="selectMachineTabHistory(this)">CLF 750A</button>
+                    <button class="machine-tab" data-machine="CLF 750B" onclick="selectMachineTabHistory(this)">CLF 750B</button>
+                    <button class="machine-tab" data-machine="CLF 750C" onclick="selectMachineTabHistory(this)">CLF 750C</button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="styled-table" id="sensorTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Motor Temperature 1 (°C)</th>
+                            <th>Motor Temperature 1 (°F)</th>
+                            <th>Motor Temperature 2 (°C)</th>
+                            <th>Motor Temperature 2 (°F)</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                    <!-- Table rows will be loaded here via AJAX -->
+                    </tbody>
+                </table>
+            </div>
+
             <script>
-                function reloadPage() {
-                    let month = document.getElementById("filter-month").value;
-                    let entries = document.getElementById("show-entries").value;
-                    window.location.href = `?month=${month}&entries=${entries}`;
+                function fetchTableData() {
+                    const showEntries = document.getElementById('show-entries').value;
+                    const filterMonth = document.getElementById('filter-month').value;
+                    const selectedMachine = document.querySelector('#machine-tab-list-history .machine-tab.active').getAttribute('data-machine');
+                    
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('GET', `fetch/fetch_motor_temp_table.php?show=${showEntries}&month=${filterMonth}&machine=${encodeURIComponent(selectedMachine)}`, true);
+                    xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        document.getElementById('table-body').innerHTML = xhr.responseText;
+                    }
+                    };
+                    xhr.send();
                 }
 
-                // Set dropdowns to match current URL parameters
-                document.addEventListener("DOMContentLoaded", function () {
-                    let urlParams = new URLSearchParams(window.location.search);
-                    let selectedMonth = urlParams.get("month") || new Date().getMonth() + 1;
-                    let selectedEntries = urlParams.get("entries") || 10;
+                // Update table when controls change
+                document.getElementById('show-entries').addEventListener('change', fetchTableData);
+                document.getElementById('filter-month').addEventListener('change', fetchTableData);
 
-                    document.getElementById("filter-month").value = selectedMonth;
-                    document.getElementById("show-entries").value = selectedEntries;
+                // Handle machine tab switching for history section
+                function selectMachineTabHistory(tab) {
+                    document.querySelectorAll('#machine-tab-list-history .machine-tab').forEach(btn => btn.classList.remove('active'));
+                    tab.classList.add('active');
+                    fetchTableData(); // refresh table when machine changes
+                }
+
+                // Set default month to current month
+                document.addEventListener("DOMContentLoaded", function () {
+                    // Set default month to current
+                    let currentMonth = new Date().getMonth() + 1;
+                    document.getElementById("filter-month").value = currentMonth;
+
+                    // Explicitly activate CLF 750A tab for history
+                    const defaultMachineTab = document.querySelector('#machine-tab-list-history .machine-tab[data-machine="CLF 750A"]');
+                    if (defaultMachineTab) {
+                    selectMachineTabHistory(defaultMachineTab); // this calls fetchTableData()
+                    } else {
+                    fetchTableData(); // fallback if something goes wrong
+                    }
                 });
             </script>
 
-            <?php
-            $selectedMonth = isset($_GET['month']) ? (int)$_GET['month'] : date('m');
-            $showEntries = isset($_GET['entries']) ? (int)$_GET['entries'] : 10;
-            $currentYear = date('Y');
-
-            $sql = "SELECT * FROM motor_temperatures 
-                    WHERE MONTH(timestamp) = $selectedMonth 
-                    AND YEAR(timestamp) = $currentYear 
-                    ORDER BY timestamp DESC 
-                    LIMIT $showEntries";
-
-            $result = $conn->query($sql);
-            ?>
-
-            <table id="sensorTable" class="styled-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Motor Temperature 1 (°C)</th>
-                        <th>Motor Temperature 2 (°C)</th>
-                        <th>Timestamp</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($row = $result->fetch_assoc()) { ?>
-                    <tr>
-                        <td><?php echo $row['id']; ?></td>
-                        <td><?php echo $row['motor_tempC_01']; ?></td>
-                        <td><?php echo $row['motor_tempC_02']; ?></td>
-                        <td><?php echo $row['timestamp']; ?></td>
-                    </tr>
-                    <?php } ?>
-                </tbody>
-            </table>
-
-            <?php $conn->close(); ?>
-
-            <a href="generate_pdf.php?table=realtime_parameters" class="btn-download">Download PDF</a>
-            <a href="generate_excel.php?table=realtime_parameters" class="btn-download" style="margin-left: 20px;">Download Excel</a>
+            
+            <div class="table-download">
+                <a href="#" class="btn-download">Download PDF</a>
+                <a href="#" class="btn-download">Download Excel</a>
+            </div>
         </div>
-    <!-- Table -->
+    </div>
 </body>
 </html>

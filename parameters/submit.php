@@ -40,16 +40,45 @@ if (!$stmt->execute()) {
 // Initialize variables to track errors
 $errors = [];
 
+// Handle start and end time
+$startTime = !empty($_POST['startTime']) ? $_POST['startTime'] : null;
+$endTime = !empty($_POST['endTime']) ? $_POST['endTime'] : null;
+
 // Insert into productmachineinfo table
+// Insert into productmachineinfo table (now including startTime & endTime)
 if (isset($_POST['Date'], $_POST['Time'], $_POST['MachineName'], $_POST['RunNumber'], $_POST['Category'], $_POST['IRN'])) {
-    $sql = "INSERT INTO productmachineinfo (record_id, Date, Time, MachineName, RunNumber, Category, IRN)
-            VALUES (?, ?, ?, ?, ?, ?, ?)";
+    $sql = "
+      INSERT INTO productmachineinfo
+        ( record_id
+        , Date
+        , Time
+        , startTime
+        , endTime
+        , MachineName
+        , RunNumber
+        , Category
+        , IRN
+        )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssss", $record_id, $_POST['Date'], $_POST['Time'], $_POST['MachineName'], $_POST['RunNumber'], $_POST['Category'], $_POST['IRN']);
+    $stmt->bind_param(
+        "sssssssss",
+        $record_id,
+        $_POST['Date'],
+        $_POST['Time'],
+        $startTime,
+        $endTime,
+        $_POST['MachineName'],
+        $_POST['RunNumber'],
+        $_POST['Category'],
+        $_POST['IRN']
+    );
     if (!$stmt->execute()) {
         $errors[] = "Error inserting into productmachineinfo: " . $stmt->error;
     }
 }
+
 
 // Insert into productdetails table
 if (isset($_POST['product'], $_POST['color'], $_POST['mold-name'], $_POST['prodNo'], $_POST['cavity'], $_POST['grossWeight'], $_POST['netWeight'])) {
@@ -386,29 +415,47 @@ if (isset($_POST['coreSetASequence'], $_POST['coreSetAPressure'], $_POST['coreSe
         ]
     ];
 
-    $sqlCore = "INSERT INTO corepullsettings (record_id, Section, Sequence, Pressure, Speed, Position, Time, LimitSwitch)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    // Insert Core Pull Settings for all sections
+    $sqlCore = "INSERT INTO corepullsettings
+  (record_id, Section, Sequence, Pressure, Speed, Position, Time, LimitSwitch)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmtCore = $conn->prepare($sqlCore);
 
     foreach ($coreSections as $section => $types) {
         foreach ($types as $type => $fields) {
+            // if there's no sequence at all, skip this row
+            if (!isset($fields['sequence']) || $fields['sequence'] === '') {
+                continue;
+            }
+
+            // build your typed variables
             $sectionName = "Core " . ucfirst($type) . " " . $section;
+            $sequence = (int) $fields['sequence'];
+            $pressure = isset($fields['pressure']) ? (float) $fields['pressure'] : 0.0;
+            $speed = isset($fields['speed']) ? (float) $fields['speed'] : 0.0;
+            $position = isset($fields['position']) ? (float) $fields['position'] : 0.0;
+            $time = isset($fields['time']) ? (float) $fields['time'] : 0.0;
+            $limitSwitch = $fields['limit'] ?? null;
+
+            // note the type string:  ss i d d d d s
             $stmtCore->bind_param(
-                "sssdddds",
-                $record_id,
-                $sectionName,
-                $fields['sequence'],
-                $fields['pressure'],
-                $fields['speed'],
-                $fields['position'],
-                $fields['time'],
-                $fields['limit']
+                "ssidddds",
+                $record_id,    // s
+                $sectionName,  // s
+                $sequence,     // i
+                $pressure,     // d
+                $speed,        // d
+                $position,     // d
+                $time,         // d
+                $limitSwitch   // s
             );
+
             if (!$stmtCore->execute()) {
                 $errors[] = "Error inserting core settings for $sectionName: " . $stmtCore->error;
             }
         }
     }
+
 }
 
 // Insert into additionalinformation table
@@ -456,8 +503,9 @@ function handleFileUpload($files, $uploadDir, $relativePath, $typeCategory, $all
     }
 
     foreach ($files['name'] as $key => $name) {
-        if (empty($name)) continue; // Skip empty file slots
-        
+        if (empty($name))
+            continue; // Skip empty file slots
+
         if ($files['error'][$key] !== UPLOAD_ERR_OK) {
             $errorMessages = [
                 UPLOAD_ERR_INI_SIZE => "The uploaded file exceeds the upload_max_filesize directive in php.ini",
@@ -468,11 +516,11 @@ function handleFileUpload($files, $uploadDir, $relativePath, $typeCategory, $all
                 UPLOAD_ERR_CANT_WRITE => "Failed to write file to disk",
                 UPLOAD_ERR_EXTENSION => "File upload stopped by extension"
             ];
-            
-            $errorMessage = isset($errorMessages[$files['error'][$key]]) 
-                ? $errorMessages[$files['error'][$key]] 
+
+            $errorMessage = isset($errorMessages[$files['error'][$key]])
+                ? $errorMessages[$files['error'][$key]]
                 : "Unknown upload error";
-                
+
             $errors[] = "Error uploading {$name}: {$errorMessage}";
             continue;
         }
@@ -516,7 +564,7 @@ function handleFileUpload($files, $uploadDir, $relativePath, $typeCategory, $all
             $errors[] = "Failed to move uploaded file {$name} to {$targetPath}. PHP error: " . error_get_last()['message'] ?? 'Unknown error';
         }
     }
-    
+
     return ['files' => $uploadedFiles, 'errors' => $errors];
 }
 
@@ -574,7 +622,7 @@ if (isset($_FILES['uploadImages']) && !empty($_FILES['uploadImages']['name'][0])
         $machineNumber,
         $runNumber
     );
-    
+
     $uploadedImages = $imageUploadResult['files'];
     $fileUploadErrors = array_merge($fileUploadErrors, $imageUploadResult['errors']);
 }
@@ -593,7 +641,7 @@ if (isset($_FILES['uploadVideos']) && !empty($_FILES['uploadVideos']['name'][0])
         $machineNumber,
         $runNumber
     );
-    
+
     $uploadedVideos = $videoUploadResult['files'];
     $fileUploadErrors = array_merge($fileUploadErrors, $videoUploadResult['errors']);
 }
