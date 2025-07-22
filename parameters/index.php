@@ -7,6 +7,18 @@ if (!isset($_SESSION['full_name'])) {
     header("Location: ../login.html");
     exit();
 }
+
+// Check session validity
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 1800)) {
+    // Session has expired
+    session_unset();
+    session_destroy();
+    header("Location: ../login.html?error=" . urlencode("Session expired. Please log in again."));
+    exit();
+}
+
+// Update last activity time
+$_SESSION['last_activity'] = time();
 ?>
 <?php
 $clonedData = [];

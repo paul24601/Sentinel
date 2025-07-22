@@ -37,6 +37,7 @@ if ($result->num_rows > 0) {
         $_SESSION['id_number'] = $user['id_number'];
         $_SESSION['full_name'] = $user['full_name'];
         $_SESSION['role'] = $user['role'];
+        $_SESSION['last_activity'] = time(); // Set initial activity timestamp
 
         // Check if the user has changed their password (password_changed column)
         if ($user['password_changed'] == 0) {

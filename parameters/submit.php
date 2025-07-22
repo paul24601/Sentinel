@@ -2,6 +2,38 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Start session first and check authentication
+session_start();
+
+// Include user activity logger
+require_once 'user_activity_logger.php';
+
+// Check if the user is logged in
+if (!isset($_SESSION['full_name']) || empty($_SESSION['full_name'])) {
+    // If not logged in, redirect to the login page
+    header("Location: ../login.html?error=" . urlencode("Session expired. Please log in again."));
+    exit();
+}
+
+// Check session validity
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 1800)) {
+    // Session has expired
+    session_unset();
+    session_destroy();
+    header("Location: ../login.html?error=" . urlencode("Session expired. Please log in again."));
+    exit();
+}
+
+// Update last activity time
+$_SESSION['last_activity'] = time();
+
+// Additional session validation for long submissions
+if (!isset($_SESSION['full_name']) || empty(trim($_SESSION['full_name']))) {
+    error_log("Empty full_name in session during submission: " . print_r($_SESSION, true));
+    header("Location: ../login.html?error=" . urlencode("Invalid user session detected."));
+    exit();
+}
+
 //echo "<pre>";
 //print_r($_POST);
 //echo "</pre>";
@@ -25,8 +57,17 @@ if ($conn->connect_error) {
 $record_id = 'PARAM_' . date('Ymd') . '_' . substr(uniqid(), -5);
 
 // Insert into parameter_records table
-session_start();
-$submitted_by = isset($_SESSION['full_name']) ? $_SESSION['full_name'] : 'Unknown User';
+$submitted_by = $_SESSION['full_name']; // No need for fallback since we've verified the session
+
+// Double-check session validity and provide fallback
+if (empty($submitted_by) || !isset($_SESSION['id_number'])) {
+    // Log this incident and redirect to login
+    error_log("Invalid session detected during submission: " . json_encode($_SESSION));
+    $_SESSION['error_message'] = "Your session has expired. Please log in again to submit data.";
+    header("Location: ../login.html?error=" . urlencode("Session expired during submission."));
+    exit();
+}
+
 $title = isset($_POST['MachineName']) ? $_POST['MachineName'] . ' - ' . $_POST['product'] : 'Unnamed Record';
 $description = isset($_POST['additionalInfo']) ? $_POST['additionalInfo'] : '';
 
@@ -35,6 +76,9 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("ssss", $record_id, $submitted_by, $title, $description);
 if (!$stmt->execute()) {
     $errors[] = "Error creating record: " . $stmt->error;
+} else {
+    // Log successful submission
+    logUserActivity($conn, 'PARAMETER_SUBMISSION', $record_id, "Title: $title");
 }
 
 // Initialize variables to track errors
@@ -470,9 +514,13 @@ if (isset($_POST['additionalInfo'])) {
 
 // Insert into personnel table
 if (isset($_POST['adjuster'], $_POST['qae'])) {
+    // Ensure adjuster name is properly set
+    $adjuster_name = !empty(trim($_POST['adjuster'])) ? trim($_POST['adjuster']) : $_SESSION['full_name'];
+    $qae_name = !empty(trim($_POST['qae'])) ? trim($_POST['qae']) : 'Not Specified';
+    
     $sql = "INSERT INTO personnel (record_id, AdjusterName, QAEName) VALUES (?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sss", $record_id, $_POST['adjuster'], $_POST['qae']);
+    $stmt->bind_param("sss", $record_id, $adjuster_name, $qae_name);
     if (!$stmt->execute()) {
         $errors[] = "Error inserting into personnel: " . $stmt->error;
     }
