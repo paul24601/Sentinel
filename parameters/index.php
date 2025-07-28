@@ -2924,17 +2924,228 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
         $(document).ready(function () {
             <?php if (!empty($clonedData)): ?>
                 const clonedData = <?= json_encode($clonedData) ?>;
+                
+                // Define fields to exclude from cloning (unique fields that shouldn't be copied)
+                const excludedFields = [
+                    'Date', 'Time',                    // Date and time should be current
+                    'adjuster', 'AdjusterName',        // Adjuster name should be current user
+                    'record_id',                       // Record ID should be unique
+                    'submission_date',                 // Submission date should be current
+                    'id',                             // Any ID fields should be unique
+                    'uploadImages',                    // File uploads should not be copied
+                    'uploadVideos',                    // File uploads should not be copied
+                    'uploaded_images',                 // File uploads should not be copied
+                    'uploaded_videos'                  // File uploads should not be copied
+                ];
+                
+                // Create mapping between database field names and form field names
+                const fieldMapping = {
+                    // Product Machine Info
+                    'MachineName': 'MachineName',
+                    'RunNumber': 'RunNumber',
+                    'Category': 'Category',
+                    'IRN': 'IRN',
+                    'startTime': 'startTime',
+                    'endTime': 'endTime',
+                    
+                    // Product Details
+                    'ProductName': 'product',
+                    'Color': 'color',
+                    'MoldName': 'mold-name',
+                    'ProductNumber': 'prodNo',
+                    'CavityActive': 'cavity',
+                    'GrossWeight': 'grossWeight',
+                    'NetWeight': 'netWeight',
+                    
+                    // Material Composition
+                    'DryingTime': 'dryingtime',
+                    'DryingTemperature': 'dryingtemp',
+                    'Material1_Type': 'type1',
+                    'Material1_Brand': 'brand1',
+                    'Material1_MixturePercentage': 'mix1',
+                    'Material2_Type': 'type2',
+                    'Material2_Brand': 'brand2',
+                    'Material2_MixturePercentage': 'mix2',
+                    'Material3_Type': 'type3',
+                    'Material3_Brand': 'brand3',
+                    'Material3_MixturePercentage': 'mix3',
+                    'Material4_Type': 'type4',
+                    'Material4_Brand': 'brand4',
+                    'Material4_MixturePercentage': 'mix4',
+                    
+                    // Colorant Details
+                    'Colorant': 'colorant',
+                    'Dosage': 'colorant-dosage',
+                    'Stabilizer': 'colorant-stabilizer',
+                    'StabilizerDosage': 'colorant-stabilizer-dosage',
+                    
+                    // Mold Operation Specs
+                    'MoldCode': 'mold-code',
+                    'ClampingForce': 'clamping-force',
+                    'OperationType': 'operation-type',
+                    'CoolingMedia': 'cooling-media',
+                    'HeatingMedia': 'heating-media',
+                    
+                    // Timer Parameters
+                    'FillingTime': 'fillingTime',
+                    'HoldingTime': 'holdingTime',
+                    'MoldOpenCloseTime': 'moldOpenCloseTime',
+                    'ChargingTime': 'chargingTime',
+                    'CoolingTime': 'coolingTime',
+                    'CycleTime': 'cycleTime',
+                    
+                    // Plasticizing Parameters (most have same names)
+                    'ScrewRPM1': 'screwRPM1',
+                    'ScrewRPM2': 'screwRPM2',
+                    'ScrewRPM3': 'screwRPM3',
+                    'ScrewSpeed1': 'screwSpeed1',
+                    'ScrewSpeed2': 'screwSpeed2',
+                    'ScrewSpeed3': 'screwSpeed3',
+                    'PlastPressure1': 'plastPressure1',
+                    'PlastPressure2': 'plastPressure2',
+                    'PlastPressure3': 'plastPressure3',
+                    'PlastPosition1': 'plastPosition1',
+                    'PlastPosition2': 'plastPosition2',
+                    'PlastPosition3': 'plastPosition3',
+                    'BackPressure1': 'backPressure1',
+                    'BackPressure2': 'backPressure2',
+                    'BackPressure3': 'backPressure3',
+                    'BackPressureStartPosition': 'backPressureStartPosition',
+                    
+                    // Injection Parameters (most have same names)
+                    'RecoveryPosition': 'RecoveryPosition',
+                    'SecondStagePosition': 'SecondStagePosition',
+                    'Cushion': 'Cushion',
+                    'ScrewPosition1': 'ScrewPosition1',
+                    'ScrewPosition2': 'ScrewPosition2',
+                    'ScrewPosition3': 'ScrewPosition3',
+                    'InjectionSpeed1': 'InjectionSpeed1',
+                    'InjectionSpeed2': 'InjectionSpeed2',
+                    'InjectionSpeed3': 'InjectionSpeed3',
+                    'InjectionPressure1': 'InjectionPressure1',
+                    'InjectionPressure2': 'InjectionPressure2',
+                    'InjectionPressure3': 'InjectionPressure3',
+                    'SuckBackPosition': 'SuckBackPosition',
+                    'SuckBackSpeed': 'SuckBackSpeed',
+                    'SuckBackPressure': 'SuckBackPressure',
+                    'SprueBreak': 'SprueBreak',
+                    'SprueBreakTime': 'SprueBreakTime',
+                    'InjectionDelay': 'InjectionDelay',
+                    'HoldingPressure1': 'HoldingPressure1',
+                    'HoldingPressure2': 'HoldingPressure2',
+                    'HoldingPressure3': 'HoldingPressure3',
+                    'HoldingSpeed1': 'HoldingSpeed1',
+                    'HoldingSpeed2': 'HoldingSpeed2',
+                    'HoldingSpeed3': 'HoldingSpeed3',
+                    'HoldingTime1': 'HoldingTime1',
+                    'HoldingTime2': 'HoldingTime2',
+                    'HoldingTime3': 'HoldingTime3',
+                    
+                    // Ejection Parameters (most have same names)
+                    'AirBlowTimeA': 'AirBlowTimeA',
+                    'AirBlowPositionA': 'AirBlowPositionA',
+                    'AirBlowADelay': 'AirBlowADelay',
+                    'AirBlowTimeB': 'AirBlowTimeB',
+                    'AirBlowPositionB': 'AirBlowPositionB',
+                    'AirBlowBDelay': 'AirBlowBDelay',
+                    'EjectorForwardPosition1': 'EjectorForwardPosition1',
+                    'EjectorForwardPosition2': 'EjectorForwardPosition2',
+                    'EjectorForwardSpeed1': 'EjectorForwardSpeed1',
+                    'EjectorRetractPosition1': 'EjectorRetractPosition1',
+                    'EjectorRetractPosition2': 'EjectorRetractPosition2',
+                    'EjectorRetractSpeed1': 'EjectorRetractSpeed1',
+                    'EjectorForwardSpeed2': 'EjectorForwardSpeed2',
+                    'EjectorForwardPressure1': 'EjectorForwardPressure1',
+                    'EjectorRetractSpeed2': 'EjectorRetractSpeed2',
+                    'EjectorRetractPressure1': 'EjectorRetractPressure1',
+                    
+                    // Additional Information
+                    'Info': 'additionalInfo',
+                    
+                    // QAE Name (allow cloning but not adjuster)
+                    'QAEName': 'qae'
+                };
+                
+                // Apply cloned data to form fields
+                let processedZoneFields = new Set(); // Track which Zone fields we've processed
+                let fieldsApplied = 0;
+                let fieldsSkipped = 0;
+                
                 for (const field in clonedData) {
                     const value = clonedData[field];
-                    const input = document.querySelector(`[name="${field}"]`);
-                    if (input) {
-                        if (input.type === "checkbox") {
-                            input.checked = !!value;
-                        } else {
-                            input.value = value;
+                    
+                    // Skip excluded fields and null/empty values
+                    if (excludedFields.includes(field) || value === null || value === '') {
+                        fieldsSkipped++;
+                        continue;
+                    }
+                    
+                    let formFieldName = null;
+                    
+                    // Handle Zone fields specially since they appear in both barrel and mold heater tables
+                    if (field.match(/^Zone\d+$/)) {
+                        // Skip if we've already processed this Zone field
+                        if (processedZoneFields.has(field)) {
+                            continue;
+                        }
+                        processedZoneFields.add(field);
+                        
+                        // Try both barrel heater and mold heater field names
+                        const barrelHeaterFieldName = 'barrelHeaterZone' + field.replace('Zone', '');
+                        const moldHeaterFieldName = field;
+                        
+                        // Check if barrel heater field exists, prioritize it
+                        const barrelInput = document.querySelector(`[name="${barrelHeaterFieldName}"]`);
+                        const moldInput = document.querySelector(`[name="${moldHeaterFieldName}"]`);
+                        
+                        if (barrelInput) {
+                            formFieldName = barrelHeaterFieldName;
+                        } else if (moldInput) {
+                            formFieldName = moldHeaterFieldName;
+                        }
+                    } else {
+                        // Get the form field name (use mapping if available, otherwise use original field name)
+                        formFieldName = fieldMapping[field] || field;
+                    }
+                    
+                    // Find the input element by name attribute
+                    if (formFieldName) {
+                        const input = document.querySelector(`[name="${formFieldName}"]`);
+                        if (input) {
+                            // Skip file inputs
+                            if (input.type === "file") {
+                                continue;
+                            }
+                            
+                            if (input.type === "checkbox") {
+                                input.checked = !!value;
+                            } else if (input.type === "radio") {
+                                if (input.value === value) {
+                                    input.checked = true;
+                                }
+                            } else if (input.tagName === "SELECT") {
+                                // Handle select dropdowns
+                                const option = input.querySelector(`option[value="${value}"]`);
+                                if (option) {
+                                    input.value = value;
+                                }
+                            } else {
+                                // Handle regular input fields (text, number, etc.)
+                                input.value = value;
+                            }
+                            
+                            // Trigger change event to update any dependent fields
+                            $(input).trigger('change');
+                            fieldsApplied++;
                         }
                     }
                 }
+                
+                console.log(`Applied ${fieldsApplied} fields, skipped ${fieldsSkipped} fields`);
+                
+                // Show success message
+                showNotification(`Form data successfully applied from selected record. Applied ${fieldsApplied} fields. Date, time, adjuster name, attachments, and other unique fields were not copied.`, 'success');
+                
             <?php endif; ?>
         });
     </script>
