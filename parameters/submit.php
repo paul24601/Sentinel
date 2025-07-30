@@ -88,6 +88,9 @@ $errors = [];
 $startTime = !empty($_POST['startTime']) ? $_POST['startTime'] : null;
 $endTime = !empty($_POST['endTime']) ? $_POST['endTime'] : null;
 
+// Use start time as the main time field (for compatibility)
+$mainTime = !empty($_POST['startTime']) ? $_POST['startTime'] : $_POST['Time'];
+
 // Insert into productmachineinfo table
 // Insert into productmachineinfo table (now including startTime & endTime)
 if (isset($_POST['Date'], $_POST['Time'], $_POST['MachineName'], $_POST['RunNumber'], $_POST['Category'], $_POST['IRN'])) {
@@ -110,7 +113,7 @@ if (isset($_POST['Date'], $_POST['Time'], $_POST['MachineName'], $_POST['RunNumb
         "sssssssss",
         $record_id,
         $_POST['Date'],
-        $_POST['Time'],
+        $mainTime,
         $startTime,
         $endTime,
         $_POST['MachineName'],

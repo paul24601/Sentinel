@@ -239,9 +239,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                                     value="<?php echo date('Y-m-d'); ?>" readonly>
                                             </div>
                                             <div class="col">
-                                                <label for="Time" class="form-label">Time</label>
+                                                <label for="Time" class="form-label">Form Start Time</label>
                                                 <input type="time" class="form-control" id="currentTime" name="Time"
-                                                    value="<?php echo date('H:i'); ?>" readonly>
+                                                    readonly>
                                             </div>
                                             <div class="col">
                                                 <label for="MachineName" class="form-label">Machine</label>
@@ -289,14 +289,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                                 <input type="text" class="form-control" name="IRN"
                                                     placeholder="Enter IRN">
                                             </div>
-                                            <div class="col">
-                                                <label for="startTime" class="form-label">Start Time</label>
-                                                <input type="time" class="form-control" name="startTime" required>
-                                            </div>
-                                            <div class="col">
-                                                <label for="endTime" class="form-label">End Time</label>
-                                                <input type="time" class="form-control" name="endTime" required>
-                                            </div>
+                                        </div>
+
+                                        <!-- Hidden fields for start and end time -->
+                                        <input type="hidden" id="startTime" name="startTime" value="">
+                                        <input type="hidden" id="endTime" name="endTime" value="">
+
+                                        <!-- Display start time for user reference -->
+                                        <div class="alert alert-info mt-3" id="startTimeDisplay" style="display: none;">
+                                            <i class="fas fa-clock"></i> <strong>Form Started At:</strong> <span
+                                                id="startTimeText"></span>
+                                            <small class="d-block mt-1 text-muted">Your session time will be
+                                                automatically recorded when you submit the form.</small>
                                         </div>
                                     </div>
 
@@ -375,8 +379,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                             <div class="col">
                                                 <label for="dryingtemp" class="form-label">Drying Temperature</label>
                                                 <div class="input-group">
-                                                    <input type="number" step="any" class="form-control" name="dryingtemp"
-                                                        placeholder="Enter Temperature" min="0" max="300" step="0.1">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="dryingtemp" placeholder="Enter Temperature" min="0"
+                                                        max="300" step="0.1">
                                                     <span class="input-group-text">°C</span>
                                                 </div>
                                             </div>
@@ -396,8 +401,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                             </div>
                                             <div class="col">
                                                 <label for="mix1" class="form-label">Mixture 1</label>
-                                                <input type="number" step="any" class="form-control" name="mix1" id="mix1"
-                                                    placeholder="% Mixture 1" required>
+                                                <input type="number" step="any" class="form-control" name="mix1"
+                                                    id="mix1" placeholder="% Mixture 1" required>
                                             </div>
                                         </div>
                                         <!-- Material 2-4 (Optional) -->
@@ -415,8 +420,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                             </div>
                                             <div class="col">
                                                 <label for="mix2" class="form-label">Mixture 2</label>
-                                                <input type="number" step="any" class="form-control" name="mix2" id="mix2"
-                                                    placeholder="% Mixture 2">
+                                                <input type="number" step="any" class="form-control" name="mix2"
+                                                    id="mix2" placeholder="% Mixture 2">
                                             </div>
                                         </div>
                                         <h6>Material 3</h6>
@@ -433,8 +438,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                             </div>
                                             <div class="col">
                                                 <label for="mix3" class="form-label">Mixture 3</label>
-                                                <input type="number" step="any" class="form-control" name="mix3" id="mix3"
-                                                    placeholder="% Mixture 3">
+                                                <input type="number" step="any" class="form-control" name="mix3"
+                                                    id="mix3" placeholder="% Mixture 3">
                                             </div>
                                         </div>
                                         <h6>Material 4</h6>
@@ -451,8 +456,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                             </div>
                                             <div class="col">
                                                 <label for="mix4" class="form-label">Mixture 4</label>
-                                                <input type="number" step="any" class="form-control" name="mix4" id="mix4"
-                                                    placeholder="% Mixture 4">
+                                                <input type="number" step="any" class="form-control" name="mix4"
+                                                    id="mix4" placeholder="% Mixture 4">
                                             </div>
                                         </div>
                                     </div>
@@ -604,8 +609,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                             <div class="col">
                                                 <label for="moldOpenCloseTime" class="form-label">Mold Open-Close Time
                                                     (s)</label>
-                                                <input type="number" step="any" class="form-control" name="moldOpenCloseTime"
-                                                    id="moldOpenCloseTime" placeholder="Mold Open-Close Time">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="moldOpenCloseTime" id="moldOpenCloseTime"
+                                                    placeholder="Mold Open-Close Time">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
@@ -656,121 +662,128 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                                 <div class="col">
                                                     <label for="barrelHeaterZone0" class="form-label">Barrel Heater Zone
                                                         0 (°C) <span class="text-danger">*</span></label>
-                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone0"
-                                                        id="barrelHeaterZone0" placeholder="Barrel Heater Zone 0 (°C)"
-                                                        required>
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="barrelHeaterZone0" id="barrelHeaterZone0"
+                                                        placeholder="Barrel Heater Zone 0 (°C)" required>
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone1" class="form-label">Barrel Heater Zone
                                                         1 (°C) <span class="text-danger">*</span></label>
-                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone1"
-                                                        id="barrelHeaterZone1" placeholder="Barrel Heater Zone 1 (°C)"
-                                                        required>
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="barrelHeaterZone1" id="barrelHeaterZone1"
+                                                        placeholder="Barrel Heater Zone 1 (°C)" required>
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone2" class="form-label">Barrel Heater Zone
                                                         2 (°C) <span class="text-danger">*</span></label>
-                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone2"
-                                                        id="barrelHeaterZone2" placeholder="Barrel Heater Zone 2 (°C)"
-                                                        required>
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="barrelHeaterZone2" id="barrelHeaterZone2"
+                                                        placeholder="Barrel Heater Zone 2 (°C)" required>
                                                 </div>
                                                 <!-- The rest are optional -->
                                                 <div class="col">
                                                     <label for="barrelHeaterZone3" class="form-label">Barrel Heater Zone
                                                         3 (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone3"
-                                                        id="barrelHeaterZone3" placeholder="Barrel Heater Zone 3 (°C)">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="barrelHeaterZone3" id="barrelHeaterZone3"
+                                                        placeholder="Barrel Heater Zone 3 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone4" class="form-label">Barrel Heater Zone
                                                         4 (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone4"
-                                                        id="barrelHeaterZone4" placeholder="Barrel Heater Zone 4 (°C)">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="barrelHeaterZone4" id="barrelHeaterZone4"
+                                                        placeholder="Barrel Heater Zone 4 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone5" class="form-label">Barrel Heater Zone
                                                         5 (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone5"
-                                                        id="barrelHeaterZone5" placeholder="Barrel Heater Zone 5 (°C)">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="barrelHeaterZone5" id="barrelHeaterZone5"
+                                                        placeholder="Barrel Heater Zone 5 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone6" class="form-label">Barrel Heater Zone
                                                         6 (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone6"
-                                                        id="barrelHeaterZone6" placeholder="Barrel Heater Zone 6 (°C)">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="barrelHeaterZone6" id="barrelHeaterZone6"
+                                                        placeholder="Barrel Heater Zone 6 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone7" class="form-label">Barrel Heater Zone
                                                         7 (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone7"
-                                                        id="barrelHeaterZone7" placeholder="Barrel Heater Zone 7 (°C)">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="barrelHeaterZone7" id="barrelHeaterZone7"
+                                                        placeholder="Barrel Heater Zone 7 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone8" class="form-label">Barrel Heater Zone
                                                         8 (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone8"
-                                                        id="barrelHeaterZone8" placeholder="Barrel Heater Zone 8 (°C)">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="barrelHeaterZone8" id="barrelHeaterZone8"
+                                                        placeholder="Barrel Heater Zone 8 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone9" class="form-label">Barrel Heater Zone
                                                         9 (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone9"
-                                                        id="barrelHeaterZone9" placeholder="Barrel Heater Zone 9 (°C)">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="barrelHeaterZone9" id="barrelHeaterZone9"
+                                                        placeholder="Barrel Heater Zone 9 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone10" class="form-label">Barrel Heater
                                                         Zone 10
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone10"
-                                                        id="barrelHeaterZone10"
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="barrelHeaterZone10" id="barrelHeaterZone10"
                                                         placeholder="Barrel Heater Zone 10 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone11" class="form-label">Barrel Heater
                                                         Zone 11
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone11"
-                                                        id="barrelHeaterZone11"
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="barrelHeaterZone11" id="barrelHeaterZone11"
                                                         placeholder="Barrel Heater Zone 11 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone12" class="form-label">Barrel Heater
                                                         Zone 12
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone12"
-                                                        id="barrelHeaterZone12"
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="barrelHeaterZone12" id="barrelHeaterZone12"
                                                         placeholder="Barrel Heater Zone 12 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone13" class="form-label">Barrel Heater
                                                         Zone 13
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone13"
-                                                        id="barrelHeaterZone13"
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="barrelHeaterZone13" id="barrelHeaterZone13"
                                                         placeholder="Barrel Heater Zone 13 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone14" class="form-label">Barrel Heater
                                                         Zone 14
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone14"
-                                                        id="barrelHeaterZone14"
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="barrelHeaterZone14" id="barrelHeaterZone14"
                                                         placeholder="Barrel Heater Zone 14 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone15" class="form-label">Barrel Heater
                                                         Zone 15
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone15"
-                                                        id="barrelHeaterZone15"
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="barrelHeaterZone15" id="barrelHeaterZone15"
                                                         placeholder="Barrel Heater Zone 15 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="barrelHeaterZone16" class="form-label">Barrel Heater
                                                         Zone 16
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="barrelHeaterZone16"
-                                                        id="barrelHeaterZone16"
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="barrelHeaterZone16" id="barrelHeaterZone16"
                                                         placeholder="Barrel Heater Zone 16 (°C)">
                                                 </div>
                                             </div>
@@ -790,109 +803,109 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                                 <div class="col">
                                                     <label for="Zone0" class="form-label">Mold Heater Zone 0
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="Zone0" id="Zone0"
-                                                        placeholder="Mold Heater Zone 0 (°C)">
+                                                    <input type="number" step="any" class="form-control" name="Zone0"
+                                                        id="Zone0" placeholder="Mold Heater Zone 0 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone1" class="form-label">Mold Heater Zone 1
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="Zone1" id="Zone1"
-                                                        placeholder="Mold Heater Zone 1 (°C)">
+                                                    <input type="number" step="any" class="form-control" name="Zone1"
+                                                        id="Zone1" placeholder="Mold Heater Zone 1 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone2" class="form-label">Mold Heater Zone 2
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="Zone2" id="Zone2"
-                                                        placeholder="Mold Heater Zone 2 (°C)">
+                                                    <input type="number" step="any" class="form-control" name="Zone2"
+                                                        id="Zone2" placeholder="Mold Heater Zone 2 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone3" class="form-label">Mold Heater Zone 3
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="Zone3" id="Zone3"
-                                                        placeholder="Mold Heater Zone 3 (°C)">
+                                                    <input type="number" step="any" class="form-control" name="Zone3"
+                                                        id="Zone3" placeholder="Mold Heater Zone 3 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone4" class="form-label">Mold Heater Zone 4
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="Zone4" id="Zone4"
-                                                        placeholder="Mold Heater Zone 4 (°C)">
+                                                    <input type="number" step="any" class="form-control" name="Zone4"
+                                                        id="Zone4" placeholder="Mold Heater Zone 4 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone5" class="form-label">Mold Heater Zone 5
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="Zone5" id="Zone5"
-                                                        placeholder="Mold Heater Zone 5 (°C)">
+                                                    <input type="number" step="any" class="form-control" name="Zone5"
+                                                        id="Zone5" placeholder="Mold Heater Zone 5 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone6" class="form-label">Mold Heater Zone 6
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="Zone6" id="Zone6"
-                                                        placeholder="Mold Heater Zone 6 (°C)">
+                                                    <input type="number" step="any" class="form-control" name="Zone6"
+                                                        id="Zone6" placeholder="Mold Heater Zone 6 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone7" class="form-label">Mold Heater Zone 7
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="Zone7" id="Zone7"
-                                                        placeholder="Mold Heater Zone 7 (°C)">
+                                                    <input type="number" step="any" class="form-control" name="Zone7"
+                                                        id="Zone7" placeholder="Mold Heater Zone 7 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone8" class="form-label">Mold Heater Zone 8
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="Zone8" id="Zone8"
-                                                        placeholder="Mold Heater Zone 8 (°C)">
+                                                    <input type="number" step="any" class="form-control" name="Zone8"
+                                                        id="Zone8" placeholder="Mold Heater Zone 8 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone9" class="form-label">Mold Heater Zone 9
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="Zone9" id="Zone9"
-                                                        placeholder="Mold Heater Zone 9 (°C)">
+                                                    <input type="number" step="any" class="form-control" name="Zone9"
+                                                        id="Zone9" placeholder="Mold Heater Zone 9 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone10" class="form-label">Mold Heater Zone 10
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="Zone10" id="Zone10"
-                                                        placeholder="Mold Heater Zone 10 (°C)">
+                                                    <input type="number" step="any" class="form-control" name="Zone10"
+                                                        id="Zone10" placeholder="Mold Heater Zone 10 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone11" class="form-label">Mold Heater Zone 11
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="Zone11" id="Zone11"
-                                                        placeholder="Mold Heater Zone 11 (°C)">
+                                                    <input type="number" step="any" class="form-control" name="Zone11"
+                                                        id="Zone11" placeholder="Mold Heater Zone 11 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone12" class="form-label">Mold Heater Zone 12
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="Zone12" id="Zone12"
-                                                        placeholder="Mold Heater Zone 12 (°C)">
+                                                    <input type="number" step="any" class="form-control" name="Zone12"
+                                                        id="Zone12" placeholder="Mold Heater Zone 12 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone13" class="form-label">Mold Heater Zone 13
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="Zone13" id="Zone13"
-                                                        placeholder="Mold Heater Zone 13 (°C)">
+                                                    <input type="number" step="any" class="form-control" name="Zone13"
+                                                        id="Zone13" placeholder="Mold Heater Zone 13 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone14" class="form-label">Mold Heater Zone 14
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="Zone14" id="Zone14"
-                                                        placeholder="Mold Heater Zone 14 (°C)">
+                                                    <input type="number" step="any" class="form-control" name="Zone14"
+                                                        id="Zone14" placeholder="Mold Heater Zone 14 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone15" class="form-label">Mold Heater Zone 15
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="Zone15" id="Zone15"
-                                                        placeholder="Mold Heater Zone 15 (°C)">
+                                                    <input type="number" step="any" class="form-control" name="Zone15"
+                                                        id="Zone15" placeholder="Mold Heater Zone 15 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="Zone16" class="form-label">Mold Heater Zone 16
                                                         (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="Zone16" id="Zone16"
-                                                        placeholder="Mold Heater Zone 16 (°C)">
+                                                    <input type="number" step="any" class="form-control" name="Zone16"
+                                                        id="Zone16" placeholder="Mold Heater Zone 16 (°C)">
                                                 </div>
                                                 <div class="col">
                                                     <label for="MTCSetting" class="form-label">MTC Setting</label>
-                                                    <input type="number" step="any" class="form-control" name="MTCSetting"
-                                                        id="MTCSetting" placeholder="MTC Setting">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="MTCSetting" id="MTCSetting" placeholder="MTC Setting">
                                                 </div>
                                             </div>
                                         </div>
@@ -927,33 +940,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                             <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-6 g-3">
                                                 <div class="col">
                                                     <label for="moldOpenPos1" class="form-label">Position 1</label>
-                                                    <input type="number" step="any" class="form-control" name="moldOpenPos1"
-                                                        id="moldOpenPos1" placeholder="Position 1">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldOpenPos1" id="moldOpenPos1" placeholder="Position 1">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPos2" class="form-label">Position 2</label>
-                                                    <input type="number" step="any" class="form-control" name="moldOpenPos2"
-                                                        id="moldOpenPos2" placeholder="Position 2">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldOpenPos2" id="moldOpenPos2" placeholder="Position 2">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPos3" class="form-label">Position 3</label>
-                                                    <input type="number" step="any" class="form-control" name="moldOpenPos3"
-                                                        id="moldOpenPos3" placeholder="Position 3">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldOpenPos3" id="moldOpenPos3" placeholder="Position 3">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPos4" class="form-label">Position 4</label>
-                                                    <input type="number" step="any" class="form-control" name="moldOpenPos4"
-                                                        id="moldOpenPos4" placeholder="Position 4">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldOpenPos4" id="moldOpenPos4" placeholder="Position 4">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPos5" class="form-label">Position 5</label>
-                                                    <input type="number" step="any" class="form-control" name="moldOpenPos5"
-                                                        id="moldOpenPos5" placeholder="Position 5">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldOpenPos5" id="moldOpenPos5" placeholder="Position 5">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPos6" class="form-label">Position 6</label>
-                                                    <input type="number" step="any" class="form-control" name="moldOpenPos6"
-                                                        id="moldOpenPos6" placeholder="Position 6">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldOpenPos6" id="moldOpenPos6" placeholder="Position 6">
                                                 </div>
                                             </div>
                                             <!-- MO Speed -->
@@ -961,33 +974,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                             <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-6 g-3">
                                                 <div class="col">
                                                     <label for="moldOpenSpd1" class="form-label">Speed 1</label>
-                                                    <input type="number" step="any" class="form-control" name="moldOpenSpd1"
-                                                        id="moldOpenSpd1" placeholder="Speed 1">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldOpenSpd1" id="moldOpenSpd1" placeholder="Speed 1">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenSpd2" class="form-label">Speed 2</label>
-                                                    <input type="number" step="any" class="form-control" name="moldOpenSpd2"
-                                                        id="moldOpenSpd2" placeholder="Speed 2">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldOpenSpd2" id="moldOpenSpd2" placeholder="Speed 2">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenSpd3" class="form-label">Speed 3</label>
-                                                    <input type="number" step="any" class="form-control" name="moldOpenSpd3"
-                                                        id="moldOpenSpd3" placeholder="Speed 3">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldOpenSpd3" id="moldOpenSpd3" placeholder="Speed 3">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenSpd4" class="form-label">Speed 4</label>
-                                                    <input type="number" step="any" class="form-control" name="moldOpenSpd4"
-                                                        id="moldOpenSpd4" placeholder="Speed 4">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldOpenSpd4" id="moldOpenSpd4" placeholder="Speed 4">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenSpd5" class="form-label">Speed 5</label>
-                                                    <input type="number" step="any" class="form-control" name="moldOpenSpd5"
-                                                        id="moldOpenSpd5" placeholder="Speed 5">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldOpenSpd5" id="moldOpenSpd5" placeholder="Speed 5">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenSpd6" class="form-label">Speed 6</label>
-                                                    <input type="number" step="any" class="form-control" name="moldOpenSpd6"
-                                                        id="moldOpenSpd6" placeholder="Speed 6">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldOpenSpd6" id="moldOpenSpd6" placeholder="Speed 6">
                                                 </div>
                                             </div>
                                             <!-- MO Pressure -->
@@ -995,33 +1008,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                             <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-6 g-3">
                                                 <div class="col">
                                                     <label for="moldOpenPressure1" class="form-label">Pressure 1</label>
-                                                    <input type="number" step="any" class="form-control" name="moldOpenPressure1"
-                                                        id="moldOpenPressure1" placeholder="Pressure 1">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldOpenPressure1" id="moldOpenPressure1"
+                                                        placeholder="Pressure 1">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPressure2" class="form-label">Pressure 2</label>
-                                                    <input type="number" step="any" class="form-control" name="moldOpenPressure2"
-                                                        id="moldOpenPressure2" placeholder="Pressure 2">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldOpenPressure2" id="moldOpenPressure2"
+                                                        placeholder="Pressure 2">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPressure3" class="form-label">Pressure 3</label>
-                                                    <input type="number" step="any" class="form-control" name="moldOpenPressure3"
-                                                        id="moldOpenPressure3" placeholder="Pressure 3">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldOpenPressure3" id="moldOpenPressure3"
+                                                        placeholder="Pressure 3">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPressure4" class="form-label">Pressure 4</label>
-                                                    <input type="number" step="any" class="form-control" name="moldOpenPressure4"
-                                                        id="moldOpenPressure4" placeholder="Pressure 4">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldOpenPressure4" id="moldOpenPressure4"
+                                                        placeholder="Pressure 4">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPressure5" class="form-label">Pressure 5</label>
-                                                    <input type="number" step="any" class="form-control" name="moldOpenPressure5"
-                                                        id="moldOpenPressure5" placeholder="Pressure 5">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldOpenPressure5" id="moldOpenPressure5"
+                                                        placeholder="Pressure 5">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldOpenPressure6" class="form-label">Pressure 6</label>
-                                                    <input type="number" step="any" class="form-control" name="moldOpenPressure6"
-                                                        id="moldOpenPressure6" placeholder="Pressure 6">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldOpenPressure6" id="moldOpenPressure6"
+                                                        placeholder="Pressure 6">
                                                 </div>
                                             </div>
                                         </div>
@@ -1041,33 +1060,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                             <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-6 g-3">
                                                 <div class="col">
                                                     <label for="moldClosePos1" class="form-label">Position 1</label>
-                                                    <input type="number" step="any" class="form-control" name="moldClosePos1"
-                                                        id="moldClosePos1" placeholder="Position 1">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldClosePos1" id="moldClosePos1"
+                                                        placeholder="Position 1">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldClosePos2" class="form-label">Position 2</label>
-                                                    <input type="number" step="any" class="form-control" name="moldClosePos2"
-                                                        id="moldClosePos2" placeholder="Position 2">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldClosePos2" id="moldClosePos2"
+                                                        placeholder="Position 2">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldClosePos3" class="form-label">Position 3</label>
-                                                    <input type="number" step="any" class="form-control" name="moldClosePos3"
-                                                        id="moldClosePos3" placeholder="Position 3">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldClosePos3" id="moldClosePos3"
+                                                        placeholder="Position 3">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldClosePos4" class="form-label">Position 4</label>
-                                                    <input type="number" step="any" class="form-control" name="moldClosePos4"
-                                                        id="moldClosePos4" placeholder="Position 4">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldClosePos4" id="moldClosePos4"
+                                                        placeholder="Position 4">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldClosePos5" class="form-label">Position 5</label>
-                                                    <input type="number" step="any" class="form-control" name="moldClosePos5"
-                                                        id="moldClosePos5" placeholder="Position 5">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldClosePos5" id="moldClosePos5"
+                                                        placeholder="Position 5">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldClosePos6" class="form-label">Position 6</label>
-                                                    <input type="number" step="any" class="form-control" name="moldClosePos6"
-                                                        id="moldClosePos6" placeholder="Position 6">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldClosePos6" id="moldClosePos6"
+                                                        placeholder="Position 6">
                                                 </div>
                                             </div>
                                             <!-- MO Speed -->
@@ -1075,33 +1100,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                             <div class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-6 g-3">
                                                 <div class="col">
                                                     <label for="moldCloseSpd1" class="form-label">Speed 1</label>
-                                                    <input type="number" step="any" class="form-control" name="moldCloseSpd1"
-                                                        id="moldCloseSpd1" placeholder="Speed 1">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldCloseSpd1" id="moldCloseSpd1" placeholder="Speed 1">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldCloseSpd2" class="form-label">Speed 2</label>
-                                                    <input type="number" step="any" class="form-control" name="moldCloseSpd2"
-                                                        id="moldCloseSpd2" placeholder="Speed 2">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldCloseSpd2" id="moldCloseSpd2" placeholder="Speed 2">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldCloseSpd3" class="form-label">Speed 3</label>
-                                                    <input type="number" step="any" class="form-control" name="moldCloseSpd3"
-                                                        id="moldCloseSpd3" placeholder="Speed 3">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldCloseSpd3" id="moldCloseSpd3" placeholder="Speed 3">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldCloseSpd4" class="form-label">Speed 4</label>
-                                                    <input type="number" step="any" class="form-control" name="moldCloseSpd4"
-                                                        id="moldCloseSpd4" placeholder="Speed 4">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldCloseSpd4" id="moldCloseSpd4" placeholder="Speed 4">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldCloseSpd5" class="form-label">Speed 5</label>
-                                                    <input type="number" step="any" class="form-control" name="moldCloseSpd5"
-                                                        id="moldCloseSpd5" placeholder="Speed 5">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldCloseSpd5" id="moldCloseSpd5" placeholder="Speed 5">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldCloseSpd6" class="form-label">Speed 6</label>
-                                                    <input type="number" step="any" class="form-control" name="moldCloseSpd6"
-                                                        id="moldCloseSpd6" placeholder="Speed 6">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldCloseSpd6" id="moldCloseSpd6" placeholder="Speed 6">
                                                 </div>
                                             </div>
                                             <!-- MO Pressure -->
@@ -1110,20 +1135,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                                 <div class="col">
                                                     <label for="moldClosePressure1" class="form-label">Pressure
                                                         1</label>
-                                                    <input type="number" step="any" class="form-control" name="moldClosePressure1"
-                                                        id="moldClosePressure1" placeholder="Pressure 1">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldClosePressure1" id="moldClosePressure1"
+                                                        placeholder="Pressure 1">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldClosePressure2" class="form-label">Pressure
                                                         2</label>
-                                                    <input type="number" step="any" class="form-control" name="moldClosePressure2"
-                                                        id="moldClosePressure2" placeholder="Pressure 2">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldClosePressure2" id="moldClosePressure2"
+                                                        placeholder="Pressure 2">
                                                 </div>
                                                 <div class="col">
                                                     <label for="moldClosePressure3" class="form-label">Pressure
                                                         3</label>
-                                                    <input type="number" step="any" class="form-control" name="moldClosePressure3"
-                                                        id="moldClosePressure3" placeholder="Pressure 3">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldClosePressure3" id="moldClosePressure3"
+                                                        placeholder="Pressure 3">
                                                 </div>
                                                 <div class="col">
                                                     <label for="pclorlp" class="form-label">PCL/LP</label>
@@ -1138,8 +1166,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                                 <div class="col">
                                                     <label for="lowPresTimeLimit" class="form-label">Low Pressure Time
                                                         Limit</label>
-                                                    <input type="number" step="any" class="form-control" name="lowPresTimeLimit"
-                                                        id="lowPresTimeLimit" placeholder="Low Pressure Time Limit">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="lowPresTimeLimit" id="lowPresTimeLimit"
+                                                        placeholder="Low Pressure Time Limit">
                                                 </div>
                                             </div>
                                         </div>
@@ -1195,52 +1224,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="plastPressure1" class="form-label">Plast Pressure 1</label>
-                                                <input type="number" step="any" class="form-control" name="plastPressure1"
-                                                    id="plastPressure1" placeholder="Plast Pressure 1">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="plastPressure1" id="plastPressure1"
+                                                    placeholder="Plast Pressure 1">
                                             </div>
                                             <div class="col">
                                                 <label for="plastPressure2" class="form-label">Plast Pressure 2</label>
-                                                <input type="number" step="any" class="form-control" name="plastPressure2"
-                                                    id="plastPressure2" placeholder="Plast Pressure 2">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="plastPressure2" id="plastPressure2"
+                                                    placeholder="Plast Pressure 2">
                                             </div>
                                             <div class="col">
                                                 <label for="plastPressure3" class="form-label">Plast Pressure 3</label>
-                                                <input type="number" step="any" class="form-control" name="plastPressure3"
-                                                    id="plastPressure3" placeholder="Plast Pressure 3">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="plastPressure3" id="plastPressure3"
+                                                    placeholder="Plast Pressure 3">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="plastPosition1" class="form-label">Plast Position 1</label>
-                                                <input type="number" step="any" class="form-control" name="plastPosition1"
-                                                    id="plastPosition1" placeholder="Plast Position 1">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="plastPosition1" id="plastPosition1"
+                                                    placeholder="Plast Position 1">
                                             </div>
                                             <div class="col">
                                                 <label for="plastPosition2" class="form-label">Plast Position 2</label>
-                                                <input type="number" step="any" class="form-control" name="plastPosition2"
-                                                    id="plastPosition2" placeholder="Plast Position 2">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="plastPosition2" id="plastPosition2"
+                                                    placeholder="Plast Position 2">
                                             </div>
                                             <div class="col">
                                                 <label for="plastPosition3" class="form-label">Plast Position 3</label>
-                                                <input type="number" step="any" class="form-control" name="plastPosition3"
-                                                    id="plastPosition3" placeholder="Plast Position 3">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="plastPosition3" id="plastPosition3"
+                                                    placeholder="Plast Position 3">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="backPressure1" class="form-label">Back Pressure 1</label>
-                                                <input type="number" step="any" class="form-control" name="backPressure1"
-                                                    id="backPressure1" placeholder="Back Pressure 1">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="backPressure1" id="backPressure1"
+                                                    placeholder="Back Pressure 1">
                                             </div>
                                             <div class="col">
                                                 <label for="backPressure2" class="form-label">Back Pressure 2</label>
-                                                <input type="number" step="any" class="form-control" name="backPressure2"
-                                                    id="backPressure2" placeholder="Back Pressure 2">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="backPressure2" id="backPressure2"
+                                                    placeholder="Back Pressure 2">
                                             </div>
                                             <div class="col">
                                                 <label for="backPressure3" class="form-label">Back Pressure 3</label>
-                                                <input type="number" step="any" class="form-control" name="backPressure3"
-                                                    id="backPressure3" placeholder="Back Pressure 3">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="backPressure3" id="backPressure3"
+                                                    placeholder="Back Pressure 3">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
@@ -1272,147 +1310,170 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                             <div class="col">
                                                 <label for="RecoveryPosition" class="form-label">Recovery Position
                                                     (mm)</label>
-                                                <input type="number" step="any" class="form-control" name="RecoveryPosition"
-                                                    id="RecoveryPosition" placeholder="Recovery Position">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="RecoveryPosition" id="RecoveryPosition"
+                                                    placeholder="Recovery Position">
                                             </div>
                                             <div class="col">
                                                 <label for="SecondStagePosition" class="form-label">Second Stage
                                                     Position (mm)</label>
-                                                <input type="number" step="any" class="form-control" name="SecondStagePosition"
-                                                    id="SecondStagePosition" placeholder="Second Stage Position">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="SecondStagePosition" id="SecondStagePosition"
+                                                    placeholder="Second Stage Position">
                                             </div>
                                             <div class="col">
                                                 <label for="Cushion" class="form-label">Cushion (mm)</label>
-                                                <input type="number" step="any" class="form-control" name="Cushion" id="Cushion"
-                                                    placeholder="Cushion">
+                                                <input type="number" step="any" class="form-control" name="Cushion"
+                                                    id="Cushion" placeholder="Cushion">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="screwPosition1" class="form-label">Screw Position 1</label>
-                                                <input type="number" step="any" class="form-control" name="ScrewPosition1"
-                                                    id="screwPosition1" placeholder="Screw Position 1">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="ScrewPosition1" id="screwPosition1"
+                                                    placeholder="Screw Position 1">
                                             </div>
                                             <div class="col">
                                                 <label for="screwPosition2" class="form-label">Screw Position 2</label>
-                                                <input type="number" step="any" class="form-control" name="ScrewPosition2"
-                                                    id="screwPosition2" placeholder="Screw Position 2">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="ScrewPosition2" id="screwPosition2"
+                                                    placeholder="Screw Position 2">
                                             </div>
                                             <div class="col">
                                                 <label for="screwPosition3" class="form-label">Screw Position 3</label>
-                                                <input type="number" step="any" class="form-control" name="ScrewPosition3"
-                                                    id="screwPosition3" placeholder="Screw Position 3">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="ScrewPosition3" id="screwPosition3"
+                                                    placeholder="Screw Position 3">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="INJSpeed1" class="form-label">Injection Speed 1</label>
-                                                <input type="number" step="any" class="form-control" name="InjectionSpeed1"
-                                                    id="injectionSpeed1" placeholder="Injection Speed 1">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="InjectionSpeed1" id="injectionSpeed1"
+                                                    placeholder="Injection Speed 1">
                                             </div>
                                             <div class="col">
                                                 <label for="INJSpeed2" class="form-label">Injection Speed 2</label>
-                                                <input type="number" step="any" class="form-control" name="InjectionSpeed2"
-                                                    id="injectionSpeed2" placeholder="Injection Speed 2">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="InjectionSpeed2" id="injectionSpeed2"
+                                                    placeholder="Injection Speed 2">
                                             </div>
                                             <div class="col">
                                                 <label for="INJSpeed3" class="form-label">Injection Speed 3</label>
-                                                <input type="number" step="any" class="form-control" name="InjectionSpeed3"
-                                                    id="injectionSpeed3" placeholder="Injection Speed 3">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="InjectionSpeed3" id="injectionSpeed3"
+                                                    placeholder="Injection Speed 3">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="INJPressure1" class="form-label">Injection Pressure
                                                     1</label>
-                                                <input type="number" step="any" class="form-control" name="InjectionPressure1"
-                                                    id="injectionPressure1" placeholder="Injection Pressure 1">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="InjectionPressure1" id="injectionPressure1"
+                                                    placeholder="Injection Pressure 1">
                                             </div>
                                             <div class="col">
                                                 <label for="INJPressure2" class="form-label">Injection Pressure
                                                     2</label>
-                                                <input type="number" step="any" class="form-control" name="InjectionPressure2"
-                                                    id="injectionPressure2" placeholder="Injection Pressure 2">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="InjectionPressure2" id="injectionPressure2"
+                                                    placeholder="Injection Pressure 2">
                                             </div>
                                             <div class="col">
                                                 <label for="INJPressure3" class="form-label">Injection Pressure
                                                     3</label>
-                                                <input type="number" step="any" class="form-control" name="InjectionPressure3"
-                                                    id="injectionPressure3" placeholder="Injection Pressure 3">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="InjectionPressure3" id="injectionPressure3"
+                                                    placeholder="Injection Pressure 3">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="SuckBackPos" class="form-label">Suck Back Position</label>
-                                                <input type="number" step="any" class="form-control" name="SuckBackPosition"
-                                                    id="suckBackPosition" placeholder="Suck Back Position">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="SuckBackPosition" id="suckBackPosition"
+                                                    placeholder="Suck Back Position">
                                             </div>
                                             <div class="col">
                                                 <label for="SuckBackSpeed" class="form-label">Suck Back Speed</label>
-                                                <input type="number" step="any" class="form-control" name="SuckBackSpeed"
-                                                    id="suckBackSpeed" placeholder="Suck Back Speed">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="SuckBackSpeed" id="suckBackSpeed"
+                                                    placeholder="Suck Back Speed">
                                             </div>
                                             <div class="col">
                                                 <label for="SuckBackPres" class="form-label">Suck Back Pressure</label>
-                                                <input type="number" step="any" class="form-control" name="SuckBackPressure"
-                                                    id="suckBackPressure" placeholder="Suck Back Pressure">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="SuckBackPressure" id="suckBackPressure"
+                                                    placeholder="Suck Back Pressure">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="ScrewPosition4" class="form-label">Screw Position 4</label>
-                                                <input type="number" step="any" class="form-control" name="ScrewPosition4"
-                                                    id="screwPosition4" placeholder="Screw Position 4">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="ScrewPosition4" id="screwPosition4"
+                                                    placeholder="Screw Position 4">
                                             </div>
                                             <div class="col">
                                                 <label for="ScrewPosition5" class="form-label">Screw Position 5</label>
-                                                <input type="number" step="any" class="form-control" name="ScrewPosition5"
-                                                    id="ScrewPosition5" placeholder="Screw Position 5">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="ScrewPosition5" id="ScrewPosition5"
+                                                    placeholder="Screw Position 5">
                                             </div>
                                             <div class="col">
                                                 <label for="ScrewPosition6" class="form-label">Screw Position 6</label>
-                                                <input type="number" step="any" class="form-control" name="ScrewPosition6"
-                                                    id="ScrewPosition6" placeholder="Screw Position 6">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="ScrewPosition6" id="ScrewPosition6"
+                                                    placeholder="Screw Position 6">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="InjectionSpeed4" class="form-label">Injection Speed
                                                     4</label>
-                                                <input type="number" step="any" class="form-control" name="InjectionSpeed4"
-                                                    id="InjectionSpeed4" placeholder="Injection Speed 4">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="InjectionSpeed4" id="InjectionSpeed4"
+                                                    placeholder="Injection Speed 4">
                                             </div>
                                             <div class="col">
                                                 <label for="InjectionSpeed5" class="form-label">Injection Speed
                                                     5</label>
-                                                <input type="number" step="any" class="form-control" name="InjectionSpeed5"
-                                                    id="InjectionSpeed5" placeholder="Injection Speed 5">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="InjectionSpeed5" id="InjectionSpeed5"
+                                                    placeholder="Injection Speed 5">
                                             </div>
                                             <div class="col">
                                                 <label for="InjectionSpeed6" class="form-label">Injection Speed
                                                     6</label>
-                                                <input type="number" step="any" class="form-control" name="InjectionSpeed6"
-                                                    id="InjectionSpeed6" placeholder="Injection Speed 6">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="InjectionSpeed6" id="InjectionSpeed6"
+                                                    placeholder="Injection Speed 6">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="InjectionPressure4" class="form-label">Injection Pressure
                                                     4</label>
-                                                <input type="number" step="any" class="form-control" name="InjectionPressure4"
-                                                    id="InjectionPressure4" placeholder="Injection Pressure 4">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="InjectionPressure4" id="InjectionPressure4"
+                                                    placeholder="Injection Pressure 4">
                                             </div>
                                             <div class="col">
                                                 <label for="InjectionPressure5" class="form-label">Injection Pressure
                                                     5</label>
-                                                <input type="number" step="any" class="form-control" name="InjectionPressure5"
-                                                    id="InjectionPressure5" placeholder="Injection Pressure 5">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="InjectionPressure5" id="InjectionPressure5"
+                                                    placeholder="Injection Pressure 5">
                                             </div>
                                             <div class="col">
                                                 <label for="InjectionPressure6" class="form-label">Injection Pressure
                                                     6</label>
-                                                <input type="number" step="any" class="form-control" name="InjectionPressure6"
-                                                    id="InjectionPressure6" placeholder="Injection Pressure 6">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="InjectionPressure6" id="InjectionPressure6"
+                                                    placeholder="Injection Pressure 6">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
@@ -1423,47 +1484,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                             </div>
                                             <div class="col">
                                                 <label for="SprueBreakTime" class="form-label">Sprue Break Time</label>
-                                                <input type="number" step="any" class="form-control" name="SprueBreakTime"
-                                                    id="SprueBreakTime" placeholder="Sprue Break Time">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="SprueBreakTime" id="SprueBreakTime"
+                                                    placeholder="Sprue Break Time">
                                             </div>
                                             <div class="col">
                                                 <label for="InjectionDelay" class="form-label">Injection Delay</label>
-                                                <input type="number" step="any" class="form-control" name="InjectionDelay"
-                                                    id="InjectionDelay" placeholder="Injection Delay">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="InjectionDelay" id="InjectionDelay"
+                                                    placeholder="Injection Delay">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="HoldingPres1" class="form-label">Holding Pressure 1</label>
-                                                <input type="number" step="any" class="form-control" name="HoldingPressure1"
-                                                    id="HoldingPres1" placeholder="Holding Pressure 1">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="HoldingPressure1" id="HoldingPres1"
+                                                    placeholder="Holding Pressure 1">
                                             </div>
                                             <div class="col">
                                                 <label for="HoldingPres2" class="form-label">Holding Pressure 2</label>
-                                                <input type="number" step="any" class="form-control" name="HoldingPressure2"
-                                                    id="HoldingPres2" placeholder="Holding Pressure 2">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="HoldingPressure2" id="HoldingPres2"
+                                                    placeholder="Holding Pressure 2">
                                             </div>
                                             <div class="col">
                                                 <label for="HoldingPres3" class="form-label">Holding Pressure 3</label>
-                                                <input type="number" step="any" class="form-control" name="HoldingPressure3"
-                                                    id="HoldingPres3" placeholder="Holding Pressure 3">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="HoldingPressure3" id="HoldingPres3"
+                                                    placeholder="Holding Pressure 3">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="HoldingSpeed1" class="form-label">Holding Speed 1</label>
-                                                <input type="number" step="any" class="form-control" name="HoldingSpeed1"
-                                                    id="HoldingSpeed1" placeholder="Holding Speed 1">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="HoldingSpeed1" id="HoldingSpeed1"
+                                                    placeholder="Holding Speed 1">
                                             </div>
                                             <div class="col">
                                                 <label for="HoldingSpeed2" class="form-label">Holding Speed 2</label>
-                                                <input type="number" step="any" class="form-control" name="HoldingSpeed2"
-                                                    id="HoldingSpeed2" placeholder="Holding Speed 2">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="HoldingSpeed2" id="HoldingSpeed2"
+                                                    placeholder="Holding Speed 2">
                                             </div>
                                             <div class="col">
                                                 <label for="HoldingSpeed3" class="form-label">Holding Speed 3</label>
-                                                <input type="number" step="any" class="form-control" name="HoldingSpeed3"
-                                                    id="HoldingSpeed3" placeholder="Holding Speed 3">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="HoldingSpeed3" id="HoldingSpeed3"
+                                                    placeholder="Holding Speed 3">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
@@ -1507,13 +1576,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                             <div class="col">
                                                 <label for="AirBlowPositionA" class="form-label">Air Blow Position
                                                     A</label>
-                                                <input type="number" step="any" class="form-control" name="AirBlowPositionA"
-                                                    id="airBlowPositionA" placeholder="Air Blow Position A">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="AirBlowPositionA" id="airBlowPositionA"
+                                                    placeholder="Air Blow Position A">
                                             </div>
                                             <div class="col">
                                                 <label for="AB A Delay" class="form-label">Air Blow A Delay</label>
-                                                <input type="number" step="any" class="form-control" name="AirBlowADelay"
-                                                    id="airBlowADelay" placeholder="Air Blow A Delay">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="AirBlowADelay" id="airBlowADelay"
+                                                    placeholder="Air Blow A Delay">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
@@ -1525,13 +1596,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                             <div class="col">
                                                 <label for="AirBlowPositionB" class="form-label">Air Blow Position
                                                     B</label>
-                                                <input type="number" step="any" class="form-control" name="AirBlowPositionB"
-                                                    id="airBlowPositionB" placeholder="Air Blow Position B">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="AirBlowPositionB" id="airBlowPositionB"
+                                                    placeholder="Air Blow Position B">
                                             </div>
                                             <div class="col">
                                                 <label for="AirBlowBDelay" class="form-label">Air Blow B Delay</label>
-                                                <input type="number" step="any" class="form-control" name="AirBlowBDelay"
-                                                    id="airBlowBDelay" placeholder="Air Blow B Delay">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="AirBlowBDelay" id="airBlowBDelay"
+                                                    placeholder="Air Blow B Delay">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
@@ -1539,22 +1612,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                                 <label for="EjectorForwardPosition1" class="form-label">Ejector Forward
                                                     Position
                                                     1</label>
-                                                <input type="number" step="any" class="form-control" name="EjectorForwardPosition1"
-                                                    id="EjectorForwardPosition1"
+                                                <input type="number" step="any" class="form-control"
+                                                    name="EjectorForwardPosition1" id="EjectorForwardPosition1"
                                                     placeholder="Ejector Forward Position 1">
                                             </div>
                                             <div class="col">
                                                 <label for="EjectorForwardPosition2" class="form-label">Ejector Forward
                                                     Position
                                                     2</label>
-                                                <input type="number" step="any" class="form-control" name="EjectorForwardPosition2"
-                                                    id="EjectorForwardPosition2"
+                                                <input type="number" step="any" class="form-control"
+                                                    name="EjectorForwardPosition2" id="EjectorForwardPosition2"
                                                     placeholder="Ejector Forward Position 2">
                                             </div>
                                             <div class="col">
                                                 <label for="EFSpeed1" class="form-label">Ejector Forward Speed 1</label>
-                                                <input type="number" step="any" class="form-control" name="EjectorForwardSpeed1"
-                                                    id="ejectorForwardSpeed1" placeholder="Ejector Forward Speed 1">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="EjectorForwardSpeed1" id="ejectorForwardSpeed1"
+                                                    placeholder="Ejector Forward Speed 1">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
@@ -1562,65 +1636,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                                 <label for="EjectorRetractPosition1" class="form-label">Ejector Retract
                                                     Position
                                                     1</label>
-                                                <input type="number" step="any" class="form-control" name="EjectorRetractPosition1"
-                                                    id="ejectorRetractPosition1"
+                                                <input type="number" step="any" class="form-control"
+                                                    name="EjectorRetractPosition1" id="ejectorRetractPosition1"
                                                     placeholder="Ejector Retract Position 1">
                                             </div>
                                             <div class="col">
                                                 <label for="EjectorRetractPosition2" class="form-label">Ejector Retract
                                                     Position
                                                     2</label>
-                                                <input type="number" step="any" class="form-control" name="EjectorRetractPosition2"
-                                                    id="ejectorRetractPosition2"
+                                                <input type="number" step="any" class="form-control"
+                                                    name="EjectorRetractPosition2" id="ejectorRetractPosition2"
                                                     placeholder="Ejector Retract Position 2">
                                             </div>
                                             <div class="col">
                                                 <label for="Ejector Retract Speed1" class="form-label">Ejector Retract
                                                     Speed
                                                     1</label>
-                                                <input type="number" step="any" class="form-control" name="EjectorRetractSpeed1"
-                                                    id="ejectorRetractSpeed1" placeholder="Ejector Retract Speed 1">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="EjectorRetractSpeed1" id="ejectorRetractSpeed1"
+                                                    placeholder="Ejector Retract Speed 1">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="EjectorForwardPosition" class="form-label">Ejector Forward
                                                     Position</label>
-                                                <input type="number" step="any" class="form-control" name="EjectorForwardPosition"
-                                                    id="ejectorForwardPosition" placeholder="Ejector Forward Position">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="EjectorForwardPosition" id="ejectorForwardPosition"
+                                                    placeholder="Ejector Forward Position">
                                             </div>
                                             <div class="col">
                                                 <label for="EjectorForwardTime" class="form-label">Ejector Forward
                                                     Time</label>
-                                                <input type="number" step="any" class="form-control" name="EjectorForwardTime"
-                                                    id="ejectorForwardTime" placeholder="Ejector Forward Time">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="EjectorForwardTime" id="ejectorForwardTime"
+                                                    placeholder="Ejector Forward Time">
                                             </div>
                                             <div class="col">
                                                 <label for="EjectorRetractPosition" class="form-label">Ejector Retract
                                                     Position</label>
-                                                <input type="number" step="any" class="form-control" name="EjectorRetractPosition"
-                                                    id="ejectorRetractPosition" placeholder="Ejector Retract Position">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="EjectorRetractPosition" id="ejectorRetractPosition"
+                                                    placeholder="Ejector Retract Position">
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label for="EjectorRetractTime" class="form-label">Ejector Retract
                                                     Time</label>
-                                                <input type="number" step="any" class="form-control" name="EjectorRetractTime"
-                                                    id="ejectorRetractTime" placeholder="Ejector Retract Time">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="EjectorRetractTime" id="ejectorRetractTime"
+                                                    placeholder="Ejector Retract Time">
                                             </div>
                                             <div class="col">
                                                 <label for="EjectorForwardSpeed2" class="form-label">Ejector Forward
                                                     Speed 2</label>
-                                                <input type="number" step="any" class="form-control" name="EjectorForwardSpeed2"
-                                                    id="ejectorForwardSpeed2" placeholder="Ejector Forward Speed2">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="EjectorForwardSpeed2" id="ejectorForwardSpeed2"
+                                                    placeholder="Ejector Forward Speed2">
                                             </div><!--sub field-->
                                             <div class="col">
                                                 <label for="EjectorForwardPressure1" class="form-label">Ejector Forward
                                                     Pressure
                                                     1</label>
-                                                <input type="number" step="any" class="form-control" name="EjectorForwardPressure1"
-                                                    id="ejectorForwardPressure1"
+                                                <input type="number" step="any" class="form-control"
+                                                    name="EjectorForwardPressure1" id="ejectorForwardPressure1"
                                                     placeholder="Ejector Forward Pressure 1">
                                             </div>
                                         </div>
@@ -1628,20 +1708,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                             <div class="col">
                                                 <label for="EjectorForwardSpeed2" class="form-label">Ejector Forward
                                                     Speed 2</label>
-                                                <input type="number" step="any" class="form-control" name="EjectorForwardSpeed2"
-                                                    id="ejectorForwardSpeed2" placeholder="Ejector Forward Speed 2">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="EjectorForwardSpeed2" id="ejectorForwardSpeed2"
+                                                    placeholder="Ejector Forward Speed 2">
                                             </div>
                                             <!--sub field-->
                                             <div class="col">
                                                 <label for="EjectorForward" class="form-label">Ejector Forward</label>
-                                                <input type="number" step="any" class="form-control" name="EjectorForward"
-                                                    id="ejectorForward" placeholder="Ejector Forward">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="EjectorForward" id="ejectorForward"
+                                                    placeholder="Ejector Forward">
                                             </div>
                                             <div class="col">
                                                 <label for="EjectorRetractSpeed2" class="form-label">Ejector Retract
                                                     Speed 2</label>
-                                                <input type="number" step="any" class="form-control" name="EjectorRetractSpeed2"
-                                                    id="ejectorRetractSpeed2" placeholder="Ejector Retract Speed 2">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="EjectorRetractSpeed2" id="ejectorRetractSpeed2"
+                                                    placeholder="Ejector Retract Speed 2">
                                             </div>
                                         </div>
                                         <!--sub field-->
@@ -1650,21 +1733,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                                 <label for="EjectorRetractPressure1" class="form-label">Ejector Retract
                                                     Pressure
                                                     1</label>
-                                                <input type="number" step="any" class="form-control" name="EjectorRetractPressure1"
-                                                    id="ejectorRetractPressure1"
+                                                <input type="number" step="any" class="form-control"
+                                                    name="EjectorRetractPressure1" id="ejectorRetractPressure1"
                                                     placeholder="Ejector Retract Pressure 1">
                                             </div>
                                             <div class="col">
                                                 <label for="EjectorRetractSpeed2" class="form-label">Ejector Retract
                                                     Speed 2</label>
-                                                <input type="number" step="any" class="form-control" name="EjectorRetractSpeed2"
-                                                    id="ejectorRetractSpeed2" placeholder="Ejector Retract Speed 2">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="EjectorRetractSpeed2" id="ejectorRetractSpeed2"
+                                                    placeholder="Ejector Retract Speed 2">
                                             </div>
                                             <!--sub field-->
                                             <div class="col">
                                                 <label for="EjectorRetract" class="form-label">Ejector Retract</label>
-                                                <input type="number" step="any" class="form-control" name="EjectorRetract"
-                                                    id="ejectorRetract" placeholder="Ejector Retract">
+                                                <input type="number" step="any" class="form-control"
+                                                    name="EjectorRetract" id="ejectorRetract"
+                                                    placeholder="Ejector Retract">
                                             </div>
                                         </div>
                                     </div>
@@ -1695,39 +1780,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                                 <div class="col">
                                                     <label for="coreSetASequence" class="form-label">Core Set A
                                                         Sequence</label>
-                                                    <input type="number" step="any" class="form-control" name="coreSetASequence"
-                                                        id="coreSetASequence" placeholder="Core Set A Sequence">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="coreSetASequence" id="coreSetASequence"
+                                                        placeholder="Core Set A Sequence">
                                                 </div>
                                                 <div class="col">
                                                     <label for="coreSetAPressure" class="form-label">Core Set A Pressure
                                                         ()</label>
-                                                    <input type="number" step="any" class="form-control" name="coreSetAPressure"
-                                                        id="coreSetAPressure" placeholder="Core Set A Pressure">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="coreSetAPressure" id="coreSetAPressure"
+                                                        placeholder="Core Set A Pressure">
                                                 </div>
                                                 <div class="col">
                                                     <label for="coreSetASpeed" class="form-label">Core Set A
                                                         Speed</label>
-                                                    <input type="number" step="any" class="form-control" name="coreSetASpeed"
-                                                        id="coreSetASpeed" placeholder="Core Set A Speed">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="coreSetASpeed" id="coreSetASpeed"
+                                                        placeholder="Core Set A Speed">
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col">
                                                     <label for="coreSetAPosition" class="form-label">Core Set A
                                                         Position</label>
-                                                    <input type="number" step="any" class="form-control" name="coreSetAPosition"
-                                                        id="coreSetAPosition" placeholder="Core Set A Position">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="coreSetAPosition" id="coreSetAPosition"
+                                                        placeholder="Core Set A Position">
                                                 </div>
                                                 <div class="col">
                                                     <label for="coreSetATime" class="form-label">Core Set A Time</label>
-                                                    <input type="number" step="any" class="form-control" name="coreSetATime"
-                                                        id="coreSetATime" placeholder="Core Set A Time">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="coreSetATime" id="coreSetATime"
+                                                        placeholder="Core Set A Time">
                                                 </div>
                                                 <div class="col">
                                                     <label for="coreSetALimitSwitch" class="form-label">Core Set A Limit
                                                         Switch</label>
-                                                    <input type="number" step="any" class="form-control" name="coreSetALimitSwitch"
-                                                        id="coreSetALimitSwitch" placeholder="Core Set A Limit Switch">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="coreSetALimitSwitch" id="coreSetALimitSwitch"
+                                                        placeholder="Core Set A Limit Switch">
                                                 </div>
                                             </div>
                                         </div>
@@ -1745,35 +1836,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                                 <div class="col">
                                                     <label for="corePullASequence" class="form-label">Core Pull A
                                                         Sequence</label>
-                                                    <input type="number" step="any" class="form-control" name="corePullASequence"
-                                                        id="corePullASequence" placeholder="Core Pull A Sequence">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="corePullASequence" id="corePullASequence"
+                                                        placeholder="Core Pull A Sequence">
                                                 </div>
                                                 <div class="col">
                                                     <label for="corePullAPressure" class="form-label">Core Pull A
                                                         Pressure
                                                         ()</label>
-                                                    <input type="number" step="any" class="form-control" name="corePullAPressure"
-                                                        id="corePullAPressure" placeholder="Core Pull A Pressure">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="corePullAPressure" id="corePullAPressure"
+                                                        placeholder="Core Pull A Pressure">
                                                 </div>
                                                 <div class="col">
                                                     <label for="corePullASpeed" class="form-label">Core Pull A
                                                         Speed</label>
-                                                    <input type="number" step="any" class="form-control" name="corePullASpeed"
-                                                        id="corePullASpeed" placeholder="Core Pull A Speed">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="corePullASpeed" id="corePullASpeed"
+                                                        placeholder="Core Pull A Speed">
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col">
                                                     <label for="corePullAPosition" class="form-label">Core Pull A
                                                         Position</label>
-                                                    <input type="number" step="any" class="form-control" name="corePullAPosition"
-                                                        id="corePullAPosition" placeholder="Core Pull A Position">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="corePullAPosition" id="corePullAPosition"
+                                                        placeholder="Core Pull A Position">
                                                 </div>
                                                 <div class="col">
                                                     <label for="corePullATime" class="form-label">Core Pull A
                                                         Time</label>
-                                                    <input type="number" step="any" class="form-control" name="corePullATime"
-                                                        id="corePullATime" placeholder="Core Pull A Time">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="corePullATime" id="corePullATime"
+                                                        placeholder="Core Pull A Time">
                                                 </div>
                                                 <div class="col">
                                                     <label for="corePullALimitSwitch" class="form-label">Core Pull A
@@ -1799,39 +1895,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                                 <div class="col">
                                                     <label for="coreSetBSequence" class="form-label">Core Set B
                                                         Sequence</label>
-                                                    <input type="number" step="any" class="form-control" name="coreSetBSequence"
-                                                        id="coreSetBSequence" placeholder="Core Set B Sequence">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="coreSetBSequence" id="coreSetBSequence"
+                                                        placeholder="Core Set B Sequence">
                                                 </div>
                                                 <div class="col">
                                                     <label for="coreSetBPressure" class="form-label">Core Set B Pressure
                                                         ()</label>
-                                                    <input type="number" step="any" class="form-control" name="coreSetBPressure"
-                                                        id="coreSetBPressure" placeholder="Core Set B Pressure">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="coreSetBPressure" id="coreSetBPressure"
+                                                        placeholder="Core Set B Pressure">
                                                 </div>
                                                 <div class="col">
                                                     <label for="coreSetBSpeed" class="form-label">Core Set B
                                                         Speed</label>
-                                                    <input type="number" step="any" class="form-control" name="coreSetBSpeed"
-                                                        id="coreSetBSpeed" placeholder="Core Set B Speed">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="coreSetBSpeed" id="coreSetBSpeed"
+                                                        placeholder="Core Set B Speed">
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col">
                                                     <label for="coreSetBPosition" class="form-label">Core Set B
                                                         Position</label>
-                                                    <input type="number" step="any" class="form-control" name="coreSetBPosition"
-                                                        id="coreSetBPosition" placeholder="Core Set B Position">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="coreSetBPosition" id="coreSetBPosition"
+                                                        placeholder="Core Set B Position">
                                                 </div>
                                                 <div class="col">
                                                     <label for="coreSetBTime" class="form-label">Core Set B Time</label>
-                                                    <input type="number" step="any" class="form-control" name="coreSetBTime"
-                                                        id="coreSetBTime" placeholder="Core Set B Time">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="coreSetBTime" id="coreSetBTime"
+                                                        placeholder="Core Set B Time">
                                                 </div>
                                                 <div class="col">
                                                     <label for="coreSetBLimitSwitch" class="form-label">Core Set B Limit
                                                         Switch</label>
-                                                    <input type="number" step="any" class="form-control" name="coreSetBLimitSwitch"
-                                                        id="coreSetBLimitSwitch" placeholder="Core Set B Limit Switch">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="coreSetBLimitSwitch" id="coreSetBLimitSwitch"
+                                                        placeholder="Core Set B Limit Switch">
                                                 </div>
                                             </div>
                                         </div>
@@ -1848,35 +1950,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                                 <div class="col">
                                                     <label for="corePullBSequence" class="form-label">Core Pull B
                                                         Sequence</label>
-                                                    <input type="number" step="any" class="form-control" name="corePullBSequence"
-                                                        id="corePullBSequence" placeholder="Core Pull B Sequence">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="corePullBSequence" id="corePullBSequence"
+                                                        placeholder="Core Pull B Sequence">
                                                 </div>
                                                 <div class="col">
                                                     <label for="corePullBPressure" class="form-label">Core Pull B
                                                         Pressure
                                                         ()</label>
-                                                    <input type="number" step="any" class="form-control" name="corePullBPressure"
-                                                        id="corePullBPressure" placeholder="Core Pull B Pressure">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="corePullBPressure" id="corePullBPressure"
+                                                        placeholder="Core Pull B Pressure">
                                                 </div>
                                                 <div class="col">
                                                     <label for="corePullBSpeed" class="form-label">Core Pull B
                                                         Speed</label>
-                                                    <input type="number" step="any" class="form-control" name="corePullBSpeed"
-                                                        id="corePullBSpeed" placeholder="Core Pull B Speed">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="corePullBSpeed" id="corePullBSpeed"
+                                                        placeholder="Core Pull B Speed">
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col">
                                                     <label for="corePullBPosition" class="form-label">Core Pull B
                                                         Position</label>
-                                                    <input type="number" step="any" class="form-control" name="corePullBPosition"
-                                                        id="corePullBPosition" placeholder="Core Pull B Position">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="corePullBPosition" id="corePullBPosition"
+                                                        placeholder="Core Pull B Position">
                                                 </div>
                                                 <div class="col">
                                                     <label for="corePullBTime" class="form-label">Core Pull B
                                                         Time</label>
-                                                    <input type="number" step="any" class="form-control" name="corePullBTime"
-                                                        id="corePullBTime" placeholder="Core Pull B Time">
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="corePullBTime" id="corePullBTime"
+                                                        placeholder="Core Pull B Time">
                                                 </div>
                                                 <div class="col">
                                                     <label for="corePullBLimitSwitch" class="form-label">Core Pull B
@@ -2034,293 +2141,167 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
         let selectedImageFiles = [];
         let selectedVideoFiles = [];
 
-        // Product list for autocomplete
-        const productList = [
-            "120L Trash Bin Cover",
-            "120L Trash Bin Screws",
-            "12oz Shell Plastic Crate",
-            "12oz Shell Plastic Crate (COKE)",
-            "12oz Shell Plastic Crate (PEPSI)",
-            "16L Square Pail Body",
-            "1L Container Body",
-            "1L Shell Plastic Crate",
-            "1L Shell Plastic Crate (Coke)",
-            "1L Shell Plastic Crate (Pepsi)",
-            "2.6L Square Pail Cover",
-            "2.8L Basin Cover",
-            "20F BODY",
-            "20F COVER",
-            "24B Crate",
-            "25F Body",
-            "25F/55F Cover",
-            "25F/55F Pin",
-            "2FT HANGER",
-            "3.5L Cover Wonder Mayo",
-            "3.5L P. Jar Body",
-            "30F Body",
-            "30F/50F Cover",
-            "36-2M",
-            "36-B2",
-            "36-BJ",
-            "50-BJ Bottom",
-            "50-BJ Cover",
-            "50-BJ Frame",
-            "50-BJ Sides",
-            "50-BJ Sliding Lock",
-            "50-BJ Top",
-            "50F Body",
-            "55F Body",
-            "80F Body",
-            "80F cover",
-            "8oz Shell Plastic Crate",
-            "8oz Shell Plastic Crate (COKE)",
-            "8oz Shell Plastic Crate (PEPSI)",
-            "9-B2",
-            "Adjustable Footing - Dispenser Body",
-            "Aries Side Chair",
-            "B-2",
-            "B1",
-            "B1-A",
-            "B1-C",
-            "B1-P",
-            "Bale Handle",
-            "Banera",
-            "Bin Box",
-            "CF-1J",
-            "CF-1JN",
-            "Chick Crate",
-            "Chicken House Footing  8\" w/ Slot",
-            "Chicken House Footing 10\" w/ Slot",
-            "Chicken House Footing 12\"",
-            "Chicken House Footing 12\" w/ Slot",
-            "Chicken House Footing 8\"",
-            "Chicken House Matting 2x2",
-            "Chicken House Matting 2x4",
-            "Chicken House Footing 10\"",
-            "CL-1",
-            "CL-1B",
-            "CL-10",
-            "CL-2",
-            "CL-2B",
-            "CL-3",
-            "CL-4",
-            "CL-4B",
-            "CL-5",
-            "CL-6",
-            "CL-7",
-            "CL-8",
-            "CL-9",
-            "Closure Cap",
-            "Closure Spout (Bridge)",
-            "CM-1",
-            "CM-2",
-            "CM-2B",
-            "CM-2F",
-            "CM-2J",
-            "CM-3",
-            "CM-3B",
-            "CM-4",
-            "CM-4F",
-            "CM-5",
-            "CM-6",
-            "CM-7",
-            "CM-8",
-            "CNS-1",
-            "CNS-1C",
-            "CNS-2",
-            "CNS-2C",
-            "CNS-3",
-            "CNS-3C",
-            "CP-1 Collapsible Crate BASE",
-            "CP-1 Collapsible Crate HANDLE",
-            "CP-1 Collapsible Long/Short Side",
-            "CP-2 Collapsible BASE",
-            "CP-2 Collapsible Crate Arrowlock",
-            "CP-2 Collapsible Crate Pin Long",
-            "CP-2 Collapsible Crate Pin Short",
-            "CP-2 Collapsible LONG SIDE",
-            "CP-2 Collapsible SHORT SIDE",
-            "Crate Cover #1",
-            "Crate Cover #2",
-            "Crate Cover #3",
-            "Crate Cover #4",
-            "Crate Cover #5",
-            "Crate Lavel Holder",
-            "Crate Tag Holder #2",
-            "Crate Tag Holder #3",
-            "Crate Tag Holder 4-1",
-            "Crown Stool",
-            "CS-1",
-            "Customizable Trolley Bracket #125",
-            "Customizable Trolley Bracket #75",
-            "Customizable Trolley Bracket Support",
-            "Divider 3\" - 400 (SHORT)",
-            "Divider 3\" - 600 (LONG)",
-            "Divider 7\" - 400 (SHORT)",
-            "DIvider 7\" - 600 (LONG)",
-            "Drying Tray (small)",
-            "Drying Tray PROFOOD",
-            "DW-1",
-            "DW-2",
-            "Egg Tray SML",
-            "Egg Tray XL",
-            "EZ-3 CRATE",
-            "EZ-4 CRATE",
-            "EZ-5 CRATE",
-            "Food Court Tray",
-            "Grass matting",
-            "H1 Intellect Left Handed L/R",
-            "H1 Mega Intellect Left Handed L/R",
-            "H1-B LEG L/R",
-            "H2 Intellect Left Handed L/R",
-            "H2 Mega Intellect Left Handed L/R",
-            "H20J",
-            "H3 Intellect Left Handed L/R",
-            "H3 Mega Intellect Left Handed L/R",
-            "HYDROPHONICS NET CUP",
-            "Intellect Side Chair",
-            "Kiddie Chair",
-            "Kiddie Desk Compartment",
-            "Kiddie Desk Top",
-            "Kiddie Hinge",
-            "Kiddie Leg Cap",
-            "Kiddie Side Deco",
-            "LCC Bottom",
-            "LCC LENGTH Side",
-            "LCC Open Top Cover",
-            "LCC Sliding Door",
-            "LCC Top Cover",
-            "LCC WIDTH Side",
-            "Leg Footing",
-            "Leo Arm Chair",
-            "Leo Side Chair",
-            "Lid Spout Closure",
-            "N-30",
-            "N-50",
-            "N-75",
-            "N-120",
-            "Park Bench Leg",
-            "Park Bench pad",
-            "PB-1",
-            "PB-1L",
-            "PB-NS1",
-            "Pig Pallet",
-            "Pisces Arm Chair",
-            "Pisces Side Chair",
-            "PL-1",
-            "PL-1P",
-            "PL-1PN",
-            "PL-2",
-            "PL-2S",
-            "PL-3J",
-            "PL-3JS",
-            "PM-1",
-            "PM-1S",
-            "PM-2",
-            "PM-2H",
-            "PM-2PC",
-            "PM-2S",
-            "PM-5",
-            "PM-5S",
-            "PNS-1",
-            "PNS-2",
-            "PNS-2C",
-            "PNS-3",
-            "PNS-3C",
-            "Profood Round Tray",
-            "Round Table 32\"",
-            "Round Table 37\"",
-            "Soap Crate 1",
-            "Spout Cover",
-            "Spout Natural",
-            "Square Table Top 30\"",
-            "Table Leg",
-            "Table Plug",
-            "Table Top Dispenser Body",
-            "TABLET SEAT & BACK REST",
-            "Tansan Table Top",
-            "TD-1",
-            "TD-2",
-            "TD-3",
-            "TD-4",
-            "TD-5",
-            "TD-6",
-            "TD-7",
-            "TL-1",
-            "TL-2",
-            "TP131",
-            "TP131.5",
-            "TP331J",
-            "TP381.5J",
-            "TP382J",
-            "Trolley 1 Cart 620 x 400 x 60 mm",
-            "Tubular hanger",
-            "Tumbler 20 oz",
-            "Tumbler 9.5 oz",
-            "Tumbler L 12 oz",
-            "Tumbler L 16 oz",
-            "UTILITY BIN 10L RECTANGULAR",
-            "VP1 Body",
-            "VP1 Cover",
-            "GROCERY BASKET HANDLE",
-            "GROCERY BASKET",
-            "TD-8",
-            "TRASH BIN LEVER",
-            "TRASH BIN PEDAL",
-            "BUS BOX 5\"",
-            "TUNA LOIN COVER",
-            "INTELLECT MEGA L/R",
-            "TRASH BIN PUSH PIN",
-            "N-130",
-            "TABLET SEAT",
-            "TABLET BACKREST",
-            "COLOR SWATCH",
-            "PB-NS1 LOCK",
-            "24B CRATE COVER",
-            "PL-3JPC",
-            "4 COMPARTMENT CUTLERY TRAY",
-            "PBL-CL2",
-            "8oz FULL DEPTH",
-            "H1 INTELLECT SIDECHAIR",
-            "MEGA SIDECHAIR",
-            "H3 INTELLECT SIDE CHAIR",
-            "MEGA LEFT HANDED L/R",
-            "TD-9",
-            "ET-3",
-            "30L TRASHBIN COVER",
-            "30L TRASHBIN SWING LID",
-            "30L TRASHBIN BODY",
-            "800ml Crate",
-            "PNS-2S",
-            "BUS BOX 7\"",
-            "EZ-2 CRATE",
-            "SETTING TRAY",
-            "EZ COVER",
-            "N-70",
-            "Donut Tray",
-            "Cake Crate",
-            "1.5L Coke Foot Crate",
-            "7L Wilkins Foot Crate"
-        ];
-
         // Initialize autocomplete for product input
         $(document).ready(function () {
+            // Convert product name input to uppercase on every keystroke
+            $('#product').on('input', function () {
+                this.value = this.value.toUpperCase();
+            });
+
             $("#product").autocomplete({
                 source: function (request, response) {
-                    const term = request.term.toLowerCase();
-                    const matches = productList.filter(product =>
-                        product.toLowerCase().includes(term)
-                    );
-                    response(matches);
+                    $.ajax({
+                        url: "autocomplete.php",
+                        dataType: "json",
+                        data: { term: request.term },
+                        success: function (data) {
+                            response(data);
+                        },
+                        error: function() {
+                            response([]);
+                        }
+                    });
                 },
                 minLength: 1,
-                delay: 100,
+                delay: 300,
                 autoFocus: true,
+                select: function (event, ui) {
+                    // Set the product name to uppercase
+                    $(this).val(ui.item.value.toUpperCase());
+                    return false;
+                },
                 classes: {
                     "ui-autocomplete": "dropdown-menu",
                     "ui-menu-item": "dropdown-item"
                 }
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                // Custom rendering of autocomplete items
+                return $("<li>")
+                    .append("<div>" + item.label + "</div>")
+                    .appendTo(ul);
+            };
+        });
+
+        // Image Handler
+        document.getElementById('uploadImages').addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+
+            // Check if adding these files would exceed the limit
+            if (selectedImageFiles.length + files.length > MAX_IMAGES) {
+                alert(`Maximum ${MAX_IMAGES} images allowed`);
+                return;
+            }
+
+            // Store the files and create previews
+            files.forEach(file => {
+                if (!file.type.startsWith('image/')) return;
+
+                selectedImageFiles.push(file);
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageContainer = createImagePreview(e.target.result, file.name, selectedImageFiles.length - 1);
+                    imagesPreview.appendChild(imageContainer);
+                };
+                reader.readAsDataURL(file);
             });
+
+            updateFileLabel();
+        });
+
+        function createImagePreview(src, name, index) {
+            const container = document.createElement('div');
+            container.className = 'image-preview-item';
+
+            const img = document.createElement('img');
+            img.src = src;
+            img.alt = name;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove-image-btn';
+            removeBtn.innerHTML = '×';
+            removeBtn.onclick = function() {
+                removeImage(index);
+            };
+
+            const nameLabel = document.createElement('div');
+            nameLabel.className = 'image-name';
+            nameLabel.textContent = name;
+
+            container.appendChild(img);
+            container.appendChild(removeBtn);
+            container.appendChild(nameLabel);
+
+            return container;
+        }
+
+        function removeImage(index) {
+            selectedImageFiles.splice(index, 1);
+            updateImagePreviews();
+            updateFileLabel();
+        }
+
+        function updateImagePreviews() {
+            imagesPreview.innerHTML = '';
+            selectedImageFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageContainer = createImagePreview(e.target.result, file.name, index);
+                    imagesPreview.appendChild(imageContainer);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function updateFileLabel() {
+            const fileCount = selectedImageFiles.length;
+            if (fileCount === 0) {
+                fileLabel.textContent = 'Choose image files';
+            } else {
+                fileLabel.textContent = `${fileCount} file(s) selected`;
+            }
+        }
+
+        // Initialize autocomplete for product input
+        $(document).ready(function () {
+            // Convert product name input to uppercase on every keystroke
+            $('#product').on('input', function () {
+                this.value = this.value.toUpperCase();
+            });
+
+            $("#product").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: "autocomplete.php",
+                        dataType: "json",
+                        data: { term: request.term },
+                        success: function (data) {
+                            response(data);
+                        },
+                        error: function() {
+                            response([]);
+                        }
+                    });
+                },
+                minLength: 1,
+                delay: 300,
+                autoFocus: true,
+                select: function (event, ui) {
+                    // Set the product name to uppercase
+                    $(this).val(ui.item.value.toUpperCase());
+                    return false;
+                },
+                classes: {
+                    "ui-autocomplete": "dropdown-menu",
+                    "ui-menu-item": "dropdown-item"
+                }
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                // Custom rendering of autocomplete items
+                return $("<li>")
+                    .append("<div>" + item.label + "</div>")
+                    .appendTo(ul);
+            };
         });
 
         // Image Handler
@@ -2422,6 +2403,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
 
         // Add form submission handler
         document.querySelector('form').addEventListener('submit', function (e) {
+            // Set end time before submission
+            setEndTime();
+
             // Create new FormData from the form
             const formData = new FormData(this);
 
@@ -2655,20 +2639,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
             const day = String(now.getDate()).padStart(2, '0');
             const formattedDate = `${year}-${month}-${day}`;
 
-            // Format time as HH:MM (without seconds)
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const formattedTime = `${hours}:${minutes}`;
-
-            // Update input values
+            // Update date input value
             document.getElementById('currentDate').value = formattedDate;
-            document.getElementById('currentTime').value = formattedTime;
         }
 
-        // Update date and time immediately when page loads
-        updateDateTime();
+        // Function to set start time when form loads
+        function setStartTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const formattedTime = `${hours}:${minutes}:${seconds}`;
+            const formattedTimeDisplay = `${hours}:${minutes}`;
 
-        // Update date and time every minute
+            // Set hidden start time field (with seconds for accuracy)
+            document.getElementById('startTime').value = formattedTime;
+
+            // Set visible time field (without seconds for display)
+            document.getElementById('currentTime').value = formattedTimeDisplay;
+
+            // Display start time for user reference
+            document.getElementById('startTimeText').textContent = formattedTime;
+            document.getElementById('startTimeDisplay').style.display = 'block';
+
+            console.log('Start time set to:', formattedTime);
+        }
+
+        // Function to set end time on form submission
+        function setEndTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const formattedTime = `${hours}:${minutes}:${seconds}`;
+
+            document.getElementById('endTime').value = formattedTime;
+
+            // Calculate duration
+            const startTimeValue = document.getElementById('startTime').value;
+            if (startTimeValue) {
+                const startTime = new Date(`1970-01-01T${startTimeValue}`);
+                const endTime = new Date(`1970-01-01T${formattedTime}`);
+                const durationMs = endTime - startTime;
+                const durationMinutes = Math.round(durationMs / (1000 * 60));
+
+                console.log(`End time set to: ${formattedTime}`);
+                console.log(`Form completion duration: ${durationMinutes} minutes`);
+
+                // You could add a notification here showing the duration
+                showNotification(`Form completed! Duration: ${durationMinutes} minutes`, 'info');
+            }
+        }
+
+        // Update date immediately when page loads
+        updateDateTime();
+        setStartTime(); // Set start time when form loads
+
+        // Update date every minute (no need to update time since it's set once at start)
         setInterval(updateDateTime, 60000);
     </script>
 
@@ -2924,10 +2951,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
         $(document).ready(function () {
             <?php if (!empty($clonedData)): ?>
                 const clonedData = <?= json_encode($clonedData) ?>;
-                
+
                 // Define fields to exclude from cloning (unique fields that shouldn't be copied)
                 const excludedFields = [
                     'Date', 'Time',                    // Date and time should be current
+                    'startTime', 'endTime',            // Start and end time should be automatic
                     'adjuster', 'AdjusterName',        // Adjuster name should be current user
                     'record_id',                       // Record ID should be unique
                     'submission_date',                 // Submission date should be current
@@ -2937,7 +2965,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     'uploaded_images',                 // File uploads should not be copied
                     'uploaded_videos'                  // File uploads should not be copied
                 ];
-                
+
                 // Create mapping between database field names and form field names
                 const fieldMapping = {
                     // Product Machine Info
@@ -2947,7 +2975,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     'IRN': 'IRN',
                     'startTime': 'startTime',
                     'endTime': 'endTime',
-                    
+
                     // Product Details
                     'ProductName': 'product',
                     'Color': 'color',
@@ -2956,7 +2984,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     'CavityActive': 'cavity',
                     'GrossWeight': 'grossWeight',
                     'NetWeight': 'netWeight',
-                    
+
                     // Material Composition
                     'DryingTime': 'dryingtime',
                     'DryingTemperature': 'dryingtemp',
@@ -2972,20 +3000,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     'Material4_Type': 'type4',
                     'Material4_Brand': 'brand4',
                     'Material4_MixturePercentage': 'mix4',
-                    
+
                     // Colorant Details
                     'Colorant': 'colorant',
                     'Dosage': 'colorant-dosage',
                     'Stabilizer': 'colorant-stabilizer',
                     'StabilizerDosage': 'colorant-stabilizer-dosage',
-                    
+
                     // Mold Operation Specs
                     'MoldCode': 'mold-code',
                     'ClampingForce': 'clamping-force',
                     'OperationType': 'operation-type',
                     'CoolingMedia': 'cooling-media',
                     'HeatingMedia': 'heating-media',
-                    
+
                     // Timer Parameters
                     'FillingTime': 'fillingTime',
                     'HoldingTime': 'holdingTime',
@@ -2993,7 +3021,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     'ChargingTime': 'chargingTime',
                     'CoolingTime': 'coolingTime',
                     'CycleTime': 'cycleTime',
-                    
+
                     // Plasticizing Parameters (most have same names)
                     'ScrewRPM1': 'screwRPM1',
                     'ScrewRPM2': 'screwRPM2',
@@ -3011,7 +3039,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     'BackPressure2': 'backPressure2',
                     'BackPressure3': 'backPressure3',
                     'BackPressureStartPosition': 'backPressureStartPosition',
-                    
+
                     // Injection Parameters (most have same names)
                     'RecoveryPosition': 'RecoveryPosition',
                     'SecondStagePosition': 'SecondStagePosition',
@@ -3040,7 +3068,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     'HoldingTime1': 'HoldingTime1',
                     'HoldingTime2': 'HoldingTime2',
                     'HoldingTime3': 'HoldingTime3',
-                    
+
                     // Ejection Parameters (most have same names)
                     'AirBlowTimeA': 'AirBlowTimeA',
                     'AirBlowPositionA': 'AirBlowPositionA',
@@ -3058,30 +3086,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     'EjectorForwardPressure1': 'EjectorForwardPressure1',
                     'EjectorRetractSpeed2': 'EjectorRetractSpeed2',
                     'EjectorRetractPressure1': 'EjectorRetractPressure1',
-                    
+
                     // Additional Information
                     'Info': 'additionalInfo',
-                    
+
                     // QAE Name (allow cloning but not adjuster)
                     'QAEName': 'qae'
                 };
-                
+
                 // Apply cloned data to form fields
                 let processedZoneFields = new Set(); // Track which Zone fields we've processed
                 let fieldsApplied = 0;
                 let fieldsSkipped = 0;
-                
+
                 for (const field in clonedData) {
                     const value = clonedData[field];
-                    
+
                     // Skip excluded fields and null/empty values
                     if (excludedFields.includes(field) || value === null || value === '') {
                         fieldsSkipped++;
                         continue;
                     }
-                    
+
                     let formFieldName = null;
-                    
+
                     // Handle Zone fields specially since they appear in both barrel and mold heater tables
                     if (field.match(/^Zone\d+$/)) {
                         // Skip if we've already processed this Zone field
@@ -3089,15 +3117,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                             continue;
                         }
                         processedZoneFields.add(field);
-                        
+
                         // Try both barrel heater and mold heater field names
                         const barrelHeaterFieldName = 'barrelHeaterZone' + field.replace('Zone', '');
                         const moldHeaterFieldName = field;
-                        
+
                         // Check if barrel heater field exists, prioritize it
                         const barrelInput = document.querySelector(`[name="${barrelHeaterFieldName}"]`);
                         const moldInput = document.querySelector(`[name="${moldHeaterFieldName}"]`);
-                        
+
                         if (barrelInput) {
                             formFieldName = barrelHeaterFieldName;
                         } else if (moldInput) {
@@ -3107,7 +3135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                         // Get the form field name (use mapping if available, otherwise use original field name)
                         formFieldName = fieldMapping[field] || field;
                     }
-                    
+
                     // Find the input element by name attribute
                     if (formFieldName) {
                         const input = document.querySelector(`[name="${formFieldName}"]`);
@@ -3116,7 +3144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                             if (input.type === "file") {
                                 continue;
                             }
-                            
+
                             if (input.type === "checkbox") {
                                 input.checked = !!value;
                             } else if (input.type === "radio") {
@@ -3133,19 +3161,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                 // Handle regular input fields (text, number, etc.)
                                 input.value = value;
                             }
-                            
+
                             // Trigger change event to update any dependent fields
                             $(input).trigger('change');
                             fieldsApplied++;
                         }
                     }
                 }
-                
+
                 console.log(`Applied ${fieldsApplied} fields, skipped ${fieldsSkipped} fields`);
-                
+
+                // Reset start time since this is like starting a new form session
+                setStartTime();
+
                 // Show success message
-                showNotification(`Form data successfully applied from selected record. Applied ${fieldsApplied} fields. Date, time, adjuster name, attachments, and other unique fields were not copied.`, 'success');
-                
+                showNotification(`Form data successfully applied from selected record. Applied ${fieldsApplied} fields. Date, start/end times, adjuster name, attachments, and other unique fields were not copied. New session started.`, 'success');
+
             <?php endif; ?>
         });
     </script>
