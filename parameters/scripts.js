@@ -38,9 +38,16 @@ document.getElementById('autofillButton').addEventListener('click', function () 
         }
     };
 
+    // Get Philippine Time
+    const getPhilippineTime = () => {
+        const now = new Date();
+        return new Date(now.toLocaleString("en-US", {timeZone: "Asia/Manila"}));
+    };
+
     // Product and Machine Information
-    autofillField('date', new Date().toISOString().split('T')[0]);
-    autofillField('time', new Date().toLocaleTimeString('en-US', { hour12: false }).slice(0, 5));
+    const phTime = getPhilippineTime();
+    autofillField('date', phTime.toISOString().split('T')[0]);
+    autofillField('time', phTime.toLocaleTimeString('en-US', { hour12: false, timeZone: 'Asia/Manila' }).slice(0, 5));
     autofillField('machine', `Machine-${randomInt(1, 10)}`);
     autofillField('runNo', `Run-${randomInt(1000, 9999)}`);
     autofillField('category', `Category-${randomInt(1, 5)}`);

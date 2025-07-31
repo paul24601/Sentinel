@@ -1,4 +1,7 @@
 <?php
+// Set timezone to Philippine Time (UTC+8)
+date_default_timezone_set('Asia/Manila');
+
 require_once 'session_config.php';
 
 // Check if the user is logged in
@@ -16,6 +19,9 @@ $password = "injectionadmin123";
 $dbname = "injectionmoldingparameters";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
+
+// Set MySQL timezone to Philippine Time (UTC+8)
+$conn->query("SET time_zone = '+08:00'");
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -145,6 +151,20 @@ if ($selectedRecordId) {
     $stmt->bind_param("s", $selectedRecordId);
     $stmt->execute();
     $attachments = $stmt->get_result();
+
+    // Fetch mold open parameters for this record
+    $sql = "SELECT * FROM moldopenparameters WHERE record_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $selectedRecordId);
+    $stmt->execute();
+    $moldOpenParameters = $stmt->get_result();
+
+    // Fetch mold close parameters for this record  
+    $sql = "SELECT * FROM moldcloseparameters WHERE record_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $selectedRecordId);
+    $stmt->execute();
+    $moldCloseParameters = $stmt->get_result();
 } else {
     // For the main records view, we don't need to fetch individual tables
     $productMachineInfo = [];
@@ -162,6 +182,8 @@ if ($selectedRecordId) {
     $additionalInformation = [];
     $personnel = [];
     $attachments = [];
+    $moldOpenParameters = [];
+    $moldCloseParameters = [];
 }
 ?>
 <!DOCTYPE html>
@@ -184,11 +206,11 @@ if ($selectedRecordId) {
     <!-- jQuery UI for Autocomplete -->
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- DataTables core CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+    <!-- DataTables core CSS from reliable CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/css/dataTables.bootstrap5.min.css" />
 
     <!-- DataTables Responsive extension CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables-responsive/2.5.0/css/responsive.bootstrap5.min.css" />
 
     <!-- Custom styles -->
     <link rel="stylesheet" href="styles.css" />
@@ -552,8 +574,10 @@ if ($selectedRecordId) {
                                                 <th>Mold Code</th>
                                                 <th>Clamping Force</th>
                                                 <th>Operation Type</th>
-                                                <th>Cooling Media</th>
+                                                <th>Stationary Cooling Media</th>
+                                                <th>Movable Cooling Media</th>
                                                 <th>Heating Media</th>
+                                                <th>Cooling Media Remarks</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -562,8 +586,10 @@ if ($selectedRecordId) {
                                                     <td><?= $row['MoldCode'] ?: '-' ?></td>
                                                     <td><?= $row['ClampingForce'] ?: '-' ?></td>
                                                     <td><?= $row['OperationType'] ?: '-' ?></td>
-                                                    <td><?= $row['CoolingMedia'] ?: '-' ?></td>
+                                                    <td><?= $row['StationaryCoolingMedia'] ?: ($row['CoolingMedia'] ?: '-') ?></td>
+                                                    <td><?= $row['MovableCoolingMedia'] ?: ($row['CoolingMedia'] ?: '-') ?></td>
                                                     <td><?= $row['HeatingMedia'] ?: '-' ?></td>
+                                                    <td><?= $row['CoolingMediaRemarks'] ?: '-' ?></td>
                                                 </tr>
                                             <?php endwhile; ?>
                                         </tbody>
@@ -671,6 +697,194 @@ if ($selectedRecordId) {
                                             </tbody>
                                         </table>
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- Mold Open Parameters -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-success text-white">Mold Open Parameters</div>
+                                <div class="card-body">
+                                    <?php if ($moldOpenParameters && $moldOpenParameters->num_rows > 0): ?>
+                                        <?php $moldOpenRow = $moldOpenParameters->fetch_assoc(); ?>
+                                        
+                                        <!-- Position Section -->
+                                        <h6 class="mb-3">Position</h6>
+                                        <div class="table-responsive mb-4">
+                                            <table class="table table-bordered table-hover">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Position 1</th>
+                                                        <th>Position 2</th>
+                                                        <th>Position 3</th>
+                                                        <th>Position 4</th>
+                                                        <th>Position 5</th>
+                                                        <th>Position 6</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><?= $moldOpenRow['MoldOpenPos1'] ?: '-' ?></td>
+                                                        <td><?= $moldOpenRow['MoldOpenPos2'] ?: '-' ?></td>
+                                                        <td><?= $moldOpenRow['MoldOpenPos3'] ?: '-' ?></td>
+                                                        <td><?= $moldOpenRow['MoldOpenPos4'] ?: '-' ?></td>
+                                                        <td><?= $moldOpenRow['MoldOpenPos5'] ?: '-' ?></td>
+                                                        <td><?= $moldOpenRow['MoldOpenPos6'] ?: '-' ?></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <!-- Speed Section -->
+                                        <h6 class="mb-3">Speed</h6>
+                                        <div class="table-responsive mb-4">
+                                            <table class="table table-bordered table-hover">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Speed 1</th>
+                                                        <th>Speed 2</th>
+                                                        <th>Speed 3</th>
+                                                        <th>Speed 4</th>
+                                                        <th>Speed 5</th>
+                                                        <th>Speed 6</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><?= $moldOpenRow['MoldOpenSpd1'] ?: '-' ?></td>
+                                                        <td><?= $moldOpenRow['MoldOpenSpd2'] ?: '-' ?></td>
+                                                        <td><?= $moldOpenRow['MoldOpenSpd3'] ?: '-' ?></td>
+                                                        <td><?= $moldOpenRow['MoldOpenSpd4'] ?: '-' ?></td>
+                                                        <td><?= $moldOpenRow['MoldOpenSpd5'] ?: '-' ?></td>
+                                                        <td><?= $moldOpenRow['MoldOpenSpd6'] ?: '-' ?></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <!-- Pressure Section -->
+                                        <h6 class="mb-3">Pressure</h6>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-hover">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Pressure 1</th>
+                                                        <th>Pressure 2</th>
+                                                        <th>Pressure 3</th>
+                                                        <th>Pressure 4</th>
+                                                        <th>Pressure 5</th>
+                                                        <th>Pressure 6</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><?= $moldOpenRow['MoldOpenPressure1'] ?: '-' ?></td>
+                                                        <td><?= $moldOpenRow['MoldOpenPressure2'] ?: '-' ?></td>
+                                                        <td><?= $moldOpenRow['MoldOpenPressure3'] ?: '-' ?></td>
+                                                        <td><?= $moldOpenRow['MoldOpenPressure4'] ?: '-' ?></td>
+                                                        <td><?= $moldOpenRow['MoldOpenPressure5'] ?: '-' ?></td>
+                                                        <td><?= $moldOpenRow['MoldOpenPressure6'] ?: '-' ?></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    <?php else: ?>
+                                        <p class="text-muted">No mold open parameters found for this record.</p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <!-- Mold Close Parameters -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-warning text-dark">Mold Close Parameters</div>
+                                <div class="card-body">
+                                    <?php if ($moldCloseParameters && $moldCloseParameters->num_rows > 0): ?>
+                                        <?php $moldCloseRow = $moldCloseParameters->fetch_assoc(); ?>
+                                        
+                                        <!-- Position Section -->
+                                        <h6 class="mb-3">Position</h6>
+                                        <div class="table-responsive mb-4">
+                                            <table class="table table-bordered table-hover">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Position 1</th>
+                                                        <th>Position 2</th>
+                                                        <th>Position 3</th>
+                                                        <th>Position 4</th>
+                                                        <th>Position 5</th>
+                                                        <th>Position 6</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><?= $moldCloseRow['MoldClosePos1'] ?: '-' ?></td>
+                                                        <td><?= $moldCloseRow['MoldClosePos2'] ?: '-' ?></td>
+                                                        <td><?= $moldCloseRow['MoldClosePos3'] ?: '-' ?></td>
+                                                        <td><?= $moldCloseRow['MoldClosePos4'] ?: '-' ?></td>
+                                                        <td><?= $moldCloseRow['MoldClosePos5'] ?: '-' ?></td>
+                                                        <td><?= $moldCloseRow['MoldClosePos6'] ?: '-' ?></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <!-- Speed Section -->
+                                        <h6 class="mb-3">Speed</h6>
+                                        <div class="table-responsive mb-4">
+                                            <table class="table table-bordered table-hover">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Speed 1</th>
+                                                        <th>Speed 2</th>
+                                                        <th>Speed 3</th>
+                                                        <th>Speed 4</th>
+                                                        <th>Speed 5</th>
+                                                        <th>Speed 6</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><?= $moldCloseRow['MoldCloseSpd1'] ?: '-' ?></td>
+                                                        <td><?= $moldCloseRow['MoldCloseSpd2'] ?: '-' ?></td>
+                                                        <td><?= $moldCloseRow['MoldCloseSpd3'] ?: '-' ?></td>
+                                                        <td><?= $moldCloseRow['MoldCloseSpd4'] ?: '-' ?></td>
+                                                        <td><?= $moldCloseRow['MoldCloseSpd5'] ?: '-' ?></td>
+                                                        <td><?= $moldCloseRow['MoldCloseSpd6'] ?: '-' ?></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <!-- Pressure Section -->
+                                        <h6 class="mb-3">Pressure</h6>
+                                        <div class="table-responsive mb-4">
+                                            <table class="table table-bordered table-hover">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Pressure 1</th>
+                                                        <th>Pressure 2</th>
+                                                        <th>Pressure 3</th>
+                                                        <th>Pressure 4</th>
+                                                        <th>PCL/LP</th>
+                                                        <th>PCH/HP</th>
+                                                        <th>Low Pressure Time Limit</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><?= $moldCloseRow['MoldClosePressure1'] ?: '-' ?></td>
+                                                        <td><?= $moldCloseRow['MoldClosePressure2'] ?: '-' ?></td>
+                                                        <td><?= $moldCloseRow['MoldClosePressure3'] ?: '-' ?></td>
+                                                        <td class="fw-bold text-primary"><?= $moldCloseRow['MoldClosePressure4'] ?: '-' ?></td>
+                                                        <td><?= $moldCloseRow['PCLORLP'] ?: '-' ?></td>
+                                                        <td><?= $moldCloseRow['PCHORHP'] ?: '-' ?></td>
+                                                        <td><?= $moldCloseRow['LowPresTimeLimit'] ?: '-' ?></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    <?php else: ?>
+                                        <p class="text-muted">No mold close parameters found for this record.</p>
+                                    <?php endif; ?>
                                 </div>
                             </div>
 
@@ -1315,13 +1529,13 @@ if ($selectedRecordId) {
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- DataTables core JS -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <!-- DataTables core JS from reliable CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
     <!-- DataTables Responsive extension JS -->
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables-responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables-responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
 </body>
 

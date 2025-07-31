@@ -264,14 +264,13 @@ $result = $conn->query($sql);
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
-    <link href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
+    <!-- DataTables CSS from reliable CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/css/dataTables.bootstrap5.min.css">
     <!-- DataTables Buttons CSS -->
-    <link rel="stylesheet" type="text/css"
-        href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
-    <!-- DataTables Scroller CSS -->
-    <link rel="stylesheet" type="text/css"
-        href="https://cdn.datatables.net/scroller/2.2.0/css/scroller.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables-buttons/2.4.2/css/buttons.dataTables.min.css">
+    <!-- DataTables Responsive CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables-responsive/2.5.0/css/responsive.dataTables.min.css">
     <style>
         .table-container {
             border: 1px solid #ddd;
@@ -562,19 +561,21 @@ $result = $conn->query($sql);
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Load Bootstrap Bundle (includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Load DataTables Core JS -->
-    <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+    <!-- Load DataTables Core JS from reliable CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <!-- Load DataTables Buttons extension -->
-    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables-buttons/2.4.2/js/dataTables.buttons.min.js"></script>
     <!-- Load Buttons HTML5 export -->
-    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables-buttons/2.4.2/js/buttons.html5.min.js"></script>
     <!-- Load Buttons Print view -->
-    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables-buttons/2.4.2/js/buttons.print.min.js"></script>
+    <!-- Load DataTables Responsive extension -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables-responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <!-- Supporting libraries for export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/scroller/2.2.0/js/dataTables.scroller.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
     <script>
         $(document).ready(function () {
             $('#submissionTable').DataTable({
@@ -584,7 +585,25 @@ $result = $conn->query($sql);
                 dom: 'lBfrtip',  // 'l' adds the length dropdown along with Buttons 'B'
                 buttons: [
                     'copy', 'csv', 'excel', 'pdf', 'print'
-                ]
+                ],
+                language: {
+                    search: "Search records:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                },
+                columnDefs: [
+                    { responsivePriority: 1, targets: 0 }, // ID
+                    { responsivePriority: 2, targets: 1 }, // Date
+                    { responsivePriority: 3, targets: 2 }, // Product Name
+                    { responsivePriority: 4, targets: 3 }  // Machine
+                ],
+                order: [[0, 'desc']] // Sort by ID descending (newest first)
             });
 
             <?php if ($recordCreated): ?>

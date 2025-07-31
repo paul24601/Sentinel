@@ -1,4 +1,27 @@
 <?php
+// Set timezone to Philippine Time (UTC+8)
+date_default_timezone_set('Asia/Manila');
+
+// Function to convert time to Philippine timezone
+function formatPhilippineTime($timeValue) {
+    if (empty($timeValue)) {
+        return null;
+    }
+    
+    // If it's already in H:i:s format, use it directly
+    if (preg_match('/^\d{1,2}:\d{2}:\d{2}$/', $timeValue)) {
+        return $timeValue;
+    }
+    
+    // If it's in H:i format, add seconds
+    if (preg_match('/^\d{1,2}:\d{2}$/', $timeValue)) {
+        return $timeValue . ':00';
+    }
+    
+    // Fallback to current Philippine time
+    return date('H:i:s');
+}
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -47,6 +70,9 @@ $dbname = "injectionmoldingparameters";
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
+// Set MySQL timezone to Philippine Time (UTC+8)
+$conn->query("SET time_zone = '+08:00'");
+
 $conn->begin_transaction();
 // Check connection
 if ($conn->connect_error) {
@@ -84,12 +110,12 @@ if (!$stmt->execute()) {
 // Initialize variables to track errors
 $errors = [];
 
-// Handle start and end time
-$startTime = !empty($_POST['startTime']) ? $_POST['startTime'] : null;
-$endTime = !empty($_POST['endTime']) ? $_POST['endTime'] : null;
+// Handle start and end time with proper Philippine time formatting
+$startTime = !empty($_POST['startTime']) ? formatPhilippineTime($_POST['startTime']) : null;
+$endTime = !empty($_POST['endTime']) ? formatPhilippineTime($_POST['endTime']) : null;
 
-// Use start time as the main time field (for compatibility)
-$mainTime = !empty($_POST['startTime']) ? $_POST['startTime'] : $_POST['Time'];
+// Use start time as the main time field (for compatibility), otherwise use current Philippine time
+$mainTime = !empty($startTime) ? $startTime : (!empty($_POST['Time']) ? formatPhilippineTime($_POST['Time']) : date('H:i:s'));
 
 // Insert into productmachineinfo table
 // Insert into productmachineinfo table (now including startTime & endTime)
@@ -191,7 +217,7 @@ if (isset($_POST['dryingtime'], $_POST['dryingtemp'])) {
 
 
 // Insert into colorantdetails table
-if (isset($_POST['colorant'], $_POST['color'], $_POST['colorant-dosage'], $_POST['colorant-stabilizer'], $_POST['colorant-stabilizer-dosage'])) {
+if (isset($_POST['colorant'], $_POST['colorantColor'], $_POST['colorant-dosage'], $_POST['colorant-stabilizer'], $_POST['colorant-stabilizer-dosage'])) {
     $sql = "INSERT INTO colorantdetails (record_id, Colorant, Color, Dosage, Stabilizer, StabilizerDosage)
             VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
@@ -202,11 +228,15 @@ if (isset($_POST['colorant'], $_POST['color'], $_POST['colorant-dosage'], $_POST
 }
 
 // Insert into moldoperationspecs table
-if (isset($_POST['mold-code'], $_POST['clamping-force'], $_POST['operation-type'], $_POST['cooling-media'], $_POST['heating-media'])) {
-    $sql = "INSERT INTO moldoperationspecs (record_id, MoldCode, ClampingForce, OperationType, CoolingMedia, HeatingMedia)
-            VALUES (?, ?, ?, ?, ?, ?)";
+if (isset($_POST['mold-code'], $_POST['clamping-force'], $_POST['operation-type'], $_POST['stationary-cooling-media'], $_POST['movable-cooling-media'], $_POST['heating-media'])) {
+    $sql = "INSERT INTO moldoperationspecs (record_id, MoldCode, ClampingForce, OperationType, StationaryCoolingMedia, MovableCoolingMedia, HeatingMedia, StationaryCoolingMediaRemarks, MovableCoolingMediaRemarks)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssss", $record_id, $_POST['mold-code'], $_POST['clamping-force'], $_POST['operation-type'], $_POST['cooling-media'], $_POST['heating-media']);
+    $stationaryRemarks = isset($_POST['stationary-cooling-media-remarks']) ? $_POST['stationary-cooling-media-remarks'] : '';
+    $movableRemarks = isset($_POST['movable-cooling-media-remarks']) ? $_POST['movable-cooling-media-remarks'] : '';
+    // Note: The form currently sends 'cooling-media-remarks' so we'll use that for both until form is updated
+    $coolingRemarks = isset($_POST['cooling-media-remarks']) ? $_POST['cooling-media-remarks'] : '';
+    $stmt->bind_param("sssssssss", $record_id, $_POST['mold-code'], $_POST['clamping-force'], $_POST['operation-type'], $_POST['stationary-cooling-media'], $_POST['movable-cooling-media'], $_POST['heating-media'], $coolingRemarks, $coolingRemarks);
     if (!$stmt->execute()) {
         $errors[] = "Error inserting into moldoperationspecs: " . $stmt->error;
     }
@@ -258,17 +288,16 @@ if (isset($_POST['barrelHeaterZone0'], $_POST['barrelHeaterZone1'], $_POST['barr
 }
 
 // Insert into moldheatertemperatures table
-if (isset($_POST['Zone0'], $_POST['Zone1'], $_POST['MTCSetting'])) {
+if (isset($_POST['Zone1'], $_POST['Zone2'], $_POST['MTCSetting'])) {
     $sql = "INSERT INTO moldheatertemperatures (
-                record_id, Zone0, Zone1, Zone2, Zone3, Zone4, Zone5, Zone6, Zone7, Zone8, Zone9,
+                record_id, Zone1, Zone2, Zone3, Zone4, Zone5, Zone6, Zone7, Zone8, Zone9,
                 Zone10, Zone11, Zone12, Zone13, Zone14, Zone15, Zone16, MTCSetting
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param(
-        "sdddddddddddddddddd",
+        "sddddddddddddddddd",
         $record_id,
-        $_POST['Zone0'],
         $_POST['Zone1'],
         $_POST['Zone2'],
         $_POST['Zone3'],
@@ -287,8 +316,98 @@ if (isset($_POST['Zone0'], $_POST['Zone1'], $_POST['MTCSetting'])) {
         $_POST['Zone16'],
         $_POST['MTCSetting']
     );
-    if (!$stmt->execute()) {
+    if (!$stmt->execute()) {    
         $errors[] = "Error inserting into moldheatertemperatures: " . $stmt->error;
+    }
+}
+
+// Insert into moldopenparameters table
+if (isset($_POST['moldOpenPos1'])) {
+    $sql = "INSERT INTO moldopenparameters (
+                record_id, 
+                MoldOpenPos1, MoldOpenPos2, MoldOpenPos3, MoldOpenPos4, MoldOpenPos5, MoldOpenPos6,
+                MoldOpenSpd1, MoldOpenSpd2, MoldOpenSpd3, MoldOpenSpd4, MoldOpenSpd5, MoldOpenSpd6,
+                MoldOpenPressure1, MoldOpenPressure2, MoldOpenPressure3, MoldOpenPressure4, MoldOpenPressure5, MoldOpenPressure6
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    
+    // Assign variables to avoid PHP reference errors
+    $moldOpenPos1 = isset($_POST['moldOpenPos1']) ? $_POST['moldOpenPos1'] : null;
+    $moldOpenPos2 = isset($_POST['moldOpenPos2']) ? $_POST['moldOpenPos2'] : null;
+    $moldOpenPos3 = isset($_POST['moldOpenPos3']) ? $_POST['moldOpenPos3'] : null;
+    $moldOpenPos4 = isset($_POST['moldOpenPos4']) ? $_POST['moldOpenPos4'] : null;
+    $moldOpenPos5 = isset($_POST['moldOpenPos5']) ? $_POST['moldOpenPos5'] : null;
+    $moldOpenPos6 = isset($_POST['moldOpenPos6']) ? $_POST['moldOpenPos6'] : null;
+    
+    $moldOpenSpd1 = isset($_POST['moldOpenSpd1']) ? $_POST['moldOpenSpd1'] : null;
+    $moldOpenSpd2 = isset($_POST['moldOpenSpd2']) ? $_POST['moldOpenSpd2'] : null;
+    $moldOpenSpd3 = isset($_POST['moldOpenSpd3']) ? $_POST['moldOpenSpd3'] : null;
+    $moldOpenSpd4 = isset($_POST['moldOpenSpd4']) ? $_POST['moldOpenSpd4'] : null;
+    $moldOpenSpd5 = isset($_POST['moldOpenSpd5']) ? $_POST['moldOpenSpd5'] : null;
+    $moldOpenSpd6 = isset($_POST['moldOpenSpd6']) ? $_POST['moldOpenSpd6'] : null;
+    
+    $moldOpenPressure1 = isset($_POST['moldOpenPressure1']) ? $_POST['moldOpenPressure1'] : null;
+    $moldOpenPressure2 = isset($_POST['moldOpenPressure2']) ? $_POST['moldOpenPressure2'] : null;
+    $moldOpenPressure3 = isset($_POST['moldOpenPressure3']) ? $_POST['moldOpenPressure3'] : null;
+    $moldOpenPressure4 = isset($_POST['moldOpenPressure4']) ? $_POST['moldOpenPressure4'] : null;
+    $moldOpenPressure5 = isset($_POST['moldOpenPressure5']) ? $_POST['moldOpenPressure5'] : null;
+    $moldOpenPressure6 = isset($_POST['moldOpenPressure6']) ? $_POST['moldOpenPressure6'] : null;
+    
+    $stmt->bind_param("sdddddddddddddddddd", 
+        $record_id,
+        $moldOpenPos1, $moldOpenPos2, $moldOpenPos3, $moldOpenPos4, $moldOpenPos5, $moldOpenPos6,
+        $moldOpenSpd1, $moldOpenSpd2, $moldOpenSpd3, $moldOpenSpd4, $moldOpenSpd5, $moldOpenSpd6,
+        $moldOpenPressure1, $moldOpenPressure2, $moldOpenPressure3, $moldOpenPressure4, $moldOpenPressure5, $moldOpenPressure6
+    );
+    if (!$stmt->execute()) {
+        $errors[] = "Error inserting into moldopenparameters: " . $stmt->error;
+    }
+}
+
+// Insert into moldcloseparameters table
+if (isset($_POST['moldClosePos1'])) {
+    $sql = "INSERT INTO moldcloseparameters (
+                record_id,
+                MoldClosePos1, MoldClosePos2, MoldClosePos3, MoldClosePos4, MoldClosePos5, MoldClosePos6,
+                MoldCloseSpd1, MoldCloseSpd2, MoldCloseSpd3, MoldCloseSpd4, MoldCloseSpd5, MoldCloseSpd6,
+                MoldClosePressure1, MoldClosePressure2, MoldClosePressure3, MoldClosePressure4,
+                PCLORLP, PCHORHP, LowPresTimeLimit
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    
+    // Assign variables to avoid PHP reference errors
+    $moldClosePos1 = isset($_POST['moldClosePos1']) ? $_POST['moldClosePos1'] : null;
+    $moldClosePos2 = isset($_POST['moldClosePos2']) ? $_POST['moldClosePos2'] : null;
+    $moldClosePos3 = isset($_POST['moldClosePos3']) ? $_POST['moldClosePos3'] : null;
+    $moldClosePos4 = isset($_POST['moldClosePos4']) ? $_POST['moldClosePos4'] : null;
+    $moldClosePos5 = isset($_POST['moldClosePos5']) ? $_POST['moldClosePos5'] : null;
+    $moldClosePos6 = isset($_POST['moldClosePos6']) ? $_POST['moldClosePos6'] : null;
+    
+    $moldCloseSpd1 = isset($_POST['moldCloseSpd1']) ? $_POST['moldCloseSpd1'] : null;
+    $moldCloseSpd2 = isset($_POST['moldCloseSpd2']) ? $_POST['moldCloseSpd2'] : null;
+    $moldCloseSpd3 = isset($_POST['moldCloseSpd3']) ? $_POST['moldCloseSpd3'] : null;
+    $moldCloseSpd4 = isset($_POST['moldCloseSpd4']) ? $_POST['moldCloseSpd4'] : null;
+    $moldCloseSpd5 = isset($_POST['moldCloseSpd5']) ? $_POST['moldCloseSpd5'] : null;
+    $moldCloseSpd6 = isset($_POST['moldCloseSpd6']) ? $_POST['moldCloseSpd6'] : null;
+    
+    $moldClosePressure1 = isset($_POST['moldClosePressure1']) ? $_POST['moldClosePressure1'] : null;
+    $moldClosePressure2 = isset($_POST['moldClosePressure2']) ? $_POST['moldClosePressure2'] : null;
+    $moldClosePressure3 = isset($_POST['moldClosePressure3']) ? $_POST['moldClosePressure3'] : null;
+    $moldClosePressure4 = isset($_POST['moldClosePressure4']) ? $_POST['moldClosePressure4'] : null;
+    
+    $pclorlp = isset($_POST['pclorlp']) ? $_POST['pclorlp'] : null;
+    $pchorhp = isset($_POST['pchorhp']) ? $_POST['pchorhp'] : null;
+    $lowPresTimeLimit = isset($_POST['lowPresTimeLimit']) ? $_POST['lowPresTimeLimit'] : null;
+    
+    $stmt->bind_param("sdddddddddddddddsssd", 
+        $record_id,
+        $moldClosePos1, $moldClosePos2, $moldClosePos3, $moldClosePos4, $moldClosePos5, $moldClosePos6,
+        $moldCloseSpd1, $moldCloseSpd2, $moldCloseSpd3, $moldCloseSpd4, $moldCloseSpd5, $moldCloseSpd6,
+        $moldClosePressure1, $moldClosePressure2, $moldClosePressure3, $moldClosePressure4,
+        $pclorlp, $pchorhp, $lowPresTimeLimit
+    );
+    if (!$stmt->execute()) {
+        $errors[] = "Error inserting into moldcloseparameters: " . $stmt->error;
     }
 }
 

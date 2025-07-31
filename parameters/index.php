@@ -1,4 +1,7 @@
 <?php
+// Set timezone to Philippine Time (UTC+8)
+date_default_timezone_set('Asia/Manila');
+
 session_start(); // Start the session to access session variables
 
 // Check if the user is logged in
@@ -43,6 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
         'timerparameters',
         'barrelheatertemperatures',
         'moldheatertemperatures',
+        'moldcloseparameters',      // Added missing table
+        'moldopenparameters',       // Added missing table
         'plasticizingparameters',
         'injectionparameters',
         'ejectionparameters',
@@ -556,19 +561,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                                 <select class="form-control" name="operation-type" id="operation-type"
                                                     required>
                                                     <option value="" disabled selected>Select Operation</option>
-                                                    <option value="Manual">Manual</option>
-                                                    <option value="Semi-Auto">Semi-Auto</option>
-                                                    <option value="Auto">Auto</option>
+                                                    <option value="semi-automatic">Semi-Automatic</option>
+                                                    <option value="automatic">Automatic</option>
+                                                    <option value="robot arm">Robot Arm</option>
+                                                    <option value="manual">Manual</option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
-                                                <label for="cooling-media" class="form-label">Cooling Media <span
+                                                <label for="stationary-cooling-media" class="form-label">Stationary Cooling Media <span
                                                         class="text-danger">*</span></label>
-                                                <select class="form-control" name="cooling-media" id="cooling-media"
+                                                <select class="form-control" name="stationary-cooling-media" id="stationary-cooling-media"
                                                     required>
-                                                    <option value="" disabled selected>Select Cooling Media</option>
+                                                    <option value="" disabled selected>Select Stationary Cooling Media</option>
+                                                    <option value="Normal">Normal</option>
+                                                    <option value="Chilled">Chilled</option>
+                                                    <option value="MTC">MTC</option>
+                                                </select>
+                                            </div>
+                                            <div class="col">
+                                                <label for="movable-cooling-media" class="form-label">Movable Cooling Media <span
+                                                        class="text-danger">*</span></label>
+                                                <select class="form-control" name="movable-cooling-media" id="movable-cooling-media"
+                                                    required>
+                                                    <option value="" disabled selected>Select Movable Cooling Media</option>
                                                     <option value="Normal">Normal</option>
                                                     <option value="Chilled">Chilled</option>
                                                     <option value="MTC">MTC</option>
@@ -578,6 +595,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                                 <label for="heating-media" class="form-label">Heating Media</label>
                                                 <input type="text" class="form-control" name="heating-media"
                                                     id="heating-media" placeholder="Enter Heating Media">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col">
+                                                <label for="cooling-media-remarks" class="form-label">Cooling Media Remarks</label>
+                                                <textarea class="form-control" name="cooling-media-remarks" id="cooling-media-remarks" 
+                                                    rows="3" placeholder="Enter any additional remarks about cooling media"></textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -800,12 +824,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                         <div class="collapse show" id="collapseMoldHeater">
                                             <div
                                                 class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-3 row-col-lg-6 g-3">
-                                                <div class="col">
-                                                    <label for="Zone0" class="form-label">Mold Heater Zone 0
-                                                        (°C)</label>
-                                                    <input type="number" step="any" class="form-control" name="Zone0"
-                                                        id="Zone0" placeholder="Mold Heater Zone 0 (°C)">
-                                                </div>
                                                 <div class="col">
                                                     <label for="Zone1" class="form-label">Mold Heater Zone 1
                                                         (°C)</label>
@@ -1152,6 +1170,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                                     <input type="number" step="any" class="form-control"
                                                         name="moldClosePressure3" id="moldClosePressure3"
                                                         placeholder="Pressure 3">
+                                                </div>
+                                                <div class="col">
+                                                    <label for="moldClosePressure4" class="form-label">Pressure
+                                                        4</label>
+                                                    <input type="number" step="any" class="form-control"
+                                                        name="moldClosePressure4" id="moldClosePressure4"
+                                                        placeholder="Pressure 4">
                                                 </div>
                                                 <div class="col">
                                                     <label for="pclorlp" class="form-label">PCL/LP</label>
@@ -2629,10 +2654,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
 
     <!-- JavaScript for real-time date and time -->
     <script>
-        // Function to update date and time fields with real-time values
-        function updateDateTime() {
+        // Simple function to get current time in Philippine timezone
+        function getCurrentPhilippineTime() {
             const now = new Date();
+            // Get current time in Philippine timezone (UTC+8)
+            return new Date(now.toLocaleString("en-US", {timeZone: "Asia/Manila"}));
+        }
 
+        // Function to format time as HH:MM:SS
+        function formatTime(date) {
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
+        }
+
+        // Function to format time as HH:MM (for display)
+        function formatTimeDisplay(date) {
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
+
+        // Function to update date field with real-time values
+        function updateDateTime() {
+            const now = getCurrentPhilippineTime();
+            
             // Format date as YYYY-MM-DD for the date input
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -2645,48 +2692,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
 
         // Function to set start time when form loads
         function setStartTime() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            const formattedTime = `${hours}:${minutes}:${seconds}`;
-            const formattedTimeDisplay = `${hours}:${minutes}`;
+            const now = getCurrentPhilippineTime();
+            const timeString = formatTime(now);
+            const timeDisplay = formatTimeDisplay(now);
 
             // Set hidden start time field (with seconds for accuracy)
-            document.getElementById('startTime').value = formattedTime;
+            document.getElementById('startTime').value = timeString;
 
             // Set visible time field (without seconds for display)
-            document.getElementById('currentTime').value = formattedTimeDisplay;
+            document.getElementById('currentTime').value = timeDisplay;
 
             // Display start time for user reference
-            document.getElementById('startTimeText').textContent = formattedTime;
+            document.getElementById('startTimeText').textContent = timeString + ' (Philippine Time)';
             document.getElementById('startTimeDisplay').style.display = 'block';
 
-            console.log('Start time set to:', formattedTime);
+            console.log('DEBUG: Start time set to (Philippine Time):', timeString);
+            console.log('DEBUG: Raw date object:', now);
+            console.log('DEBUG: UTC Hours:', now.getUTCHours(), 'Minutes:', now.getUTCMinutes(), 'Seconds:', now.getUTCSeconds());
         }
 
         // Function to set end time on form submission
         function setEndTime() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            const formattedTime = `${hours}:${minutes}:${seconds}`;
+            const now = getCurrentPhilippineTime();
+            const timeString = formatTime(now);
 
-            document.getElementById('endTime').value = formattedTime;
+            document.getElementById('endTime').value = timeString;
+
+            console.log('DEBUG: End time set to (Philippine Time):', timeString);
+            console.log('DEBUG: Raw date object:', now);
+            console.log('DEBUG: UTC Hours:', now.getUTCHours(), 'Minutes:', now.getUTCMinutes(), 'Seconds:', now.getUTCSeconds());
 
             // Calculate duration
             const startTimeValue = document.getElementById('startTime').value;
             if (startTimeValue) {
-                const startTime = new Date(`1970-01-01T${startTimeValue}`);
-                const endTime = new Date(`1970-01-01T${formattedTime}`);
+                const startTime = new Date(`1970-01-01T${startTimeValue}Z`);
+                const endTime = new Date(`1970-01-01T${timeString}Z`);
                 const durationMs = endTime - startTime;
                 const durationMinutes = Math.round(durationMs / (1000 * 60));
 
-                console.log(`End time set to: ${formattedTime}`);
+                console.log(`End time set to (Philippine Time): ${timeString}`);
                 console.log(`Form completion duration: ${durationMinutes} minutes`);
 
-                // You could add a notification here showing the duration
+                // Show notification with duration
                 showNotification(`Form completed! Duration: ${durationMinutes} minutes`, 'info');
             }
         }
@@ -3003,6 +3050,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
 
                     // Colorant Details
                     'Colorant': 'colorant',
+                    'Color': 'colorantColor',               // Added missing mapping
                     'Dosage': 'colorant-dosage',
                     'Stabilizer': 'colorant-stabilizer',
                     'StabilizerDosage': 'colorant-stabilizer-dosage',
@@ -3013,6 +3061,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     'OperationType': 'operation-type',
                     'CoolingMedia': 'cooling-media',
                     'HeatingMedia': 'heating-media',
+                    'StationaryCoolingMedia': 'stationary-cooling-media',        // Added missing mapping
+                    'MovableCoolingMedia': 'movable-cooling-media',              // Added missing mapping
+                    'CoolingMediaRemarks': 'cooling-media-remarks',             // Added missing mapping
+                    'StationaryCoolingMediaRemarks': 'stationary-cooling-media-remarks', // Added missing mapping
+                    'MovableCoolingMediaRemarks': 'movable-cooling-media-remarks',       // Added missing mapping
 
                     // Timer Parameters
                     'FillingTime': 'fillingTime',
@@ -3069,6 +3122,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     'HoldingTime2': 'HoldingTime2',
                     'HoldingTime3': 'HoldingTime3',
 
+                    // Core Pull Parameters (Positions 4-6) - NEW MAPPINGS
+                    'ScrewPosition4': 'ScrewPosition4',
+                    'ScrewPosition5': 'ScrewPosition5',
+                    'ScrewPosition6': 'ScrewPosition6',
+                    'InjectionSpeed4': 'InjectionSpeed4',
+                    'InjectionSpeed5': 'InjectionSpeed5',
+                    'InjectionSpeed6': 'InjectionSpeed6',
+                    'InjectionPressure4': 'InjectionPressure4',
+                    'InjectionPressure5': 'InjectionPressure5',
+                    'InjectionPressure6': 'InjectionPressure6',
+
                     // Ejection Parameters (most have same names)
                     'AirBlowTimeA': 'AirBlowTimeA',
                     'AirBlowPositionA': 'AirBlowPositionA',
@@ -3087,6 +3151,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     'EjectorRetractSpeed2': 'EjectorRetractSpeed2',
                     'EjectorRetractPressure1': 'EjectorRetractPressure1',
 
+                    // Mold Close Parameters - NEW MAPPINGS
+                    'MoldClosePos1': 'moldClosePos1',
+                    'MoldClosePos2': 'moldClosePos2',
+                    'MoldClosePos3': 'moldClosePos3',
+                    'MoldClosePos4': 'moldClosePos4',
+                    'MoldClosePos5': 'moldClosePos5',
+                    'MoldClosePos6': 'moldClosePos6',
+                    'MoldCloseSpd1': 'moldCloseSpd1',
+                    'MoldCloseSpd2': 'moldCloseSpd2',
+                    'MoldCloseSpd3': 'moldCloseSpd3',
+                    'MoldCloseSpd4': 'moldCloseSpd4',
+                    'MoldCloseSpd5': 'moldCloseSpd5',
+                    'MoldCloseSpd6': 'moldCloseSpd6',
+                    'MoldClosePressure1': 'moldClosePressure1',
+                    'MoldClosePressure2': 'moldClosePressure2',
+                    'MoldClosePressure3': 'moldClosePressure3',
+                    'MoldClosePressure4': 'moldClosePressure4',
+                    'PCLORLP': 'pclorlp',
+                    'PCHORHP': 'pchorhp',
+                    'LowPresTimeLimit': 'lowPresTimeLimit',
+
+                    // Mold Open Parameters - NEW MAPPINGS
+                    'MoldOpenPos1': 'moldOpenPos1',
+                    'MoldOpenPos2': 'moldOpenPos2',
+                    'MoldOpenPos3': 'moldOpenPos3',
+                    'MoldOpenPos4': 'moldOpenPos4',
+                    'MoldOpenPos5': 'moldOpenPos5',
+                    'MoldOpenPos6': 'moldOpenPos6',
+                    'MoldOpenSpd1': 'moldOpenSpd1',
+                    'MoldOpenSpd2': 'moldOpenSpd2',
+                    'MoldOpenSpd3': 'moldOpenSpd3',
+                    'MoldOpenSpd4': 'moldOpenSpd4',
+                    'MoldOpenSpd5': 'moldOpenSpd5',
+                    'MoldOpenSpd6': 'moldOpenSpd6',
+                    'MoldOpenPressure1': 'moldOpenPressure1',
+                    'MoldOpenPressure2': 'moldOpenPressure2',
+                    'MoldOpenPressure3': 'moldOpenPressure3',
+                    'MoldOpenPressure4': 'moldOpenPressure4',
+                    'MoldOpenPressure5': 'moldOpenPressure5',
+                    'MoldOpenPressure6': 'moldOpenPressure6',
+
+                    // Mold Heater Temperature - NEW MAPPING
+                    'MTCSetting': 'MTCSetting',
+
                     // Additional Information
                     'Info': 'additionalInfo',
 
@@ -3098,13 +3206,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                 let processedZoneFields = new Set(); // Track which Zone fields we've processed
                 let fieldsApplied = 0;
                 let fieldsSkipped = 0;
+                let debugInfo = {
+                    excluded: [],
+                    nullOrEmpty: [],
+                    notFound: [],
+                    applied: []
+                };
 
                 for (const field in clonedData) {
                     const value = clonedData[field];
 
                     // Skip excluded fields and null/empty values
-                    if (excludedFields.includes(field) || value === null || value === '') {
+                    if (excludedFields.includes(field)) {
                         fieldsSkipped++;
+                        debugInfo.excluded.push(field);
+                        continue;
+                    }
+                    
+                    if (value === null || value === '') {
+                        fieldsSkipped++;
+                        debugInfo.nullOrEmpty.push(field);
                         continue;
                     }
 
@@ -3118,19 +3239,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                         }
                         processedZoneFields.add(field);
 
-                        // Try both barrel heater and mold heater field names
-                        const barrelHeaterFieldName = 'barrelHeaterZone' + field.replace('Zone', '');
-                        const moldHeaterFieldName = field;
-
-                        // Check if barrel heater field exists, prioritize it
+                        // For Zone fields, we need to determine which table they came from
+                        // by checking if barrel heater or mold heater table has more data
+                        
+                        // Extract zone number (e.g., "Zone0" -> "0", "Zone1" -> "1")
+                        const zoneNumber = field.replace('Zone', '');
+                        
+                        // Try barrel heater field first (Zone0 -> barrelHeaterZone0)
+                        const barrelHeaterFieldName = 'barrelHeaterZone' + zoneNumber;
                         const barrelInput = document.querySelector(`[name="${barrelHeaterFieldName}"]`);
+                        
+                        // Try mold heater field (Zone1 -> Zone1, note: mold heater doesn't have Zone0)
+                        const moldHeaterFieldName = field;
                         const moldInput = document.querySelector(`[name="${moldHeaterFieldName}"]`);
 
-                        if (barrelInput) {
-                            formFieldName = barrelHeaterFieldName;
-                        } else if (moldInput) {
-                            formFieldName = moldHeaterFieldName;
+                        // Apply to both if they exist, since they can have different values
+                        if (barrelInput && zoneNumber !== '') {
+                            barrelInput.value = value;
+                            $(barrelInput).trigger('change');
+                            fieldsApplied++;
+                            console.log(`Applied ${field} = ${value} to barrel heater field: ${barrelHeaterFieldName}`);
                         }
+                        
+                        if (moldInput && zoneNumber !== '0') { // Mold heater doesn't have Zone0
+                            moldInput.value = value;
+                            $(moldInput).trigger('change');
+                            fieldsApplied++;
+                            console.log(`Applied ${field} = ${value} to mold heater field: ${moldHeaterFieldName}`);
+                        }
+                        
+                        continue; // Skip the normal processing for Zone fields
                     } else {
                         // Get the form field name (use mapping if available, otherwise use original field name)
                         formFieldName = fieldMapping[field] || field;
@@ -3165,17 +3303,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                             // Trigger change event to update any dependent fields
                             $(input).trigger('change');
                             fieldsApplied++;
+                            debugInfo.applied.push(`${field} -> ${formFieldName} = ${value}`);
+                        } else {
+                            fieldsSkipped++;
+                            debugInfo.notFound.push(`${field} -> ${formFieldName}`);
                         }
                     }
                 }
 
                 console.log(`Applied ${fieldsApplied} fields, skipped ${fieldsSkipped} fields`);
+                console.log('Cloned data summary:', {
+                    totalFields: Object.keys(clonedData).length,
+                    appliedFields: fieldsApplied,
+                    skippedFields: fieldsSkipped,
+                    excludedFieldsCount: excludedFields.length
+                });
+
+                // Debug: Show detailed information about field processing
+                console.log('Debug Info:');
+                console.log('  Excluded fields:', debugInfo.excluded);
+                console.log('  Null/Empty fields:', debugInfo.nullOrEmpty.slice(0, 10)); // Show first 10
+                console.log('  Form fields not found:', debugInfo.notFound);
+                console.log('  Successfully applied:', debugInfo.applied.slice(0, 10)); // Show first 10
 
                 // Reset start time since this is like starting a new form session
                 setStartTime();
 
                 // Show success message
-                showNotification(`Form data successfully applied from selected record. Applied ${fieldsApplied} fields. Date, start/end times, adjuster name, attachments, and other unique fields were not copied. New session started.`, 'success');
+                showNotification(`Form data successfully applied from selected record. Applied ${fieldsApplied} fields, skipped ${fieldsSkipped} fields. Date, start/end times, adjuster name, attachments, and other unique fields were not copied. New session started.`, 'success');
 
             <?php endif; ?>
         });

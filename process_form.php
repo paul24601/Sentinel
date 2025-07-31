@@ -57,8 +57,8 @@ $result = $conn->query($sql);
     <title>Form Submission Result</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- DataTables CSS -->
-    <link href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css" rel="stylesheet">
+    <!-- DataTables CSS from reliable CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
     <style>
         .table-container {
             border: 1px solid #ddd; /* Border color */
@@ -153,12 +153,21 @@ $result = $conn->query($sql);
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+    <!-- DataTables JS from reliable CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/js/jquery.dataTables.min.js"></script>
 
     <script>
         $(document).ready(function () {
-            $('#submissionTable').DataTable(); // Initialize DataTables
+            $('#submissionTable').DataTable({
+                pageLength: 10,
+                responsive: true,
+                order: [[0, 'desc']],
+                language: {
+                    search: "Search records:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries"
+                }
+            }); // Initialize DataTables
         });
 
         <?php if ($recordCreated): ?>

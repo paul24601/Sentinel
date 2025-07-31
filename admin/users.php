@@ -170,8 +170,8 @@ if ($ud_result && $ud_result->num_rows > 0) {
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
-    <!-- DataTables CSS -->
-    <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet">
+    <!-- DataTables CSS from reliable CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
 </head>
 
 <body class="sb-nav-fixed">
@@ -425,12 +425,21 @@ if ($ud_result && $ud_result->num_rows > 0) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <!-- DataTables JS from reliable CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/js/jquery.dataTables.min.js"></script>
 
     <script>
         $(document).ready(function () {
-            $('#usersTable').DataTable();
+            $('#usersTable').DataTable({
+                pageLength: 10,
+                responsive: true,
+                order: [[0, 'asc']],
+                language: {
+                    search: "Search users:",
+                    lengthMenu: "Show _MENU_ users",
+                    info: "Showing _START_ to _END_ of _TOTAL_ users"
+                }
+            });
         });
 
         document.addEventListener('DOMContentLoaded', function () {
