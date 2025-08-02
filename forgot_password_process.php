@@ -135,12 +135,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     // If user doesn't exist in admin_sentinel.users, create them
     if ($admin_user_result->num_rows === 0) {
-        $create_user_sql = "INSERT INTO users (id_number, full_name, email, password_hash, role) VALUES (?, ?, ?, ?, 'user')";
-        $create_stmt = $conn->prepare($create_user_sql);
         $email = strtolower(str_replace(' ', '.', $full_name)) . '@company.com';
         $default_password = password_hash('default123', PASSWORD_DEFAULT);
-        $create_stmt->bind_param("ssss", $id_number, $full_name, $email, $default_password);
-        $create_stmt->execute();
+        
+        // Check if email already exists (to prevent duplicate email errors)
+        $check_email_sql = "SELECT id_number FROM users WHERE email = ?";
+        $email_check_stmt = $conn->prepare($check_email_sql);
+        $email_check_stmt->bind_param("s", $email);
+        $email_check_stmt->execute();
+        $email_result = $email_check_stmt->get_result();
+        
+        if ($email_result->num_rows === 0) {
+            // Email doesn't exist, safe to create user
+            $create_user_sql = "INSERT INTO users (id_number, full_name, email, password_hash, role) VALUES (?, ?, ?, ?, 'user')";
+            $create_stmt = $conn->prepare($create_user_sql);
+            $create_stmt->bind_param("ssss", $id_number, $full_name, $email, $default_password);
+            
+            if (!$create_stmt->execute()) {
+                error_log("Failed to create user in admin_sentinel: " . $create_stmt->error);
+                // Continue anyway, as this is not critical for password reset functionality
+            }
+        } else {
+            // Email exists but different ID number - use a unique email
+            $email = strtolower(str_replace(' ', '.', $full_name)) . '.' . $id_number . '@company.com';
+            $create_user_sql = "INSERT INTO users (id_number, full_name, email, password_hash, role) VALUES (?, ?, ?, ?, 'user')";
+            $create_stmt = $conn->prepare($create_user_sql);
+            $create_stmt->bind_param("ssss", $id_number, $full_name, $email, $default_password);
+            
+            if (!$create_stmt->execute()) {
+                error_log("Failed to create user in admin_sentinel with unique email: " . $create_stmt->error);
+                // Continue anyway, as this is not critical for password reset functionality
+            }
+        }
     }
     
     // Check if there's already a pending request for this user
@@ -166,15 +192,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($insert_stmt->execute()) {
         $request_id = $conn->insert_id;
         
-        // Send notification email to admins
-        $email_sent = sendAdminNotificationEmail($request_id, $id_number, $full_name, $reason);
+        // Email notifications disabled as requested
+        // $email_sent = sendAdminNotificationEmail($request_id, $id_number, $full_name, $reason);
         
-        $success_message = "Your password reset request has been submitted successfully. ";
-        if ($email_sent) {
-            $success_message .= "Administrators have been notified and will review your request shortly.";
-        } else {
-            $success_message .= "However, there was an issue sending the notification email. Please contact an administrator directly.";
-        }
+        $success_message = "Your password reset request has been submitted successfully. Administrators will review your request shortly.";
         
         header("Location: forgot_password.html?success=" . urlencode($success_message));
         exit();

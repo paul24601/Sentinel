@@ -51,6 +51,17 @@ if ($conn->connect_error) {
     die("<div class='alert alert-danger'>Connection failed: " . $conn->connect_error . "</div>");
 }
 
+// Connect to admin_sentinel to check for pending password reset requests
+$admin_conn = new mysqli($servername, $username, $password, "admin_sentinel");
+$pending_requests_count = 0;
+if (!$admin_conn->connect_error) {
+    $pending_result = $admin_conn->query("SELECT COUNT(*) as count FROM password_reset_requests WHERE status = 'pending'");
+    if ($pending_result) {
+        $pending_row = $pending_result->fetch_assoc();
+        $pending_requests_count = $pending_row['count'];
+    }
+}
+
 // Fetch all departments for the form
 $departments = [];
 $dept_sql = "SELECT id, name FROM departments ORDER BY name";
@@ -245,6 +256,13 @@ if ($ud_result && $ud_result->num_rows > 0) {
                         <a class="nav-link active" href="users.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-user-group"></i></div>
                             Users
+                        </a>
+                        <a class="nav-link" href="password_reset_management.php">
+                            <div class="sb-nav-link-icon"><i class="fas fa-key"></i></div>
+                            Password Reset Requests
+                            <?php if ($pending_requests_count > 0): ?>
+                                <span class="badge bg-danger ms-2"><?= $pending_requests_count ?></span>
+                            <?php endif; ?>
                         </a>
                         <a class="nav-link" href="charts.html">
                             <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
@@ -454,4 +472,7 @@ if ($ud_result && $ud_result->num_rows > 0) {
 
 <?php
 $conn->close();
+if (isset($admin_conn)) {
+    $admin_conn->close();
+}
 ?>

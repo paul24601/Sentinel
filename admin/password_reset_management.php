@@ -163,9 +163,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $update_user_stmt->bind_param("ss", $hashed_password, $request_data['id_number']);
                 
                 if ($update_user_stmt->execute()) {
-                    // Send email notification
-                    sendUserNotificationEmail($request_data['id_number'], $request_data['full_name'], 'approved', $admin_comment, $temp_password);
-                    $message = "<div class='alert alert-success'>Password reset request approved successfully. User has been notified.</div>";
+                    // Email notifications disabled as requested
+                    // sendUserNotificationEmail($request_data['id_number'], $request_data['full_name'], 'approved', $admin_comment, $temp_password);
+                    $message = "<div class='alert alert-success'>Password reset request approved successfully. User password has been reset to 'injection'.</div>";
                 } else {
                     $message = "<div class='alert alert-danger'>Failed to update user password.</div>";
                 }
@@ -193,9 +193,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $request_result = $get_stmt->get_result();
                 $request_data = $request_result->fetch_assoc();
                 
-                // Send email notification
-                sendUserNotificationEmail($request_data['id_number'], $request_data['full_name'], 'denied', $admin_comment);
-                $message = "<div class='alert alert-success'>Password reset request denied. User has been notified.</div>";
+                // Email notifications disabled as requested
+                // sendUserNotificationEmail($request_data['id_number'], $request_data['full_name'], 'denied', $admin_comment);
+                $message = "<div class='alert alert-success'>Password reset request has been denied.</div>";
             } else {
                 $message = "<div class='alert alert-danger'>Failed to update request status.</div>";
             }
