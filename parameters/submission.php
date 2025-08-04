@@ -196,7 +196,6 @@ if ($selectedRecordId) {
     <meta name="description" content="" />
     <meta name="author" content="" />
     <title>Parameters - Data Entry</title>
-    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
     <link href="../css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     <!-- Bootstrap CSS -->
@@ -206,11 +205,10 @@ if ($selectedRecordId) {
     <!-- jQuery UI for Autocomplete -->
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- DataTables core CSS from reliable CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/css/dataTables.bootstrap5.min.css" />
-
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
     <!-- DataTables Responsive extension CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables-responsive/2.5.0/css/responsive.bootstrap5.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" />
 
     <!-- Custom styles -->
     <link rel="stylesheet" href="styles.css" />
@@ -1523,19 +1521,15 @@ if ($selectedRecordId) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
     <script src="../assets/demo/chart-area-demo.js"></script>
     <script src="../assets/demo/chart-bar-demo.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
-        crossorigin="anonymous"></script>
-    <script src="../js/datatables-simple-demo.js"></script>
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- DataTables core JS from reliable CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
+    <!-- DataTables core JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <!-- DataTables Responsive extension JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables-responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables-responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
 </body>
 

@@ -119,6 +119,106 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
     $stmt->close();
 }
 
+// Handle department management
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Add Department
+    if (isset($_POST['add_department'])) {
+        $dept_name = trim($_POST['dept_name']);
+        if (!empty($dept_name)) {
+            $add_dept_stmt = $conn->prepare("INSERT INTO departments (name) VALUES (?)");
+            $add_dept_stmt->bind_param("s", $dept_name);
+            if ($add_dept_stmt->execute()) {
+                echo "<div class='alert alert-success alert-dismissible fade show' role='alert'>
+                        Department added successfully!
+                        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                      </div>";
+            } else {
+                echo "<div class='alert alert-danger alert-dismissible fade show' role='alert'>
+                        Error adding department: " . $add_dept_stmt->error . "
+                        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                      </div>";
+            }
+            $add_dept_stmt->close();
+        }
+    }
+    
+    // Edit Department
+    if (isset($_POST['edit_department'])) {
+        $dept_id = $_POST['dept_id'];
+        $dept_name = trim($_POST['dept_name']);
+        if (!empty($dept_name)) {
+            $edit_dept_stmt = $conn->prepare("UPDATE departments SET name = ? WHERE id = ?");
+            $edit_dept_stmt->bind_param("si", $dept_name, $dept_id);
+            if ($edit_dept_stmt->execute()) {
+                echo "<div class='alert alert-success alert-dismissible fade show' role='alert'>
+                        Department updated successfully!
+                        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                      </div>";
+            } else {
+                echo "<div class='alert alert-danger alert-dismissible fade show' role='alert'>
+                        Error updating department: " . $edit_dept_stmt->error . "
+                        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                      </div>";
+            }
+            $edit_dept_stmt->close();
+        }
+    }
+    
+    // Delete Department
+    if (isset($_POST['delete_department'])) {
+        $dept_id = $_POST['dept_id'];
+        
+        // First remove all user-department associations
+        $remove_assoc_stmt = $conn->prepare("DELETE FROM user_departments WHERE department_id = ?");
+        $remove_assoc_stmt->bind_param("i", $dept_id);
+        $remove_assoc_stmt->execute();
+        $remove_assoc_stmt->close();
+        
+        // Then delete the department
+        $delete_dept_stmt = $conn->prepare("DELETE FROM departments WHERE id = ?");
+        $delete_dept_stmt->bind_param("i", $dept_id);
+        if ($delete_dept_stmt->execute()) {
+            echo "<div class='alert alert-success alert-dismissible fade show' role='alert'>
+                    Department deleted successfully!
+                    <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                  </div>";
+        } else {
+            echo "<div class='alert alert-danger alert-dismissible fade show' role='alert'>
+                    Error deleting department: " . $delete_dept_stmt->error . "
+                    <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                  </div>";
+        }
+        $delete_dept_stmt->close();
+    }
+    
+    // Update User Access (Departments)
+    if (isset($_POST['update_user_access'])) {
+        $user_id = $_POST['user_id'];
+        $selected_departments = isset($_POST['user_departments']) ? $_POST['user_departments'] : [];
+        
+        // First, remove all existing department associations for this user
+        $remove_stmt = $conn->prepare("DELETE FROM user_departments WHERE user_id_number = ?");
+        $remove_stmt->bind_param("s", $user_id);
+        $remove_stmt->execute();
+        $remove_stmt->close();
+        
+        // Then add the new department associations
+        if (!empty($selected_departments)) {
+            $insert_stmt = $conn->prepare("INSERT INTO user_departments (user_id_number, department_id) VALUES (?, ?)");
+            foreach ($selected_departments as $dept_id) {
+                $insert_stmt->bind_param("si", $user_id, $dept_id);
+                $insert_stmt->execute();
+            }
+            $insert_stmt->close();
+        }
+        
+        echo "<div class='alert alert-success alert-dismissible fade show' role='alert'>
+                User access updated successfully!
+                <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+              </div>";
+    }
+}
+
 // Handle individual password_changed reset and set the password to 'injection'
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_user_password_changed'])) {
     $user_id = $_POST['user_id'] ?? '';
@@ -170,7 +270,6 @@ if ($ud_result && $ud_result->num_rows > 0) {
     <meta name="description" content="" />
     <meta name="author" content="" />
     <title>Admin - Users</title>
-    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
     <link href="../css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     <!-- Bootstrap CSS -->
@@ -181,8 +280,8 @@ if ($ud_result && $ud_result->num_rows > 0) {
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
-    <!-- DataTables CSS from reliable CDN -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 </head>
 
 <body class="sb-nav-fixed">
@@ -396,12 +495,15 @@ if ($ud_result && $ud_result->num_rows > 0) {
                                                         <td>" . $row['full_name'] . "</td>
                                                         <td>" . $row['role'] . "</td>
                                                         <td>" . ($row['password_changed'] ? 'Yes' : 'No') . "</td>
-                                                        <td>" . ($user_departments_map[$row['id_number']] ?? '<span class="text-muted">None</span>') . "</td>
+                                                        <td>" . (isset($user_departments_map[$row['id_number']]) ? implode(', ', $user_departments_map[$row['id_number']]) : '<span class="text-muted">None</span>') . "</td>
                                                         <td>
-                                                            <form method='POST' action=''>
+                                                            <button class='btn btn-primary btn-sm me-2' onclick='editUserAccess(\"" . $row['id_number'] . "\", \"" . htmlspecialchars($row['full_name']) . "\")'>
+                                                                <i class='fas fa-edit'></i> Edit Access
+                                                            </button>
+                                                            <form method='POST' action='' style='display: inline;'>
                                                                 <input type='hidden' name='user_id' value='" . $row['id_number'] . "'>
                                                                 <button type='submit' name='reset_user_password_changed' class='btn btn-warning btn-sm'>
-                                                                    Reset
+                                                                    <i class='fas fa-key'></i> Reset
                                                                 </button>
                                                             </form>
                                                         </td>
@@ -433,18 +535,47 @@ if ($ud_result && $ud_result->num_rows > 0) {
             </footer>
         </div>
     </div>
+
+    <!-- Edit User Access Modal -->
+    <div class="modal fade" id="editUserAccessModal" tabindex="-1" aria-labelledby="editUserAccessModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editUserAccessModalLabel">Edit User Access</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="edit_user_id" name="user_id">
+                        <div class="mb-3">
+                            <label class="form-label"><strong>User:</strong> <span id="edit_user_name"></span></label>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Department Access (select one or more):</label>
+                            <div id="departments_list">
+                                <!-- Departments will be loaded dynamically via JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" name="update_user_access" class="btn btn-primary">Update Access</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="../js/scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
     <script src="../assets/demo/chart-area-demo.js"></script>
     <script src="../assets/demo/chart-bar-demo.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- DataTables JS from reliable CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/js/jquery.dataTables.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
     <script>
         $(document).ready(function () {
@@ -459,6 +590,41 @@ if ($ud_result && $ud_result->num_rows > 0) {
                 }
             });
         });
+
+        // Store departments data for the modal
+        const departments = <?php echo json_encode($departments); ?>;
+        
+        // Store current user departments for loading into modal
+        const userDepartments = <?php echo json_encode($user_departments_map); ?>;
+
+        function editUserAccess(userId, userName) {
+            document.getElementById('edit_user_id').value = userId;
+            document.getElementById('edit_user_name').textContent = userName;
+            
+            // Clear and populate departments list
+            const departmentsList = document.getElementById('departments_list');
+            departmentsList.innerHTML = '';
+            
+            // Get current user's departments
+            const currentUserDepts = userDepartments[userId] || [];
+            
+            departments.forEach(dept => {
+                const isChecked = currentUserDepts.includes(dept.name) ? 'checked' : '';
+                
+                const checkboxHtml = `
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="user_departments[]" 
+                               value="${dept.id}" id="user_dept${dept.id}" ${isChecked}>
+                        <label class="form-check-label" for="user_dept${dept.id}">
+                            ${dept.name}
+                        </label>
+                    </div>
+                `;
+                departmentsList.innerHTML += checkboxHtml;
+            });
+            
+            new bootstrap.Modal(document.getElementById('editUserAccessModal')).show();
+        }
 
         document.addEventListener('DOMContentLoaded', function () {
             var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
