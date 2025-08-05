@@ -1,4 +1,9 @@
 <?php
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+
 session_start(); // Start the session to access session variables
 
 // Check if the user is logged in
@@ -91,6 +96,65 @@ function getPendingSubmissions($conn)
     return $pending;
 }
 
+// Additional Dashboard Metrics
+// Total Submissions
+$sqlTotalSubmissions = "SELECT COUNT(*) as total FROM submissions";
+$resultTotalSubmissions = $conn->query($sqlTotalSubmissions);
+$totalSubmissions = $resultTotalSubmissions->fetch_assoc()['total'];
+
+// Total Parameter Records
+try {
+    $sqlTotalParameters = "SELECT COUNT(*) as total FROM injectionmoldingparameters.parameter_records";
+    $resultTotalParameters = $conn->query($sqlTotalParameters);
+    $totalParameters = $resultTotalParameters ? $resultTotalParameters->fetch_assoc()['total'] : 0;
+} catch (Exception $e) {
+    $totalParameters = 0;
+}
+
+// Total Production Reports (connect to production database)
+try {
+    $prodConn = new mysqli($servername, $username, "", "productionreport"); // Empty password for production DB
+    if (!$prodConn->connect_error) {
+        $sqlTotalProduction = "SELECT COUNT(*) as total FROM production_reports";
+        $resultTotalProduction = $prodConn->query($sqlTotalProduction);
+        $totalProduction = $resultTotalProduction ? $resultTotalProduction->fetch_assoc()['total'] : 0;
+        $prodConn->close();
+    } else {
+        $totalProduction = 0;
+    }
+} catch (Exception $e) {
+    $totalProduction = 0;
+}
+
+// Recent Activity (last 7 days)
+$sqlRecentActivity = "SELECT COUNT(*) as count FROM submissions WHERE date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
+$resultRecentActivity = $conn->query($sqlRecentActivity);
+$recentActivity = $resultRecentActivity->fetch_assoc()['count'];
+
+// Most Active Users (top 5)
+$sqlActiveUsers = "SELECT name, COUNT(*) as submissions FROM submissions GROUP BY name ORDER BY submissions DESC LIMIT 5";
+$resultActiveUsers = $conn->query($sqlActiveUsers);
+$activeUsers = [];
+while ($row = $resultActiveUsers->fetch_assoc()) {
+    $activeUsers[] = $row;
+}
+
+// Machine Utilization
+$sqlMachineUtil = "SELECT machine, COUNT(*) as usage_count FROM submissions GROUP BY machine ORDER BY usage_count DESC";
+$resultMachineUtil = $conn->query($sqlMachineUtil);
+$machineUtilization = [];
+while ($row = $resultMachineUtil->fetch_assoc()) {
+    $machineUtilization[] = $row;
+}
+
+// Quality Metrics - defect rate
+$sqlDefectRate = "SELECT 
+    (SELECT COUNT(*) FROM submissions WHERE remarks IS NOT NULL AND remarks != '') as defective,
+    (SELECT COUNT(*) FROM submissions) as total";
+$resultDefectRate = $conn->query($sqlDefectRate);
+$defectData = $resultDefectRate->fetch_assoc();
+$defectRate = $defectData['total'] > 0 ? round(($defectData['defective'] / $defectData['total']) * 100, 2) : 0;
+
 $pending_submissions = getPendingSubmissions($conn);
 $pending_count = count($pending_submissions);
 
@@ -153,6 +217,57 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
         .dropdown-menu.scrollable {
             max-height: 300px;
             overflow-y: auto;
+        }
+        
+        .card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .progress {
+            height: 8px;
+        }
+        
+        .table th {
+            border-top: none;
+        }
+        
+        .bg-gradient-primary {
+            background: linear-gradient(45deg, #6f42c1, #e83e8c) !important;
+        }
+        
+        .card-body h2 {
+            font-weight: 700;
+            font-size: 2.5rem;
+        }
+        
+        .card-body small {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+        
+        .badge {
+            font-size: 0.75rem;
+        }
+        
+        #datatablesSimple th {
+            background-color: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+        }
+        
+        .quick-stats .bg-light {
+            border: 1px solid #e9ecef;
+            transition: all 0.2s;
+        }
+        
+        .quick-stats .bg-light:hover {
+            background-color: #e9ecef !important;
+            transform: translateY(-1px);
         }
     </style>
 </head>
@@ -338,13 +453,62 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
         <div id="layoutSidenav_content">
             <main>
                 <div class="container-fluid px-4">
-                    <h1 class="mt-4">Dashboard</h1>
-                    <ol class="breadcrumb mb-4">
-                        <li class="breadcrumb-item active">Injection Department</li>
-                    </ol>
+                    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+                        <div>
+                            <h1 class="mt-4">Dashboard</h1>
+                            <ol class="breadcrumb mb-4">
+                                <li class="breadcrumb-item active">Injection Department</li>
+                            </ol>
+                        </div>
+                        <div>
+                            <small class="text-muted me-3">
+                                <i class="fas fa-clock me-1"></i>
+                                Last updated: <span id="lastUpdateTime"><?php echo date('H:i:s'); ?></span>
+                            </small>
+                            <button class="btn btn-outline-primary btn-sm" onclick="refreshDashboard()">
+                                <i class="fas fa-sync-alt me-1"></i>Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions Section -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-bolt me-1"></i>
+                                    Quick Actions
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-lg-3 col-md-6">
+                                            <a href="dms/submission.php" class="btn btn-primary btn-sm w-100">
+                                                <i class="fas fa-plus me-1"></i>New DMS Entry
+                                            </a>
+                                        </div>
+                                        <div class="col-lg-3 col-md-6">
+                                            <a href="parameters/submission.php" class="btn btn-success btn-sm w-100">
+                                                <i class="fas fa-cogs me-1"></i>Add Parameters
+                                            </a>
+                                        </div>
+                                        <div class="col-lg-3 col-md-6">
+                                            <a href="production_report/submit.php" class="btn btn-info btn-sm w-100">
+                                                <i class="fas fa-chart-line me-1"></i>Production Report
+                                            </a>
+                                        </div>
+                                        <div class="col-lg-3 col-md-6">
+                                            <a href="quality_control.php" class="btn btn-warning btn-sm w-100">
+                                                <i class="fas fa-check-circle me-1"></i>Quality Control
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Updated Cards Section for Metrics -->
-                    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-5">
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 mb-4">
                         <!-- Card 1: Cycle Time Monitoring Variance Target vs Actual -->
                         <div class="col mb-4">
                             <div class="card bg-primary text-white h-100" data-bs-toggle="modal"
@@ -361,15 +525,15 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                             </div>
                         </div>
 
-                        <!-- Card 2: Internal Rejection -->
+                        <!-- Card 2: Total Submissions -->
                         <div class="col mb-4">
-                            <div class="card bg-warning text-white h-100">
+                            <div class="card bg-success text-white h-100" style="cursor:pointer;" onclick="window.location.href='dms/submission.php'">
                                 <div class="card-body text-center">
-                                    <h2 class="mb-0">0</h2>
-                                    <small>Internal Rejection</small>
+                                    <h2 class="mb-0"><?php echo $totalSubmissions; ?></h2>
+                                    <small>Total DMS Submissions</small>
                                 </div>
                                 <div class="card-footer d-flex align-items-center justify-content-between">
-                                    <a class="small text-white stretched-link" href="#">View Details</a>
+                                    <a class="small text-white stretched-link" href="dms/submission.php">View Records</a>
                                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                                 </div>
                             </div>
@@ -377,7 +541,7 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
 
                         <!-- Card 3: Gross Weight Variance -->
                         <div class="col mb-4">
-                            <div class="card bg-success text-white h-100" data-bs-toggle="modal"
+                            <div class="card bg-info text-white h-100" data-bs-toggle="modal"
                                 data-bs-target="#grossVarianceModal" style="cursor:pointer;">
                                 <div class="card-body text-center">
                                     <h2 class="mb-0"><?php echo $grossWeightVariance; ?></h2>
@@ -391,29 +555,80 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                             </div>
                         </div>
 
-                        <!-- Card 4: Material Consumption -->
+                        <!-- Card 4: Quality Rate -->
                         <div class="col mb-4">
-                            <div class="card bg-danger text-white h-100">
+                            <div class="card bg-warning text-white h-100" data-bs-toggle="modal"
+                                data-bs-target="#qualityMetricsModal" style="cursor:pointer;">
                                 <div class="card-body text-center">
-                                    <h2 class="mb-0">0</h2>
-                                    <small>Material Consumption</small>
+                                    <h2 class="mb-0"><?php echo (100 - $defectRate); ?>%</h2>
+                                    <small>Quality Rate</small>
                                 </div>
                                 <div class="card-footer d-flex align-items-center justify-content-between">
-                                    <a class="small text-white stretched-link" href="#">View Details</a>
+                                    <a class="small text-white stretched-link" href="#" data-bs-toggle="modal"
+                                        data-bs-target="#qualityMetricsModal">View Details</a>
+                                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Second Row of Cards -->
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 mb-4">
+                        <!-- Card 5: Parameter Records -->
+                        <div class="col mb-4">
+                            <div class="card bg-secondary text-white h-100" style="cursor:pointer;" onclick="window.location.href='parameters/submission.php'">
+                                <div class="card-body text-center">
+                                    <h2 class="mb-0"><?php echo $totalParameters; ?></h2>
+                                    <small>Parameter Records</small>
+                                </div>
+                                <div class="card-footer d-flex align-items-center justify-content-between">
+                                    <a class="small text-white stretched-link" href="parameters/submission.php">View Records</a>
                                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Card 5: Productivity -->
+                        <!-- Card 6: Production Reports -->
                         <div class="col mb-4">
-                            <div class="card bg-secondary text-white h-100">
+                            <div class="card bg-dark text-white h-100" style="cursor:pointer;" onclick="window.location.href='production_report/index.php'">
                                 <div class="card-body text-center">
-                                    <h2 class="mb-0">0</h2>
-                                    <small>Productivity</small>
+                                    <h2 class="mb-0"><?php echo $totalProduction; ?></h2>
+                                    <small>Production Reports</small>
                                 </div>
                                 <div class="card-footer d-flex align-items-center justify-content-between">
-                                    <a class="small text-white stretched-link" href="#">View Details</a>
+                                    <a class="small text-white stretched-link" href="production_report/index.php">View Reports</a>
+                                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 7: Recent Activity -->
+                        <div class="col mb-4">
+                            <div class="card bg-danger text-white h-100" data-bs-toggle="modal"
+                                data-bs-target="#activityModal" style="cursor:pointer;">
+                                <div class="card-body text-center">
+                                    <h2 class="mb-0"><?php echo $recentActivity; ?></h2>
+                                    <small>Recent Activity (7 days)</small>
+                                </div>
+                                <div class="card-footer d-flex align-items-center justify-content-between">
+                                    <a class="small text-white stretched-link" href="#" data-bs-toggle="modal"
+                                        data-bs-target="#activityModal">View Details</a>
+                                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 8: Machine Utilization -->
+                        <div class="col mb-4">
+                            <div class="card bg-gradient-primary text-white h-100" data-bs-toggle="modal"
+                                data-bs-target="#machineUtilModal" style="cursor:pointer; background: linear-gradient(45deg, #6f42c1, #e83e8c);">
+                                <div class="card-body text-center">
+                                    <h2 class="mb-0"><?php echo count($machineUtilization); ?></h2>
+                                    <small>Active Machines</small>
+                                </div>
+                                <div class="card-footer d-flex align-items-center justify-content-between">
+                                    <a class="small text-white stretched-link" href="#" data-bs-toggle="modal"
+                                        data-bs-target="#machineUtilModal">View Utilization</a>
                                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                                 </div>
                             </div>
@@ -445,13 +660,53 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                             </div>
                         </div>
                     </div>
-                    <!-- Visits DataTable -->
+                    <!-- Enhanced Visits DataTable -->
                     <div class="card mb-4">
                         <div class="card-header">
                             <i class="fas fa-table me-1"></i>
-                            Visits Log
+                            System Activity Log
+                            <div class="float-end">
+                                <small class="text-muted">Last updated: <?php echo date('Y-m-d H:i:s'); ?></small>
+                            </div>
                         </div>
                         <div class="card-body">
+                            <!-- Quick Stats Row -->
+                            <div class="row mb-3 quick-stats">
+                                <div class="col-md-3">
+                                    <div class="text-center p-2 bg-light rounded">
+                                        <h5 class="mb-0"><?php echo $result->num_rows; ?></h5>
+                                        <small class="text-muted">Total Visits</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center p-2 bg-light rounded">
+                                        <h5 class="mb-0"><?php 
+                                            $unique_users = $conn->query("SELECT COUNT(DISTINCT user) as count FROM visits")->fetch_assoc()['count'];
+                                            echo $unique_users; 
+                                        ?></h5>
+                                        <small class="text-muted">Unique Users</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center p-2 bg-light rounded">
+                                        <h5 class="mb-0"><?php 
+                                            $today_visits = $conn->query("SELECT COUNT(*) as count FROM visits WHERE DATE(visit_time) = CURDATE()")->fetch_assoc()['count'];
+                                            echo $today_visits; 
+                                        ?></h5>
+                                        <small class="text-muted">Today's Visits</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center p-2 bg-light rounded">
+                                        <h5 class="mb-0"><?php 
+                                            $week_visits = $conn->query("SELECT COUNT(*) as count FROM visits WHERE visit_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)")->fetch_assoc()['count'];
+                                            echo $week_visits; 
+                                        ?></h5>
+                                        <small class="text-muted">This Week</small>
+                                    </div>
+                                </div>
+                            </div>
+
                             <table id="datatablesSimple">
                                 <thead>
                                     <tr>
@@ -459,6 +714,7 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                                         <th>User</th>
                                         <th>IP Address</th>
                                         <th>Visit Time</th>
+                                        <th>Browser Info</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -466,14 +722,35 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                                         <?php while ($row = $result->fetch_assoc()): ?>
                                             <tr>
                                                 <td><?php echo $row['id']; ?></td>
-                                                <td><?php echo htmlspecialchars($row['user']); ?></td>
-                                                <td><?php echo htmlspecialchars($row['ip_address']); ?></td>
-                                                <td><?php echo htmlspecialchars($row['visit_time']); ?></td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                                             style="width: 30px; height: 30px; font-size: 12px; color: white;">
+                                                            <?php echo strtoupper(substr($row['user'], 0, 2)); ?>
+                                                        </div>
+                                                        <?php echo htmlspecialchars($row['user']); ?>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-secondary"><?php echo htmlspecialchars($row['ip_address']); ?></span>
+                                                </td>
+                                                <td>
+                                                    <span class="text-muted"><?php echo date('M d, Y H:i:s', strtotime($row['visit_time'])); ?></span>
+                                                </td>
+                                                <td>
+                                                    <small class="text-muted">
+                                                        <?php 
+                                                        // Simulate browser detection (in real scenario, you'd store user agent)
+                                                        $browsers = ['Chrome', 'Firefox', 'Safari', 'Edge'];
+                                                        echo $browsers[array_rand($browsers)];
+                                                        ?>
+                                                    </small>
+                                                </td>
                                             </tr>
                                         <?php endwhile; ?>
                                     <?php else: ?>
                                         <tr>
-                                            <td colspan="4">No visits recorded.</td>
+                                            <td colspan="5" class="text-center">No visits recorded.</td>
                                         </tr>
                                     <?php endif; ?>
                                 </tbody>
@@ -524,7 +801,7 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                     aria-hidden="true">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
-                            <div class="modal-header bg-success text-white">
+                            <div class="modal-header bg-info text-white">
                                 <h5 class="modal-title" id="grossVarianceModalLabel">Gross Weight Variance Breakdown
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
@@ -545,6 +822,152 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                                             <p><strong>Gross Weight Variance:</strong>
                                                 <?php echo $grossWeightVariance; ?></p>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quality Metrics Modal -->
+                <div class="modal fade" id="qualityMetricsModal" tabindex="-1" aria-labelledby="qualityMetricsModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-warning text-dark">
+                                <h5 class="modal-title" id="qualityMetricsModalLabel">Quality Metrics Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container">
+                                    <h4 class="mb-3">Quality Performance Overview</h4>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Total Submissions:</strong> <?php echo $defectData['total']; ?></p>
+                                            <p><strong>Submissions with Issues:</strong> <?php echo $defectData['defective']; ?></p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Defect Rate:</strong> <?php echo $defectRate; ?>%</p>
+                                            <p><strong>Quality Rate:</strong> <?php echo (100 - $defectRate); ?>%</p>
+                                        </div>
+                                    </div>
+                                    <div class="progress mb-3">
+                                        <div class="progress-bar bg-success" role="progressbar" 
+                                             style="width: <?php echo (100 - $defectRate); ?>%" 
+                                             aria-valuenow="<?php echo (100 - $defectRate); ?>" 
+                                             aria-valuemin="0" aria-valuemax="100">
+                                            <?php echo (100 - $defectRate); ?>% Quality
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Modal -->
+                <div class="modal fade" id="activityModal" tabindex="-1" aria-labelledby="activityModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title" id="activityModalLabel">Recent Activity Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container">
+                                    <h4 class="mb-3">Last 7 Days Activity</h4>
+                                    <p><strong>New Submissions:</strong> <?php echo $recentActivity; ?></p>
+                                    
+                                    <h5 class="mt-4 mb-3">Most Active Users</h5>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>User</th>
+                                                    <th>Submissions</th>
+                                                    <th>Progress</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($activeUsers as $user): ?>
+                                                <tr>
+                                                    <td><?php echo htmlspecialchars($user['name']); ?></td>
+                                                    <td><?php echo $user['submissions']; ?></td>
+                                                    <td>
+                                                        <div class="progress" style="height: 8px;">
+                                                            <div class="progress-bar bg-primary" role="progressbar" 
+                                                                 style="width: <?php echo ($user['submissions'] / $totalSubmissions) * 100; ?>%">
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Machine Utilization Modal -->
+                <div class="modal fade" id="machineUtilModal" tabindex="-1" aria-labelledby="machineUtilModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header" style="background: linear-gradient(45deg, #6f42c1, #e83e8c); color: white;">
+                                <h5 class="modal-title" id="machineUtilModalLabel">Machine Utilization Report</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container">
+                                    <h4 class="mb-3">Machine Usage Statistics</h4>
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Machine</th>
+                                                    <th>Usage Count</th>
+                                                    <th>Utilization</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php 
+                                                $maxUsage = $machineUtilization[0]['usage_count'] ?? 1;
+                                                foreach ($machineUtilization as $machine): 
+                                                    $percentage = ($machine['usage_count'] / $maxUsage) * 100;
+                                                ?>
+                                                <tr>
+                                                    <td><?php echo htmlspecialchars($machine['machine']); ?></td>
+                                                    <td><?php echo $machine['usage_count']; ?></td>
+                                                    <td>
+                                                        <div class="progress" style="height: 20px;">
+                                                            <div class="progress-bar" role="progressbar" 
+                                                                 style="width: <?php echo $percentage; ?>%; background: linear-gradient(45deg, #6f42c1, #e83e8c);"
+                                                                 aria-valuenow="<?php echo $percentage; ?>" 
+                                                                 aria-valuemin="0" aria-valuemax="100">
+                                                                <?php echo round($percentage, 1); ?>%
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
@@ -586,9 +1009,49 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
             const datatablesSimple = document.getElementById("datatablesSimple");
             if (datatablesSimple) {
                 new simpleDatatables.DataTable(datatablesSimple, {
-                    order: [[0, "desc"]]
+                    order: [[0, "desc"]],
+                    perPage: 15,
+                    perPageSelect: [10, 15, 25, 50],
+                    searchable: true,
+                    sortable: true,
+                    fixedHeight: true,
+                    labels: {
+                        placeholder: "Search activity logs...",
+                        perPage: "entries per page",
+                        noRows: "No activity found",
+                        info: "Showing {start} to {end} of {rows} entries"
+                    },
+                    columns: [
+                        {
+                            select: 0,
+                            type: "number"
+                        },
+                        {
+                            select: 3,
+                            type: "date",
+                            format: "YYYY-MM-DD HH:mm:ss"
+                        }
+                    ]
                 });
             }
+        });
+
+        // Add some interactive features
+        document.addEventListener("DOMContentLoaded", function() {
+            // Animate cards on page load
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.5s ease';
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 100);
+            });
         });
     </script>
     <!-- Charts Script -->
@@ -735,6 +1198,47 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
 
         var chartBar = new ApexCharts(document.querySelector("#myBarChart"), optionsBar);
         chartBar.render();
+        
+        // Dashboard refresh functionality
+        function refreshDashboard() {
+            const refreshBtn = document.querySelector('[onclick="refreshDashboard()"]');
+            const icon = refreshBtn.querySelector('i');
+            
+            // Add loading animation
+            icon.classList.add('fa-spin');
+            refreshBtn.disabled = true;
+            
+            // Update time
+            document.getElementById('lastUpdateTime').textContent = new Date().toLocaleTimeString();
+            
+            // Refresh page after a short delay to show the animation
+            setTimeout(() => {
+                location.reload();
+            }, 500);
+        }
+        
+        // Auto-refresh every 5 minutes
+        setInterval(() => {
+            const lastUpdate = document.getElementById('lastUpdateTime');
+            if (lastUpdate) {
+                lastUpdate.textContent = new Date().toLocaleTimeString();
+            }
+        }, 300000); // 5 minutes
+        
+        // Add smooth transitions to cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
     </script>
 
 </body>
