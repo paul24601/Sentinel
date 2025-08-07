@@ -148,7 +148,14 @@ document.getElementById('autofillButton').addEventListener('click', function () 
 
     // Personnel
     autofillField('adjuster', `Adjuster-${randomInt(1, 100)}`);
-    autofillField('qae', `QAE-${randomInt(1, 100)}`);
+    
+    // QAE dropdown - select a random option
+    const qaeSelect = document.getElementById('qae');
+    if (qaeSelect && qaeSelect.tagName === 'SELECT') {
+        const options = ['John Nero Abreu', 'Ian Ilustresimo', 'Stephanie Iris Sapno'];
+        const randomOption = options[randomInt(0, options.length - 1)];
+        qaeSelect.value = randomOption;
+    }
 });
 
 // Session timeout handling

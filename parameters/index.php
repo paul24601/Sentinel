@@ -57,15 +57,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
     ];
 
     foreach ($tables as $table) {
-        $sql = "SELECT * FROM $table WHERE record_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $recordId);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if ($row = $result->fetch_assoc()) {
-            $clonedData = array_merge($clonedData, $row);
+        if ($table === 'corepullsettings') {
+            // Handle corepullsettings specially since it's a relational table
+            $sql = "SELECT * FROM $table WHERE record_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("s", $recordId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            while ($row = $result->fetch_assoc()) {
+                $section = $row['Section'];
+                // Map the section name to field prefixes
+                $fieldPrefix = '';
+                switch ($section) {
+                    case 'Core Set A':
+                        $fieldPrefix = 'CoreSetA';
+                        break;
+                    case 'Core Pull A':
+                        $fieldPrefix = 'CorePullA';
+                        break;
+                    case 'Core Set B':
+                        $fieldPrefix = 'CoreSetB';
+                        break;
+                    case 'Core Pull B':
+                        $fieldPrefix = 'CorePullB';
+                        break;
+                    default:
+                        continue 2; // Skip unknown sections
+                }
+                
+                // Add the fields with proper prefixes
+                $clonedData[$fieldPrefix . 'Sequence'] = $row['Sequence'];
+                $clonedData[$fieldPrefix . 'Pressure'] = $row['Pressure'];
+                $clonedData[$fieldPrefix . 'Speed'] = $row['Speed'];
+                $clonedData[$fieldPrefix . 'Position'] = $row['Position'];
+                $clonedData[$fieldPrefix . 'Time'] = $row['Time'];
+                $clonedData[$fieldPrefix . 'LimitSwitch'] = $row['LimitSwitch'];
+            }
+            $stmt->close();
+        } else {
+            // Handle regular tables normally
+            $sql = "SELECT * FROM $table WHERE record_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("s", $recordId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ($row = $result->fetch_assoc()) {
+                $clonedData = array_merge($clonedData, $row);
+            }
+            $stmt->close();
         }
-        $stmt->close();
     }
 
     $conn->close();
@@ -1731,10 +1772,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col">
-                                                <label for="EjectorForwardSpeed2" class="form-label">Ejector Forward
+                                                <label for="EjectorForwardSpeed2Alt" class="form-label">Ejector Forward
                                                     Speed 2</label>
                                                 <input type="number" step="any" class="form-control"
-                                                    name="EjectorForwardSpeed2" id="ejectorForwardSpeed2"
+                                                    name="EjectorForwardSpeed2" id="ejectorForwardSpeed2Alt"
                                                     placeholder="Ejector Forward Speed 2">
                                             </div>
                                             <!--sub field-->
@@ -1763,10 +1804,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                                     placeholder="Ejector Retract Pressure 1">
                                             </div>
                                             <div class="col">
-                                                <label for="EjectorRetractSpeed2" class="form-label">Ejector Retract
+                                                <label for="EjectorRetractSpeed2Alt" class="form-label">Ejector Retract
                                                     Speed 2</label>
                                                 <input type="number" step="any" class="form-control"
-                                                    name="EjectorRetractSpeed2" id="ejectorRetractSpeed2"
+                                                    name="EjectorRetractSpeed2" id="ejectorRetractSpeed2Alt"
                                                     placeholder="Ejector Retract Speed 2">
                                             </div>
                                             <!--sub field-->
@@ -2066,8 +2107,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                             <div class="col">
                                                 <label for="qae" class="form-label">Quality Assurance Engineer
                                                     Name</label>
-                                                <input type="text" class="form-control" name="qae" id="qae"
-                                                    placeholder="Enter Quality Assurance Engineer Name">
+                                                <select class="form-control" name="qae" id="qae" required>
+                                                    <option value="" disabled selected>Select QAE</option>
+                                                    <option value="John Nero Abreu">John Nero Abreu</option>
+                                                    <option value="Ian Ilustresimo">Ian Ilustresimo</option>
+                                                    <option value="Stephanie Iris Sapno">Stephanie Iris Sapno</option>
+                                                </select>
                                             </div>
 
                                         </div>
@@ -2428,26 +2473,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
 
         // Add form submission handler
         document.querySelector('form').addEventListener('submit', function (e) {
+            // First ensure we have a start time
+            const startTimeField = document.getElementById('startTime');
+            if (!startTimeField.value) {
+                console.log('DEBUG: No start time found, setting it now');
+                setStartTime();
+            }
+            
             // Set end time before submission
             setEndTime();
-
-            // Create new FormData from the form
-            const formData = new FormData(this);
-
-            // Clear existing files and add our selected files
-            formData.delete('uploadImages[]');
-            formData.delete('uploadVideos[]');
-
-            selectedImageFiles.forEach(file => {
-                formData.append('uploadImages[]', file);
-            });
-
-            selectedVideoFiles.forEach(file => {
-                formData.append('uploadVideos[]', file);
-            });
-
-            // Update the form data before submission
-            // Note: This approach doesn't require DataTransfer API
+            
+            // Verify both times are set
+            const startTimeValue = document.getElementById('startTime').value;
+            const endTimeValue = document.getElementById('endTime').value;
+            console.log('DEBUG: Form submitting with startTime value:', startTimeValue);
+            console.log('DEBUG: Form submitting with endTime value:', endTimeValue);
+            
+            // If still no times, set them to current time
+            if (!startTimeValue) {
+                startTimeField.value = formatTime(getCurrentPhilippineTime());
+                console.log('DEBUG: Fallback - set startTime to:', startTimeField.value);
+            }
+            if (!endTimeValue) {
+                document.getElementById('endTime').value = formatTime(getCurrentPhilippineTime());
+                console.log('DEBUG: Fallback - set endTime to:', document.getElementById('endTime').value);
+            }
+            
+            // Allow the form to submit normally after setting the times
+            // The setEndTime function is synchronous, so the endTime value will be set before submission
         });
 
         // Check for any success/error messages in the session
@@ -2629,9 +2682,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                         field.value = adjusterNames[randomInt(0, adjusterNames.length - 1)];
                     }
                 }
+                // Specific ejector fields
+                else if (fieldName.includes('ejectorforward') && fieldName.includes('position')) {
+                    field.value = randomDecimal(10, 150, 2);
+                }
+                else if (fieldName.includes('ejectorretract') && fieldName.includes('position')) {
+                    field.value = randomDecimal(5, 100, 2);
+                }
+                else if (fieldName.includes('ejectorforward') && fieldName.includes('speed')) {
+                    field.value = randomDecimal(20, 80, 1);
+                }
+                else if (fieldName.includes('ejectorretract') && fieldName.includes('speed')) {
+                    field.value = randomDecimal(20, 80, 1);
+                }
+                else if (fieldName.includes('ejectorforward') && !fieldName.includes('position') && !fieldName.includes('speed') && !fieldName.includes('pressure') && !fieldName.includes('time')) {
+                    field.value = randomDecimal(10, 50, 1);
+                }
+                else if (fieldName.includes('ejectorretract') && !fieldName.includes('position') && !fieldName.includes('speed') && !fieldName.includes('pressure') && !fieldName.includes('time')) {
+                    field.value = randomDecimal(10, 50, 1);
+                }
+                // Core pull settings
+                else if (fieldName.includes('core') && (fieldName.includes('seta') || fieldName.includes('setb') || fieldName.includes('pulla') || fieldName.includes('pullb'))) {
+                    if (fieldName.includes('sequence')) {
+                        field.value = randomInt(1, 10);
+                    } else if (fieldName.includes('pressure')) {
+                        field.value = randomDecimal(10, 100, 1);
+                    } else if (fieldName.includes('speed')) {
+                        field.value = randomDecimal(20, 80, 1);
+                    } else if (fieldName.includes('position')) {
+                        field.value = randomDecimal(10, 150, 2);
+                    } else if (fieldName.includes('time')) {
+                        field.value = randomDecimal(0.5, 10, 1);
+                    } else if (fieldName.includes('limitswitch')) {
+                        field.value = randomInt(0, 1);
+                    }
+                }
                 else if (fieldName.includes('qae') || fieldId.includes('qae')) {
-                    // QA Engineer name
-                    field.value = 'QA ' + adjusterNames[randomInt(0, adjusterNames.length - 1)];
+                    // QAE dropdown - select a random option if it's a select element
+                    if (field.tagName.toLowerCase() === 'select') {
+                        const options = ['John Nero Abreu', 'Ian Ilustresimo', 'Stephanie Iris Sapno'];
+                        field.value = options[randomInt(0, options.length - 1)];
+                    } else {
+                        // Fallback for text inputs (if any remain)
+                        field.value = 'QA ' + adjusterNames[randomInt(0, adjusterNames.length - 1)];
+                    }
                 }
                 else if (field.tagName.toLowerCase() === 'textarea') {
                     field.value = 'Production run completed with standard parameters. All quality checks passed. Material batch: MB-' + randomInt(1000, 9999);
@@ -2716,9 +2810,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
             const now = getCurrentPhilippineTime();
             const timeString = formatTime(now);
 
-            document.getElementById('endTime').value = timeString;
+            const endTimeField = document.getElementById('endTime');
+            if (endTimeField) {
+                endTimeField.value = timeString;
+                console.log('DEBUG: End time set to (Philippine Time):', timeString);
+                console.log('DEBUG: endTime field value after setting:', endTimeField.value);
+            } else {
+                console.error('ERROR: endTime field not found!');
+            }
 
-            console.log('DEBUG: End time set to (Philippine Time):', timeString);
             console.log('DEBUG: Raw date object:', now);
             console.log('DEBUG: UTC Hours:', now.getUTCHours(), 'Minutes:', now.getUTCMinutes(), 'Seconds:', now.getUTCSeconds());
 
@@ -2739,8 +2839,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
         }
 
         // Update date immediately when page loads
-        updateDateTime();
-        setStartTime(); // Set start time when form loads
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDateTime();
+            setStartTime(); // Set start time when form loads
+            
+            // Also set start time again after a short delay to ensure DOM is fully loaded
+            setTimeout(function() {
+                if (!document.getElementById('startTime').value) {
+                    console.log('DEBUG: Start time was empty, setting it again');
+                    setStartTime();
+                }
+            }, 100);
+        });
 
         // Update date every minute (no need to update time since it's set once at start)
         setInterval(updateDateTime, 60000);
@@ -3004,6 +3114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     'Date', 'Time',                    // Date and time should be current
                     'startTime', 'endTime',            // Start and end time should be automatic
                     'adjuster', 'AdjusterName',        // Adjuster name should be current user
+                    'QAEName', 'qae',                  // QAE name should be reset to empty
                     'record_id',                       // Record ID should be unique
                     'submission_date',                 // Submission date should be current
                     'id',                             // Any ID fields should be unique
@@ -3122,8 +3233,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     'HoldingTime2': 'HoldingTime2',
                     'HoldingTime3': 'HoldingTime3',
 
-                    // Core Pull Parameters (Positions 4-6) - NEW MAPPINGS
-                    'ScrewPosition4': 'ScrewPosition4',
+                    // Core Pull Parameters (Positions 4-6) - NOW AVAILABLE IN DATABASE
+                    'ScrewPosition4': 'screwPosition4',
                     'ScrewPosition5': 'ScrewPosition5',
                     'ScrewPosition6': 'ScrewPosition6',
                     'InjectionSpeed4': 'InjectionSpeed4',
@@ -3195,11 +3306,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     // Mold Heater Temperature - NEW MAPPING
                     'MTCSetting': 'MTCSetting',
 
+                    // Additional Ejector Parameters - NOW AVAILABLE IN DATABASE
+                    'EjectorForwardTime': 'EjectorForwardTime',
+                    'EjectorRetractTime': 'EjectorRetractTime',
+                    'EjectorForwardPressure2': 'EjectorForwardPressure2',
+                    'EjectorRetractPressure2': 'EjectorRetractPressure2',
+                    'EjectorForwardPosition': 'EjectorForwardPosition',
+                    'EjectorRetractPosition': 'EjectorRetractPosition',
+                    'EjectorForward': 'EjectorForward',
+                    'EjectorRetract': 'EjectorRetract',
+
+                    // Core Pull Settings - All variants (matching database field names exactly)
+                    'CoreSetASequence': 'coreSetASequence',
+                    'CoreSetAPressure': 'coreSetAPressure', 
+                    'CoreSetASpeed': 'coreSetASpeed',
+                    'CoreSetAPosition': 'coreSetAPosition',
+                    'CoreSetATime': 'coreSetATime',
+                    'CoreSetALimitSwitch': 'coreSetALimitSwitch',
+                    'CorePullASequence': 'corePullASequence',
+                    'CorePullAPressure': 'corePullAPressure',
+                    'CorePullASpeed': 'corePullASpeed',
+                    'CorePullAPosition': 'corePullAPosition',
+                    'CorePullATime': 'corePullATime',
+                    'CorePullALimitSwitch': 'corePullALimitSwitch',
+                    'CoreSetBSequence': 'coreSetBSequence',
+                    'CoreSetBPressure': 'coreSetBPressure',
+                    'CoreSetBSpeed': 'coreSetBSpeed',
+                    'CoreSetBPosition': 'coreSetBPosition',
+                    'CoreSetBTime': 'coreSetBTime',
+                    'CoreSetBLimitSwitch': 'coreSetBLimitSwitch',
+                    'CorePullBSequence': 'corePullBSequence',
+                    'CorePullBPressure': 'corePullBPressure',
+                    'CorePullBSpeed': 'corePullBSpeed',
+                    'CorePullBPosition': 'corePullBPosition',
+                    'CorePullBTime': 'corePullBTime',
+                    'CorePullBLimitSwitch': 'corePullBLimitSwitch',
+
                     // Additional Information
                     'Info': 'additionalInfo',
 
-                    // QAE Name (allow cloning but not adjuster)
-                    'QAEName': 'qae'
+                    // Additional cooling media remarks fields
+                    'StationaryCoolingMediaRemarks': 'stationary-cooling-media-remarks',
+                    'MovableCoolingMediaRemarks': 'movable-cooling-media-remarks'
                 };
 
                 // Apply cloned data to form fields
@@ -3216,17 +3364,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                 for (const field in clonedData) {
                     const value = clonedData[field];
 
-                    // Skip excluded fields and null/empty values
+                    // Skip excluded fields
                     if (excludedFields.includes(field)) {
                         fieldsSkipped++;
                         debugInfo.excluded.push(field);
                         continue;
                     }
                     
+                    // Track null/empty values but still try to process some important fields
                     if (value === null || value === '') {
-                        fieldsSkipped++;
-                        debugInfo.nullOrEmpty.push(field);
-                        continue;
+                        // For core pull, ejector, and injection fields, still try to process them even if null
+                        // to ensure the form fields exist and can be found
+                        if (!field.includes('Core') && !field.includes('Ejector') && 
+                            !field.includes('ScrewPosition') && !field.includes('InjectionSpeed') && 
+                            !field.includes('InjectionPressure') && !field.includes('Screw') && 
+                            !field.includes('Injection')) {
+                            fieldsSkipped++;
+                            debugInfo.nullOrEmpty.push(field);
+                            continue;
+                        } else {
+                            // Log as null but continue processing to test field mapping
+                            debugInfo.nullOrEmpty.push(`${field} (processing anyway)`);
+                        }
                     }
 
                     let formFieldName = null;
@@ -3297,7 +3456,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                 }
                             } else {
                                 // Handle regular input fields (text, number, etc.)
-                                input.value = value;
+                                if (value !== null) {
+                                    input.value = value;
+                                } else if (field.includes('Core') || field.includes('Ejector') || 
+                                          field.includes('ScrewPosition') || field.includes('InjectionSpeed') || 
+                                          field.includes('InjectionPressure')) {
+                                    // For important fields, set empty string instead of null
+                                    input.value = '';
+                                    console.log(`Set null field to empty: ${field} -> ${formFieldName}`);
+                                }
                             }
 
                             // Trigger change event to update any dependent fields
@@ -3305,8 +3472,121 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                             fieldsApplied++;
                             debugInfo.applied.push(`${field} -> ${formFieldName} = ${value}`);
                         } else {
-                            fieldsSkipped++;
-                            debugInfo.notFound.push(`${field} -> ${formFieldName}`);
+                            // Try alternative selectors for fields that might have different casing or structure
+                            let alternativeInput = null;
+                            
+                            // Try with ID selector (case insensitive)
+                            alternativeInput = document.querySelector(`#${formFieldName}`);
+                            if (!alternativeInput) {
+                                alternativeInput = document.querySelector(`#${formFieldName.toLowerCase()}`);
+                            }
+                            
+                            // For ejector fields, try specific patterns
+                            if (!alternativeInput && field.includes('Ejector')) {
+                                const ejectorPatterns = [
+                                    `[name*="${formFieldName}"]`,
+                                    `[id*="${formFieldName}"]`,
+                                    `[name*="${formFieldName.toLowerCase()}"]`,
+                                    `[id*="${formFieldName.toLowerCase()}"]`,
+                                    // Try exact field name as database has it
+                                    `[name="${field}"]`,
+                                    `[id="${field}"]`,
+                                    `[name="${field.toLowerCase()}"]`,
+                                    `[id="${field.toLowerCase()}"]`,
+                                    // Try with alternative ID patterns (some fields have Alt suffix)
+                                    `[id="${formFieldName}Alt"]`,
+                                    `[id="${formFieldName.toLowerCase()}alt"]`,
+                                    `[name="${formFieldName}Alt"]`,
+                                    `[name="${formFieldName.toLowerCase()}alt"]`
+                                ];
+                                for (const pattern of ejectorPatterns) {
+                                    alternativeInput = document.querySelector(pattern);
+                                    if (alternativeInput) {
+                                        console.log(`Found ejector field with pattern: ${pattern}`);
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            // For injection fields (ScrewPosition, InjectionSpeed, InjectionPressure), try specific patterns
+                            if (!alternativeInput && (field.includes('ScrewPosition') || field.includes('InjectionSpeed') || field.includes('InjectionPressure') || field.includes('Screw') || field.includes('Injection'))) {
+                                const injectionPatterns = [
+                                    `[name="${formFieldName}"]`,
+                                    `[id="${formFieldName}"]`,
+                                    `[name="${formFieldName.toLowerCase()}"]`,
+                                    `[id="${formFieldName.toLowerCase()}"]`,
+                                    `[name*="${formFieldName}"]`,
+                                    `[id*="${formFieldName}"]`,
+                                    `[name*="${formFieldName.toLowerCase()}"]`,
+                                    `[id*="${formFieldName.toLowerCase()}"]`,
+                                    // Try exact field name as database has it
+                                    `[name="${field}"]`,
+                                    `[id="${field}"]`,
+                                    `[name="${field.toLowerCase()}"]`,
+                                    `[id="${field.toLowerCase()}"]`,
+                                    // Try with camelCase variations
+                                    `[id="${field.charAt(0).toLowerCase() + field.slice(1)}"]`,
+                                    `[name="${field.charAt(0).toLowerCase() + field.slice(1)}"]`
+                                ];
+                                for (const pattern of injectionPatterns) {
+                                    alternativeInput = document.querySelector(pattern);
+                                    if (alternativeInput) {
+                                        console.log(`Found injection field with pattern: ${pattern}`);
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            // For core pull fields, try specific patterns with more variations
+                            if (!alternativeInput && (field.includes('core') || field.includes('Core'))) {
+                                const corePatterns = [
+                                    `[name="${formFieldName}"]`,
+                                    `[id="${formFieldName}"]`,
+                                    `[name="${formFieldName.toLowerCase()}"]`,
+                                    `[id="${formFieldName.toLowerCase()}"]`,
+                                    `[name*="${formFieldName}"]`,
+                                    `[id*="${formFieldName}"]`,
+                                    `[name*="${formFieldName.toLowerCase()}"]`,
+                                    `[id*="${formFieldName.toLowerCase()}"]`,
+                                    // Try with different case variations
+                                    `[name="${formFieldName.replace(/([A-Z])/g, '$1').toLowerCase()}"]`,
+                                    `[id="${formFieldName.replace(/([A-Z])/g, '$1').toLowerCase()}"]`,
+                                    // Try exact field name as database has it
+                                    `[name="${field}"]`,
+                                    `[id="${field}"]`,
+                                    `[name="${field.toLowerCase()}"]`,
+                                    `[id="${field.toLowerCase()}"]`
+                                ];
+                                for (const pattern of corePatterns) {
+                                    alternativeInput = document.querySelector(pattern);
+                                    if (alternativeInput) {
+                                        console.log(`Found core field with pattern: ${pattern}`);
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            if (alternativeInput && alternativeInput.type !== "file") {
+                                // Set value even if it's null (for important fields like injection/ejector)
+                                if (value !== null) {
+                                    alternativeInput.value = value;
+                                } else if (field.includes('Core') || field.includes('Ejector') || 
+                                          field.includes('ScrewPosition') || field.includes('InjectionSpeed') || 
+                                          field.includes('InjectionPressure')) {
+                                    // For important fields, set empty string instead of null
+                                    alternativeInput.value = '';
+                                    console.log(`Set null field to empty: ${field} -> ${formFieldName}`);
+                                }
+                                
+                                $(alternativeInput).trigger('change');
+                                fieldsApplied++;
+                                debugInfo.applied.push(`${field} -> ${formFieldName} = ${value} (alternative selector)`);
+                                console.log(`Applied via alternative selector: ${field} -> ${formFieldName} = ${value}`);
+                            } else {
+                                fieldsSkipped++;
+                                debugInfo.notFound.push(`${field} -> ${formFieldName}`);
+                                console.log(`Field not found: ${field} -> ${formFieldName}`);
+                            }
                         }
                     }
                 }
@@ -3319,15 +3599,109 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     excludedFieldsCount: excludedFields.length
                 });
 
+                // Debug: Show core pull data specifically
+                const corePullFields = Object.keys(clonedData).filter(key => 
+                    key.includes('CoreSet') || key.includes('CorePull') || key.includes('core')
+                );
+                if (corePullFields.length > 0) {
+                    console.log('Core Pull Data Found:', corePullFields.map(field => 
+                        `${field} = ${clonedData[field]}`
+                    ));
+                }
+
+                // Debug: Show ejector data specifically
+                const ejectorFields = Object.keys(clonedData).filter(key => 
+                    key.includes('Ejector') || key.includes('ejector')
+                );
+                if (ejectorFields.length > 0) {
+                    console.log('Ejector Data Found:', ejectorFields.map(field => 
+                        `${field} = ${clonedData[field]}`
+                    ));
+                }
+
+                // Debug: Show injection data specifically (ScrewPosition, InjectionSpeed, InjectionPressure 4-6)
+                const injectionFields = Object.keys(clonedData).filter(key => 
+                    key.includes('ScrewPosition') || key.includes('InjectionSpeed') || key.includes('InjectionPressure')
+                );
+                if (injectionFields.length > 0) {
+                    console.log('Injection Data Found:', injectionFields.map(field => 
+                        `${field} = ${clonedData[field]}`
+                    ));
+                }
+
+                // Debug: Check what core pull form fields actually exist in the DOM
+                const corePullFormFields = [];
+                document.querySelectorAll('input, select').forEach(input => {
+                    if (input.name && (input.name.toLowerCase().includes('core') || input.id.toLowerCase().includes('core'))) {
+                        corePullFormFields.push(`${input.name} (ID: ${input.id})`);
+                    }
+                });
+                if (corePullFormFields.length > 0) {
+                    console.log('Core Pull Form Fields Found in DOM:', corePullFormFields);
+                }
+
+                // Debug: Check what injection form fields actually exist in the DOM
+                const injectionFormFields = [];
+                document.querySelectorAll('input, select').forEach(input => {
+                    if (input.name && (input.name.toLowerCase().includes('screwposition') || 
+                                      input.name.toLowerCase().includes('injectionspeed') || 
+                                      input.name.toLowerCase().includes('injectionpressure') ||
+                                      input.id.toLowerCase().includes('screwposition') || 
+                                      input.id.toLowerCase().includes('injectionspeed') || 
+                                      input.id.toLowerCase().includes('injectionpressure'))) {
+                        injectionFormFields.push(`${input.name} (ID: ${input.id})`);
+                    }
+                });
+                if (injectionFormFields.length > 0) {
+                    console.log('Injection Form Fields Found in DOM:', injectionFormFields);
+                }
+
+                // Debug: Check what ejector form fields actually exist in the DOM
+                const ejectorFormFields = [];
+                document.querySelectorAll('input, select').forEach(input => {
+                    if (input.name && (input.name.toLowerCase().includes('ejector') || input.id.toLowerCase().includes('ejector'))) {
+                        ejectorFormFields.push(`${input.name} (ID: ${input.id})`);
+                    }
+                });
+                if (ejectorFormFields.length > 0) {
+                    console.log('Ejector Form Fields Found in DOM:', ejectorFormFields);
+                }
+
                 // Debug: Show detailed information about field processing
                 console.log('Debug Info:');
                 console.log('  Excluded fields:', debugInfo.excluded);
                 console.log('  Null/Empty fields:', debugInfo.nullOrEmpty.slice(0, 10)); // Show first 10
                 console.log('  Form fields not found:', debugInfo.notFound);
-                console.log('  Successfully applied:', debugInfo.applied.slice(0, 10)); // Show first 10
+                console.log('  Successfully applied:', debugInfo.applied.slice(0, 20)); // Show first 20
 
                 // Reset start time since this is like starting a new form session
                 setStartTime();
+
+                // Clear end time field to ensure clean session
+                const endTimeField = document.getElementById('endTime');
+                if (endTimeField) {
+                    endTimeField.value = '';
+                    console.log('DEBUG: Cleared endTime field for new session');
+                }
+
+                // Reset QAE field to empty (should be selected fresh for each submission)
+                const qaeField = document.querySelector('select[name="qae"], input[name="qae"], select[name="QAEName"], input[name="QAEName"]');
+                if (qaeField) {
+                    if (qaeField.tagName.toLowerCase() === 'select') {
+                        qaeField.selectedIndex = 0; // Reset to first option (usually empty or placeholder)
+                    } else {
+                        qaeField.value = '';
+                    }
+                    console.log('DEBUG: Reset QAE field for new session');
+                }
+
+                // Reset adjuster field to current user (if available in session)
+                const adjusterField = document.querySelector('input[name="adjuster"], input[name="AdjusterName"]');
+                if (adjusterField) {
+                    // The adjuster field should show current logged-in user
+                    // This will be handled by the server-side code typically
+                    console.log('DEBUG: Adjuster field available for reset');
+                }
 
                 // Show success message
                 showNotification(`Form data successfully applied from selected record. Applied ${fieldsApplied} fields, skipped ${fieldsSkipped} fields. Date, start/end times, adjuster name, attachments, and other unique fields were not copied. New session started.`, 'success');

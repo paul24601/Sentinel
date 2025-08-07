@@ -450,6 +450,17 @@ if (isset($_POST['screwRPM1'], $_POST['screwSpeed1'], $_POST['plastPressure1']))
 
 // Insert into injectionparameters table
 if (isset($_POST['RecoveryPosition'], $_POST['ScrewPosition1'], $_POST['InjectionSpeed1'])) {
+    // Prepare optional fields with null fallback
+    $screwPosition4 = $_POST['ScrewPosition4'] ?? null;
+    $screwPosition5 = $_POST['ScrewPosition5'] ?? null;
+    $screwPosition6 = $_POST['ScrewPosition6'] ?? null;
+    $injectionSpeed4 = $_POST['InjectionSpeed4'] ?? null;
+    $injectionSpeed5 = $_POST['InjectionSpeed5'] ?? null;
+    $injectionSpeed6 = $_POST['InjectionSpeed6'] ?? null;
+    $injectionPressure4 = $_POST['InjectionPressure4'] ?? null;
+    $injectionPressure5 = $_POST['InjectionPressure5'] ?? null;
+    $injectionPressure6 = $_POST['InjectionPressure6'] ?? null;
+
     $sql = "INSERT INTO injectionparameters (
                 record_id, RecoveryPosition, SecondStagePosition, Cushion,
                 ScrewPosition1, ScrewPosition2, ScrewPosition3,
@@ -459,13 +470,16 @@ if (isset($_POST['RecoveryPosition'], $_POST['ScrewPosition1'], $_POST['Injectio
                 SprueBreak, SprueBreakTime, InjectionDelay,
                 HoldingPressure1, HoldingPressure2, HoldingPressure3,
                 HoldingSpeed1, HoldingSpeed2, HoldingSpeed3,
-                HoldingTime1, HoldingTime2, HoldingTime3
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                HoldingTime1, HoldingTime2, HoldingTime3,
+                ScrewPosition4, ScrewPosition5, ScrewPosition6,
+                InjectionSpeed4, InjectionSpeed5, InjectionSpeed6,
+                InjectionPressure4, InjectionPressure5, InjectionPressure6
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     // Prepare the statement
     $stmt = $conn->prepare($sql);
     $stmt->bind_param(
-        "sddddddddddddddddddddddddddd",
+        "sdddddddddddddddddddddddddddddddddddd",
         $record_id,
         $_POST['RecoveryPosition'],
         $_POST['SecondStagePosition'],
@@ -493,7 +507,16 @@ if (isset($_POST['RecoveryPosition'], $_POST['ScrewPosition1'], $_POST['Injectio
         $_POST['HoldingSpeed3'],
         $_POST['HoldingTime1'],
         $_POST['HoldingTime2'],
-        $_POST['HoldingTime3']
+        $_POST['HoldingTime3'],
+        $screwPosition4,
+        $screwPosition5,
+        $screwPosition6,
+        $injectionSpeed4,
+        $injectionSpeed5,
+        $injectionSpeed6,
+        $injectionPressure4,
+        $injectionPressure5,
+        $injectionPressure6
     );
     if (!$stmt->execute()) {
         $errors[] = "Error inserting into injectionparameters: " . $stmt->error;
@@ -504,18 +527,25 @@ if (isset($_POST['RecoveryPosition'], $_POST['ScrewPosition1'], $_POST['Injectio
 
 // Insert into ejectionparameters table
 if (isset($_POST['AirBlowTimeA'], $_POST['EjectorForwardPosition1'], $_POST['EjectorForwardSpeed2'])) {
+    // Prepare optional fields with null fallback
+    $ejectorForwardTime = $_POST['EjectorForwardTime'] ?? null;
+    $ejectorRetractTime = $_POST['EjectorRetractTime'] ?? null;
+    $ejectorForwardPressure2 = $_POST['EjectorForwardPressure2'] ?? null;
+    $ejectorRetractPressure2 = $_POST['EjectorRetractPressure2'] ?? null;
+
     $sql = "INSERT INTO ejectionparameters (
                 record_id, AirBlowTimeA, AirBlowPositionA, AirBlowADelay,
                 AirBlowTimeB, AirBlowPositionB, AirBlowBDelay,
                 EjectorForwardPosition1, EjectorForwardPosition2, EjectorForwardSpeed1,
                 EjectorRetractPosition1, EjectorRetractPosition2, EjectorRetractSpeed1,
                 EjectorForwardSpeed2, EjectorForwardPressure1, EjectorRetractSpeed2,
-                EjectorRetractPressure1
+                EjectorRetractPressure1, EjectorForwardTime, EjectorRetractTime,
+                EjectorForwardPressure2, EjectorRetractPressure2
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param(
-        "sdddddddddddddddd",
+        "sdddddddddddddddddddd",
         $record_id,
         $_POST['AirBlowTimeA'],
         $_POST['AirBlowPositionA'],
@@ -532,7 +562,11 @@ if (isset($_POST['AirBlowTimeA'], $_POST['EjectorForwardPosition1'], $_POST['Eje
         $_POST['EjectorForwardSpeed2'],
         $_POST['EjectorForwardPressure1'],
         $_POST['EjectorRetractSpeed2'],
-        $_POST['EjectorRetractPressure1']
+        $_POST['EjectorRetractPressure1'],
+        $ejectorForwardTime,
+        $ejectorRetractTime,
+        $ejectorForwardPressure2,
+        $ejectorRetractPressure2
     );
     if (!$stmt->execute()) {
         $errors[] = "Error inserting into ejectionparameters: " . $stmt->error;
