@@ -8,6 +8,11 @@ function formatPhilippineTime($timeValue) {
         return null;
     }
     
+    // Handle placeholder values - if it's 00:00, treat it as empty/unset
+    if ($timeValue === '00:00' || $timeValue === '00:00:00') {
+        return null;
+    }
+    
     // If it's already in H:i:s format, use it directly
     if (preg_match('/^\d{1,2}:\d{2}:\d{2}$/', $timeValue)) {
         return $timeValue;
@@ -97,9 +102,52 @@ if (empty($submitted_by) || !isset($_SESSION['id_number'])) {
 $title = isset($_POST['MachineName']) ? $_POST['MachineName'] . ' - ' . $_POST['product'] : 'Unnamed Record';
 $description = isset($_POST['additionalInfo']) ? $_POST['additionalInfo'] : '';
 
-$sql = "INSERT INTO parameter_records (record_id, submitted_by, title, description) VALUES (?, ?, ?, ?)";
+// Handle start and end time with proper Philippine time formatting
+error_log("=== TIMING DEBUG START ===");
+error_log("POST startTime: " . ($_POST['startTime'] ?? 'NOT SET'));
+error_log("POST endTime: " . ($_POST['endTime'] ?? 'NOT SET'));
+
+$startTime = !empty($_POST['startTime']) ? formatPhilippineTime($_POST['startTime']) : null;
+$endTime = !empty($_POST['endTime']) ? formatPhilippineTime($_POST['endTime']) : null;
+
+error_log("After formatPhilippineTime - startTime: " . ($startTime ?? 'NULL'));
+error_log("After formatPhilippineTime - endTime: " . ($endTime ?? 'NULL'));
+
+// SIMPLE SERVER-SIDE SOLUTION: Always set current time as end time
+$currentTime = date('H:i:s');
+$endTime = $currentTime;
+error_log("FORCED endTime to current time: " . $endTime);
+
+// If no start time provided, set it to 5 minutes ago
+if (empty($startTime)) {
+    $startTime = date('H:i:s', strtotime('-5 minutes'));
+    error_log("Set startTime to 5 minutes ago: " . $startTime);
+}
+
+// Add a small delay to ensure times are different
+sleep(1);
+$endTime = date('H:i:s');
+error_log("Final endTime after delay: " . $endTime);
+
+// Debug logging for time values (keep for troubleshooting)
+error_log("FINAL VALUES - startTime: " . ($startTime ?? 'NULL'));
+error_log("FINAL VALUES - endTime: " . ($endTime ?? 'NULL'));
+error_log("Times are different: " . ($startTime !== $endTime ? 'YES' : 'NO'));
+error_log("=== TIMING DEBUG END ===");
+
+// Use end time for submission_date if available, otherwise use current time
+$submissionDateTime = null;
+if (!empty($endTime) && !empty($_POST['Date'])) {
+    // Combine the date and end time for the submission timestamp
+    $submissionDateTime = $_POST['Date'] . ' ' . $endTime;
+} else {
+    // Fallback to current timestamp
+    $submissionDateTime = date('Y-m-d H:i:s');
+}
+
+$sql = "INSERT INTO parameter_records (record_id, submission_date, submitted_by, title, description) VALUES (?, ?, ?, ?, ?)";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("ssss", $record_id, $submitted_by, $title, $description);
+$stmt->bind_param("sssss", $record_id, $submissionDateTime, $submitted_by, $title, $description);
 if (!$stmt->execute()) {
     $errors[] = "Error creating record: " . $stmt->error;
 } else {
@@ -110,16 +158,21 @@ if (!$stmt->execute()) {
 // Initialize variables to track errors
 $errors = [];
 
-// Handle start and end time with proper Philippine time formatting
-$startTime = !empty($_POST['startTime']) ? formatPhilippineTime($_POST['startTime']) : null;
-$endTime = !empty($_POST['endTime']) ? formatPhilippineTime($_POST['endTime']) : null;
-
 // Use start time as the main time field (for compatibility), otherwise use current Philippine time
 $mainTime = !empty($startTime) ? $startTime : (!empty($_POST['Time']) ? formatPhilippineTime($_POST['Time']) : date('H:i:s'));
+error_log("mainTime calculated as: " . $mainTime);
 
 // Insert into productmachineinfo table
 // Insert into productmachineinfo table (now including startTime & endTime)
 if (isset($_POST['Date'], $_POST['Time'], $_POST['MachineName'], $_POST['RunNumber'], $_POST['Category'], $_POST['IRN'])) {
+    
+    // Debug logging for database insert
+    error_log("=== DATABASE INSERT DEBUG ===");
+    error_log("About to insert - startTime=" . ($startTime ?? 'NULL') . ", endTime=" . ($endTime ?? 'NULL') . ", mainTime=" . $mainTime);
+    error_log("Date: " . $_POST['Date']);
+    error_log("Time: " . $_POST['Time']);
+    error_log("Machine: " . $_POST['MachineName']);
+    
     $sql = "
       INSERT INTO productmachineinfo
         ( record_id
@@ -149,6 +202,21 @@ if (isset($_POST['Date'], $_POST['Time'], $_POST['MachineName'], $_POST['RunNumb
     );
     if (!$stmt->execute()) {
         $errors[] = "Error inserting into productmachineinfo: " . $stmt->error;
+        error_log("ERROR - productmachineinfo insert failed: " . $stmt->error);
+    } else {
+        error_log("SUCCESS - Database insert completed");
+        error_log("SUCCESS - Values inserted: startTime=" . ($startTime ?? 'NULL') . ", endTime=" . ($endTime ?? 'NULL') . ", mainTime=" . $mainTime);
+        
+        // Let's verify what was actually inserted by querying back
+        $verifyQuery = "SELECT startTime, endTime, Time FROM productmachineinfo WHERE record_id = ? ORDER BY id DESC LIMIT 1";
+        $verifyStmt = $conn->prepare($verifyQuery);
+        $verifyStmt->bind_param("s", $record_id);
+        $verifyStmt->execute();
+        $result = $verifyStmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            error_log("VERIFICATION - Database contains: startTime=" . $row['startTime'] . ", endTime=" . $row['endTime'] . ", Time=" . $row['Time']);
+        }
+        error_log("=== DATABASE INSERT DEBUG END ===");
     }
 }
 

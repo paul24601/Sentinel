@@ -278,17 +278,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                         </a>
                                     </h4>
                                     <div class="collapse show" id="collapseProductMachine">
-                                        <div class="row mb-3 row-cols-1 row-cols-sm-3">
-                                            <div class="col">
-                                                <label for="Date" class="form-label">Date</label>
-                                                <input type="date" class="form-control" id="currentDate" name="Date"
-                                                    value="<?php echo date('Y-m-d'); ?>" readonly>
-                                            </div>
-                                            <div class="col">
-                                                <label for="Time" class="form-label">Form Start Time</label>
-                                                <input type="time" class="form-control" id="currentTime" name="Time"
-                                                    readonly>
-                                            </div>
+                                        <div class="row mb-3 row-cols-1 row-cols-sm-1">
                                             <div class="col">
                                                 <label for="MachineName" class="form-label">Machine</label>
                                                 <select class="form-control" id="MachineName" name="MachineName"
@@ -310,6 +300,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                                     <option value="MIT 1050B">MIT 1050B</option>
                                                 </select>
                                             </div>
+                                        </div>
+                                        <div class="row mb-3 row-cols-1 row-cols-sm-3">
                                             <div class="col">
                                                 <label for="RunNumber" class="form-label">Run No.</label>
                                                 <input type="text" class="form-control" name="RunNumber"
@@ -337,17 +329,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                                             </div>
                                         </div>
 
-                                        <!-- Hidden fields for start and end time -->
+                                        <!-- Hidden fields for automatic timing and date (no UI impact) -->
+                                        <input type="hidden" id="Date" name="Date" value="">
+                                        <input type="hidden" id="Time" name="Time" value="">
                                         <input type="hidden" id="startTime" name="startTime" value="">
                                         <input type="hidden" id="endTime" name="endTime" value="">
-
-                                        <!-- Display start time for user reference -->
-                                        <div class="alert alert-info mt-3" id="startTimeDisplay" style="display: none;">
-                                            <i class="fas fa-clock"></i> <strong>Form Started At:</strong> <span
-                                                id="startTimeText"></span>
-                                            <small class="d-block mt-1 text-muted">Your session time will be
-                                                automatically recorded when you submit the form.</small>
-                                        </div>
+                                        <input type="hidden" id="formStartTimestamp" name="formStartTimestamp" value="">
                                     </div>
 
                                     <!-- Add a horizontal line to separate sections -->
@@ -2471,36 +2458,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
             });
         }
 
-        // Add form submission handler
-        document.querySelector('form').addEventListener('submit', function (e) {
-            // First ensure we have a start time
+        // AUTOMATIC TIMING AND DATE SYSTEM - Completely invisible, no UI impact
+        let formStartTime = null;
+        
+        // Function to get Philippine time
+        function getPhilippineTime() {
+            return new Date().toLocaleString("en-US", {timeZone: "Asia/Manila"});
+        }
+        
+        // Function to format time for database
+        function formatTimeForDB(date) {
+            return date.toTimeString().split(' ')[0]; // HH:MM:SS format
+        }
+        
+        // Function to format date for database
+        function formatDateForDB(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // Set start time and date when page loads (automatic)
+        document.addEventListener('DOMContentLoaded', function() {
+            formStartTime = new Date();
+            const startTimeString = formatTimeForDB(formStartTime);
+            const dateString = formatDateForDB(formStartTime);
+            
+            // Set hidden fields automatically
+            const dateField = document.getElementById('Date');
+            const timeField = document.getElementById('Time');
             const startTimeField = document.getElementById('startTime');
-            if (!startTimeField.value) {
-                console.log('DEBUG: No start time found, setting it now');
-                setStartTime();
+            const timestampField = document.getElementById('formStartTimestamp');
+            
+            if (dateField) dateField.value = dateString;
+            if (timeField) timeField.value = startTimeString;
+            if (startTimeField) startTimeField.value = startTimeString;
+            if (timestampField) timestampField.value = formStartTime.getTime();
+            
+            console.log('Automatic date and timing started:', dateString, startTimeString);
+        });
+        
+        // Handle form submission with automatic end time
+        document.querySelector('form').addEventListener('submit', function (e) {
+            console.log('=== AUTOMATIC TIMING SYSTEM ===');
+            
+            const endTimeField = document.getElementById('endTime');
+            
+            // Set end time to empty - server will automatically set current time
+            if (endTimeField) {
+                endTimeField.value = '';  // Server handles end time automatically
+                console.log('End time will be set automatically by server');
             }
             
-            // Set end time before submission
-            setEndTime();
-            
-            // Verify both times are set
-            const startTimeValue = document.getElementById('startTime').value;
-            const endTimeValue = document.getElementById('endTime').value;
-            console.log('DEBUG: Form submitting with startTime value:', startTimeValue);
-            console.log('DEBUG: Form submitting with endTime value:', endTimeValue);
-            
-            // If still no times, set them to current time
-            if (!startTimeValue) {
-                startTimeField.value = formatTime(getCurrentPhilippineTime());
-                console.log('DEBUG: Fallback - set startTime to:', startTimeField.value);
-            }
-            if (!endTimeValue) {
-                document.getElementById('endTime').value = formatTime(getCurrentPhilippineTime());
-                console.log('DEBUG: Fallback - set endTime to:', document.getElementById('endTime').value);
+            // Log timing info for debugging
+            if (formStartTime) {
+                const duration = (new Date() - formStartTime) / 1000; // seconds
+                console.log('Form completion time:', Math.round(duration), 'seconds');
             }
             
-            // Allow the form to submit normally after setting the times
-            // The setEndTime function is synchronous, so the endTime value will be set before submission
+            console.log('All time fields configured for server-side processing');
+            showNotification('Submitting... Server will set end time automatically', 'info');
         });
 
         // Check for any success/error messages in the session
@@ -2569,8 +2587,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
 
             // Populate fields based on their ID or name
             document.querySelectorAll('input, select, textarea').forEach(field => {
-                // Skip the date and time inputs so they keep the real-time values
-                if (field.id === 'currentDate' || field.id === 'currentTime') {
+                // Skip the date and time inputs so they keep the automatic values
+                if (field.id === 'Date' || field.id === 'currentDate' || field.id === 'currentTime' || 
+                    field.id === 'Time' || field.id === 'startTime' || field.id === 'endTime' ||
+                    field.id === 'startTimeDisplay' || field.id === 'endTimeDisplay' ||
+                    field.id === 'formStartTimestamp') {
                     return;
                 }
 
@@ -2650,8 +2671,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                 else if (fieldName.includes('operation') || fieldId.includes('operation')) {
                     field.value = ['Auto', 'Semi-Auto', 'Manual'][randomInt(0, 2)];
                 }
-                else if (fieldName.includes('time')) {
+                else if (fieldName.includes('time') && 
+                         !fieldName.includes('starttime') && 
+                         !fieldName.includes('endtime') && 
+                         !fieldId.includes('starttime') && 
+                         !fieldId.includes('endtime') &&
+                         !fieldId.includes('starttimediaplay') &&
+                         !fieldId.includes('endtimediaplay')) {
                     // Time values (seconds) - more realistic ranges with decimals
+                    // This excludes our timing control fields
                     field.value = randomDecimal(0.5, 30, 1);
                 }
                 else if (fieldName.includes('temperature') || fieldName.includes('temp') ||
@@ -2748,112 +2776,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
 
     <!-- JavaScript for real-time date and time -->
     <script>
-        // Simple function to get current time in Philippine timezone
-        function getCurrentPhilippineTime() {
-            const now = new Date();
-            // Get current time in Philippine timezone (UTC+8)
-            return new Date(now.toLocaleString("en-US", {timeZone: "Asia/Manila"}));
+            }
         }
 
-        // Function to format time as HH:MM:SS
-        function formatTime(date) {
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            const seconds = String(date.getSeconds()).padStart(2, '0');
-            return `${hours}:${minutes}:${seconds}`;
-        }
-
-        // Function to format time as HH:MM (for display)
-        function formatTimeDisplay(date) {
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            return `${hours}:${minutes}`;
-        }
-
-        // Function to update date field with real-time values
-        function updateDateTime() {
-            const now = getCurrentPhilippineTime();
-            
-            // Format date as YYYY-MM-DD for the date input
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const formattedDate = `${year}-${month}-${day}`;
-
-            // Update date input value
-            document.getElementById('currentDate').value = formattedDate;
-        }
-
-        // Function to set start time when form loads
-        function setStartTime() {
-            const now = getCurrentPhilippineTime();
-            const timeString = formatTime(now);
-            const timeDisplay = formatTimeDisplay(now);
-
-            // Set hidden start time field (with seconds for accuracy)
-            document.getElementById('startTime').value = timeString;
-
-            // Set visible time field (without seconds for display)
-            document.getElementById('currentTime').value = timeDisplay;
-
-            // Display start time for user reference
-            document.getElementById('startTimeText').textContent = timeString + ' (Philippine Time)';
-            document.getElementById('startTimeDisplay').style.display = 'block';
-
-            console.log('DEBUG: Start time set to (Philippine Time):', timeString);
-            console.log('DEBUG: Raw date object:', now);
-            console.log('DEBUG: UTC Hours:', now.getUTCHours(), 'Minutes:', now.getUTCMinutes(), 'Seconds:', now.getUTCSeconds());
-        }
-
-        // Function to set end time on form submission
+        // Function to set end time on form submission - DEBUGGING APPROACH
         function setEndTime() {
+            console.log('setEndTime() called');
             const now = getCurrentPhilippineTime();
             const timeString = formatTime(now);
-
             const endTimeField = document.getElementById('endTime');
+            
             if (endTimeField) {
+                console.log('Setting endTime field to:', timeString);
                 endTimeField.value = timeString;
-                console.log('DEBUG: End time set to (Philippine Time):', timeString);
-                console.log('DEBUG: endTime field value after setting:', endTimeField.value);
+                console.log('endTime field value after setting:', endTimeField.value);
+                console.log('endTime field HTML value attribute:', endTimeField.getAttribute('value'));
             } else {
-                console.error('ERROR: endTime field not found!');
+                console.error('ERROR: endTime field not found in setEndTime()!');
             }
-
-            console.log('DEBUG: Raw date object:', now);
-            console.log('DEBUG: UTC Hours:', now.getUTCHours(), 'Minutes:', now.getUTCMinutes(), 'Seconds:', now.getUTCSeconds());
-
-            // Calculate duration
-            const startTimeValue = document.getElementById('startTime').value;
-            if (startTimeValue) {
-                const startTime = new Date(`1970-01-01T${startTimeValue}Z`);
-                const endTime = new Date(`1970-01-01T${timeString}Z`);
-                const durationMs = endTime - startTime;
-                const durationMinutes = Math.round(durationMs / (1000 * 60));
-
-                console.log(`End time set to (Philippine Time): ${timeString}`);
-                console.log(`Form completion duration: ${durationMinutes} minutes`);
-
-                // Show notification with duration
-                showNotification(`Form completed! Duration: ${durationMinutes} minutes`, 'info');
-            }
+            
+            return timeString;
         }
 
-        // Update date immediately when page loads
+        // Update date immediately when page loads - FIXED APPROACH
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== PAGE LOAD - FIXED TIME FIELDS ===');
             updateDateTime();
-            setStartTime(); // Set start time when form loads
             
-            // Also set start time again after a short delay to ensure DOM is fully loaded
-            setTimeout(function() {
-                if (!document.getElementById('startTime').value) {
-                    console.log('DEBUG: Start time was empty, setting it again');
-                    setStartTime();
-                }
-            }, 100);
+            // Check if time fields exist
+            let timeField = document.getElementById('Time');
+            let startTimeField = document.getElementById('startTime');
+            let endTimeField = document.getElementById('endTime');
+            let startTimeDisplay = document.getElementById('startTimeDisplay');
+            let endTimeDisplay = document.getElementById('endTimeDisplay');
+            
+            console.log('Time fields on load:', {
+                timeField: !!timeField,
+                startTimeField: !!startTimeField,
+                endTimeField: !!endTimeField,
+                startTimeDisplay: !!startTimeDisplay,
+                endTimeDisplay: !!endTimeDisplay
+            });
+            
+            // Create missing hidden fields if needed
+            const form = document.querySelector('form');
+            
+            if (!timeField) {
+                console.log('Creating missing Time hidden field');
+                timeField = document.createElement('input');
+                timeField.type = 'hidden';
+                timeField.id = 'Time';
+                timeField.name = 'Time';
+                form.appendChild(timeField);
+            }
+            
+            if (!startTimeField) {
+                console.log('Creating missing startTime hidden field');
+                startTimeField = document.createElement('input');
+                startTimeField.type = 'hidden';
+                startTimeField.id = 'startTime';
+                startTimeField.name = 'startTime';
+                form.appendChild(startTimeField);
+            }
+            
+            if (!endTimeField) {
+                console.log('Creating missing endTime hidden field');
+                endTimeField = document.createElement('input');
+                endTimeField.type = 'hidden';
+                endTimeField.id = 'endTime';
+                endTimeField.name = 'endTime';
+                form.appendChild(endTimeField);
+            }
+            
+            console.log('=== Automatic timing system initialized ===');
         });
-
-        // Update date every minute (no need to update time since it's set once at start)
-        setInterval(updateDateTime, 60000);
+        });
     </script>
 
     <script>
@@ -3134,7 +3131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     'startTime': 'startTime',
                     'endTime': 'endTime',
 
-                    // Product Details
+                    // Product Details 
                     'ProductName': 'product',
                     'Color': 'color',
                     'MoldName': 'mold-name',
@@ -3142,6 +3139,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     'CavityActive': 'cavity',
                     'GrossWeight': 'grossWeight',
                     'NetWeight': 'netWeight',
+
+                    // Machine Info
+                    'MachineName': 'MachineName',
+                    'RunNumber': 'RunNumber',
+                    'Category': 'Category',
+                    'IRN': 'IRN',
 
                     // Material Composition
                     'DryingTime': 'dryingtime',
@@ -3157,14 +3160,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     'Material3_MixturePercentage': 'mix3',
                     'Material4_Type': 'type4',
                     'Material4_Brand': 'brand4',
-                    'Material4_MixturePercentage': 'mix4',
-
-                    // Colorant Details
+                    'Material4_MixturePercentage': 'mix4',                    // Colorant Details
                     'Colorant': 'colorant',
                     'Color': 'colorantColor',               // Added missing mapping
                     'Dosage': 'colorant-dosage',
                     'Stabilizer': 'colorant-stabilizer',
                     'StabilizerDosage': 'colorant-stabilizer-dosage',
+                    'ColorantColor': 'colorantColor',        // Alternative mapping
+                    'ColorantDosage': 'colorant-dosage',     // Alternative mapping
+                    'ColorantStabilizer': 'colorant-stabilizer',      // Alternative mapping
+                    'ColorantStabilizerDosage': 'colorant-stabilizer-dosage', // Alternative mapping
 
                     // Mold Operation Specs
                     'MoldCode': 'mold-code',
@@ -3345,6 +3350,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     // Additional Information
                     'Info': 'additionalInfo',
 
+                    // Personnel
+                    'AdjusterName': 'adjuster',
+                    'QAEName': 'qae',
+
                     // Additional cooling media remarks fields
                     'StationaryCoolingMediaRemarks': 'stationary-cooling-media-remarks',
                     'MovableCoolingMediaRemarks': 'movable-cooling-media-remarks'
@@ -3479,6 +3488,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                             alternativeInput = document.querySelector(`#${formFieldName}`);
                             if (!alternativeInput) {
                                 alternativeInput = document.querySelector(`#${formFieldName.toLowerCase()}`);
+                            }
+                            
+                            // Try general field patterns with exact database field name
+                            if (!alternativeInput) {
+                                const generalPatterns = [
+                                    `[name="${field}"]`,
+                                    `[id="${field}"]`,
+                                    `[name="${field.toLowerCase()}"]`,
+                                    `[id="${field.toLowerCase()}"]`,
+                                    `[name*="${field}"]`,
+                                    `[id*="${field}"]`,
+                                    `[name*="${formFieldName}"]`,
+                                    `[id*="${formFieldName}"]`,
+                                    `[name*="${formFieldName.toLowerCase()}"]`,
+                                    `[id*="${formFieldName.toLowerCase()}"]`
+                                ];
+                                
+                                for (const pattern of generalPatterns) {
+                                    alternativeInput = document.querySelector(pattern);
+                                    if (alternativeInput && alternativeInput.type !== "file") {
+                                        console.log(`Found field with general pattern: ${pattern}`);
+                                        break;
+                                    }
+                                    alternativeInput = null;
+                                }
                             }
                             
                             // For ejector fields, try specific patterns
@@ -3674,8 +3708,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                 console.log('  Form fields not found:', debugInfo.notFound);
                 console.log('  Successfully applied:', debugInfo.applied.slice(0, 20)); // Show first 20
 
-                // Reset start time since this is like starting a new form session
-                setStartTime();
+                // Reset timing and date for new form session (automatic)
+                formStartTime = new Date();
+                const startTimeString = formatTimeForDB(formStartTime);
+                const dateString = formatDateForDB(formStartTime);
+                
+                const dateField = document.getElementById('Date');
+                const timeField = document.getElementById('Time');
+                const startTimeField = document.getElementById('startTime');
+                
+                if (dateField) dateField.value = dateString;
+                if (timeField) timeField.value = startTimeString;
+                if (startTimeField) startTimeField.value = startTimeString;
+                
+                console.log('Automatic date and timing reset for new session:', dateString, startTimeString);
 
                 // Clear end time field to ensure clean session
                 const endTimeField = document.getElementById('endTime');

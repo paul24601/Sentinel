@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Form Test</title>
+</head>
+<body>
+    <h2>Simple Test Form</h2>
+    <form action="submit.php" method="POST">
+        <p>Date: <input type="date" name="Date" value="2025-08-08" required></p>
+        <p>Time: <input type="time" name="Time" value="22:00" required></p>
+        <p>Start Time: <input type="time" name="startTime" value="21:55"></p>
+        <p>End Time: <input type="time" name="endTime" value="00:00"></p>
+        <p>Machine: <select name="MachineName" required>
+            <option value="CLF 950B">CLF 950B</option>
+        </select></p>
+        <p>Run Number: <input type="text" name="RunNumber" value="TEST123" required></p>
+        <p>Category: <input type="text" name="Category" value="Testing" required></p>
+        <p>IRN: <input type="text" name="IRN" value="IRN999" required></p>
+        
+        <!-- Required fields for other tables -->
+        <input type="hidden" name="product" value="Test Product">
+        <input type="hidden" name="color" value="Blue">
+        <input type="hidden" name="mold-name" value="TestMold">
+        <input type="hidden" name="prodNo" value="PN-TEST">
+        <input type="hidden" name="cavity" value="1">
+        <input type="hidden" name="grossWeight" value="100">
+        <input type="hidden" name="netWeight" value="90">
+        <input type="hidden" name="dryingtime" value="60">
+        <input type="hidden" name="dryingtemp" value="80">
+        
+        <p><button type="submit">Submit Test</button></p>
+    </form>
+</body>
+</html>

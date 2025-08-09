@@ -106,6 +106,7 @@ $stats['top_adjusters'] = [];
 while ($row = $result->fetch_assoc()) {
     $stats['top_adjusters'][$row['AdjusterName']] = $row['count'];
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

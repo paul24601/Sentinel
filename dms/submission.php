@@ -478,7 +478,7 @@ $result = $conn->query($sql);
                                                 <th>Date</th>
                                                 <th>Product Name</th>
                                                 <th>Machine</th>
-                                                <th>PRN</th>
+                                                <th>IRN</th>
                                                 <th>Mold Code</th>
                                                 <th>Cycle Time (Target)</th>
                                                 <th>Cycle Time (Actual)</th>

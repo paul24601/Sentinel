@@ -27,14 +27,18 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+
+
 function fetchData($conn, $tableName)
 {
     $sql = "SELECT * FROM $tableName";
     return $conn->query($sql);
 }
 
-// Fetch master records first
-$sql = "SELECT * FROM parameter_records ORDER BY submission_date DESC";
+// Fetch master records
+$sql = "SELECT pr.* 
+        FROM parameter_records pr
+        ORDER BY pr.submission_date DESC";
 $parameterRecords = $conn->query($sql);
 
 // Fetch master records count
@@ -165,6 +169,13 @@ if ($selectedRecordId) {
     $stmt->bind_param("s", $selectedRecordId);
     $stmt->execute();
     $moldCloseParameters = $stmt->get_result();
+    
+    // Get the main record data for the selected record
+    $sql = "SELECT * FROM parameter_records WHERE record_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $selectedRecordId);
+    $stmt->execute();
+    $recordData = $stmt->get_result()->fetch_assoc();
 } else {
     // For the main records view, we don't need to fetch individual tables
     $productMachineInfo = [];
@@ -429,9 +440,9 @@ if ($selectedRecordId) {
                                         <thead class="table-light">
                                             <tr>
                                                 <th>Date</th>
-                                                <th>Time</th>
                                                 <th>Start Time</th>
                                                 <th>End Time</th>
+                                                <th>Time Consumed</th>
                                                 <th>Machine Name</th>
                                                 <th>Run Number</th>
                                                 <th>Category</th>
@@ -440,11 +451,30 @@ if ($selectedRecordId) {
                                         </thead>
                                         <tbody>
                                             <?php while ($row = $productMachineInfo->fetch_assoc()): ?>
+                                                <?php
+                                                // Calculate time consumed
+                                                $timeConsumed = '';
+                                                if (!empty($row['startTime']) && !empty($row['endTime'])) {
+                                                    $start = new DateTime($row['startTime']);
+                                                    $end = new DateTime($row['endTime']);
+                                                    $diff = $start->diff($end);
+                                                    
+                                                    if ($diff->h > 0) {
+                                                        $timeConsumed = sprintf('%dh %dm %ds', $diff->h, $diff->i, $diff->s);
+                                                    } elseif ($diff->i > 0) {
+                                                        $timeConsumed = sprintf('%dm %ds', $diff->i, $diff->s);
+                                                    } else {
+                                                        $timeConsumed = sprintf('%ds', $diff->s);
+                                                    }
+                                                } else {
+                                                    $timeConsumed = 'N/A';
+                                                }
+                                                ?>
                                                 <tr>
                                                     <td><?= htmlspecialchars($row['Date']) ?></td>
-                                                    <td><?= htmlspecialchars($row['Time']) ?></td>
                                                     <td><?= htmlspecialchars($row['startTime']) ?></td>
                                                     <td><?= htmlspecialchars($row['endTime']) ?></td>
+                                                    <td><span class="badge bg-info"><?= $timeConsumed ?></span></td>
                                                     <td><?= htmlspecialchars($row['MachineName']) ?></td>
                                                     <td><?= htmlspecialchars($row['RunNumber']) ?></td>
                                                     <td><?= htmlspecialchars($row['Category']) ?></td>
@@ -1377,7 +1407,6 @@ if ($selectedRecordId) {
                                             <th>Title</th>
                                             <th>Submitted By</th>
                                             <th>Date</th>
-                                            <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -1412,12 +1441,6 @@ if ($selectedRecordId) {
 
                                                     echo $actualDateTime;
                                                     ?>
-                                                </td>
-                                                <td>
-                                                    <span
-                                                        class="badge bg-<?= $record['status'] === 'active' ? 'success' : ($record['status'] === 'archived' ? 'warning' : 'danger') ?>">
-                                                        <?= htmlspecialchars(ucfirst($record['status'])) ?>
-                                                    </span>
                                                 </td>
                                                 <td>
                                                     <a href="submission.php?record_id=<?= htmlspecialchars($record['record_id']) ?>"

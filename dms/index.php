@@ -310,9 +310,9 @@ $pending_count = count($pending_submissions);
                                     </div>
                                     <!-- PRN -->
                                     <div class="mb-3">
-                                        <label for="prn" class="form-label">PRN</label>
+                                        <label for="prn" class="form-label">IRN</label>
                                         <input required type="text" class="form-control" id="prn" name="prn"
-                                            placeholder="Enter PRN">
+                                            placeholder="Enter IRN">
                                     </div>
                                     <!-- Mold Code -->
                                     <div class="mb-3">
