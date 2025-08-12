@@ -91,7 +91,12 @@
     border-left-color: #FF6347;
 }
 
-.card-row {
+.chart-container canvas {
+    width: 0;
+    height: 180px;
+}
+
+.card-column {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -100,6 +105,7 @@
 }
 
 .remarks {
+    margin-top: 18px;
     text-align: left;
     font-family: inherit;
     width: -webkit-fill-available;
@@ -123,20 +129,21 @@
     color: var(--white)
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 720px) {
     .card-container {
         flex-wrap: wrap;
-        overflow-x: visible;
+        overflow-x: none;
     }
-    .card-row {
+    .card-column {
         display: flex;
         flex-wrap: wrap;
         gap: 18px;
     }
     .card {
-        width: calc(50% - 9px);
-        min-width: 0;
         box-sizing: border-box;
         flex: 1 1 calc(50% - 9px);
+    }
+    .temperature1-card, .temperature2-card {
+       min-width: auto;
     }
 }

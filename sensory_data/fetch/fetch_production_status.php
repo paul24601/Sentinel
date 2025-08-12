@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 
-$conn = new mysqli("localhost", "root", "injectionadmin123", "sensory_data");
+$conn = new mysqli("localhost", "root", "", "sensory_data");
 if ($conn->connect_error) {
     die(json_encode(["error" => "Connection failed: " . $conn->connect_error]));
 }

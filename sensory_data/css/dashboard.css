@@ -27,11 +27,13 @@
     animation: pulse 1.5s infinite;
 }
 
-.inactive { background-color: red; }
+.inactive { background-color: var(--light-gray);}
 .active { background-color: green; }
+.open { background-color: red; }
 
-.inactive-border {border-left: 10px solid; border-left-color: red;}
+.inactive-border {border-left: 10px solid; border-left-color: var(--light-gray);}
 .active-border {border-left: 10px solid; border-left-color: green;}
+.active-border-open {border-left: 10px solid; border-left-color: red;}
 
 @keyframes pulse {
     0% { transform: scale(1); opacity: 1; }
@@ -39,10 +41,17 @@
     100% { transform: scale(1); opacity: 1; }
 }
 
+.status-text {
+    font-size: 0.75rem;
+    color: var(--off-white);
+    margin: 0;
+}
+
 .card-container {
     display: flex;
     overflow-x: scroll;
-    scrollbar-width: none;
+    scrollbar-width: thin;
+    scrollbar-color: var(--dark-green) var(--black);
     gap: 18px;
 }
 
@@ -71,14 +80,15 @@
 
 .current-product-label {
     font-size: 0.75rem;
-    color:#646464;
+    color: var(--off-white);
     margin: 12px 0 2px 0;
 }
 
 .current-product-value {
-    color:rgb(216, 216, 216);
+    color: var(--white);
     margin: 0;
     font-size: 0.9rem;
+    font-weight: bold;
 }
 
 /* Average Cycle Times */
@@ -111,4 +121,25 @@
 .machine-tab:not(.active):hover {
     color: var(--dark-green);
     background: var(--white);
+}
+
+/* Last Cycle Data */
+.styled-table td:nth-child(5),
+.styled-table th:nth-child(5) {
+    border-right: 2px solid var(--black);
+}
+
+/* Average Cycle Times */
+.chart-scroll-wrapper {
+    overflow-y: hidden;
+    overflow-x: auto;
+    width: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: var(--dark-green) var(--black);
+}
+
+@media (max-width: 758px) {
+    #chart {
+        min-width: 758px;
+    }
 }

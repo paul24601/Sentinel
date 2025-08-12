@@ -36,6 +36,32 @@ body {
     margin: 20px 0px;
 }
 
+.paired-section {
+    margin-top: -20px;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: space-between;
+}
+
+.paired-section .section {
+    flex: 1;
+    min-width: 0;
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .paired-section {
+        flex-direction: column;
+    }
+    .paired-section .left{
+        margin-bottom: -20px;
+    }
+    .paired-section .right{
+        margin-bottom: 0px;
+    }
+}
+
 .content-header {
     gap: 18px;
     color: var(--white);
@@ -45,6 +71,7 @@ body {
     align-items: center;
     align-content: center;
     flex-direction: row;
+    flex-wrap: wrap
 }
 
 .content-header h2 {
@@ -63,10 +90,24 @@ body {
     gap: 12px;
 }
 
-.section-controls input {
+.section-controls div {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+}
+
+@media screen and (max-width: 500px) {
+    .section-controls div {
+        display: block; 
+        text-align: left;
+    }
+}
+
+input {
     padding: 6px 10px;
     color: var(--white);
-    width: 100%;
+    width: 40%;
     font-size: 0.75rem;
     background: var(--gray);
     border: 1px solid var(--light-gray);
@@ -88,7 +129,7 @@ body {
     align-items: center;
 }
 
-.section-controls select {
+select {
     cursor: pointer;
     padding: 10px;
     background-color: var(--gray);
@@ -101,6 +142,16 @@ body {
 
 .section-controls label {
     font-size: 0.8rem;
+}
+
+@media (max-width: 768px) {
+    select {
+        width: 86px;
+    }
+    .section-controls label {
+        font-size: 0.75rem;
+        float: left;
+    }
 }
 
 /* Navbar styles */
@@ -135,6 +186,12 @@ body {
     display: flex;
     flex-direction: column;
     text-align: left;
+}
+
+.header-right {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
 }
 
 .header h3 {

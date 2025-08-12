@@ -1,5 +1,5 @@
 <?php
-$conn = new mysqli("localhost", "root", "injectionadmin123", "sensory_data");
+$conn = new mysqli("localhost", "root", "", "sensory_data");
 
 // Check for connection errors
 if ($conn->connect_error) {

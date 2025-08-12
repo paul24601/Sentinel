@@ -1,5 +1,7 @@
 <?php
-$conn = new mysqli("localhost", "root", "injectionadmin123", "sensory_data");
+date_default_timezone_set('Asia/Manila');
+
+$conn = new mysqli("localhost", "root", "", "sensory_data");
 
 // Check for connection errors
 if ($conn->connect_error) {
@@ -11,7 +13,7 @@ if ($conn->connect_error) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Motor Temperatures | TS - Sensory Data</title>
+    <title>Motor Temperatures | Sensory Data</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="images/logo-2.png">
@@ -100,7 +102,7 @@ if ($conn->connect_error) {
         <div class="header">
             <div class="header-left">
                 <h3>Motor Temperatures</h3>
-                <span>Technical Service Department - Sensory Data</span>
+                <span>Technical Services Department - Sensory Data</span>
             </div>
             <div class="header-right">
             </div>
@@ -140,38 +142,47 @@ if ($conn->connect_error) {
             
             <!-- Cards -->
             <div class="card-container">
-                <div class="card-row"> 
-                    <?php
-                    // Fetch the latest row from the database
-                    $sql = "SELECT motor_tempC_01, motor_tempC_02 FROM motor_temperatures ORDER BY timestamp DESC LIMIT 1";
-                    $result = $conn->query($sql);
-                    $data = $result->fetch_assoc();
-                    ?>
-
+                <?php
+                // Fetch the latest row from the database
+                $sql = "SELECT motor_tempC_01, motor_tempC_02 FROM motor_temperatures ORDER BY timestamp DESC LIMIT 1";
+                $result = $conn->query($sql);
+                $data = $result->fetch_assoc();
+                ?>
+                <div class="card-column"> 
                     <div class="card temperature1-card">
                         <h2 id="temp01-value">--°C</h2>
                         <p>Motor 01</p>
                         <div class="chart-container">
                             <!-- You can set width/height here via attributes or CSS -->
-                            <canvas id="chartTemp01" width="150" height="60"></canvas>
+                            <canvas id="chartTemp01"></canvas>
                         </div>
                     </div>
+                    <!-- Remarks -->
+                    <div class="remarks">
+                        <h2>Remarks</h2>
+                        <span>Normal</span>
+                        <p>Motor temperatures are monitored in real-time to ensure optimal performance and prevent overheating. The data is updated every 5 seconds.</p>
+                        <h2>Recommendations</h2>
+                        <p>None</p>
+                    </div>
+                </div>
 
+                <div class="card-column">
                     <div class="card temperature2-card">
                         <h2 id="temp02-value">--°C</h2>
                         <p>Motor 02</p>
                         <div class="chart-container">
-                            <canvas id="chartTemp02" width="150" height="60"></canvas>
+                            <canvas id="chartTemp02"></canvas>
                         </div>
                      </div>
-                </div>
-
-                <div class="remarks">
-                    <h2>Remarks</h2>
-                    <span>Normal</span>
-                    <p>Motor temperatures are monitored in real-time to ensure optimal performance and prevent overheating. The data is updated every 5 seconds.</p>
-                    <h2>Recommendations</h2>
-                    <p>None</p>
+                    <!-- Remarks -->
+                    <div class="remarks">
+                        <h2>Remarks</h2>
+                        <span>Normal</span>
+                        <p>Motor temperatures are monitored in real-time to ensure optimal performance and prevent overheating. The data is updated every 5 seconds.</p>
+                        <h2>Recommendations</h2>
+                        <p>None</p>
+                    </div>
                 </div>
             </div>
 
@@ -179,63 +190,107 @@ if ($conn->connect_error) {
                 let chartTemp01, chartTemp02;
 
                 function fetchRealtimeData(machine) {
-                    let url = "fetch/fetch_motor_temp.php?type=realtime";
-                    if (machine) {
-                        url += "&machine=" + encodeURIComponent(machine);
-                    }
+                let url = "fetch/fetch_motor_temp.php?type=realtime";
+                if (machine) {
+                url += "&machine=" + encodeURIComponent(machine);
+                }
 
-                    fetch(url)
-                        .then(response => response.json())
-                        .then(data => {
-                            const temp01 = data.motor_tempC_01;
-                            const temp02 = data.motor_tempC_02;
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        const temp01 = data.motor_tempC_01;
+                        const temp02 = data.motor_tempC_02;
 
-                            const hasData = Array.isArray(temp01) && temp01.length > 0 && Array.isArray(temp02) && temp02.length > 0;
+                        const hasData = Array.isArray(temp01) && temp01.length > 0 && Array.isArray(temp02) && temp02.length > 0;
 
-                            if (hasData) {
-                                document.getElementById("temp01-value").innerText = temp01[0] + "°C";
-                                document.getElementById("temp02-value").innerText = temp02[0] + "°C";
-                                updateChart(chartTemp01, temp01.slice().reverse());
-                                updateChart(chartTemp02, temp02.slice().reverse());
+                        if (hasData) {
+                            const labels = data.timestamps.slice().reverse();
+                            const reversedTemp01 = temp01.slice().reverse();
+                            const reversedTemp02 = temp02.slice().reverse();
 
-                                document.querySelector(".remarks span").innerText = "Normal";
-                                document.querySelector(".remarks p").innerText =
-                                    "Motor temperatures are monitored in real-time to ensure optimal performance and prevent overheating. The data is updated every 5 seconds.";
-                                document.querySelector(".remarks h2 + p").innerText = "None";
-                            } else {
-                                document.getElementById("temp01-value").innerText = "--";
-                                document.getElementById("temp02-value").innerText = "--";
-                                updateChart(chartTemp01, []);
-                                updateChart(chartTemp02, []);
+                            const currentTemp01 = reversedTemp01[reversedTemp01.length - 1];
+                            const currentTemp02 = reversedTemp02[reversedTemp02.length - 1];
 
-                                document.querySelector(".remarks span").innerText = "No data found";
-                                document.querySelector(".remarks p").innerText = "No motor temperature data available for the selected machine.";
-                                document.querySelector(".remarks h2 + p").innerText = "Please check if the machine is active.";
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Error fetching real-time data:", error);
+                            // Update displayed temperature values
+                            document.getElementById("temp01-value").innerText = currentTemp01 + "°C";
+                            document.getElementById("temp02-value").innerText = currentTemp02 + "°C";
+
+                            // Update charts
+                            updateChart(chartTemp01, reversedTemp01);
+                            updateChart(chartTemp02, reversedTemp02);
+                            chartTemp01.data.labels = labels;
+                            chartTemp02.data.labels = labels;
+
+                            // Update remarks
+                            updateRemarks(0, currentTemp01);
+                            updateRemarks(1, currentTemp02);
+
+                        } else {
                             document.getElementById("temp01-value").innerText = "--";
                             document.getElementById("temp02-value").innerText = "--";
                             updateChart(chartTemp01, []);
                             updateChart(chartTemp02, []);
 
-                            document.querySelector(".remarks span").innerText = "Error";
-                            document.querySelector(".remarks p").innerText = "Unable to fetch real-time data.";
-                            document.querySelector(".remarks h2 + p").innerText = "Check network or server issues.";
+                            document.querySelectorAll(".remarks").forEach(remarks => {
+                                remarks.querySelector("span").innerText = "No data found";
+                                remarks.querySelector("span").style.color = "#999";
+                                remarks.querySelector("p").innerText = "No motor temperature data available for the selected machine.";
+                                remarks.querySelector("h2 + p").innerText = "Please check if the machine is active.";
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching real-time data:", error);
+                        document.getElementById("temp01-value").innerText = "--";
+                        document.getElementById("temp02-value").innerText = "--";
+                        updateChart(chartTemp01, []);
+                        updateChart(chartTemp02, []);
+
+                        document.querySelectorAll(".remarks").forEach(remarks => {
+                            remarks.querySelector("span").innerText = "Error";
+                            remarks.querySelector("span").style.color = "#dc3545";
+                            remarks.querySelector("p").innerText = "Unable to fetch real-time data.";
+                            remarks.querySelector("h2 + p").innerText = "Check network or server issues.";
                         });
+                    });
+                }
+
+                // Add this helper function once, outside fetchRealtimeData:
+                function updateRemarks(motorIndex, currentTemp) {
+                const remarks = document.querySelectorAll(".remarks")[motorIndex];
+                const status = remarks.querySelector("span");
+                const msg = remarks.querySelector("p");
+                const recommendation = remarks.querySelector("h2 + p");
+
+                if (currentTemp > 90) {
+                    status.innerText = "Overheat";
+                    status.style.color = "#dc3545"; // red
+                    msg.innerText = `Motor 0${motorIndex + 1} temperature is too high: ${currentTemp}°C.`;
+                    recommendation.innerText = "Check cooling system and machine load.";
+                } else if (currentTemp < 40) {
+                    status.innerText = "Abnormally Low";
+                    status.style.color = "#17a2b8"; // blue
+                    msg.innerText = `Motor 0${motorIndex + 1} temperature is unusually low: ${currentTemp}°C.`;
+                    recommendation.innerText = "Verify if machine is running or sensor is connected.";
+                } else {
+                    status.innerText = "Normal";
+                    status.style.color = "";
+                    msg.innerText = "Motor temperature is within optimal range.";
+                    recommendation.innerText = "None";
+                }
                 }
 
                 function createChart(canvasId, color) {
                     return new Chart(document.getElementById(canvasId), {
                         type: "line",
                         data: {
-                            labels: Array.from({ length: 10 }, (_, i) => i + 1),
+                            labels: [],  // Set later with timestamps
                             datasets: [{
+                                label: "Temperature (°C)",
                                 data: [],
                                 borderColor: color,
                                 borderWidth: 2,
-                                pointRadius: 2,
+                                pointRadius: 3,
                                 fill: false,
                                 tension: 0.3
                             }]
@@ -244,10 +299,36 @@ if ($conn->connect_error) {
                             responsive: true,
                             maintainAspectRatio: false,
                             scales: {
-                                x: { display: false },
-                                y: { display: false }
+                                x: {
+                                    display: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Timestamp',
+                                        font: { size: 12, weight: 'bold' },
+                                        color: '#bbb'
+                                    },
+                                    ticks: { color: '#ccc' },
+                                    grid: { color: 'rgba(255,255,255,0.1)' }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'Temperature (°C)',
+                                        font: { size: 12, weight: 'bold' },
+                                        color: '#bbb'
+                                    },
+                                    ticks: { color: '#ccc', beginAtZero: true },
+                                    grid: { color: 'rgba(255,255,255,0.1)' }
+                                }
                             },
-                            plugins: { legend: { display: false } }
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: ctx => `${ctx.parsed.y} °C`
+                                    }
+                                }
+                            }
                         }
                     });
                 }
@@ -256,6 +337,7 @@ if ($conn->connect_error) {
                     if (chart) {
                         chart.data.datasets[0].data = newData;
                         chart.update();
+                        
                     }
                 }
 
@@ -274,7 +356,6 @@ if ($conn->connect_error) {
                     }, 5000);
                 });
             </script>
-
         </div>
 
         <!-- Temperature History -->
@@ -286,8 +367,9 @@ if ($conn->connect_error) {
                     <div class="by_number">
                         <label for="show-entries">Show</label>
                         <select id="show-entries">
+                            <option value="all" selected>All</option>
                             <option value="5">5</option>
-                            <option value="10" selected>10</option>
+                            <option value="10">10</option>
                             <option value="20">20</option>
                             <option value="50">50</option>
                         </select>
@@ -331,8 +413,10 @@ if ($conn->connect_error) {
                             <th>ID</th>
                             <th>Motor Temperature 1 (°C)</th>
                             <th>Motor Temperature 1 (°F)</th>
+                            <th>Remarks</th>
                             <th>Motor Temperature 2 (°C)</th>
                             <th>Motor Temperature 2 (°F)</th>
+                            <th>Remarks</th>
                             <th>Timestamp</th>
                         </tr>
                     </thead>
@@ -383,6 +467,8 @@ if ($conn->connect_error) {
                     fetchTableData(); // fallback if something goes wrong
                     }
                 });
+                // 🔁 Auto-refresh the temperature table every 30 seconds
+                setInterval(fetchTableData, 15000);
             </script>
 
             
