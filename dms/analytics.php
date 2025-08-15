@@ -197,35 +197,33 @@ $conn->close();
     <meta name="description" content="" />
     <meta name="author" content="" />
     <title>DMS - Analytics</title>
-    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
     <link href="../css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- DataTables CSS from reliable CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/css/jquery.dataTables.min.css">
-    <!-- jQuery and DataTables JS -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/js/jquery.dataTables.min.js"></script>
-    <!-- Chart.js Date Adapter -->
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables-responsive/2.5.0/css/responsive.dataTables.min.css">
+    <!-- jQuery DataTables CSS for better UI -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
     <script>
         function toggleFilters() {
-            const sortBy = document.getElementById('sortBy').value;
+            const sortBy = document.getElementById('sortBy');
             const dayFilters = document.getElementById('dayFilters');
             const weekFilters = document.getElementById('weekFilters');
             const monthFilters = document.getElementById('monthFilters');
             const yearFilters = document.getElementById('yearFilters');
+
+            if (!sortBy) return; // Safety check
+            
+            const sortByValue = sortBy.value;
             const allTimeFilters = document.getElementById('allTimeFilters');
 
-            dayFilters.style.display = sortBy === 'day' ? 'block' : 'none';
-            weekFilters.style.display = sortBy === 'week' ? 'block' : 'none';
-            monthFilters.style.display = sortBy === 'month' ? 'block' : 'none';
-            yearFilters.style.display = sortBy === 'year' ? 'block' : 'none';
-            allTimeFilters.style.display = sortBy === 'all_time' ? 'block' : 'none'; // Handle all time case
+            if (dayFilters) dayFilters.style.display = sortByValue === 'day' ? 'block' : 'none';
+            if (weekFilters) weekFilters.style.display = sortByValue === 'week' ? 'block' : 'none';
+            if (monthFilters) monthFilters.style.display = sortByValue === 'month' ? 'block' : 'none';
+            if (yearFilters) yearFilters.style.display = sortByValue === 'year' ? 'block' : 'none';
+            if (allTimeFilters) allTimeFilters.style.display = sortByValue === 'all_time' ? 'block' : 'none';
         }
         window.onload = toggleFilters; // Call on load to set initial visibility
     </script>
@@ -369,7 +367,7 @@ $conn->close();
                                     </div>
                                     <div class="card-body">
                                         <div class="table-responsive">
-                                            <table id="cycleTimeVarianceTable" class="table table-striped display"
+                                            <table id="cycleTimeVarianceTable" class="table table-striped table-hover"
                                                 style="width:100%">
                                                 <thead>
                                                     <tr>
@@ -419,7 +417,7 @@ $conn->close();
                                         </div>
 
                                         <div id="remarksContainer" class="table-responsive">
-                                            <table id="remarksTable" class="display nowrap" style="width:100%">
+                                            <table id="remarksTable" class="table table-striped table-hover" style="width:100%">
                                                 <thead>
                                                     <tr>
                                                         <th>Date</th>
@@ -464,70 +462,7 @@ $conn->close();
                         </div>
                     </div>
 
-                    <!-- remarks section -->
-                    <script>
-                        // PHP array to JavaScript
-                        const remarksData = <?php echo json_encode($remarksData); ?>;
-
-                        // Initialize DataTable
-                        const table = $('#remarksTable').DataTable();
-
-                        // Function to load remarks based on selected machine
-                        function loadRemarksTable() {
-                            const selectProduct = $('#productDropdown').val();
-
-                            // Clear previous table data
-                            table.clear().draw();
-
-                            if (selectProduct && remarksData[selectProduct]) {
-                                // Hide no data message
-                                $('#noDataMessage').hide();
-
-                                // Populate table with remarks data
-                                remarksData[selectProduct].forEach(remark => {
-                                    table.row.add([
-                                        remark.date,
-                                        remark.mold_code,
-                                        remark.remark,
-                                        remark.cycle_time_difference
-                                    ]).draw();
-                                });
-                            } else {
-                                $('#noDataMessage').show();
-                            }
-                        }
-                    </script>
-
-                    <script>
-                        $(document).ready(function () {
-                            // Initialize DataTable
-                            const table = $('#cycleTimeVarianceTable').DataTable({
-                                responsive: true,
-                                paging: true,
-                                searching: true,
-                                ordering: true,
-                                order: [[3, 'desc']], // Order by Variance Percentage by default
-                                columnDefs: [
-                                    { targets: 3, orderable: true } // Enable sorting on Variance Percentage
-                                ]
-                            });
-
-                            // Apply conditional formatting
-                            table.rows().every(function () {
-                                const row = this.node();
-                                const variancePercentageCell = $(row).find('td:eq(3)');
-                                const variancePercentage = parseFloat(variancePercentageCell.text());
-
-                                if (variancePercentage >= 1.00 && variancePercentage <= 10.99) {
-                                    variancePercentageCell.css('background-color', 'yellow');
-                                } else if (variancePercentage >= 11.00 && variancePercentage <= 25.99) {
-                                    variancePercentageCell.css('background-color', 'orange');
-                                } else if (variancePercentage > 26.00) {
-                                    variancePercentageCell.css('background-color', 'red');
-                                }
-                            });
-                        });
-                    </script>
+                    <!-- remarks section will be initialized by scripts at bottom -->
 
 
                     <!-- Chart.js Script -->
@@ -673,16 +608,214 @@ $conn->close();
             </footer>
         </div>
     </div>
+    <!-- jQuery and DataTables JS - Must load in correct order -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/js/jquery.dataTables.min.js"></script>
+    <!-- Chart.js and adapters -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <!-- Load theme scripts -->
     <script src="../js/scripts.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-    <script src="../assets/demo/chart-area-demo.js"></script>
-    <script src="../assets/demo/chart-bar-demo.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
-        crossorigin="anonymous"></script>
-    <script src="../js/datatables-simple-demo.js"></script>
-    <!-- Bootstrap JS and Popper.js -->
+
+    <!-- Initialize DataTables and functionality -->
+    <script>
+        $(document).ready(function() {
+            console.log('jQuery loaded:', typeof $ !== 'undefined');
+            console.log('DataTables available:', typeof $.fn.DataTable !== 'undefined');
+            
+            // PHP array to JavaScript
+            const remarksData = <?php echo json_encode($remarksData); ?>;
+
+            // Initialize DataTable for remarks
+            const remarksTable = $('#remarksTable').DataTable({
+                responsive: true,
+                paging: true,
+                searching: true,
+                ordering: true,
+                pageLength: 25,
+                language: {
+                    search: "Search remarks:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries"
+                }
+            });
+
+            // Function to load remarks based on selected machine
+            function loadRemarksTable() {
+                const selectProduct = $('#productDropdown').val();
+
+                // Clear previous table data
+                remarksTable.clear().draw();
+
+                if (selectProduct && remarksData[selectProduct]) {
+                    // Hide no data message
+                    $('#noDataMessage').hide();
+
+                    // Populate table with remarks data
+                    remarksData[selectProduct].forEach(remark => {
+                        remarksTable.row.add([
+                            remark.date,
+                            remark.mold_code,
+                            remark.remark,
+                            remark.cycle_time_difference
+                        ]).draw();
+                    });
+                } else {
+                    $('#noDataMessage').show();
+                }
+            }
+
+            // Make loadRemarksTable available globally
+            window.loadRemarksTable = loadRemarksTable;
+
+            // Initialize DataTable for cycle time variance
+            const cycleTimeTable = $('#cycleTimeVarianceTable').DataTable({
+                responsive: true,
+                paging: true,
+                searching: true,
+                ordering: true,
+                pageLength: 25,
+                order: [[3, 'desc']], // Order by Variance Percentage by default
+                columnDefs: [
+                    { targets: 3, orderable: true } // Enable sorting on Variance Percentage
+                ],
+                language: {
+                    search: "Search cycle times:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries"
+                }
+            });
+
+    </div>
+    
+    <!-- Load jQuery first -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Load Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Load DataTables -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    
+    <!-- Load Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    
+    <!-- Load theme scripts -->
+    <script src="../js/scripts.js"></script>
+
+    <!-- Initialize DataTables and functionality -->
+    <script>
+        $(document).ready(function() {
+            // Initialize Cycle Time Variance DataTable
+            const cycleTimeTable = $('#cycleTimeVarianceTable').DataTable({
+                responsive: true,
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                order: [[3, 'desc']], // Order by Variance Percentage by default
+                columnDefs: [
+                    { 
+                        targets: 3, 
+                        render: function(data, type, row) {
+                            const variance = parseFloat(data);
+                            let className = '';
+                            if (variance >= 26.00) {
+                                className = 'bg-danger text-white';
+                            } else if (variance >= 11.00) {
+                                className = 'bg-warning';
+                            } else if (variance >= 1.00) {
+                                className = 'bg-info';
+                            }
+                            return `<span class="${className} px-2 py-1 rounded">${data}%</span>`;
+                        }
+                    }
+                ],
+                language: {
+                    search: "Search cycle times:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    infoEmpty: "Showing 0 to 0 of 0 entries",
+                    infoFiltered: "(filtered from _MAX_ total entries)",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                }
+            });
+
+            // Initialize Remarks DataTable (initially empty)
+            let remarksTable = $('#remarksTable').DataTable({
+                responsive: true,
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                order: [[0, 'desc']], // Order by Date by default
+                language: {
+                    search: "Search remarks:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    infoEmpty: "Showing 0 to 0 of 0 entries",
+                    infoFiltered: "(filtered from _MAX_ total entries)",
+                    emptyTable: "Select a product to view remarks",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                }
+            });
+
+            // PHP array to JavaScript
+            const remarksData = <?php echo json_encode($remarksData); ?>;
+
+            // Function to load remarks based on selected machine
+            window.loadRemarksTable = function() {
+                const selectProduct = $('#productDropdown').val();
+                const noDataMessage = $('#noDataMessage');
+                
+                // Clear the table
+                remarksTable.clear();
+                
+                if (selectProduct && remarksData[selectProduct]) {
+                    // Hide no data message
+                    noDataMessage.hide();
+                    
+                    // Add new data to the table
+                    remarksData[selectProduct].forEach(function(remark) {
+                        remarksTable.row.add([
+                            remark.date,
+                            remark.mold_code,
+                            remark.remark,
+                            remark.cycle_time_difference
+                        ]);
+                    });
+                    
+                    // Draw the table with new data
+                    remarksTable.draw();
+                } else {
+                    // Show no data message
+                    noDataMessage.show();
+                    // Draw empty table
+                    remarksTable.draw();
+                }
+            };
+
+            // Initialize product dropdown change event
+            $('#productDropdown').on('change', function() {
+                loadRemarksTable();
+            });
+
+            // Initial load
+            loadRemarksTable();
+        });
+    </script>
+
 </body>
 
 </html>
