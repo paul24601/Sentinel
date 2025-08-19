@@ -18,15 +18,13 @@ if (
 }
 
 // --- Database Connection & Notification Functionality --- //
-$servername = "localhost";
-$username = "root";
-$password = "injectionadmin123";
-$dbname = "dailymonitoringsheet";
+require_once '../includes/database.php';
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Create connection using DatabaseManager
+try {
+    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+} catch (Exception $e) {
+    die("Database connection failed: " . $e->getMessage());
 }
 
 // Function to get pending submissions for notifications

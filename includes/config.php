@@ -11,6 +11,14 @@ if (!defined('CONFIG_LOADED')) {
 
 // Detect environment
 function detectEnvironment() {
+    // If running from CLI, check current directory for localhost indicators
+    if (php_sapi_name() === 'cli') {
+        $currentDir = getcwd();
+        if (strpos($currentDir, 'xampp') !== false || strpos($currentDir, 'C:') !== false) {
+            return 'local';
+        }
+    }
+    
     // Check if we're on localhost/XAMPP (local development)
     if (isset($_SERVER['SERVER_NAME']) && 
         (strpos($_SERVER['SERVER_NAME'], 'localhost') !== false || 
@@ -19,12 +27,18 @@ function detectEnvironment() {
         return 'local';
     }
     
+    // Check for production domain
+    if (isset($_SERVER['SERVER_NAME']) && 
+        (strpos($_SERVER['SERVER_NAME'], 'mpinternal.xyz') !== false)) {
+        return 'production';
+    }
+    
     // Check for environment variable
     if (isset($_ENV['APP_ENV'])) {
         return $_ENV['APP_ENV'];
     }
     
-    // Default to production
+    // Default to production for web requests without SERVER_NAME
     return 'production';
 }
 
