@@ -1,18 +1,14 @@
 <?php
 session_start();
 
-// Database connection (replace with your actual credentials)
-$servername = "localhost";
-$username = "root";
-$password = "injectionadmin123";
-$dbname = "dailymonitoringsheet";
+// Load centralized database configuration
+require_once __DIR__ . '/includes/database.php';
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Get database connection
+try {
+    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+} catch (Exception $e) {
+    die("Database connection failed: " . $e->getMessage());
 }
 
 // Fetch data from the form

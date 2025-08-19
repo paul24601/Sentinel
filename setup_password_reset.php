@@ -1,14 +1,14 @@
 <?php
 // Database setup script for password reset functionality
-$servername = "localhost";
-$username = "root";
-$password = "";  // Default XAMPP MySQL password (empty)
-$dbname = "dailymonitoringsheet";
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Load centralized database configuration
+require_once __DIR__ . '/includes/database.php';
+
+// Get database connection
+try {
+    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+} catch (Exception $e) {
+    die("Database connection failed: " . $e->getMessage());
 }
 
 // SQL to create password reset requests table

@@ -2,6 +2,9 @@
 session_start();
 header('Content-Type: application/json');
 
+// Load centralized database configuration
+require_once __DIR__ . '/../includes/database.php';
+
 // Check if user is admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     http_response_code(403);
@@ -9,15 +12,10 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-// Database connection details
-$servername = "localhost";
-$username = "root";
-$password = "injectionadmin123";
-$dbname = "admin_sentinel";
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
+// Get database connection
+try {
+    $conn = DatabaseManager::getConnection('sentinel_admin');
+} catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Database connection failed']);
     exit();

@@ -1,53 +1,45 @@
 <?php
-// Database configuration for Sentinel MES
-// This file centralizes database connection settings
+/**
+ * DEPRECATED: This file is deprecated in favor of the new centralized configuration system.
+ * Please use includes/database.php instead.
+ * 
+ * This file is kept for backward compatibility only.
+ */
 
-// Main database credentials
-$servername = "localhost";
-$username = "root";
-$password = "injectionadmin123";
+// Load the new configuration system
+require_once __DIR__ . '/database.php';
 
-// Database names used by different modules
-$db_injectionmolding = "injectionmoldingparameters";  // Main parameters database
-$db_dailymonitoring = "dailymonitoringsheet";         // DMS and user management
-$db_productionreport = "productionreport";            // Production reports
-$db_sensorydata = "sensory_data";                     // Sensor/IoT data
+// Legacy variables for backward compatibility
+$servername = DB_HOST;
+$username = DB_USER;
+$password = DB_PASS_SENTINEL;
 
-// Create connection function for different databases
+// Database names
+$db_injectionmolding = DB_SENTINEL_MAIN;
+$db_dailymonitoring = DB_SENTINEL_MONITORING;
+$db_productionreport = DB_SENTINEL_PRODUCTION;
+$db_sensorydata = DB_SENTINEL_SENSORY;
+
+// Legacy function for backward compatibility
 function createConnection($database = 'injectionmoldingparameters') {
-    global $servername, $username, $password;
+    $dbMap = [
+        'injectionmoldingparameters' => 'sentinel_main',
+        'dailymonitoringsheet' => 'sentinel_monitoring',
+        'productionreport' => 'sentinel_production',
+        'sensory_data' => 'sentinel_sensory',
+        'admin_sentinel' => 'sentinel_admin'
+    ];
     
-    try {
-        $conn = new mysqli($servername, $username, $password, $database);
-        $conn->set_charset("utf8mb4");
-        
-        if ($conn->connect_error) {
-            throw new Exception("Connection failed: " . $conn->connect_error);
-        }
-        
-        return $conn;
-    } catch (Exception $e) {
-        error_log("Database connection failed: " . $e->getMessage());
-        
-        // Return JSON error for AJAX requests
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-            header('Content-Type: application/json');
-            echo json_encode([
-                'success' => false,
-                'message' => 'Database connection failed. Please contact system administrator.'
-            ]);
-            exit;
-        }
-        
-        die("Connection failed. Please check configuration.");
-    }
+    $dbKey = $dbMap[$database] ?? 'sentinel_main';
+    return DatabaseManager::getConnection($dbKey);
 }
 
-// Legacy compatibility - create default connection
+// Create default connection for legacy compatibility
 try {
-    $conn = createConnection($db_injectionmolding);
+    $conn = DatabaseManager::getConnection('sentinel_main');
 } catch (Exception $e) {
     // Handle error appropriately
+    error_log("Legacy database connection failed: " . $e->getMessage());
 }
+?>
 ?>

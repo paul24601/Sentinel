@@ -24,10 +24,8 @@ th { background-color: #f2f2f2; font-weight: bold; }
 
 echo "<div class='container'>";
 
-// Database credentials
-$servername = "localhost";
-$username = "root";
-$password = "injectionadmin123";
+// Load centralized database configuration
+require_once __DIR__ . '/includes/database.php';
 
 // Test databases
 $databases = [
@@ -49,9 +47,18 @@ foreach ($databases as $dbname => $description) {
     echo "<td>$description</td>";
     
     try {
-        $conn = new mysqli($servername, $username, $password, $dbname);
+        // Map database names to our new system
+        $dbMap = [
+            'injectionmoldingparameters' => 'sentinel_main',
+            'dailymonitoringsheet' => 'sentinel_monitoring',
+            'productionreport' => 'sentinel_production',
+            'sensory_data' => 'sentinel_sensory'
+        ];
         
-        if ($conn->connect_error) {
+        $dbKey = $dbMap[$dbname] ?? 'sentinel_main';
+        $conn = DatabaseManager::getConnection($dbKey);
+        
+        if (!$conn) {
             echo "<td class='status-error'>❌ Not Connected</td>";
             echo "<td>-</td>";
             echo "<td>-</td>";
@@ -131,9 +138,9 @@ foreach ($modules as $path => $info) {
 // Test user authentication
 echo "<h2>🔐 User Authentication Status</h2>";
 try {
-    $conn = new mysqli($servername, $username, $password, 'dailymonitoringsheet');
+    $conn = DatabaseManager::getConnection('sentinel_monitoring');
     
-    if ($conn->connect_error) {
+    if (!$conn) {
         echo "<p class='status-error'>❌ Cannot connect to user database</p>";
     } else {
         $result = $conn->query("SHOW TABLES LIKE 'users'");

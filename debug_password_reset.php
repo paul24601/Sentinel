@@ -1,16 +1,17 @@
 <?php
 // Check the database structure for password reset functionality
-$servername = "localhost";
-$username = "root";
-$password = "injectionadmin123";
+
+// Load centralized database configuration
+require_once __DIR__ . '/includes/database.php';
 
 echo "<h2>Database Structure Check</h2>";
 
 // Check admin_sentinel database
 echo "<h3>admin_sentinel database:</h3>";
-$conn = new mysqli($servername, $username, $password, "admin_sentinel");
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+try {
+    $conn = DatabaseManager::getConnection('sentinel_admin');
+} catch (Exception $e) {
+    die("Database connection failed: " . $e->getMessage());
 }
 
 // Check if tables exist
@@ -68,9 +69,10 @@ $conn->close();
 
 // Check dailymonitoringsheet database
 echo "<h3>dailymonitoringsheet database (for user validation):</h3>";
-$user_conn = new mysqli($servername, $username, $password, "dailymonitoringsheet");
-if ($user_conn->connect_error) {
-    die("Connection failed: " . $user_conn->connect_error);
+try {
+    $user_conn = DatabaseManager::getConnection('sentinel_monitoring');
+} catch (Exception $e) {
+    die("User database connection failed: " . $e->getMessage());
 }
 
 $result = $user_conn->query("SELECT COUNT(DISTINCT name) as user_count FROM submissions");

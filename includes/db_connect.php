@@ -1,35 +1,23 @@
 <?php
-// Database configuration
-$db_host = 'localhost';
-$db_user = 'root';  // Default XAMPP MySQL username
-$db_pass = '';      // Default XAMPP MySQL password
-$db_name = 'productionreport';
+/**
+ * DEPRECATED: This file is deprecated in favor of the new centralized configuration system.
+ * Please use includes/database.php instead.
+ * 
+ * This file is kept for backward compatibility only.
+ */
 
-// Create connection with error handling
+// Load the new configuration system
+require_once __DIR__ . '/database.php';
+
+// Legacy variables for backward compatibility
+$db_host = DB_HOST;
+$db_user = DB_USER;
+$db_pass = DB_PASS_SENTINEL;
+$db_name = DB_SENTINEL_PRODUCTION;
+
+// Use the new connection system
 try {
-    // First connect without database to create it if it doesn't exist
-    $temp_conn = new mysqli($db_host, $db_user, $db_pass);
-    if ($temp_conn->connect_error) {
-        throw new Exception("Connection failed: " . $temp_conn->connect_error);
-    }
-
-    // Create database if it doesn't exist
-    $temp_conn->query("CREATE DATABASE IF NOT EXISTS $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-    $temp_conn->close();
-
-    // Now connect with the database
-    $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
-    
-    // Check connection
-    if ($conn->connect_error) {
-        throw new Exception("Connection failed: " . $conn->connect_error);
-    }
-
-    // Set charset to utf8mb4
-    if (!$conn->set_charset("utf8mb4")) {
-        throw new Exception("Error setting charset: " . $conn->error);
-    }
-
+    $conn = DatabaseManager::getConnection('sentinel_production');
 } catch (Exception $e) {
     // Log the error (you might want to use a proper logging system)
     error_log("Database connection error: " . $e->getMessage());
@@ -47,4 +35,5 @@ try {
     
     // Otherwise show a generic error
     die("A system error has occurred. Please try again later.");
-} 
+}
+?> 

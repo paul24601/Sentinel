@@ -1,0 +1,12 @@
+{
+    "name": "sentinel/mes-system",
+    "description": "Sentinel Manufacturing Execution System",
+    "require": {
+        "vlucas/phpdotenv": "5.5"
+    },
+    "authors": [
+        {
+            "name": "Your Name"
+        }
+    ]
+}

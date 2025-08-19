@@ -29,9 +29,14 @@ $clonedData = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
     $recordId = $_POST['clone_record_id'];
 
-    $conn = new mysqli("localhost", "root", "injectionadmin123", "injectionmoldingparameters");
-    if ($conn->connect_error) {
-        die("DB connection failed: " . $conn->connect_error);
+    // Load centralized database configuration
+    require_once __DIR__ . '/../includes/database.php';
+    
+    // Get database connection
+    try {
+        $conn = DatabaseManager::getConnection('sentinel_main');
+    } catch (Exception $e) {
+        die("Database connection failed: " . $e->getMessage());
     }
 
     $clonedData = [];

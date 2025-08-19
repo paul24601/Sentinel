@@ -6,6 +6,9 @@ ini_set('log_errors', 1);
 
 session_start();
 
+// Load centralized database configuration
+require_once __DIR__ . '/includes/database.php';
+
 // Include PHPMailer files
 require 'PHPMailer/src/Exception.php';
 require 'PHPMailer/src/PHPMailer.php';
@@ -14,25 +17,13 @@ require 'PHPMailer/src/SMTP.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-// Database connection details for admin_sentinel (password reset requests)
-$servername = "localhost";
-$username = "root";
-$password = "injectionadmin123";
-$dbname = "admin_sentinel";
-
-// Create connection to admin_sentinel
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    error_log("Admin database connection failed: " . $conn->connect_error);
+// Get database connections
+try {
+    $conn = DatabaseManager::getConnection('sentinel_admin');
+    $user_conn = DatabaseManager::getConnection('sentinel_monitoring');
+} catch (Exception $e) {
+    error_log("Database connection failed: " . $e->getMessage());
     header("Location: forgot_password.html?error=" . urlencode("Database connection error. Please try again later."));
-    exit();
-}
-
-// Create connection to dailymonitoringsheet (user validation)
-$user_conn = new mysqli($servername, $username, $password, "dailymonitoringsheet");
-if ($user_conn->connect_error) {
-    error_log("User database connection failed: " . $user_conn->connect_error);
-    header("Location: forgot_password.html?error=" . urlencode("User database connection error. Please try again later."));
     exit();
 }
 

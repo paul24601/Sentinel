@@ -18,10 +18,8 @@ th { background-color: #f2f2f2; font-weight: bold; }
 
 echo "<div class='container'>";
 
-// Database credentials
-$servername = "localhost";
-$username = "root";
-$password = "injectionadmin123";
+// Load centralized database configuration
+require_once __DIR__ . '/includes/database.php';
 
 // List of databases needed for Sentinel MES
 $databases = [
@@ -52,7 +50,7 @@ foreach ($databases as $dbname => $info) {
     
     try {
         // Connect without database to create it
-        $conn = new mysqli($servername, $username, $password);
+        $conn = new mysqli(DB_HOST, DB_USER, DB_PASS);
         
         if ($conn->connect_error) {
             throw new Exception("Connection failed: " . $conn->connect_error);
@@ -75,7 +73,7 @@ foreach ($databases as $dbname => $info) {
             echo "<p>⏳ Importing data...</p>";
             
             // Connect to the specific database
-            $conn = new mysqli($servername, $username, $password, $dbname);
+            $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, $dbname);
             
             if ($conn->connect_error) {
                 throw new Exception("Connection to $dbname failed: " . $conn->connect_error);

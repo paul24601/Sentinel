@@ -18,15 +18,15 @@ if (!isset($_SESSION['role'])) {
 }
 
 /// --- Database Connection & Notification Functionality --- //
-$servername = "localhost";
-$username = "root";
-$password = "injectionadmin123"; // Change if needed
-$dbname = "dailymonitoringsheet";
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Load centralized database configuration
+require_once __DIR__ . '/includes/database.php';
+
+// Get database connection
+try {
+    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+} catch (Exception $e) {
+    die("Database connection failed: " . $e->getMessage());
 }
 
 // Calculate Cycle Time Monitoring Variance for approved submissions

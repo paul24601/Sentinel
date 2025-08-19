@@ -1,22 +1,20 @@
 <?php
 require_once 'session_config.php';
 
+// Load centralized database configuration
+require_once __DIR__ . '/../includes/database.php';
+
 // Check if the user is logged in
 if (!isset($_SESSION['full_name'])) {
     header("Location: ../login.html");
     exit();
 }
 
-// Database connection
-$servername = "localhost";
-$username = "root";
-$password = "injectionadmin123";
-$dbname = "injectionmoldingparameters";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Get database connection
+try {
+    $conn = DatabaseManager::getConnection('sentinel_main');
+} catch (Exception $e) {
+    die("Database connection failed: " . $e->getMessage());
 }
 
 // Fetch statistics
