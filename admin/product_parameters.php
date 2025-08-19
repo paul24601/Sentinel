@@ -7,15 +7,32 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-// Database connection
-$servername = "localhost";
-$username = "root";
-$password = "injectionadmin123";
-$dbname = "dailymonitoringsheet";
+// Include database configuration
+require_once '../includes/database.php';
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Database connection
+try {
+    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+} catch (Exception $e) {
+    die("Database connection failed: " . $e->getMessage());
+}
+
+// Get pending submissions for notifications
+try {
+    $pending_sql = "SELECT * FROM submissions WHERE status = 'pending' ORDER BY date DESC LIMIT 5";
+    $pending_result = $conn->query($pending_sql);
+    $pending_submissions = [];
+    $pending_count = 0;
+    
+    if ($pending_result && $pending_result->num_rows > 0) {
+        while ($row = $pending_result->fetch_assoc()) {
+            $pending_submissions[] = $row;
+        }
+        $pending_count = count($pending_submissions);
+    }
+} catch (Exception $e) {
+    $pending_submissions = [];
+    $pending_count = 0;
 }
 
 // Handle form submission

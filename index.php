@@ -113,15 +113,10 @@ try {
 
 // Total Production Reports (connect to production database)
 try {
-    $prodConn = new mysqli($servername, $username, "", "productionreport"); // Empty password for production DB
-    if (!$prodConn->connect_error) {
-        $sqlTotalProduction = "SELECT COUNT(*) as total FROM production_reports";
-        $resultTotalProduction = $prodConn->query($sqlTotalProduction);
-        $totalProduction = $resultTotalProduction ? $resultTotalProduction->fetch_assoc()['total'] : 0;
-        $prodConn->close();
-    } else {
-        $totalProduction = 0;
-    }
+    $prodConn = DatabaseManager::getConnection('sentinel_production');
+    $sqlTotalProduction = "SELECT COUNT(*) as total FROM production_reports";
+    $resultTotalProduction = $prodConn->query($sqlTotalProduction);
+    $totalProduction = $resultTotalProduction ? $resultTotalProduction->fetch_assoc()['total'] : 0;
 } catch (Exception $e) {
     $totalProduction = 0;
 }
