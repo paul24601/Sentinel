@@ -12,9 +12,11 @@ if (!isset($_SESSION['full_name'])) {
     exit();
 }
 
-// Example: set the role if not already set (this line is optional; ensure you set the role during login)
+// Check if role is set - if not, redirect to login (don't auto-assign)
 if (!isset($_SESSION['role'])) {
-    $_SESSION['role'] = "Quality Control Inspection"; // Or assign another role as needed
+    session_destroy();
+    header("Location: login.html?error=" . urlencode("Session expired. Please log in again."));
+    exit();
 }
 
 /// --- Database Connection & Notification Functionality --- //
