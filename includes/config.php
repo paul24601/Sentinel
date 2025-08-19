@@ -49,17 +49,33 @@ switch ($environment) {
         break;
         
     case 'production':
-        // Production server settings
-        define('DB_HOST', 'localhost'); // Change to your production host
-        define('DB_USER', 'your_prod_user');
-        define('DB_PASS', 'your_prod_password');
+        // Production server settings - Sentinel Digital
+        define('DB_HOST', 'srv1518.hstgr.io');
         
-        // Production Database Names (adjust as needed)
-        define('DB_SENTINEL_MAIN', 'injectionmoldingparameters');
-        define('DB_SENTINEL_MONITORING', 'dailymonitoringsheet');
-        define('DB_SENTINEL_PRODUCTION', 'productionreport');
-        define('DB_SENTINEL_SENSORY', 'sensory_data');
-        define('DB_SENTINEL_ADMIN', 'admin_sentinel');
+        // Production Database Configurations - Each database has its own credentials
+        define('DB_SENTINEL_MAIN', 'u158529957_spmc_injmold');
+        define('DB_SENTINEL_MAIN_USER', 'u158529957_spmc_injmold');
+        define('DB_SENTINEL_MAIN_PASS', '!d8K4+bW*o6A');
+        
+        define('DB_SENTINEL_MONITORING', 'u158529957_spmc_dmonitor');
+        define('DB_SENTINEL_MONITORING_USER', 'u158529957_spmc_dmonitor');
+        define('DB_SENTINEL_MONITORING_PASS', 'RSzGvru!0S[m');
+        
+        define('DB_SENTINEL_PRODUCTION', 'u158529957_spmc_prodreprt');
+        define('DB_SENTINEL_PRODUCTION_USER', 'u158529957_spmc_prodreprt');
+        define('DB_SENTINEL_PRODUCTION_PASS', 'lW1&*F6CaEjr');
+        
+        define('DB_SENTINEL_SENSORY', 'u158529957_spmc_sensory');
+        define('DB_SENTINEL_SENSORY_USER', 'u158529957_spmc_sensory');
+        define('DB_SENTINEL_SENSORY_PASS', 'e3Y0@1#U^[N');
+        
+        define('DB_SENTINEL_ADMIN', 'u158529957_spmc');
+        define('DB_SENTINEL_ADMIN_USER', 'u158529957_spmc');
+        define('DB_SENTINEL_ADMIN_PASS', '5PM(@ppD8');
+        
+        // Legacy defines for backward compatibility (using admin db as default)
+        define('DB_USER', 'u158529957_spmc');
+        define('DB_PASS', '5PM(@ppD8');
         
         break;
         

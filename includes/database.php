@@ -79,39 +79,78 @@ class DatabaseManager {
      * @return array Database configuration
      */
     private static function getDatabaseConfig($database) {
-        $configs = [
-            // Sentinel Databases
-            'sentinel_main' => [
-                'host' => DB_HOST,
-                'user' => DB_USER,
-                'password' => DB_PASS,
-                'database' => DB_SENTINEL_MAIN
-            ],
-            'sentinel_monitoring' => [
-                'host' => DB_HOST,
-                'user' => DB_USER,
-                'password' => DB_PASS,
-                'database' => DB_SENTINEL_MONITORING
-            ],
-            'sentinel_production' => [
-                'host' => DB_HOST,
-                'user' => DB_USER,
-                'password' => DB_PASS,
-                'database' => DB_SENTINEL_PRODUCTION
-            ],
-            'sentinel_sensory' => [
-                'host' => DB_HOST,
-                'user' => DB_USER,
-                'password' => DB_PASS,
-                'database' => DB_SENTINEL_SENSORY
-            ],
-            'sentinel_admin' => [
-                'host' => DB_HOST,
-                'user' => DB_USER,
-                'password' => DB_PASS,
-                'database' => DB_SENTINEL_ADMIN
-            ]
-        ];
+        // Check if we're in production and have individual database credentials
+        $isProduction = (defined('DB_SENTINEL_MAIN_USER') && !empty(DB_SENTINEL_MAIN_USER));
+        
+        if ($isProduction) {
+            // Production environment - each database has its own credentials
+            $configs = [
+                'sentinel_main' => [
+                    'host' => DB_HOST,
+                    'user' => DB_SENTINEL_MAIN_USER,
+                    'password' => DB_SENTINEL_MAIN_PASS,
+                    'database' => DB_SENTINEL_MAIN
+                ],
+                'sentinel_monitoring' => [
+                    'host' => DB_HOST,
+                    'user' => DB_SENTINEL_MONITORING_USER,
+                    'password' => DB_SENTINEL_MONITORING_PASS,
+                    'database' => DB_SENTINEL_MONITORING
+                ],
+                'sentinel_production' => [
+                    'host' => DB_HOST,
+                    'user' => DB_SENTINEL_PRODUCTION_USER,
+                    'password' => DB_SENTINEL_PRODUCTION_PASS,
+                    'database' => DB_SENTINEL_PRODUCTION
+                ],
+                'sentinel_sensory' => [
+                    'host' => DB_HOST,
+                    'user' => DB_SENTINEL_SENSORY_USER,
+                    'password' => DB_SENTINEL_SENSORY_PASS,
+                    'database' => DB_SENTINEL_SENSORY
+                ],
+                'sentinel_admin' => [
+                    'host' => DB_HOST,
+                    'user' => DB_SENTINEL_ADMIN_USER,
+                    'password' => DB_SENTINEL_ADMIN_PASS,
+                    'database' => DB_SENTINEL_ADMIN
+                ]
+            ];
+        } else {
+            // Local/staging environment - shared credentials
+            $configs = [
+                'sentinel_main' => [
+                    'host' => DB_HOST,
+                    'user' => DB_USER,
+                    'password' => DB_PASS,
+                    'database' => DB_SENTINEL_MAIN
+                ],
+                'sentinel_monitoring' => [
+                    'host' => DB_HOST,
+                    'user' => DB_USER,
+                    'password' => DB_PASS,
+                    'database' => DB_SENTINEL_MONITORING
+                ],
+                'sentinel_production' => [
+                    'host' => DB_HOST,
+                    'user' => DB_USER,
+                    'password' => DB_PASS,
+                    'database' => DB_SENTINEL_PRODUCTION
+                ],
+                'sentinel_sensory' => [
+                    'host' => DB_HOST,
+                    'user' => DB_USER,
+                    'password' => DB_PASS,
+                    'database' => DB_SENTINEL_SENSORY
+                ],
+                'sentinel_admin' => [
+                    'host' => DB_HOST,
+                    'user' => DB_USER,
+                    'password' => DB_PASS,
+                    'database' => DB_SENTINEL_ADMIN
+                ]
+            ];
+        }
         
         if (!isset($configs[$database])) {
             throw new Exception("Unknown database configuration: {$database}");
