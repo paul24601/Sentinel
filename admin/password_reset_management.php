@@ -211,45 +211,34 @@ $requests_sql = "SELECT pr.*, u.role
 $requests_result = $conn->query($requests_sql);
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Password Reset Management - Sentinel Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://use.fontawesome.com/releases/v6.3.0/css/all.css" rel="stylesheet">
-    <style>
-        .status-pending { color: #ffc107; }
-        .status-approved { color: #28a745; }
-        .status-denied { color: #dc3545; }
-        .card-header {
-            background: linear-gradient(135deg, #005bea, #00c6fb);
-            color: white;
-        }
-    </style>
-</head>
+<?php include '../includes/navbar.php'; ?>
+            <main>
+                <div class="container-fluid px-4">
+                    <h1 class="mt-4">Password Reset Management</h1>
+                    <ol class="breadcrumb mb-4">
+                        <li class="breadcrumb-item"><a href="../index.php">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Password Reset Management</li>
+                    </ol>
 
-<body class="bg-light">
-    <div class="container-fluid mt-4">
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="mb-0">
-                            <i class="fas fa-key"></i> Password Reset Management
-                        </h3>
-                    </div>
-                    <div class="card-body">
-                        <?php echo $message; ?>
-                        
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5>Reset Requests</h5>
-                            <a href="../dms/index.php" class="btn btn-outline-primary">
-                                <i class="fas fa-arrow-left"></i> Back to Dashboard
-                            </a>
+                    <style>
+                        .status-pending { color: #ffc107; }
+                        .status-approved { color: #28a745; }
+                        .status-denied { color: #dc3545; }
+                        .card-header {
+                            background: linear-gradient(135deg, #005bea, #00c6fb);
+                            color: white;
+                        }
+                    </style>
+
+                    <?php echo $message; ?>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="mb-0">
+                                <i class="fas fa-key"></i> Password Reset Requests
+                            </h3>
                         </div>
+                        <div class="card-body">
 
                         <div class="table-responsive">
                             <table class="table table-striped table-hover">
@@ -327,8 +316,7 @@ $requests_result = $conn->query($requests_sql);
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </main>
     </div>
 
     <!-- Action Modal -->
@@ -361,7 +349,6 @@ $requests_result = $conn->query($requests_sql);
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function showActionModal(requestId, action, userName) {
             document.getElementById('actionRequestId').value = requestId;
@@ -387,5 +374,5 @@ $requests_result = $conn->query($requests_sql);
             new bootstrap.Modal(modal).show();
         }
     </script>
-</body>
-</html>
+
+<?php include '../includes/navbar_close.php'; ?>

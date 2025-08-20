@@ -150,22 +150,9 @@ if ($selectedRecordId) {
                     <?php else: ?>
                         <!-- Records List View -->
                         <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="fas fa-table me-1"></i>
-                                    Parameters Records (<?= $parameterRecords->num_rows ?>)
-                                </div>
-                                <div class="btn-group">
-                                    <a href="export_data.php?format=pdf" class="btn btn-danger btn-sm" target="_blank">
-                                        <i class="fas fa-file-pdf"></i> Export All PDF
-                                    </a>
-                                    <a href="export_data.php?format=excel" class="btn btn-success btn-sm" target="_blank">
-                                        <i class="fas fa-file-excel"></i> Export All Excel
-                                    </a>
-                                    <a href="export_data.php?format=sql" class="btn btn-primary btn-sm" target="_blank">
-                                        <i class="fas fa-database"></i> Export All SQL
-                                    </a>
-                                </div>
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Parameters Data Visualization</h5>
+                                <small class="text-muted">Injection Department Records</small>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -198,17 +185,9 @@ if ($selectedRecordId) {
                                                                class="btn btn-sm btn-primary">
                                                                 <i class="fas fa-eye"></i> View
                                                             </a>
-                                                            <button class="btn btn-info btn-sm print-record"
-                                                                data-record-id="<?= htmlspecialchars($row['record_id']) ?>">
+                                                            <a href="#" class="btn btn-sm btn-info">
                                                                 <i class="fas fa-print"></i> Print
-                                                            </button>
-                                                            <form method="POST" action="index.php" class="d-inline">
-                                                                <input type="hidden" name="clone_record_id"
-                                                                    value="<?= htmlspecialchars($row['record_id']) ?>">
-                                                                <button type="submit" class="btn btn-warning btn-sm">
-                                                                    <i class="fas fa-clone"></i> Apply to Form
-                                                                </button>
-                                                            </form>
+                                                            </a>
                                                         </td>
                                                     </tr>
                                                 <?php endwhile; ?>
@@ -226,6 +205,12 @@ if ($selectedRecordId) {
                 </div>
             </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="../js/scripts.js"></script>
+
     <script>
         $(document).ready(function() {
             $('#parametersTable').DataTable({
@@ -233,14 +218,7 @@ if ($selectedRecordId) {
                 "order": [[ 3, "desc" ]], // Sort by date column descending
                 "columnDefs": [
                     { "orderable": false, "targets": 5 } // Disable sorting on Actions column
-                ],
-                "responsive": true
-            });
-
-            // Print record handler
-            $('.print-record').click(function () {
-                const recordId = $(this).data('record-id');
-                window.open('print_record.php?record_id=' + recordId, '_blank');
+                ]
             });
         });
     </script>

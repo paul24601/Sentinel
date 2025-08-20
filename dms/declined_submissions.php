@@ -7,16 +7,15 @@ if (!isset($_SESSION['full_name'])) {
     header("Location: ../login.html");
     exit();
 }
-// Database connection details
-$servername = "localhost";
-$username = "root";
-$password = "injectionadmin123";
-$dbname = "dailymonitoringsheet";
+// Load the centralized configuration
+require_once __DIR__ . '/../includes/database.php';
+require_once __DIR__ . '/../includes/admin_notifications.php';
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Get database connection using the centralized system
+try {
+    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+} catch (Exception $e) {
+    die("Database connection failed: " . $e->getMessage());
 }
 
 // (Redundant check can be kept for safety)
@@ -99,30 +98,9 @@ $stmt->bind_param("s", $full_name);
 $stmt->execute();
 $result = $stmt->get_result();
 
-// Function to get submissions for notifications
-function getPendingSubmissions($conn)
-{
-    $pending = [];
-    // Get the user's role from the session
-    $role = $_SESSION['role'];
-
-    // Base query for submissions
-    $sql_pending = "SELECT id, product_name, `date` FROM submissions";
-    
-    // Sort by date descending
-    $sql_pending .= " ORDER BY `date` DESC LIMIT 10";
-
-    $result_pending = $conn->query($sql_pending);
-    if ($result_pending && $result_pending->num_rows > 0) {
-        while ($row = $result_pending->fetch_assoc()) {
-            $pending[] = $row;
-        }
-    }
-    return $pending;
-}
-
-$pending_submissions = getPendingSubmissions($conn);
-$pending_count = count($pending_submissions);
+// Get admin notifications for current user
+$admin_notifications = getAdminNotifications($_SESSION['id_number'], $_SESSION['role']);
+$notification_count = getUnviewedNotificationCount($_SESSION['id_number'], $_SESSION['full_name']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -171,28 +149,57 @@ $pending_count = count($pending_submissions);
                 <a class="nav-link dropdown-toggle position-relative" id="notifDropdown" href="#" role="button"
                     data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fas fa-bell"></i>
-                    <?php if ($pending_count > 0): ?>
+                    <?php if ($notification_count > 0): ?>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            <?php echo $pending_count; ?>
+                            <?php echo $notification_count; ?>
                         </span>
                     <?php endif; ?>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown"
-                    style="max-height:300px; overflow-y:auto;">
-                    <?php if ($pending_count > 0): ?>
-                        <?php foreach ($pending_submissions as $pending): ?>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown" style="max-width: 350px; max-height:300px; overflow-y:auto;">
+                    <?php if (!empty($admin_notifications)): ?>
+                        <li class="dropdown-header">
+                            <i class="fas fa-bell me-1"></i> Recent Notifications
+                        </li>
+                        <?php foreach ($admin_notifications as $notification): ?>
                             <li>
-                                <a class="dropdown-item notification-link"
-                                    href="approval.php?refresh=1#submission-<?php echo $pending['id']; ?>">
-                                    Submission #<?php echo $pending['id']; ?> -
-                                    <?php echo htmlspecialchars($pending['product_name']); ?>
-                                    <br>
-                                    <small><?php echo date("M d, Y", strtotime($pending['date'])); ?></small>
+                                <a class="dropdown-item notification-item <?php echo !$notification['is_viewed'] ? 'bg-light' : ''; ?>" 
+                                   href="#" 
+                                   onclick="markAsViewed(<?php echo $notification['id']; ?>)"
+                                   data-notification-id="<?php echo $notification['id']; ?>">
+                                    <div class="d-flex align-items-start">
+                                        <div class="me-2">
+                                            <i class="<?php echo getNotificationIcon($notification['notification_type']); ?>"></i>
+                                            <?php if ($notification['is_urgent']): ?>
+                                                <span class="badge bg-danger badge-sm">!</span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1 small"><?php echo htmlspecialchars($notification['title']); ?></h6>
+                                            <p class="mb-1 small text-muted">
+                                                <?php echo htmlspecialchars(substr($notification['message'], 0, 80)); ?>
+                                                <?php if (strlen($notification['message']) > 80): ?>...<?php endif; ?>
+                                            </p>
+                                            <small class="text-muted"><?php echo timeAgo($notification['created_at']); ?></small>
+                                            <?php if (!$notification['is_viewed']): ?>
+                                                <span class="badge bg-primary badge-sm ms-1">New</span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
                                 </a>
                             </li>
+                            <li><hr class="dropdown-divider"></li>
                         <?php endforeach; ?>
+                        <?php if ($_SESSION['role'] === 'admin'): ?>
+                            <li>
+                                <a class="dropdown-item text-center" href="../admin/notifications.php">
+                                    <i class="fas fa-cog me-1"></i> Manage Notifications
+                                </a>
+                            </li>
+                        <?php endif; ?>
                     <?php else: ?>
-                        <li><span class="dropdown-item-text">No pending submissions.</span></li>
+                        <li>
+                            <span class="dropdown-item-text">No notifications available.</span>
+                        </li>
                     <?php endif; ?>
                 </ul>
             </li>
@@ -554,8 +561,63 @@ $pending_count = count($pending_submissions);
                 editModal.show();
             });
 
+            // Notification functions
+            window.markAsViewed = function(notificationId) {
+                fetch('../includes/mark_notification_viewed.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'notification_id=' + notificationId
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the notification item appearance
+                        const notificationItem = document.querySelector('[data-notification-id="' + notificationId + '"]');
+                        if (notificationItem) {
+                            notificationItem.classList.remove('bg-light');
+                            const newBadge = notificationItem.querySelector('.badge.bg-primary');
+                            if (newBadge) {
+                                newBadge.remove();
+                            }
+                        }
+                        
+                        // Update the notification count
+                        updateNotificationCount();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error marking notification as viewed:', error);
+                });
+            };
 
-
+            window.updateNotificationCount = function() {
+                fetch('../includes/admin_notifications.php?action=count')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.querySelector('#notifDropdown .badge');
+                    if (data.count > 0) {
+                        if (badge) {
+                            badge.textContent = data.count;
+                        } else {
+                            // Create badge if it doesn't exist
+                            const bell = document.querySelector('#notifDropdown i');
+                            const newBadge = document.createElement('span');
+                            newBadge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger';
+                            newBadge.textContent = data.count;
+                            bell.parentNode.appendChild(newBadge);
+                        }
+                    } else {
+                        if (badge) {
+                            badge.remove();
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating notification count:', error);
+                });
+            };
         });
     </script>
 </body>

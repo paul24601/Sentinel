@@ -252,6 +252,9 @@ while ($row = $result->fetch_assoc()) {
                 </div>
             </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../js/scripts.js"></script>
     <script>
         // Status Distribution Chart
         new Chart(document.getElementById('statusChart'), {
@@ -372,3 +375,4 @@ while ($row = $result->fetch_assoc()) {
     </script>
 
 <?php include '../includes/navbar_close.php'; ?>
+<?php $conn->close(); ?>

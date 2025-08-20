@@ -1,0 +1,901 @@
+<?php
+session_start();
+if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'supervisor' && $_SESSION['role'] !== 'admin')) {
+    echo "<!DOCTYPE html>
+    <html lang='en'>
+    <head>
+        <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <title>Access Denied</title>
+        <!-- Bootstrap CSS -->
+        <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css' rel='stylesheet'>
+    </head>
+    <body class='bg-light d-flex align-items-center justify-content-center vh-100'>
+        <div class='container'>
+            <div class='row'>
+                <div class='col-md-6 offset-md-3'>
+                    <div class='alert alert-danger text-center'>
+                        <h4 class='alert-heading'>Access Denied</h4>
+                        <p>You are not authorized to view this page. Only supervisors or admins can access it.</p>
+                        <hr>
+                        <button onclick='goBack()' class='btn btn-outline-danger'>Return to Previous Page</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Bootstrap JS -->
+        <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js'></script>
+        <!-- JavaScript to go back to the previous page -->
+        <script>
+            function goBack() {
+                window.history.back();
+            }
+        </script>
+    </body>
+    </html>";
+    exit();
+}
+// --- Database Connection & Notification Functionality --- //
+// Load the centralized configuration
+require_once __DIR__ . '/../includes/database.php';
+require_once __DIR__ . '/../includes/admin_notifications.php';
+
+// Get database connection using the centralized system
+try {
+    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+} catch (Exception $e) {
+    die("Database connection failed: " . $e->getMessage());
+}
+
+// Get admin notifications for current user
+$admin_notifications = getAdminNotifications($_SESSION['id_number'], $_SESSION['role']);
+$notification_count = getUnviewedNotificationCount($_SESSION['id_number'], $_SESSION['full_name']);
+?>
+
+
+<?php
+// Load the centralized configuration
+require_once __DIR__ . '/../includes/database.php';
+
+// Get database connection using the centralized system
+try {
+    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+} catch (Exception $e) {
+    die("Database connection failed: " . $e->getMessage());
+}
+
+// REMARKS
+// SQL query to fetch unique product names
+$sqlProductNames = "SELECT DISTINCT product_name FROM submissions WHERE product_name IS NOT NULL ORDER BY product_name";
+$resultProductNames = $conn->query($sqlProductNames);
+
+$productNames = [];
+if ($resultProductNames->num_rows > 0) {
+    while ($row = $resultProductNames->fetch_assoc()) {
+        $productNames[] = $row['product_name'];
+    }
+}
+
+// SQL query to fetch product remarks along with date, mold code, and cycle time difference
+$sqlRemarks = "SELECT product_name, date, mold_code, remarks, 
+                      (cycle_time_target - cycle_time_actual) AS cycle_time_difference 
+               FROM submissions 
+               WHERE remarks IS NOT NULL 
+                 AND (cycle_time_target - cycle_time_actual) < 0
+               ORDER BY product_name, date";
+
+$resultRemarks = $conn->query($sqlRemarks);
+
+$remarksData = [];
+if ($resultRemarks->num_rows > 0) {
+    while ($row = $resultRemarks->fetch_assoc()) {
+        $product_name = $row['product_name'];
+        if (!isset($remarksData[$product_name])) {
+            $remarksData[$product_name] = [];
+        }
+        $remarksData[$product_name][] = [
+            'date' => $row['date'],
+            'mold_code' => $row['mold_code'],
+            'remark' => $row['remarks'],
+            'cycle_time_difference' => $row['cycle_time_difference']
+        ];
+    }
+}
+
+// PRODUCT VARIANCE
+$sqlProductVariance = "SELECT product_name, 
+                              date,
+                              machine,
+                              cycle_time_target, 
+                              cycle_time_actual 
+                       FROM submissions 
+                       WHERE cycle_time_target IS NOT NULL 
+                         AND cycle_time_actual IS NOT NULL";
+
+$resultProductVariance = $conn->query($sqlProductVariance);
+$productVarianceData = [];
+
+if ($resultProductVariance->num_rows > 0) {
+    while ($row = $resultProductVariance->fetch_assoc()) {
+        $target = $row['cycle_time_target'];
+        $actual = $row['cycle_time_actual'];
+        $productName = $row['product_name'];
+        $date = $row['date'];
+        $machine = $row['machine'];
+
+        // Check if target is zero to avoid division by zero
+        if ($target == 0) {
+            $variancePercentage = 0;
+        } else {
+            $variancePercentage = (($actual - $target) / $target) * 100;
+        }
+
+        $productVarianceData[] = [
+            'product_name' => $productName,
+            'date' => $date,
+            'machine' => $machine,
+            'variance_percentage' => $variancePercentage
+        ];
+    }
+}
+
+// Fetching unique combinations of machines and mold codes with dates
+$sqlMachineMoldCombination = "SELECT product_name, CONCAT(machine, ' - ', mold_code) AS machine_mold_combination, date 
+                              FROM submissions 
+                              WHERE machine IS NOT NULL 
+                                AND mold_code IS NOT NULL 
+                              ORDER BY date, machine, mold_code";
+
+$resultMachineMoldCombination = $conn->query($sqlMachineMoldCombination);
+
+$machineMoldData = [];
+if ($resultMachineMoldCombination->num_rows > 0) {
+    while ($row = $resultMachineMoldCombination->fetch_assoc()) {
+        $machineMoldData[] = [
+            'product_name' => $row['product_name'],
+            'machine_mold_combination' => $row['machine_mold_combination'],
+            'date' => $row['date']
+        ];
+    }
+}
+
+// Connection will be closed automatically by DatabaseManager
+?>
+<?php include '../includes/navbar.php'; ?>
+<script>
+    function toggleFilters() {
+        const sortBy = document.getElementById('sortBy');
+        const dayFilters = document.getElementById('dayFilters');
+        const weekFilters = document.getElementById('weekFilters');
+        const monthFilters = document.getElementById('monthFilters');
+        const yearFilters = document.getElementById('yearFilters');
+        const allTimeFilters = document.getElementById('allTimeFilters');
+
+        const sortByValue = sortBy ? sortBy.value : 'day';
+
+        if (dayFilters) dayFilters.style.display = sortByValue === 'day' ? 'block' : 'none';
+        if (weekFilters) weekFilters.style.display = sortByValue === 'week' ? 'block' : 'none';
+        if (monthFilters) monthFilters.style.display = sortByValue === 'month' ? 'block' : 'none';
+        if (yearFilters) yearFilters.style.display = sortByValue === 'year' ? 'block' : 'none';
+        if (allTimeFilters) allTimeFilters.style.display = sortByValue === 'all_time' ? 'block' : 'none';
+    }
+    window.onload = toggleFilters; // Call on load to set initial visibility
+</script>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- jQuery DataTables CSS for better UI -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+            <main>
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>DMS - Analytics</title>
+    <link href="../css/styles.css" rel="stylesheet" />
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- jQuery DataTables CSS for better UI -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    <script>
+        function toggleFilters() {
+            const sortBy = document.getElementById('sortBy');
+            const dayFilters = document.getElementById('dayFilters');
+            const weekFilters = document.getElementById('weekFilters');
+            const monthFilters = document.getElementById('monthFilters');
+            const yearFilters = document.getElementById('yearFilters');
+
+            if (!sortBy) return; // Safety check
+            
+            const sortByValue = sortBy.value;
+            const allTimeFilters = document.getElementById('allTimeFilters');
+
+            if (dayFilters) dayFilters.style.display = sortByValue === 'day' ? 'block' : 'none';
+            if (weekFilters) weekFilters.style.display = sortByValue === 'week' ? 'block' : 'none';
+            if (monthFilters) monthFilters.style.display = sortByValue === 'month' ? 'block' : 'none';
+            if (yearFilters) yearFilters.style.display = sortByValue === 'year' ? 'block' : 'none';
+            if (allTimeFilters) allTimeFilters.style.display = sortByValue === 'all_time' ? 'block' : 'none';
+        }
+        window.onload = toggleFilters; // Call on load to set initial visibility
+    </script>
+</head>
+
+<body class="sb-nav-fixed">
+    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+        <!-- Navbar Brand-->
+        <a class="navbar-brand ps-3" href="../index.php">Sentinel Digitization</a>
+        <!-- Sidebar Toggle-->
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i
+                class="fas fa-bars"></i></button>
+        <!-- Navbar Search-->
+        <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+
+        </form>
+        <!-- Navbar-->
+        <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+            <!-- Notification Dropdown -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle position-relative" id="notifDropdown" href="#" role="button"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-bell"></i>
+                    <?php if ($notification_count > 0): ?>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            <?php echo $notification_count; ?>
+                        </span>
+                    <?php endif; ?>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown" style="max-width: 350px; max-height:300px; overflow-y:auto;">
+                    <?php if (!empty($admin_notifications)): ?>
+                        <li class="dropdown-header">
+                            <i class="fas fa-bell me-1"></i> Recent Notifications
+                        </li>
+                        <?php foreach ($admin_notifications as $notification): ?>
+                            <li>
+                                <a class="dropdown-item notification-item <?php echo !$notification['is_viewed'] ? 'bg-light' : ''; ?>" 
+                                   href="#" 
+                                   onclick="markAsViewed(<?php echo $notification['id']; ?>)"
+                                   data-notification-id="<?php echo $notification['id']; ?>">
+                                    <div class="d-flex align-items-start">
+                                        <div class="me-2">
+                                            <i class="<?php echo getNotificationIcon($notification['notification_type']); ?>"></i>
+                                            <?php if ($notification['is_urgent']): ?>
+                                                <span class="badge bg-danger badge-sm">!</span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1 small"><?php echo htmlspecialchars($notification['title']); ?></h6>
+                                            <p class="mb-1 small text-muted">
+                                                <?php echo htmlspecialchars(substr($notification['message'], 0, 80)); ?>
+                                                <?php if (strlen($notification['message']) > 80): ?>...<?php endif; ?>
+                                            </p>
+                                            <small class="text-muted"><?php echo timeAgo($notification['created_at']); ?></small>
+                                            <?php if (!$notification['is_viewed']): ?>
+                                                <span class="badge bg-primary badge-sm ms-1">New</span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                        <?php endforeach; ?>
+                        <?php if ($_SESSION['role'] === 'admin'): ?>
+                            <li>
+                                <a class="dropdown-item text-center" href="../admin/notifications.php">
+                                    <i class="fas fa-cog me-1"></i> Manage Notifications
+                                </a>
+                            </li>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <li>
+                            <span class="dropdown-item-text">No notifications available.</span>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
+                    aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" href="#!">Settings</a></li>
+                    <li><a class="dropdown-item" href="#!">Activity Log</a></li>
+                    <li>
+                        <hr class="dropdown-divider" />
+                    </li>
+                    <li><a class="dropdown-item" href="../logout.php">Logout</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+    <div id="layoutSidenav">
+        <div id="layoutSidenav_nav">
+            <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+                <div class="sb-sidenav-menu">
+                    <div class="nav">
+                        <div class="sb-sidenav-menu-heading">Core</div>
+                        <a class="nav-link" href="../index.php">
+                            <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                            Dashboard
+                        </a>
+                        <div class="sb-sidenav-menu-heading">Systems</div>
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseDMS"
+                            aria-expanded="false" aria-controls="collapseDMS">
+                            <div class="sb-nav-link-icon"><i class="fas fa-people-roof"></i></div>
+                            DMS
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+                        <div class="collapse show" id="collapseDMS" aria-labelledby="headingOne"
+                            data-bs-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" href="index.php">Data Entry</a>
+                                <a class="nav-link" href="submission.php">Records</a>
+                                <a class="nav-link active" href="#">Analytics</a>
+                            </nav>
+                        </div>
+
+
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
+                            data-bs-target="#collapseParameters" aria-expanded="false"
+                            aria-controls="collapseParameters">
+                            <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                            Parameters
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+                        <div class="collapse" id="collapseParameters" aria-labelledby="headingOne"
+                            data-bs-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" href="../parameters/index.php">Data Entry</a>
+                                <a class="nav-link" href="../parameters/submission.php">Data Visualization</a>
+                                <a class="nav-link" href="../parameters/analytics.php">Data Analytics</a>
+                            </nav>
+                        </div>
+                        <div class="sb-sidenav-menu-heading">Admin</div>
+                        <a class="nav-link" href="../admin/users.php">
+                            <div class="sb-nav-link-icon"><i class="fas fa-user-group"></i></div>
+                            Users
+                        </a>
+                        <a class="nav-link" href="charts.html">
+                            <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                            Values
+                        </a>
+                        <a class="nav-link" href="tables.html">
+                            <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                            Analysis
+                        </a>
+                    </div>
+                </div>
+                <div class="sb-sidenav-footer">
+                    <div class="small">Logged in as:</div>
+                    <?php echo $_SESSION['full_name']; ?>
+                </div>
+            </nav>
+        </div>
+        <div id="layoutSidenav_content">
+            <main>
+                <div class="container-fluid p-4">
+                    <h1 class="">Analytics</h1>
+                    <ol class="breadcrumb mb-4">
+                        <li class="breadcrumb-item active">Injection Department</li>
+                    </ol>
+                    <!-- charts -->
+                    <div class="container-fluid my-5">
+                        <div class="row row-cols-1">
+                            <!-- Cycle Time Variance Dashboard -->
+                            <div class="col">
+                                <div class="card shadow mb-3">
+                                    <div class="card-header bg-primary text-white text-center">
+                                        <h2>Cycle Time Variance by Product</h2>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table id="cycleTimeVarianceTable" class="table table-striped table-hover"
+                                                style="width:100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Date</th>
+                                                        <th>Product Name</th>
+                                                        <th>Machine Number</th>
+                                                        <th>Variance Percentage</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($productVarianceData as $data): ?>
+                                                        <tr>
+                                                            <td><?php echo htmlspecialchars($data['date']); ?></td>
+                                                            <td><?php echo htmlspecialchars($data['product_name']); ?></td>
+                                                            <td><?php echo htmlspecialchars($data['machine']); ?></td>
+                                                            <td><?php echo number_format($data['variance_percentage'], 2); ?>%
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Remarks Dashboard -->
+                            <div class="col">
+                                <!-- Container for dropdown and remarks display -->
+                                <div class="card shadow mb-3">
+                                    <div class="card-header bg-primary text-white text-center">
+                                        <h2>Product Remarks</h2>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label for="productDropdown" class="form-label">Select Product:</label>
+                                            <select id="productDropdown" class="form-select"
+                                                onchange="loadRemarksTable()">
+                                                <option value="">Select a product</option>
+                                                <?php foreach ($productNames as $product_name): ?>
+                                                    <option value="<?php echo htmlspecialchars($product_name); ?>">
+                                                        <?php echo htmlspecialchars($product_name); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+
+                                        <div id="remarksContainer" class="table-responsive">
+                                            <table id="remarksTable" class="table table-striped table-hover" style="width:100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Date</th>
+                                                        <th>Mold Number</th>
+                                                        <th>Remark</th>
+                                                        <th>Cycle Time Difference</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <!-- Table rows will be dynamically inserted here -->
+                                                </tbody>
+                                            </table>
+                                            <p class="text-muted" id="noDataMessage">Select a product name to view
+                                                remarks.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Mold Machine Combination Chart -->
+                            <div class="col">
+                                <div class="card shadow mb-3">
+                                    <div class="card-header bg-primary text-white text-center">
+                                        <h2>Machine-Mold Combinations Over Time</h2>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label for="productFilter" class="form-label">Filter by Product:</label>
+                                            <select id="productFilter" class="form-select">
+                                                <option value="all">All Products</option>
+                                                <?php foreach ($productNames as $product_name): ?>
+                                                    <option value="<?php echo htmlspecialchars($product_name); ?>">
+                                                        <?php echo htmlspecialchars($product_name); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                        <canvas id="machineMoldChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- remarks section will be initialized by scripts at bottom -->
+
+
+                    <!-- Chart.js Script -->
+                    <script>
+                        const machineMoldData = <?php echo json_encode($machineMoldData); ?>;
+
+                        function formatDataForBarChart(data) {
+                            // Count occurrences of machine-mold combinations for each product
+                            const counts = {};
+                            data.forEach(item => {
+                                if (!counts[item.machine_mold_combination]) {
+                                    counts[item.machine_mold_combination] = 0;
+                                }
+                                counts[item.machine_mold_combination]++;
+                            });
+
+                            return {
+                                labels: Object.keys(counts),
+                                data: Object.values(counts)
+                            };
+                        }
+
+                        const ctx = document.getElementById('machineMoldChart').getContext('2d');
+                        let machineMoldChart;
+
+                        function calculateSmoothedTrendLine(data) {
+                            // Generate x-values as the indices of the data points
+                            const xValues = Array.from({ length: data.length }, (_, i) => i + 1);
+                            const yValues = data;
+
+                            // Interpolate y-values for smoothing using cubic spline or similar
+                            // For simplicity, we'll use a lightweight smoothing function
+                            const smoothedYValues = [];
+                            for (let i = 0; i < yValues.length; i++) {
+                                const prev = yValues[i - 1] || yValues[i];
+                                const next = yValues[i + 1] || yValues[i];
+                                smoothedYValues.push((prev + yValues[i] + next) / 3);
+                            }
+
+                            return smoothedYValues;
+                        }
+
+                        function createBarChart(filteredData) {
+                            if (machineMoldChart) {
+                                machineMoldChart.destroy(); // Destroy previous chart instance if it exists
+                            }
+
+                            const chartData = formatDataForBarChart(filteredData);
+
+                            // Calculate smoothed trend line data
+                            const smoothedTrendLineData = calculateSmoothedTrendLine(chartData.data);
+
+                            machineMoldChart = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: chartData.labels,
+                                    datasets: [
+                                        {
+                                            label: 'Occurrences of Machine-Mold Combinations',
+                                            data: chartData.data,
+                                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                            borderColor: 'rgba(54, 162, 235, 1)',
+                                            borderWidth: 1
+                                        },
+                                        {
+                                            label: 'Smoothed Trend Line',
+                                            data: smoothedTrendLineData,
+                                            type: 'line',
+                                            borderColor: 'rgba(255, 99, 132, 1)',
+                                            borderWidth: 2,
+                                            fill: false,
+                                            pointRadius: 0,
+                                            tension: 0.4
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    scales: {
+                                        x: {
+                                            title: {
+                                                display: true,
+                                                text: 'Machine-Mold Combinations'
+                                            }
+                                        },
+                                        y: {
+                                            beginAtZero: true,
+                                            title: {
+                                                display: true,
+                                                text: 'Occurrences'
+                                            }
+                                        }
+                                    },
+                                    plugins: {
+                                        legend: {
+                                            display: true
+                                        },
+                                        tooltip: {
+                                            callbacks: {
+                                                label: function (tooltipItem) {
+                                                    return tooltipItem.datasetIndex === 0
+                                                        ? `Occurrences: ${tooltipItem.raw}`
+                                                        : `Trend Line Value: ${tooltipItem.raw.toFixed(2)}`;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
+                        function filterDataByProduct(productName) {
+                            const filteredData = productName === 'all'
+                                ? machineMoldData
+                                : machineMoldData.filter(item => item.product_name === productName);
+                            createBarChart(filteredData);
+                        }
+
+
+                        document.getElementById('productFilter').addEventListener('change', function () {
+                            const productName = this.value;
+                            filterDataByProduct(productName);
+                        });
+
+                        // Initialize chart with all data
+                        filterDataByProduct('all');
+
+                    </script>
+
+
+                </div>
+            </main>
+
+<?php include '../includes/navbar_close.php'; ?>
+    <!-- jQuery and DataTables JS - Must load in correct order -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.6/js/jquery.dataTables.min.js"></script>
+    <!-- Chart.js and adapters -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <!-- Load theme scripts -->
+    <script src="../js/scripts.js"></script>
+
+    <!-- Initialize DataTables and functionality -->
+    <script>
+        $(document).ready(function() {
+            console.log('jQuery loaded:', typeof $ !== 'undefined');
+            console.log('DataTables available:', typeof $.fn.DataTable !== 'undefined');
+            
+            // PHP array to JavaScript
+            const remarksData = <?php echo json_encode($remarksData); ?>;
+
+            // Initialize DataTable for remarks
+            const remarksTable = $('#remarksTable').DataTable({
+                responsive: true,
+                paging: true,
+                searching: true,
+                ordering: true,
+                pageLength: 25,
+                language: {
+                    search: "Search remarks:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries"
+                }
+            });
+
+            // Function to load remarks based on selected machine
+            function loadRemarksTable() {
+                const selectProduct = $('#productDropdown').val();
+
+                // Clear previous table data
+                remarksTable.clear().draw();
+
+                if (selectProduct && remarksData[selectProduct]) {
+                    // Hide no data message
+                    $('#noDataMessage').hide();
+
+                    // Populate table with remarks data
+                    remarksData[selectProduct].forEach(remark => {
+                        remarksTable.row.add([
+                            remark.date,
+                            remark.mold_code,
+                            remark.remark,
+                            remark.cycle_time_difference
+                        ]).draw();
+                    });
+                } else {
+                    $('#noDataMessage').show();
+                }
+            }
+
+            // Make loadRemarksTable available globally
+            window.loadRemarksTable = loadRemarksTable;
+
+            // Initialize DataTable for cycle time variance
+            const cycleTimeTable = $('#cycleTimeVarianceTable').DataTable({
+                responsive: true,
+                paging: true,
+                searching: true,
+                ordering: true,
+                pageLength: 25,
+                order: [[3, 'desc']], // Order by Variance Percentage by default
+                columnDefs: [
+                    { targets: 3, orderable: true } // Enable sorting on Variance Percentage
+                ],
+                language: {
+                    search: "Search cycle times:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries"
+                }
+            });
+
+    </div>
+    
+    <!-- Load jQuery first -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Load Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Load DataTables -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    
+    <!-- Load Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    
+    <!-- Load theme scripts -->
+    <script src="../js/scripts.js"></script>
+
+    <!-- Initialize DataTables and functionality -->
+    <script>
+        $(document).ready(function() {
+            // Initialize Cycle Time Variance DataTable
+            const cycleTimeTable = $('#cycleTimeVarianceTable').DataTable({
+                responsive: true,
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                order: [[3, 'desc']], // Order by Variance Percentage by default
+                columnDefs: [
+                    { 
+                        targets: 3, 
+                        render: function(data, type, row) {
+                            const variance = parseFloat(data);
+                            let className = '';
+                            if (variance >= 26.00) {
+                                className = 'bg-danger text-white';
+                            } else if (variance >= 11.00) {
+                                className = 'bg-warning';
+                            } else if (variance >= 1.00) {
+                                className = 'bg-info';
+                            }
+                            return `<span class="${className} px-2 py-1 rounded">${data}%</span>`;
+                        }
+                    }
+                ],
+                language: {
+                    search: "Search cycle times:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    infoEmpty: "Showing 0 to 0 of 0 entries",
+                    infoFiltered: "(filtered from _MAX_ total entries)",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                }
+            });
+
+            // Initialize Remarks DataTable (initially empty)
+            let remarksTable = $('#remarksTable').DataTable({
+                responsive: true,
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                order: [[0, 'desc']], // Order by Date by default
+                language: {
+                    search: "Search remarks:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    infoEmpty: "Showing 0 to 0 of 0 entries",
+                    infoFiltered: "(filtered from _MAX_ total entries)",
+                    emptyTable: "Select a product to view remarks",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                }
+            });
+
+            // PHP array to JavaScript
+            const remarksData = <?php echo json_encode($remarksData); ?>;
+
+            // Function to load remarks based on selected machine
+            window.loadRemarksTable = function() {
+                const selectProduct = $('#productDropdown').val();
+                const noDataMessage = $('#noDataMessage');
+                
+                // Clear the table
+                remarksTable.clear();
+                
+                if (selectProduct && remarksData[selectProduct]) {
+                    // Hide no data message
+                    noDataMessage.hide();
+                    
+                    // Add new data to the table
+                    remarksData[selectProduct].forEach(function(remark) {
+                        remarksTable.row.add([
+                            remark.date,
+                            remark.mold_code,
+                            remark.remark,
+                            remark.cycle_time_difference
+                        ]);
+                    });
+                    
+                    // Draw the table with new data
+                    remarksTable.draw();
+                } else {
+                    // Show no data message
+                    noDataMessage.show();
+                    // Draw empty table
+                    remarksTable.draw();
+                }
+            };
+
+            // Initialize product dropdown change event
+            $('#productDropdown').on('change', function() {
+                loadRemarksTable();
+            });
+
+            // Initial load
+            loadRemarksTable();
+
+            // Notification functions
+            window.markAsViewed = function(notificationId) {
+                fetch('../includes/mark_notification_viewed.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'notification_id=' + notificationId
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the notification item appearance
+                        const notificationItem = document.querySelector('[data-notification-id="' + notificationId + '"]');
+                        if (notificationItem) {
+                            notificationItem.classList.remove('bg-light');
+                            const newBadge = notificationItem.querySelector('.badge.bg-primary');
+                            if (newBadge) {
+                                newBadge.remove();
+                            }
+                        }
+                        
+                        // Update the notification count
+                        updateNotificationCount();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error marking notification as viewed:', error);
+                });
+            };
+
+            window.updateNotificationCount = function() {
+                fetch('../includes/admin_notifications.php?action=count')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.querySelector('#notifDropdown .badge');
+                    if (data.count > 0) {
+                        if (badge) {
+                            badge.textContent = data.count;
+                        } else {
+                            // Create badge if it doesn't exist
+                            const bell = document.querySelector('#notifDropdown i');
+                            const newBadge = document.createElement('span');
+                            newBadge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger';
+                            newBadge.textContent = data.count;
+                            bell.parentNode.appendChild(newBadge);
+                        }
+                    } else {
+                        if (badge) {
+                            badge.remove();
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating notification count:', error);
+                });
+            };
+        });
+    </script>
+
+</body>
+
+</html>

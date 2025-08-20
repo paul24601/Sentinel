@@ -1,13 +1,22 @@
 <?php
-require_once 'session_config.php';
+// Set timezone to Philippine Time (UTC+8)
+date_default_timezone_set('Asia/Manila');
 
-// Load centralized database configuration
-require_once __DIR__ . '/../includes/database.php';
-require_once __DIR__ . '/../includes/admin_notifications.php';
+session_start(); // Start the session to access session variables
 
 // Check if the user is logged in
 if (!isset($_SESSION['full_name'])) {
+    // If not logged in, redirect to the login page
     header("Location: ../login.html");
+    exit();
+}
+
+// Check session validity
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 1800)) {
+    // Session has expired
+    session_unset();
+    session_destroy();
+    header("Location: ../login.html?error=" . urlencode("Session expired. Please log in again."));
     exit();
 }
 
@@ -19,6 +28,10 @@ require_once __DIR__ . '/../includes/admin_notifications.php';
 
 // Get admin notifications for current user
 $admin_notifications = getAdminNotifications($_SESSION['id_number'], $_SESSION['role']);
+$notification_count = count(array_filter($admin_notifications, function($n) { return !$n['is_viewed']; }));
+
+// Include centralized navbar
+include '../includes/navbar.php';
 $notification_count = getUnviewedNotificationCount($_SESSION['id_number'], $_SESSION['full_name']);
 ?>
 <?php
@@ -116,19 +129,195 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
             $stmt->close();
         }
     }
-}
 
-// Include centralized navbar
-include '../includes/navbar.php';
+    $conn->close();
+}
 ?>
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Parameters - Data Entry</title>
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
+    <link href="../css/styles.css" rel="stylesheet" />
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- jQuery UI for Autocomplete -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+
+</head>
+
+<body class="sb-nav-fixed">
+    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+        <!-- Navbar Brand-->
+        <a class="navbar-brand ps-3" href="../index.php">Sentinel Digitization</a>
+        <!-- Sidebar Toggle-->
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i
+                class="fas fa-bars"></i></button>
+        <!-- Navbar Search-->
+        <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+
+        </form>
+        <!-- Navbar-->
+        <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+            <!-- Notification Dropdown -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle position-relative" id="notifDropdown" href="#" role="button"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-bell"></i>
+                    <?php if ($notification_count > 0): ?>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            <?php echo $notification_count; ?>
+                        </span>
+                    <?php endif; ?>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown" style="max-width: 350px; max-height:300px; overflow-y:auto;">
+                    <?php if (!empty($admin_notifications)): ?>
+                        <li class="dropdown-header">
+                            <i class="fas fa-bell me-1"></i> Recent Notifications
+                        </li>
+                        <?php foreach ($admin_notifications as $notification): ?>
+                            <li>
+                                <a class="dropdown-item notification-item <?php echo !$notification['is_viewed'] ? 'bg-light' : ''; ?>" 
+                                   href="#" 
+                                   onclick="markAsViewed(<?php echo $notification['id']; ?>)"
+                                   data-notification-id="<?php echo $notification['id']; ?>">
+                                    <div class="d-flex align-items-start">
+                                        <div class="me-2">
+                                            <i class="<?php echo getNotificationIcon($notification['notification_type']); ?>"></i>
+                                            <?php if ($notification['is_urgent']): ?>
+                                                <span class="badge bg-danger badge-sm">!</span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1 small"><?php echo htmlspecialchars($notification['title']); ?></h6>
+                                            <p class="mb-1 small text-muted">
+                                                <?php echo htmlspecialchars(substr($notification['message'], 0, 80)); ?>
+                                                <?php if (strlen($notification['message']) > 80): ?>...<?php endif; ?>
+                                            </p>
+                                            <small class="text-muted"><?php echo timeAgo($notification['created_at']); ?></small>
+                                            <?php if (!$notification['is_viewed']): ?>
+                                                <span class="badge bg-primary badge-sm ms-1">New</span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                        <?php endforeach; ?>
+                        <?php if ($_SESSION['role'] === 'admin'): ?>
+                            <li>
+                                <a class="dropdown-item text-center" href="../admin/notifications.php">
+                                    <i class="fas fa-cog me-1"></i> Manage Notifications
+                                </a>
+                            </li>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <li>
+                            <span class="dropdown-item-text">No notifications available.</span>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </li>
+            <!-- User Dropdown -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
+                    aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" href="#!">Settings</a></li>
+                    <li><a class="dropdown-item" href="#!">Activity Log</a></li>
+                    <li>
+                        <hr class="dropdown-divider" />
+                    </li>
+                    <li><a class="dropdown-item" href="../logout.php">Logout</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+    <div id="layoutSidenav">
+        <div id="layoutSidenav_nav">
+            <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+                <div class="sb-sidenav-menu">
+                    <div class="nav">
+                        <div class="sb-sidenav-menu-heading">Core</div>
+                        <a class="nav-link" href="../index.php">
+                            <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                            Dashboard
+                        </a>
+                        <div class="sb-sidenav-menu-heading">Systems</div>
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseDMS"
+                            aria-expanded="false" aria-controls="collapseDMS">
+                            <div class="sb-nav-link-icon"><i class="fas fa-people-roof"></i></div>
+                            DMS
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+                        <div class="collapse" id="collapseDMS" aria-labelledby="headingOne"
+                            data-bs-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" href="../dms/index.php">Data Entry</a>
+                                <a class="nav-link" href="../dms/submission.php">Records</a>
+                                <a class="nav-link" href="../dms/analytics.php">Analytics</a>
+                            </nav>
+                        </div>
+
+
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
+                            data-bs-target="#collapseParameters" aria-expanded="false"
+                            aria-controls="collapseParameters">
+                            <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                            Parameters
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+                        <div class="collapse show" id="collapseParameters" aria-labelledby="headingOne"
+                            data-bs-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link active" href="#">Data Entry</a>
+                                <a class="nav-link" href="submission.php">Data Visualization</a>
+                                <a class="nav-link" href="analytics.php">Data Analytics</a>
+                            </nav>
+                        </div>
+                        <div class="sb-sidenav-menu-heading">Admin</div>
+                        <a class="nav-link" href="../admin/users.php">
+                            <div class="sb-nav-link-icon"><i class="fas fa-user-group"></i></div>
+                            Users
+                        </a>
+                        <a class="nav-link" href="charts.html">
+                            <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                            Values
+                        </a>
+                        <a class="nav-link" href="tables.html">
+                            <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                            Analysis
+                        </a>
+                    </div>
+                </div>
+                <div class="sb-sidenav-footer">
+                    <div class="small">Logged in as:</div>
+                    <?php echo $_SESSION['full_name']; ?>
+                </div>
+            </nav>
+        </div>
+        <div id="layoutSidenav_content">
             <main>
-                <div class="container-fluid px-4">
-                    <h1 class="mt-4">Parameters Data Entry</h1>
+                <div class="container-fluid p-4">
+                    <h1 class="">Data Entry</h1>
                     <ol class="breadcrumb mb-4">
-                        <li class="breadcrumb-item"><a href="../index.php">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Parameters - Data Entry</li>
+                        <li class="breadcrumb-item active">Injection Department</li>
                     </ol>
 
+                    <!-- Notification container -->
                     <div id="notification-container">
                         <?php if (isset($_SESSION['success_message'])): ?>
                             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -2073,6 +2262,17 @@ include '../includes/navbar.php';
         </div>
     </div>
 
+    <script src="../js/scripts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+    <script src="../assets/demo/chart-area-demo.js"></script>
+    <script src="../assets/demo/chart-bar-demo.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
+        crossorigin="anonymous"></script>
+    <script src="../js/datatables-simple-demo.js"></script>
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
         const MAX_IMAGES = 5;
         const MAX_VIDEOS = 2;
@@ -3694,8 +3894,6 @@ include '../includes/navbar.php';
             };
         });
     </script>
-
-<?php include '../includes/navbar_close.php'; ?>
 
 </body>
 

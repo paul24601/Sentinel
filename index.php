@@ -77,25 +77,15 @@ if ($resultGrossBreakdown && $resultGrossBreakdown->num_rows > 0) {
     $avgWeightStandard = $avgWeightGross = $grossDifference = $grossWeightVariance = 0;
 }
 
-// Function to get pending submissions for notifications
-function getPendingSubmissions($conn)
+// Load admin notification functions
+require_once __DIR__ . '/includes/admin_notifications.php';
+
+// Function to get admin notifications for current user
+function getNotificationsForUser()
 {
-    $pending = [];
-    // Get the user's role from the session
-    $role = $_SESSION['role'];
-
-    // Base query for submissions
-    $sql_pending = "SELECT id, product_name, `date` FROM submissions";
-
-    $sql_pending .= " ORDER BY `date` DESC LIMIT 10";
-
-    $result_pending = $conn->query($sql_pending);
-    if ($result_pending && $result_pending->num_rows > 0) {
-        while ($row = $result_pending->fetch_assoc()) {
-            $pending[] = $row;
-        }
-    }
-    return $pending;
+    $userId = $_SESSION['id_number'];
+    $userRole = $_SESSION['role'];
+    return getAdminNotifications($userId, $userRole);
 }
 
 // Additional Dashboard Metrics
@@ -309,11 +299,9 @@ if ($resultMachinePerf && $resultMachinePerf->num_rows > 0) {
     $machineQuality = [0, 0, 0];
 }
 
-$pending_submissions = getPendingSubmissions($conn);
-$pending_count = count($pending_submissions);
-
-$pending_submissions = getPendingSubmissions($conn);
-$pending_count = count($pending_submissions);
+// Get admin notifications for current user
+$admin_notifications = getNotificationsForUser();
+$notification_count = getUnviewedNotificationCount($_SESSION['id_number'], $_SESSION['full_name']);
 
 // (Optional) Fetch submissions data if needed
 $sql = "SELECT * FROM submissions";
@@ -403,288 +391,84 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
     }
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
+<?php include 'includes/navbar.php'; ?>
+<style>
+    .dropdown-menu.scrollable {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .progress {
+        height: 8px;
+    }
+    
+    .table th {
+        border-top: none;
+    }
+    
+    .bg-gradient-primary {
+        background: linear-gradient(45deg, #6f42c1, #e83e8c) !important;
+    }
+    
+    .card-body h2 {
+        font-weight: 700;
+        font-size: 2.5rem;
+    }
+    
+    .card-body small {
+        font-size: 0.875rem;
+        opacity: 0.9;
+    }
+    
+    .badge {
+        font-size: 0.75rem;
+    }
+    
+    #datatablesSimple th {
+        background-color: #f8f9fa;
+        color: #495057;
+        font-weight: 600;
+    }
+    
+    .quick-stats .bg-light {
+        border: 1px solid #e9ecef;
+        transition: all 0.2s;
+    }
+    
+    .quick-stats .bg-light:hover {
+        background-color: #e9ecef !important;
+        transform: translateY(-1px);
+    }
+</style>
 
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
-    <title>Dashboard - Sentinel OJT</title>
-    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
-    <link href="css/styles.css" rel="stylesheet" />
-    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-    <style>
-        .dropdown-menu.scrollable {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .card {
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        
-        .progress {
-            height: 8px;
-        }
-        
-        .table th {
-            border-top: none;
-        }
-        
-        .bg-gradient-primary {
-            background: linear-gradient(45deg, #6f42c1, #e83e8c) !important;
-        }
-        
-        .card-body h2 {
-            font-weight: 700;
-            font-size: 2.5rem;
-        }
-        
-        .card-body small {
-            font-size: 0.875rem;
-            opacity: 0.9;
-        }
-        
-        .badge {
-            font-size: 0.75rem;
-        }
-        
-        #datatablesSimple th {
-            background-color: #f8f9fa;
-            color: #495057;
-            font-weight: 600;
-        }
-        
-        .quick-stats .bg-light {
-            border: 1px solid #e9ecef;
-            transition: all 0.2s;
-        }
-        
-        .quick-stats .bg-light:hover {
-            background-color: #e9ecef !important;
-            transform: translateY(-1px);
-        }
-    </style>
-</head>
-
-<body class="sb-nav-fixed">
-    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
-        <!-- Navbar Brand-->
-        <a class="navbar-brand ps-3" href="index.php">Sentinel OJT</a>
-        <!-- Sidebar Toggle-->
-        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
-            <i class="fas fa-bars"></i>
-        </button>
-        <!-- Navbar Search (optional)-->
-        <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0"></form>
-        <!-- Navbar Notifications and User Dropdown-->
-        <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
-            <!-- Notification Dropdown -->
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle position-relative" id="notifDropdown" href="#" role="button"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-bell"></i>
-                    <?php if ($pending_count > 0): ?>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            <?php echo $pending_count; ?>
-                        </span>
-                    <?php endif; ?>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end scrollable" aria-labelledby="notifDropdown">
-                    <?php if ($pending_count > 0): ?>
-                        <?php foreach ($pending_submissions as $pending): ?>
-                            <li>
-                                <a class="dropdown-item" href="dms/approval.php#submission-<?php echo $pending['id']; ?>">
-                                    Submission #<?php echo $pending['id']; ?> -
-                                    <?php echo htmlspecialchars($pending['product_name']); ?>
-                                    <br>
-                                    <small><?php echo date("M d, Y", strtotime($pending['date'])); ?></small>
-                                </a>
-                            </li>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <li>
-                            <span class="dropdown-item-text">No pending submissions.</span>
-                        </li>
-                    <?php endif; ?>
-                </ul>
-            </li>
-            <!-- User Dropdown -->
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                    <i class="fas fa-user fa-fw"></i>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                    <li><a class="dropdown-item" href="#!">Settings</a></li>
-                    <li><a class="dropdown-item" href="#!">Activity Log</a></li>
-                    <li>
-                        <hr class="dropdown-divider" />
-                    </li>
-                    <li><a class="dropdown-item" href="logout.php">Logout</a></li>
-                </ul>
-            </li>
-        </ul>
-    </nav>
-    <div id="layoutSidenav">
-        <div id="layoutSidenav_nav">
-            <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
-                <div class="sb-sidenav-menu">
-                    <div class="nav">
-                        <?php if ($_SESSION['role'] === 'Quality Control Inspection'): ?>
-                            <div class="sb-sidenav-menu-heading">Core</div>
-                            <a class="nav-link active" href="index.php">
-                                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                                Dashboard
-                            </a>
-
-                            <div class="sb-sidenav-menu-heading">Systems</div>
-                            <!-- DMS with only Records and Approvals -->
-                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseDMS"
-                                aria-expanded="false" aria-controls="collapseDMS">
-                                <div class="sb-nav-link-icon"><i class="fas fa-people-roof"></i></div>
-                                DMS
-                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                            </a>
-                            <div class="collapse" id="collapseDMS" aria-labelledby="headingOne"
-                                data-bs-parent="#sidenavAccordion">
-                                <nav class="sb-sidenav-menu-nested nav">
-                                    <a class="nav-link" href="dms/submission.php">Records</a>
-                                </nav>
-                            </div>
-
-                            <!-- Parameters with only Records -->
-                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
-                                data-bs-target="#collapseParameters" aria-expanded="false"
-                                aria-controls="collapseParameters">
-                                <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                                Parameters
-                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                            </a>
-                            <div class="collapse" id="collapseParameters" aria-labelledby="headingOne"
-                                data-bs-parent="#sidenavAccordion">
-                                <nav class="sb-sidenav-menu-nested nav">
-                                    <a class="nav-link" href="parameters/submission.php">Records</a>
-                                </nav>
-                            </div>
-                        <?php else: ?>
-                            <!-- Full sidebar for all other roles -->
-                            <div class="sb-sidenav-menu-heading">Core</div>
-                            <a class="nav-link active" href="index.php">
-                                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                                Dashboard
-                            </a>
-
-                            <div class="sb-sidenav-menu-heading">Systems</div>
-                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseDMS"
-                                aria-expanded="false" aria-controls="collapseDMS">
-                                <div class="sb-nav-link-icon"><i class="fas fa-people-roof"></i></div>
-                                DMS
-                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                            </a>
-                            <div class="collapse" id="collapseDMS" aria-labelledby="headingOne"
-                                data-bs-parent="#sidenavAccordion">
-                                <nav class="sb-sidenav-menu-nested nav">
-                                    <a class="nav-link" href="dms/index.php">Data Entry</a>
-                                    <a class="nav-link" href="dms/submission.php">Records</a>
-                                    <a class="nav-link" href="dms/analytics.php">Analytics</a>
-                                </nav>
-                            </div>
-
-                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
-                                data-bs-target="#collapseParameters" aria-expanded="false"
-                                aria-controls="collapseParameters">
-                                <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                                Parameters
-                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                            </a>
-                            <div class="collapse" id="collapseParameters" aria-labelledby="headingOne"
-                                data-bs-parent="#sidenavAccordion">
-                                <nav class="sb-sidenav-menu-nested nav">
-                                    <a class="nav-link" href="parameters/index.php">Data Entry</a>
-                                    <a class="nav-link" href="parameters/submission.php">Data Visualization</a>
-                                    <a class="nav-link" href="parameters/analytics.php">Data Analytics</a>
-                                </nav>
-                            </div>
-
-                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
-                                data-bs-target="#collapseProduction" aria-expanded="false"
-                                aria-controls="collapseProduction">
-                                <div class="sb-nav-link-icon"><i class="fas fa-sheet-plastic"></i></div>
-                                Production
-                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                            </a>
-                            <div class="collapse" id="collapseProduction" aria-labelledby="headingOne"
-                                data-bs-parent="#sidenavAccordion">
-                                <nav class="sb-sidenav-menu-nested nav">
-                                    <a class="nav-link" href="production_report/index.php">Data Entry</a>
-                                    <a class="nav-link" href="#">Data Visualization</a>
-                                    <a class="nav-link" href="#">Data Analytics</a>
-                                </nav>
-                            </div>
-
-                            <div class="sb-sidenav-menu-heading">Admin</div>
-                            <a class="nav-link" href="admin/users.php">
-                                <div class="sb-nav-link-icon"><i class="fas fa-user-group"></i></div>
-                                Users
-                            </a>
-                            <a class="nav-link" href="admin/product_parameters.php">
-                                <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
-                                Values
-                            </a>
-                            <a class="nav-link" href="tables.html">
-                                <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
-                                Analysis
-                            </a>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                <div class="sb-sidenav-footer">
-                    <div class="small">Logged in as:</div>
-                    <?php echo $_SESSION['full_name']; ?>
-                </div>
-            </nav>
-        </div>
-        <div id="layoutSidenav_content">
+<!-- Main Content -->
             <main>
                 <div class="container-fluid px-4">
-                    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
-                        <div>
-                            <h1 class="mt-4">Dashboard</h1>
-                            <ol class="breadcrumb mb-4">
-                                <li class="breadcrumb-item active">Injection Department</li>
-                            </ol>
+                    <h1 class="mt-4">Dashboard</h1>
+                    <ol class="breadcrumb mb-4">
+                        <li class="breadcrumb-item active">Dashboard</li>
+                    </ol>
+            
+            <!-- Quick Actions Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-bolt me-1"></i>
+                            Quick Actions
                         </div>
-                        <div>
-                            <small class="text-muted me-3">
-                                <i class="fas fa-clock me-1"></i>
-                                Last updated: <span id="lastUpdateTime"><?php echo date('H:i:s'); ?></span>
-                            </small>
-                            <button class="btn btn-outline-primary btn-sm" onclick="refreshDashboard()">
-                                <i class="fas fa-sync-alt me-1"></i>Refresh
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Quick Actions Section -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <i class="fas fa-bolt me-1"></i>
-                                    Quick Actions
-                                </div>
-                                <div class="card-body">
-                                    <div class="row g-2">
-                                        <div class="col-lg-3 col-md-6">
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-lg-3 col-md-6">
                                             <a href="dms/submission.php" class="btn btn-primary btn-sm w-100">
                                                 <i class="fas fa-plus me-1"></i>New DMS Entry
                                             </a>
@@ -1595,29 +1379,9 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
 
             </main>
 
-            <footer class="py-4 bg-light mt-auto">
-                <div class="container-fluid px-4">
-                    <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted">Copyright &copy; 2025 Sentinel OJT</div>
-                        <div>
-                            <a href="#">Privacy Policy</a>
-                            &middot;
-                            <a href="#">Terms &amp; Conditions</a>
-                        </div>
-                    </div>
-                </div>
-            </footer>
-        </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
-        crossorigin="anonymous"></script>
-    <script src="js/scripts.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
-        crossorigin="anonymous"></script>
+    <!-- Custom Charts Scripts - Keep only ApexCharts (unique to this page) -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
-    <script src="js/datatables-simple-demo.js"></script>
     <script>
         // Initialize DataTable for the visits log
         document.addEventListener("DOMContentLoaded", event => {
@@ -1869,8 +1633,47 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                 }, index * 100);
             });
         });
+
+        // Function to mark notification as viewed
+        function markAsViewed(notificationId) {
+            fetch('includes/mark_notification_viewed.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    notification_id: notificationId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove the "New" badge and background highlight
+                    const notificationItem = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                    if (notificationItem) {
+                        notificationItem.classList.remove('bg-light');
+                        const newBadge = notificationItem.querySelector('.badge-sm');
+                        if (newBadge && newBadge.textContent === 'New') {
+                            newBadge.remove();
+                        }
+                    }
+                    
+                    // Update notification count
+                    const countBadge = document.querySelector('#notifDropdown .badge');
+                    if (countBadge) {
+                        let currentCount = parseInt(countBadge.textContent);
+                        if (currentCount > 1) {
+                            countBadge.textContent = currentCount - 1;
+                        } else {
+                            countBadge.remove();
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error marking notification as viewed:', error);
+            });
+        }
     </script>
 
-</body>
-
-</html>
+<?php include 'includes/navbar_close.php'; ?>

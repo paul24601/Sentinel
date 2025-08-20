@@ -7,10 +7,14 @@ if (!isset($_SESSION['full_name'])) {
     exit();
 }
 
-// Database connection
-$conn = new mysqli("localhost", "root", "injectionadmin123", "sensory_data");
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Load the centralized configuration
+require_once __DIR__ . '/../includes/database.php';
+
+// Get database connection using the centralized system
+try {
+    $conn = DatabaseManager::getConnection('sentinel_sensory');
+} catch (Exception $e) {
+    die("Database connection failed: " . $e->getMessage());
 }
 
 // Get the machine from the request

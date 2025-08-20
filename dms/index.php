@@ -19,6 +19,7 @@ if (
 
 // --- Database Connection & Notification Functionality --- //
 require_once '../includes/database.php';
+require_once '../includes/admin_notifications.php';
 
 // Create connection using DatabaseManager
 try {
@@ -27,247 +28,104 @@ try {
     die("Database connection failed: " . $e->getMessage());
 }
 
-// Function to get pending submissions for notifications
-function getPendingSubmissions($conn)
-{
-    $pending = [];
-    // Get the user's role from the session
-    $role = $_SESSION['role'];
-
-    // Base query for submissions 
-    $sql_pending = "SELECT id, product_name, `date` FROM submissions";
-    
-    // Sort by date descending
-    $sql_pending .= " ORDER BY `date` DESC LIMIT 10";
-
-    $result_pending = $conn->query($sql_pending);
-    if ($result_pending && $result_pending->num_rows > 0) {
-        while ($row = $result_pending->fetch_assoc()) {
-            $pending[] = $row;
-        }
-    }
-    return $pending;
-}
-
-$pending_submissions = getPendingSubmissions($conn);
-$pending_count = count($pending_submissions);
+// Get admin notifications for current user
+$admin_notifications = getAdminNotifications($_SESSION['id_number'], $_SESSION['role']);
+$notification_count = getUnviewedNotificationCount($_SESSION['id_number'], $_SESSION['full_name']);
 ?>
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="" />
-    <meta name="author" content="" />
-    <title>DMS - Data Entry</title>
-    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
-    <link href="../css/styles.css" rel="stylesheet" />
-    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- jQuery and jQuery UI for Autocomplete -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
-    <script>
-        $(function () {
-            // Enable popovers
-            $('[data-bs-toggle="popover"]').popover();
-
-            // Convert product name input to uppercase on every keystroke
-            $('#product_name').on('input', function () {
-                this.value = this.value.toUpperCase();
-            });
-
-            $("#product_name").autocomplete({
-                source: function (request, response) {
-                    $.ajax({
-                        url: "autocomplete.php",
-                        dataType: "json",
-                        data: { term: request.term },
-                        success: function (data) {
-                            response(data);
-                        }
-                    });
-                },
-                minLength: 1,
-                select: function (event, ui) {
-                    // Populate form fields with standard parameters
-                    $('#mold_code').val(ui.item.mold_code);
-                    $('#cycle_time_target').val(ui.item.cycle_time_target);
-                    $('#weight_standard').val(ui.item.weight_standard);
-                    $('#cavity_designed').val(ui.item.cavity_designed);
-                    
-                    // Clear actual values to ensure they are entered manually
-                    $('#weight_gross').val('');
-                    $('#weight_net').val('');
-                    $('#cavity_active').val('');
-                    
-                    // If machine is CLF 750A, refresh cycle times
-                    if ($('#machine').val() === 'CLF 750A') {
-                        loadCycleTimes();
-                    }
-                },
-                focus: function (event, ui) {
-                    // When hovering over a suggestion, preview the data in the fields
-                    $('#mold_code').val(ui.item.mold_code);
-                    $('#cycle_time_target').val(ui.item.cycle_time_target);
-                    $('#weight_standard').val(ui.item.weight_standard);
-                    $('#cavity_designed').val(ui.item.cavity_designed);
-                    return false;
-                }
-            }).autocomplete("instance")._renderItem = function (ul, item) {
-                // Custom rendering of autocomplete items
-                return $("<li>")
-                    .append("<div>" + item.label + 
-                           "<br><small class='text-muted'>Target Cycle: " + item.cycle_time_target + 
-                           "s | Standard Weight: " + item.weight_standard + 
-                           "g | Cavities: " + item.cavity_designed + "</small></div>")
-                    .appendTo(ul);
-            };
-        });
-    </script>
-</head>
-
-<body class="sb-nav-fixed">
-    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
-        <!-- Navbar Brand-->
-        <a class="navbar-brand ps-3" href="../index.php">Sentinel Digitization</a>
-        <!-- Sidebar Toggle-->
-        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
-            <i class="fas fa-bars"></i>
-        </button>
-        <!-- Navbar Search-->
-        <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
-            <!-- (Optional search form can go here) -->
-        </form>
-        <!-- Navbar Notifications and User Dropdown-->
-        <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
-            <!-- Notification Dropdown -->
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle position-relative" id="notifDropdown" href="#" role="button"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-bell"></i>
-                    <?php if ($pending_count > 0): ?>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            <?php echo $pending_count; ?>
-                        </span>
-                    <?php endif; ?>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown"
-                    style="max-height:300px; overflow-y:auto;">
-                    <?php if ($pending_count > 0): ?>
-                        <?php foreach ($pending_submissions as $pending): ?>
-                            <li>
-                                <a class="dropdown-item notification-link"
-                                    href="approval.php?refresh=1#submission-<?php echo $pending['id']; ?>">
-                                    Submission #<?php echo $pending['id']; ?> -
-                                    <?php echo htmlspecialchars($pending['product_name']); ?>
-                                    <br>
-                                    <small><?php echo date("M d, Y", strtotime($pending['date'])); ?></small>
-                                </a>
-                            </li>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <li><span class="dropdown-item-text">No pending submissions.</span></li>
-                    <?php endif; ?>
-                </ul>
-            </li>
-
-            <!-- User Dropdown -->
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                    <i class="fas fa-user fa-fw"></i>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                    <li><a class="dropdown-item" href="#!">Settings</a></li>
-                    <li><a class="dropdown-item" href="#!">Activity Log</a></li>
-                    <li>
-                        <hr class="dropdown-divider" />
-                    </li>
-                    <li><a class="dropdown-item" href="../logout.php">Logout</a></li>
-                </ul>
-            </li>
-        </ul>
-    </nav>
-    <div id="layoutSidenav">
-        <div id="layoutSidenav_nav">
-            <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
-                <div class="sb-sidenav-menu">
-                    <div class="nav">
-                        <div class="sb-sidenav-menu-heading">Core</div>
-                        <a class="nav-link" href="../index.php">
-                            <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                            Dashboard
-                        </a>
-                        <div class="sb-sidenav-menu-heading">Systems</div>
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseDMS"
-                            aria-expanded="false" aria-controls="collapseDMS">
-                            <div class="sb-nav-link-icon"><i class="fas fa-people-roof"></i></div>
-                            DMS
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                        </a>
-                        <div class="collapse show" id="collapseDMS" aria-labelledby="headingOne"
-                            data-bs-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" href="index.php">Data Entry</a>
-                                <a class="nav-link" href="submission.php">Records</a>
-                                <a class="nav-link" href="analytics.php">Analytics</a>
-                            </nav>
-                        </div>
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
-                            data-bs-target="#collapseParameters" aria-expanded="false"
-                            aria-controls="collapseParameters">
-                            <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                            Parameters
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                        </a>
-                        <div class="collapse" id="collapseParameters" aria-labelledby="headingOne"
-                            data-bs-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" href="../parameters/index.php">Data Entry</a>
-                                <a class="nav-link" href="../parameters/submission.php">Data Visualization</a>
-                                <a class="nav-link" href="../parameters/analytics.php">Data Analytics</a>
-                            </nav>
-                        </div>
-                        <div class="sb-sidenav-menu-heading">Admin</div>
-                        <a class="nav-link" href="../admin/users.php">
-                            <div class="sb-nav-link-icon"><i class="fas fa-user-group"></i></div>
-                            Users
-                        </a>
-                        <a class="nav-link" href="charts.html">
-                            <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
-                            Values
-                        </a>
-                        <a class="nav-link" href="tables.html">
-                            <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
-                            Analysis
-                        </a>
-                    </div>
-                </div>
-                <div class="sb-sidenav-footer">
-                    <div class="small">Logged in as:</div>
-                    <?php echo $_SESSION['full_name']; ?>
-                </div>
-            </nav>
-        </div>
-        <div id="layoutSidenav_content">
+<?php include '../includes/navbar.php'; ?>
             <main>
-                <div class="container-fluid p-4">
-                    <h1 class="">Data Entry</h1>
+                <div class="container-fluid px-4">
+                    <h1 class="mt-4">Data Entry</h1>
                     <ol class="breadcrumb mb-4">
+                        <li class="breadcrumb-item"><a href="../index.php">Dashboard</a></li>
                         <li class="breadcrumb-item active">Injection Department</li>
                     </ol>
-                    <!-- FORMS -->
-                    <div class="container-fluid opacity-90">
-                        <div class="card shadow">
-                            <div class="card-body">
-                                <!-- Form starts here -->
-                                <form action="submission.php" method="POST">
+                </div>
+
+                <!--FORMS-->
+                <div class="container-fluid my-5">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <!-- JavaScript for form functionality -->
+                            <script>
+                            $(function () {
+                                // Enable popovers
+                                $('[data-bs-toggle="popover"]').popover();
+
+                                // Convert product name input to uppercase on every keystroke
+                                $('#product_name').on('input', function () {
+                                    this.value = this.value.toUpperCase();
+                                });
+
+                                $("#product_name").autocomplete({
+                                    source: function (request, response) {
+                                        $.ajax({
+                                            url: "autocomplete.php",
+                                            dataType: "json",
+                                            data: { term: request.term },
+                                            success: function (data) {
+                                                response(data);
+                                            }
+                                        });
+                                    },
+                                    minLength: 1,
+                                    select: function (event, ui) {
+                                        // Populate form fields with standard parameters
+                                        $('#mold_code').val(ui.item.mold_code);
+                                        $('#cycle_time_target').val(ui.item.cycle_time_target);
+                                        $('#weight_standard').val(ui.item.weight_standard);
+                                        $('#cavity_designed').val(ui.item.cavity_designed);
+                                        
+                                        // Clear actual values to ensure they are entered manually
+                                        $('#weight_gross').val('');
+                                        $('#weight_net').val('');
+                                        $('#cavity_active').val('');
+                                        
+                                        // If machine is CLF 750A, refresh cycle times
+                                        if ($('#machine').val() === 'CLF 750A') {
+                                            loadCycleTimes();
+                                        }
+                                    },
+                                    focus: function (event, ui) {
+                                        // When hovering over a suggestion, preview the data in the fields
+                                        $('#mold_code').val(ui.item.mold_code);
+                                        $('#cycle_time_target').val(ui.item.cycle_time_target);
+                                        $('#weight_standard').val(ui.item.weight_standard);
+                                        $('#cavity_designed').val(ui.item.cavity_designed);
+                                        return false;
+                                    }
+                                }).autocomplete("instance")._renderItem = function (ul, item) {
+                                    // Custom rendering of autocomplete items
+                                    return $("<li>")
+                                        .append("<div>" + item.label + 
+                                               "<br><small class='text-muted'>Target Cycle: " + item.cycle_time_target + 
+                                               "s | Standard Weight: " + item.weight_standard + 
+                                               "g | Cavities: " + item.cavity_designed + "</small></div>")
+                                        .appendTo(ul);
+                                };
+
+                                // Load cycle times function
+                                function loadCycleTimes() {
+                                    // For DMS, we use manual input for all machines
+                                    const cycleTimeContainer = $('#cycle_time_actual').parent();
+                                    cycleTimeContainer.html(`
+                                        <input type="number" class="form-control" id="cycle_time_actual" name="cycle_time_actual" 
+                                               placeholder="Enter actual cycle time" step="0.01" min="0" required>
+                                    `);
+                                }
+
+                                // Load manual input when machine is selected
+                                $('#machine').change(function() {
+                                    loadCycleTimes();
+                                });
+
+                                // Initial load
+                                loadCycleTimes();
+                            });
+                            </script>
+
+                            <!-- Form starts here -->
+                            <form action="submission.php" method="POST">
                                     <!-- Date -->
                                     <div class="mb-3">
                                         <label for="date" class="form-label">Date</label>
@@ -421,183 +279,5 @@ $pending_count = count($pending_submissions);
                         </div>
                     </div>
                 </div>
-            </main>
-            <footer class="py-4 bg-light mt-auto">
-                <div class="container-fluid px-4">
-                    <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted">Copyright &copy; 2025 Sentinel OJT</div>
-                        <div>
-                            <a href="#">Privacy Policy</a>
-                            &middot;
-                            <a href="#">Terms &amp; Conditions</a>
-                        </div>
-                    </div>
-                </div>
-            </footer>
-        </div>
-    </div>
-    <script src="../js/scripts.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-    <script src="../assets/demo/chart-area-demo.js"></script>
-    <script src="../assets/demo/chart-bar-demo.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
-        crossorigin="anonymous"></script>
-    <script src="../js/datatables-simple-demo.js"></script>
-    <!-- Bootstrap JS and Popper.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-    // function loadCycleTimes() {
-    //     const machine = $('#machine').val();
-    //     const cycleTimeContainer = $('#cycle_time_actual').parent();
-    //     const cycleTimeDetails = $('#cycle_time_details');
 
-    //     // If not CLF 750A, show input box instead of dropdown
-    //     if (machine && machine !== 'CLF 750A') {
-    //         // Replace the select element with an input
-    //         cycleTimeContainer.html(`
-    //             <input type="number" class="form-control" id="cycle_time_actual" name="cycle_time_actual" 
-    //                    placeholder="Enter actual cycle time" step="0.01" min="0" required>
-    //         `);
-    //         cycleTimeDetails.html(''); // Clear any existing details
-    //         $('#selected_cycle_time_id').val(''); // Clear the hidden input
-    //         return;
-    //     }
-
-    //     // For CLF 750A, show the dropdown with auto-cycle times
-    //     if (!machine) {
-    //         $('#cycle_time_actual').html('<option value="" disabled selected>Select machine first</option>');
-    //         return;
-    //     }
-
-    //     // Restore the select element if it was previously changed to input
-    //     if ($('#cycle_time_actual').is('input')) {
-    //         cycleTimeContainer.html(`
-    //             <div class="input-group">
-    //                 <select required class="form-control" id="cycle_time_actual" name="cycle_time_actual" required>
-    //                     <option value="" disabled selected>Select cycle time</option>
-    //                 </select>
-    //                 <button type="button" class="btn btn-outline-secondary" id="refresh_cycle_times">
-    //                     <i class="fas fa-sync-alt"></i>
-    //                 </button>
-    //             </div>
-    //         `);
-    //     }
-
-    //     $.ajax({
-    //         url: 'fetch_auto_cycle_time.php',
-    //         method: 'GET',
-    //         data: { machine: machine },
-    //         success: function(data) {
-    //             const select = $('#cycle_time_actual');
-    //             select.empty();
-    //             select.append('<option value="" disabled selected>Select cycle time</option>');
-    //             
-    //             if (data.length === 0) {
-    //                 select.append('<option value="" disabled>No recent cycle times available</option>');
-    //                 return;
-    //             }
-    //             
-    //             data.forEach(function(item) {
-    //                 // Format the timestamp
-    //                 const timestamp = new Date(item.timestamp);
-    //                 const formattedDate = timestamp.toLocaleDateString();
-    //                 const formattedTime = timestamp.toLocaleTimeString();
-    //                 
-    //                 // Create detailed tooltip text
-    //                 const tooltipText = `ID: ${item.id} | Recorded: ${formattedDate} ${formattedTime} | T1: ${item.temp1}°C, T2: ${item.temp2}°C | P: ${item.product}`;
-    //                 
-    //                 // Create a simpler display text but with visual indicators
-    //                 const displayText = `${item.cycle_time}s ⌚ (ID: ${item.id})`;
-    //                 
-    //                 const option = $('<option></option>')
-    //                     .val(item.cycle_time)
-    //                     .text(displayText)
-    //                     .attr('title', tooltipText) // Add tooltip with full details
-    //                     .css({
-    //                         'font-family': 'monospace',  // Use monospace font for better readability
-    //                         'white-space': 'pre'         // Preserve spacing
-    //                     });
-    //                 
-    //                 option.data('id', item.id);
-    //                 option.data('details', {
-    //                     temp1: item.temp1,
-    //                     temp2: item.temp2,
-    //                     product: item.product,
-    //                     timestamp: item.timestamp
-    //                 });
-    //                 select.append(option);
-    //             });
-
-    //             // Initialize Bootstrap tooltips
-    //             $('[title]').tooltip({
-    //                 placement: 'top',
-    //                 trigger: 'hover'
-    //             });
-    //         },
-    //         error: function(xhr, status, error) {
-    //             console.error('Error loading cycle times:', error);
-    //         }
-    //     });
-    // }
-
-    // Always show manual input for actual cycle time
-    function loadCycleTimes() {
-        const cycleTimeContainer = $('#cycle_time_actual').parent();
-        const cycleTimeDetails = $('#cycle_time_details');
-        cycleTimeContainer.html(`
-            <input type="number" class="form-control" id="cycle_time_actual" name="cycle_time_actual" 
-                   placeholder="Enter actual cycle time" step="0.01" min="0" required>
-        `);
-        cycleTimeDetails.html('');
-        $('#selected_cycle_time_id').val('');
-    }
-
-    // Load manual input for cycle time when machine is selected
-    $(document).ready(function() {
-        // Load manual input for cycle time when machine is selected
-        $('#machine').change(function() {
-            loadCycleTimes();
-        });
-        // Initial load
-        loadCycleTimes();
-    });
-    </script>
-    <!-- Success Modal -->
-    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title" id="successModalLabel">Success!</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="text-center">
-                        <i class="fas fa-check-circle text-success" style="font-size: 48px;"></i>
-                        <p class="mt-3">Your submission has been successfully recorded.</p>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-success" onclick="window.location.href='index.php'">New Submission</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-    $(document).ready(function() {
-        // Check for success parameter in URL
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('success') === '1') {
-            // Show success modal
-            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-            successModal.show();
-            
-            // Remove success parameter from URL without refreshing the page
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
-    });
-    </script>
-</body>
-
-</html>
+<?php include '../includes/navbar_close.php'; ?>
