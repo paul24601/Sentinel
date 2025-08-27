@@ -312,7 +312,7 @@ CREATE TABLE IF NOT EXISTS `moldopenparameters` (
 `created_at` timestamp NULL DEFAULT current_timestamp(),
 `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Mold open parameters including positions, speeds, and pressures';
-INSERT INTO `moldopenparameters` (`id`, `record_id`, `MoldOpenPos1`, `MoldOpenPos2`, `MoldOpenPos3`, `MoldOpenPos4`, `MoldOpenPos5`, `MoldOpenPos6`, `MoldOpenSpd1`, `MoldOpenSpd2`, `MoldOpenSpd3`, `MoldOpenSpd4`, `MoldOpenSpd5`, `MoldOpenSpd6`, `MoldOpenPressure1`, `MoldOpenPressure2`, `MoldOpenPressure3`, `MoldOpenPressure4`, `MoldOpenPressure5`, `MoldOpenPressure6`, `created_at`, `updated_at`) VALUES
+INSERT INTO `moldopenparameters` (`id`, `record_id`, `MoldOpenPos1`, `MoldOpenPos2`, `MoldOpenPos3`, `MoldOpenPos4`, `MoldOpenPos5`, `MoldOpenPos6`, `MoldOpenSpd1`, `MoldOpenSpd2`, `MoldOpenSpd3`, `MoldOpenSpd4`, `MoldOpenSpd5`, `MoldOpenSpd6`, `MoldOpenPressure1`, `MoldOpenPressure2`, `MoldOpenPressure3`, `MoldOpenPressure4`, `MoldOpenPressure5`, `MoldOpenPressure6`, `created_at`, `updated_at`) VALUES;;
 CREATE TABLE IF NOT EXISTS `moldoperationspecs` (
 `id` int(11) NOT NULL,
 `record_id` varchar(20) DEFAULT NULL,
@@ -532,7 +532,7 @@ CREATE TABLE IF NOT EXISTS `supervisor_reviews` (
 `review_date` datetime DEFAULT current_timestamp(),
 `review_notes` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-INSERT INTO `supervisor_reviews` (`id`, `record_id`, `supervisor_name`, `supervisor_role`, `review_date`, `review_notes`) VALUES
+INSERT INTO `supervisor_reviews` (`id`, `record_id`, `supervisor_name`, `supervisor_role`, `review_date`, `review_notes`) VALUES;;
 CREATE TABLE IF NOT EXISTS `timerparameters` (
 `id` int(11) NOT NULL,
 `record_id` varchar(20) DEFAULT NULL,
@@ -583,7 +583,7 @@ CREATE TABLE IF NOT EXISTS `user_activity` (
 `user_agent` text DEFAULT NULL,
 `created_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-INSERT INTO `user_activity` (`id`, `user_id_number`, `full_name`, `activity_type`, `record_id`, `session_data`, `additional_info`, `ip_address`, `user_agent`, `created_at`) VALUES
+INSERT INTO `user_activity` (`id`, `user_id_number`, `full_name`, `activity_type`, `record_id`, `session_data`, `additional_info`, `ip_address`, `user_agent`, `created_at`) VALUES;
 ALTER TABLE `additionalinformation`
 ADD PRIMARY KEY (`id`),
 ADD KEY `idx_record_id_additionalinformation` (`record_id`);

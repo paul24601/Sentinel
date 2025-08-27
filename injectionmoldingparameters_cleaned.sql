@@ -1,13 +1,20 @@
 -- Injection Molding Parameters Database
--- Cleaned and fixed for remote hosting deployment
--- Generated on: 2025-08-25 03:23:32
--- Fixed UTF-8 BOM and syntax issues
+-- Cleaned for remote hosting deployment
+-- Generated on: 2025-08-25 03:20:12
+-- Original file size: 57,222 bytes
+-- 
+-- INSTRUCTIONS:
+-- 1. Create database in cPanel (e.g., 'injmold' becomes 'u158529957_injmold')
+-- 2. Import this file via phpMyAdmin
+-- 3. Ensure user has ALL PRIVILEGES on the database
 
+-- Table structure for table `additionalinformation`
 CREATE TABLE IF NOT EXISTS `additionalinformation` (
-`id` int(11) NOT NULL,
-`record_id` varchar(20) DEFAULT NULL,
-`Info` text DEFAULT NULL
+  `id` int(11) NOT NULL,
+  `record_id` varchar(20) DEFAULT NULL,
+  `Info` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 INSERT INTO `additionalinformation` (`id`, `record_id`, `Info`) VALUES
 (13, 'PARAM_20250522_988df', 'Production run completed with standard parameters. All quality checks passed. Material batch: MB-3604'),
 (20, 'PARAM_20250718_1333e', ''),
@@ -18,40 +25,44 @@ INSERT INTO `additionalinformation` (`id`, `record_id`, `Info`) VALUES
 (27, 'PARAM_20250718_1fe34', '2 GATES ONLY DUE TO GAS TRAP.'),
 (28, 'PARAM_20250721_15806', 'AIR BLOW CONNECTED TO THE CORE SEQUENCE \r\nAn air line is connected to the Mold cavity; it blows air due to the mold open.\r\nCore mold \r\n1 1 - 1 3.0 7 - 1 2.0\r\n'),
 (29, 'PARAM_20250721_73997', 'AIR BLOW CONNECTED TO THE CORE SEQUENCE \r\nAn air line is connected to the Mold cavity; it blows air due to the mold open.\r\nCore mold \r\n1 1 - 1 3.0 7 - 1 2.0\r\n');
+
 CREATE TABLE IF NOT EXISTS `attachments` (
-`id` int(11) NOT NULL,
-`record_id` varchar(20) DEFAULT NULL,
-`FileName` varchar(255) NOT NULL,
-`FilePath` varchar(255) NOT NULL,
-`FileType` varchar(100) NOT NULL,
-`UploadedAt` timestamp NOT NULL DEFAULT current_timestamp()
+  `id` int(11) NOT NULL,
+  `record_id` varchar(20) DEFAULT NULL,
+  `FileName` varchar(255) NOT NULL,
+  `FilePath` varchar(255) NOT NULL,
+  `FileType` varchar(100) NOT NULL,
+  `UploadedAt` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 INSERT INTO `attachments` (`id`, `record_id`, `FileName`, `FilePath`, `FileType`, `UploadedAt`) VALUES
 (29, 'PARAM_20250522_988df', 'IMG_0711.jpeg', 'parameters/uploads/IRN64463_20250522_1436_CLF750B_RN1660_682ec60b995f0.jpeg', 'image/jpeg', '2025-05-22 06:36:59'),
 (38, 'PARAM_20250718_dd40b', '1000001234.jpg', 'parameters/uploads/_20250718_1147_CLF750B__6879c43ade189.jpg', 'image/jpeg', '2025-07-18 03:49:14'),
 (39, 'PARAM_20250718_dd40b', '1000001233.jpg', 'parameters/uploads/_20250718_1147_CLF750B__6879c43adf604.jpg', 'image/jpeg', '2025-07-18 03:49:14'),
 (41, 'PARAM_20250718_18709', '1000001238.jpg', 'parameters/uploads/_20250718_1328_MIT1050B__6879db8f18f69.jpg', 'image/jpeg', '2025-07-18 05:28:47');
+
 CREATE TABLE IF NOT EXISTS `barrelheatertemperatures` (
-`id` int(11) NOT NULL,
-`record_id` varchar(20) DEFAULT NULL,
-`Zone0` float DEFAULT NULL,
-`Zone1` float DEFAULT NULL,
-`Zone2` float DEFAULT NULL,
-`Zone3` float DEFAULT NULL,
-`Zone4` float DEFAULT NULL,
-`Zone5` float DEFAULT NULL,
-`Zone6` float DEFAULT NULL,
-`Zone7` float DEFAULT NULL,
-`Zone8` float DEFAULT NULL,
-`Zone9` float DEFAULT NULL,
-`Zone10` float DEFAULT NULL,
-`Zone11` float DEFAULT NULL,
-`Zone12` float DEFAULT NULL,
-`Zone13` float DEFAULT NULL,
-`Zone14` float DEFAULT NULL,
-`Zone15` float DEFAULT NULL,
-`Zone16` float DEFAULT NULL
+  `id` int(11) NOT NULL,
+  `record_id` varchar(20) DEFAULT NULL,
+  `Zone0` float DEFAULT NULL,
+  `Zone1` float DEFAULT NULL,
+  `Zone2` float DEFAULT NULL,
+  `Zone3` float DEFAULT NULL,
+  `Zone4` float DEFAULT NULL,
+  `Zone5` float DEFAULT NULL,
+  `Zone6` float DEFAULT NULL,
+  `Zone7` float DEFAULT NULL,
+  `Zone8` float DEFAULT NULL,
+  `Zone9` float DEFAULT NULL,
+  `Zone10` float DEFAULT NULL,
+  `Zone11` float DEFAULT NULL,
+  `Zone12` float DEFAULT NULL,
+  `Zone13` float DEFAULT NULL,
+  `Zone14` float DEFAULT NULL,
+  `Zone15` float DEFAULT NULL,
+  `Zone16` float DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 INSERT INTO `barrelheatertemperatures` (`id`, `record_id`, `Zone0`, `Zone1`, `Zone2`, `Zone3`, `Zone4`, `Zone5`, `Zone6`, `Zone7`, `Zone8`, `Zone9`, `Zone10`, `Zone11`, `Zone12`, `Zone13`, `Zone14`, `Zone15`, `Zone16`) VALUES
 (18, 'PARAM_20250522_988df', 106.6, 121.1, 85.6, 238.9, 237.1, 70.4, 130.4, 190.1, 128.5, 144.8, 131.8, 43.8, 182.2, 248.2, 211.2, 61.7, 198.4),
 (33, 'PARAM_20250718_1333e', 220, 220, 210, 200, 200, 200, 200, 200, 190, 190, 0, 0, 0, 0, 0, 0, 0),
@@ -62,15 +73,17 @@ INSERT INTO `barrelheatertemperatures` (`id`, `record_id`, `Zone0`, `Zone1`, `Zo
 (41, 'PARAM_20250718_1fe34', 220, 210, 210, 210, 180, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (42, 'PARAM_20250721_15806', 240, 220, 210, 200, 200, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (43, 'PARAM_20250721_73997', 240, 220, 210, 200, 200, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
 CREATE TABLE IF NOT EXISTS `colorantdetails` (
-`id` int(11) NOT NULL,
-`record_id` varchar(20) DEFAULT NULL,
-`Colorant` varchar(255) DEFAULT NULL,
-`Color` varchar(255) DEFAULT NULL,
-`Dosage` varchar(255) DEFAULT NULL,
-`Stabilizer` varchar(255) DEFAULT NULL,
-`StabilizerDosage` varchar(255) DEFAULT NULL
+  `id` int(11) NOT NULL,
+  `record_id` varchar(20) DEFAULT NULL,
+  `Colorant` varchar(255) DEFAULT NULL,
+  `Color` varchar(255) DEFAULT NULL,
+  `Dosage` varchar(255) DEFAULT NULL,
+  `Stabilizer` varchar(255) DEFAULT NULL,
+  `StabilizerDosage` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 INSERT INTO `colorantdetails` (`id`, `record_id`, `Colorant`, `Color`, `Dosage`, `Stabilizer`, `StabilizerDosage`) VALUES
 (18, 'PARAM_20250522_988df', 'Blue', 'Clear', 'White', 'White', 'Blue'),
 (33, 'PARAM_20250718_1333e', 'MBW 5937', 'BLUE', '375', 'UV-STAB', '62.5'),
@@ -81,17 +94,19 @@ INSERT INTO `colorantdetails` (`id`, `record_id`, `Colorant`, `Color`, `Dosage`,
 (41, 'PARAM_20250718_1fe34', 'BLUE MB W5937', 'BLUE', '375', 'UV STAB E7268', '62.5'),
 (42, 'PARAM_20250721_15806', 'MB AF9548', 'GRAY', '500', '', ''),
 (43, 'PARAM_20250721_73997', 'MB AF9548', 'GRAY', '500', '', '');
+
 CREATE TABLE IF NOT EXISTS `corepullsettings` (
-`id` int(11) NOT NULL,
-`record_id` varchar(20) DEFAULT NULL,
-`Section` varchar(255) DEFAULT NULL,
-`Sequence` int(11) DEFAULT NULL,
-`Pressure` float DEFAULT NULL,
-`Speed` float DEFAULT NULL,
-`Position` float DEFAULT NULL,
-`Time` float DEFAULT NULL,
-`LimitSwitch` varchar(255) DEFAULT NULL
+  `id` int(11) NOT NULL,
+  `record_id` varchar(20) DEFAULT NULL,
+  `Section` varchar(255) DEFAULT NULL,
+  `Sequence` int(11) DEFAULT NULL,
+  `Pressure` float DEFAULT NULL,
+  `Speed` float DEFAULT NULL,
+  `Position` float DEFAULT NULL,
+  `Time` float DEFAULT NULL,
+  `LimitSwitch` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 INSERT INTO `corepullsettings` (`id`, `record_id`, `Section`, `Sequence`, `Pressure`, `Speed`, `Position`, `Time`, `LimitSwitch`) VALUES
 (43, 'PARAM_20250522_988df', 'Core Set A', 65, 163.4, 20.3, 30.41, 13.1, '43.25'),
 (44, 'PARAM_20250522_988df', 'Core Pull A', 43, 19.4, 66.2, 17.43, 19.9, '95.49'),
@@ -101,30 +116,32 @@ INSERT INTO `corepullsettings` (`id`, `record_id`, `Section`, `Sequence`, `Press
 (85, 'PARAM_20250718_1333e', 'Core Pull A', 1, 98, 9, 700, 3, ''),
 (86, 'PARAM_20250718_dd40b', 'Core Set A', 0, 65, 35, 620, 6, ''),
 (87, 'PARAM_20250718_dd40b', 'Core Pull A', 1, 85, 70, 600, 4, '');
+
 CREATE TABLE IF NOT EXISTS `ejectionparameters` (
-`id` int(11) NOT NULL,
-`record_id` varchar(20) DEFAULT NULL,
-`AirBlowTimeA` float DEFAULT NULL,
-`AirBlowPositionA` float DEFAULT NULL,
-`AirBlowADelay` float DEFAULT NULL,
-`AirBlowTimeB` float DEFAULT NULL,
-`AirBlowPositionB` float DEFAULT NULL,
-`AirBlowBDelay` float DEFAULT NULL,
-`EjectorForwardPosition1` float DEFAULT NULL,
-`EjectorForwardPosition2` float DEFAULT NULL,
-`EjectorForwardSpeed1` float DEFAULT NULL,
-`EjectorRetractPosition1` float DEFAULT NULL,
-`EjectorRetractPosition2` float DEFAULT NULL,
-`EjectorRetractSpeed1` float DEFAULT NULL,
-`EjectorForwardSpeed2` float DEFAULT NULL,
-`EjectorForwardPressure1` float DEFAULT NULL,
-`EjectorRetractSpeed2` float DEFAULT NULL,
-`EjectorRetractPressure1` float DEFAULT NULL,
-`EjectorForwardTime` float DEFAULT NULL,
-`EjectorRetractTime` float DEFAULT NULL,
-`EjectorForwardPressure2` float DEFAULT NULL,
-`EjectorRetractPressure2` float DEFAULT NULL
+  `id` int(11) NOT NULL,
+  `record_id` varchar(20) DEFAULT NULL,
+  `AirBlowTimeA` float DEFAULT NULL,
+  `AirBlowPositionA` float DEFAULT NULL,
+  `AirBlowADelay` float DEFAULT NULL,
+  `AirBlowTimeB` float DEFAULT NULL,
+  `AirBlowPositionB` float DEFAULT NULL,
+  `AirBlowBDelay` float DEFAULT NULL,
+  `EjectorForwardPosition1` float DEFAULT NULL,
+  `EjectorForwardPosition2` float DEFAULT NULL,
+  `EjectorForwardSpeed1` float DEFAULT NULL,
+  `EjectorRetractPosition1` float DEFAULT NULL,
+  `EjectorRetractPosition2` float DEFAULT NULL,
+  `EjectorRetractSpeed1` float DEFAULT NULL,
+  `EjectorForwardSpeed2` float DEFAULT NULL,
+  `EjectorForwardPressure1` float DEFAULT NULL,
+  `EjectorRetractSpeed2` float DEFAULT NULL,
+  `EjectorRetractPressure1` float DEFAULT NULL,
+  `EjectorForwardTime` float DEFAULT NULL,
+  `EjectorRetractTime` float DEFAULT NULL,
+  `EjectorForwardPressure2` float DEFAULT NULL,
+  `EjectorRetractPressure2` float DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 INSERT INTO `ejectionparameters` (`id`, `record_id`, `AirBlowTimeA`, `AirBlowPositionA`, `AirBlowADelay`, `AirBlowTimeB`, `AirBlowPositionB`, `AirBlowBDelay`, `EjectorForwardPosition1`, `EjectorForwardPosition2`, `EjectorForwardSpeed1`, `EjectorRetractPosition1`, `EjectorRetractPosition2`, `EjectorRetractSpeed1`, `EjectorForwardSpeed2`, `EjectorForwardPressure1`, `EjectorRetractSpeed2`, `EjectorRetractPressure1`, `EjectorForwardTime`, `EjectorRetractTime`, `EjectorForwardPressure2`, `EjectorRetractPressure2`) VALUES
 (13, 'PARAM_20250522_988df', 16.6, 15.78, 74.34, 8, 112.89, 70.43, 70.88, 147.32, 38.7, 137.19, 57.83, 63.1, 49.9, 22.6, 66.2, 15, NULL, NULL, NULL, NULL),
 (28, 'PARAM_20250718_1333e', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL),
@@ -135,46 +152,48 @@ INSERT INTO `ejectionparameters` (`id`, `record_id`, `AirBlowTimeA`, `AirBlowPos
 (35, 'PARAM_20250718_1fe34', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL),
 (36, 'PARAM_20250721_15806', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL),
 (37, 'PARAM_20250721_73997', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL);
+
 CREATE TABLE IF NOT EXISTS `injectionparameters` (
-`id` int(11) NOT NULL,
-`record_id` varchar(20) DEFAULT NULL,
-`RecoveryPosition` float DEFAULT NULL,
-`SecondStagePosition` float DEFAULT NULL,
-`Cushion` float DEFAULT NULL,
-`ScrewPosition1` float DEFAULT NULL,
-`ScrewPosition2` float DEFAULT NULL,
-`ScrewPosition3` float DEFAULT NULL,
-`InjectionSpeed1` float DEFAULT NULL,
-`InjectionSpeed2` float DEFAULT NULL,
-`InjectionSpeed3` float DEFAULT NULL,
-`InjectionPressure1` float DEFAULT NULL,
-`InjectionPressure2` float DEFAULT NULL,
-`InjectionPressure3` float DEFAULT NULL,
-`SuckBackPosition` float DEFAULT NULL,
-`SuckBackSpeed` float DEFAULT NULL,
-`SuckBackPressure` float DEFAULT NULL,
-`SprueBreak` float DEFAULT NULL,
-`SprueBreakTime` float DEFAULT NULL,
-`InjectionDelay` float DEFAULT NULL,
-`HoldingPressure1` float DEFAULT NULL,
-`HoldingPressure2` float DEFAULT NULL,
-`HoldingPressure3` float DEFAULT NULL,
-`HoldingSpeed1` float DEFAULT NULL,
-`HoldingSpeed2` float DEFAULT NULL,
-`HoldingSpeed3` float DEFAULT NULL,
-`HoldingTime1` float DEFAULT NULL,
-`HoldingTime2` float DEFAULT NULL,
-`HoldingTime3` float DEFAULT NULL,
-`ScrewPosition4` float DEFAULT NULL,
-`ScrewPosition5` float DEFAULT NULL,
-`ScrewPosition6` float DEFAULT NULL,
-`InjectionSpeed4` float DEFAULT NULL,
-`InjectionSpeed5` float DEFAULT NULL,
-`InjectionSpeed6` float DEFAULT NULL,
-`InjectionPressure4` float DEFAULT NULL,
-`InjectionPressure5` float DEFAULT NULL,
-`InjectionPressure6` float DEFAULT NULL
+  `id` int(11) NOT NULL,
+  `record_id` varchar(20) DEFAULT NULL,
+  `RecoveryPosition` float DEFAULT NULL,
+  `SecondStagePosition` float DEFAULT NULL,
+  `Cushion` float DEFAULT NULL,
+  `ScrewPosition1` float DEFAULT NULL,
+  `ScrewPosition2` float DEFAULT NULL,
+  `ScrewPosition3` float DEFAULT NULL,
+  `InjectionSpeed1` float DEFAULT NULL,
+  `InjectionSpeed2` float DEFAULT NULL,
+  `InjectionSpeed3` float DEFAULT NULL,
+  `InjectionPressure1` float DEFAULT NULL,
+  `InjectionPressure2` float DEFAULT NULL,
+  `InjectionPressure3` float DEFAULT NULL,
+  `SuckBackPosition` float DEFAULT NULL,
+  `SuckBackSpeed` float DEFAULT NULL,
+  `SuckBackPressure` float DEFAULT NULL,
+  `SprueBreak` float DEFAULT NULL,
+  `SprueBreakTime` float DEFAULT NULL,
+  `InjectionDelay` float DEFAULT NULL,
+  `HoldingPressure1` float DEFAULT NULL,
+  `HoldingPressure2` float DEFAULT NULL,
+  `HoldingPressure3` float DEFAULT NULL,
+  `HoldingSpeed1` float DEFAULT NULL,
+  `HoldingSpeed2` float DEFAULT NULL,
+  `HoldingSpeed3` float DEFAULT NULL,
+  `HoldingTime1` float DEFAULT NULL,
+  `HoldingTime2` float DEFAULT NULL,
+  `HoldingTime3` float DEFAULT NULL,
+  `ScrewPosition4` float DEFAULT NULL,
+  `ScrewPosition5` float DEFAULT NULL,
+  `ScrewPosition6` float DEFAULT NULL,
+  `InjectionSpeed4` float DEFAULT NULL,
+  `InjectionSpeed5` float DEFAULT NULL,
+  `InjectionSpeed6` float DEFAULT NULL,
+  `InjectionPressure4` float DEFAULT NULL,
+  `InjectionPressure5` float DEFAULT NULL,
+  `InjectionPressure6` float DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 INSERT INTO `injectionparameters` (`id`, `record_id`, `RecoveryPosition`, `SecondStagePosition`, `Cushion`, `ScrewPosition1`, `ScrewPosition2`, `ScrewPosition3`, `InjectionSpeed1`, `InjectionSpeed2`, `InjectionSpeed3`, `InjectionPressure1`, `InjectionPressure2`, `InjectionPressure3`, `SuckBackPosition`, `SuckBackSpeed`, `SuckBackPressure`, `SprueBreak`, `SprueBreakTime`, `InjectionDelay`, `HoldingPressure1`, `HoldingPressure2`, `HoldingPressure3`, `HoldingSpeed1`, `HoldingSpeed2`, `HoldingSpeed3`, `HoldingTime1`, `HoldingTime2`, `HoldingTime3`, `ScrewPosition4`, `ScrewPosition5`, `ScrewPosition6`, `InjectionSpeed4`, `InjectionSpeed5`, `InjectionSpeed6`, `InjectionPressure4`, `InjectionPressure5`, `InjectionPressure6`) VALUES
 (14, 'PARAM_20250522_988df', 71.74, 23.68, 4.86, 122.39, 20.88, 14.38, 21.8, 26.5, 38.4, 152.2, 124, 185.9, 29.68, 97.1, 148.6, 21.14, 11.7, 89.38, 199.5, 55.7, 186.2, 44.9, 16.3, 94.4, 16.4, 1.8, 3.4, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (29, 'PARAM_20250718_1333e', 190, 7, 1, 150, 75, 30, 45, 45, 45, 42, 45, 50, 15, 0, 0, 0, 0, 0, 35, 35, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -185,24 +204,26 @@ INSERT INTO `injectionparameters` (`id`, `record_id`, `RecoveryPosition`, `Secon
 (36, 'PARAM_20250718_1fe34', 230, 11, 10.1, 230, 208, 80, 65, 70, 70, 70, 70, 70, 15, 0, 0, 0, 0, 0, 50, 40, 30, 25, 25, 25, 2, 2, 1.96, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (37, 'PARAM_20250721_15806', 115, 2, 0, 115, 60, 30, 99, 99, 99, 99, 99, 99, 15, 1, 0, 0, 0, 0, 25, 0, 0, 0, 0, 0, 3, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (38, 'PARAM_20250721_73997', 115, 2, 0, 115, 60, 30, 99, 99, 99, 99, 99, 99, 15, 1, 0, 0, 0, 0, 25, 0, 0, 0, 0, 0, 3, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+
 CREATE TABLE IF NOT EXISTS `materialcomposition` (
-`id` int(11) NOT NULL,
-`record_id` varchar(20) DEFAULT NULL,
-`DryingTime` float DEFAULT NULL,
-`DryingTemperature` float DEFAULT NULL,
-`Material1_Type` varchar(255) DEFAULT NULL,
-`Material1_Brand` varchar(255) DEFAULT NULL,
-`Material1_MixturePercentage` float DEFAULT NULL,
-`Material2_Type` varchar(255) DEFAULT NULL,
-`Material2_Brand` varchar(255) DEFAULT NULL,
-`Material2_MixturePercentage` float DEFAULT NULL,
-`Material3_Type` varchar(255) DEFAULT NULL,
-`Material3_Brand` varchar(255) DEFAULT NULL,
-`Material3_MixturePercentage` float DEFAULT NULL,
-`Material4_Type` varchar(255) DEFAULT NULL,
-`Material4_Brand` varchar(255) DEFAULT NULL,
-`Material4_MixturePercentage` float DEFAULT NULL
+  `id` int(11) NOT NULL,
+  `record_id` varchar(20) DEFAULT NULL,
+  `DryingTime` float DEFAULT NULL,
+  `DryingTemperature` float DEFAULT NULL,
+  `Material1_Type` varchar(255) DEFAULT NULL,
+  `Material1_Brand` varchar(255) DEFAULT NULL,
+  `Material1_MixturePercentage` float DEFAULT NULL,
+  `Material2_Type` varchar(255) DEFAULT NULL,
+  `Material2_Brand` varchar(255) DEFAULT NULL,
+  `Material2_MixturePercentage` float DEFAULT NULL,
+  `Material3_Type` varchar(255) DEFAULT NULL,
+  `Material3_Brand` varchar(255) DEFAULT NULL,
+  `Material3_MixturePercentage` float DEFAULT NULL,
+  `Material4_Type` varchar(255) DEFAULT NULL,
+  `Material4_Brand` varchar(255) DEFAULT NULL,
+  `Material4_MixturePercentage` float DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 INSERT INTO `materialcomposition` (`id`, `record_id`, `DryingTime`, `DryingTemperature`, `Material1_Type`, `Material1_Brand`, `Material1_MixturePercentage`, `Material2_Type`, `Material2_Brand`, `Material2_MixturePercentage`, `Material3_Type`, `Material3_Brand`, `Material3_MixturePercentage`, `Material4_Type`, `Material4_Brand`, `Material4_MixturePercentage`) VALUES
 (18, 'PARAM_20250522_988df', 25, 51.4, 'Sample-4004', 'Sample-7370', 39.74, 'Sample-6226', 'Sample-6542', 62.08, 'Sample-1844', 'Sample-9003', 35.15, 'Sample-4119', 'Sample-6264', 48.38),
 (33, 'PARAM_20250718_1333e', 0, 0, 'PEHD', 'EVALENE 3601 NAT', 100, '', '', 0, '', '', 0, '', '', 0),
@@ -213,53 +234,57 @@ INSERT INTO `materialcomposition` (`id`, `record_id`, `DryingTime`, `DryingTempe
 (41, 'PARAM_20250718_1fe34', 0, 0, 'PEHD', 'EVALENE 8601 NATURAL', 100, '', '', 0, '', '', 0, '', '', 0),
 (42, 'PARAM_20250721_15806', 0, 0, 'SM340', 'PP TITANPRO', 100, 'MC-04_01', 'PELD', 10, '', '', 0, '', '', 0),
 (43, 'PARAM_20250721_73997', 0, 0, 'SM340', 'PP TITANPRO', 100, 'MC-04_01', 'PELD', 10, '', '', 0, '', '', 0);
+
 CREATE TABLE IF NOT EXISTS `moldcloseparameters` (
-`id` int(11) NOT NULL,
-`record_id` varchar(20) DEFAULT NULL COMMENT 'Links to parameter_records table',
-`MoldClosePos1` float DEFAULT NULL COMMENT 'Mold close position 1',
-`MoldClosePos2` float DEFAULT NULL COMMENT 'Mold close position 2',
-`MoldClosePos3` float DEFAULT NULL COMMENT 'Mold close position 3',
-`MoldClosePos4` float DEFAULT NULL COMMENT 'Mold close position 4',
-`MoldClosePos5` float DEFAULT NULL COMMENT 'Mold close position 5',
-`MoldClosePos6` float DEFAULT NULL COMMENT 'Mold close position 6',
-`MoldCloseSpd1` float DEFAULT NULL COMMENT 'Mold close speed 1',
-`MoldCloseSpd2` float DEFAULT NULL COMMENT 'Mold close speed 2',
-`MoldCloseSpd3` float DEFAULT NULL COMMENT 'Mold close speed 3',
-`MoldCloseSpd4` float DEFAULT NULL COMMENT 'Mold close speed 4',
-`MoldCloseSpd5` float DEFAULT NULL COMMENT 'Mold close speed 5',
-`MoldCloseSpd6` float DEFAULT NULL COMMENT 'Mold close speed 6',
-`MoldClosePressure1` float DEFAULT NULL COMMENT 'Mold close pressure 1',
-`MoldClosePressure2` float DEFAULT NULL COMMENT 'Mold close pressure 2',
-`MoldClosePressure3` float DEFAULT NULL COMMENT 'Mold close pressure 3',
-`MoldClosePressure4` float DEFAULT NULL COMMENT 'Mold close pressure 4 - NEW FIELD',
-`PCLORLP` varchar(255) DEFAULT NULL COMMENT 'PCL/LP parameter',
-`PCHORHP` varchar(255) DEFAULT NULL COMMENT 'PCH/HP parameter',
-`LowPresTimeLimit` float DEFAULT NULL COMMENT 'Low pressure time limit',
-`created_at` timestamp NULL DEFAULT current_timestamp(),
-`updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `id` int(11) NOT NULL,
+  `record_id` varchar(20) DEFAULT NULL COMMENT 'Links to parameter_records table',
+  `MoldClosePos1` float DEFAULT NULL COMMENT 'Mold close position 1',
+  `MoldClosePos2` float DEFAULT NULL COMMENT 'Mold close position 2',
+  `MoldClosePos3` float DEFAULT NULL COMMENT 'Mold close position 3',
+  `MoldClosePos4` float DEFAULT NULL COMMENT 'Mold close position 4',
+  `MoldClosePos5` float DEFAULT NULL COMMENT 'Mold close position 5',
+  `MoldClosePos6` float DEFAULT NULL COMMENT 'Mold close position 6',
+  `MoldCloseSpd1` float DEFAULT NULL COMMENT 'Mold close speed 1',
+  `MoldCloseSpd2` float DEFAULT NULL COMMENT 'Mold close speed 2',
+  `MoldCloseSpd3` float DEFAULT NULL COMMENT 'Mold close speed 3',
+  `MoldCloseSpd4` float DEFAULT NULL COMMENT 'Mold close speed 4',
+  `MoldCloseSpd5` float DEFAULT NULL COMMENT 'Mold close speed 5',
+  `MoldCloseSpd6` float DEFAULT NULL COMMENT 'Mold close speed 6',
+  `MoldClosePressure1` float DEFAULT NULL COMMENT 'Mold close pressure 1',
+  `MoldClosePressure2` float DEFAULT NULL COMMENT 'Mold close pressure 2',
+  `MoldClosePressure3` float DEFAULT NULL COMMENT 'Mold close pressure 3',
+  `MoldClosePressure4` float DEFAULT NULL COMMENT 'Mold close pressure 4 - NEW FIELD',
+  `PCLORLP` varchar(255) DEFAULT NULL COMMENT 'PCL/LP parameter',
+  `PCHORHP` varchar(255) DEFAULT NULL COMMENT 'PCH/HP parameter',
+  `LowPresTimeLimit` float DEFAULT NULL COMMENT 'Low pressure time limit',
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Mold close parameters including positions, speeds, and pressures';
-INSERT INTO `moldcloseparameters` (`id`, `record_id`, `MoldClosePos1`, `MoldClosePos2`, `MoldClosePos3`, `MoldClosePos4`, `MoldClosePos5`, `MoldClosePos6`, `MoldCloseSpd1`, `MoldCloseSpd2`, `MoldCloseSpd3`, `MoldCloseSpd4`, `MoldCloseSpd5`, `MoldCloseSpd6`, `MoldClosePressure1`, `MoldClosePressure2`, `MoldClosePressure3`, `MoldClosePressure4`, `PCLORLP`, `PCHORHP`, `LowPresTimeLimit`, `created_at`, `updated_at`) VALUES;
+
+INSERT INTO `moldcloseparameters` (`id`, `record_id`, `MoldClosePos1`, `MoldClosePos2`, `MoldClosePos3`, `MoldClosePos4`, `MoldClosePos5`, `MoldClosePos6`, `MoldCloseSpd1`, `MoldCloseSpd2`, `MoldCloseSpd3`, `MoldCloseSpd4`, `MoldCloseSpd5`, `MoldCloseSpd6`, `MoldClosePressure1`, `MoldClosePressure2`, `MoldClosePressure3`, `MoldClosePressure4`, `PCLORLP`, `PCHORHP`, `LowPresTimeLimit`, `created_at`, `updated_at`) VALUES
+
 CREATE TABLE IF NOT EXISTS `moldheatertemperatures` (
-`id` int(11) NOT NULL,
-`record_id` varchar(20) DEFAULT NULL,
-`Zone1` float DEFAULT NULL,
-`Zone2` float DEFAULT NULL,
-`Zone3` float DEFAULT NULL,
-`Zone4` float DEFAULT NULL,
-`Zone5` float DEFAULT NULL,
-`Zone6` float DEFAULT NULL,
-`Zone7` float DEFAULT NULL,
-`Zone8` float DEFAULT NULL,
-`Zone9` float DEFAULT NULL,
-`Zone10` float DEFAULT NULL,
-`Zone11` float DEFAULT NULL,
-`Zone12` float DEFAULT NULL,
-`Zone13` float DEFAULT NULL,
-`Zone14` float DEFAULT NULL,
-`Zone15` float DEFAULT NULL,
-`Zone16` float DEFAULT NULL,
-`MTCSetting` float DEFAULT NULL
+  `id` int(11) NOT NULL,
+  `record_id` varchar(20) DEFAULT NULL,
+  `Zone1` float DEFAULT NULL,
+  `Zone2` float DEFAULT NULL,
+  `Zone3` float DEFAULT NULL,
+  `Zone4` float DEFAULT NULL,
+  `Zone5` float DEFAULT NULL,
+  `Zone6` float DEFAULT NULL,
+  `Zone7` float DEFAULT NULL,
+  `Zone8` float DEFAULT NULL,
+  `Zone9` float DEFAULT NULL,
+  `Zone10` float DEFAULT NULL,
+  `Zone11` float DEFAULT NULL,
+  `Zone12` float DEFAULT NULL,
+  `Zone13` float DEFAULT NULL,
+  `Zone14` float DEFAULT NULL,
+  `Zone15` float DEFAULT NULL,
+  `Zone16` float DEFAULT NULL,
+  `MTCSetting` float DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 INSERT INTO `moldheatertemperatures` (`id`, `record_id`, `Zone1`, `Zone2`, `Zone3`, `Zone4`, `Zone5`, `Zone6`, `Zone7`, `Zone8`, `Zone9`, `Zone10`, `Zone11`, `Zone12`, `Zone13`, `Zone14`, `Zone15`, `Zone16`, `MTCSetting`) VALUES
 (1, 'PARAM_20240701_001', 45, 50, 45, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 10),
 (2, 'PARAM_20240702_002', 40, 45, 40, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 8),
@@ -288,45 +313,49 @@ INSERT INTO `moldheatertemperatures` (`id`, `record_id`, `Zone1`, `Zone2`, `Zone
 (40, 'PARAM_20250718_1fe34', 180, 170, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (41, 'PARAM_20250721_15806', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (42, 'PARAM_20250721_73997', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
 CREATE TABLE IF NOT EXISTS `moldopenparameters` (
-`id` int(11) NOT NULL,
-`record_id` varchar(20) DEFAULT NULL COMMENT 'Links to parameter_records table',
-`MoldOpenPos1` float DEFAULT NULL COMMENT 'Mold open position 1',
-`MoldOpenPos2` float DEFAULT NULL COMMENT 'Mold open position 2',
-`MoldOpenPos3` float DEFAULT NULL COMMENT 'Mold open position 3',
-`MoldOpenPos4` float DEFAULT NULL COMMENT 'Mold open position 4',
-`MoldOpenPos5` float DEFAULT NULL COMMENT 'Mold open position 5',
-`MoldOpenPos6` float DEFAULT NULL COMMENT 'Mold open position 6',
-`MoldOpenSpd1` float DEFAULT NULL COMMENT 'Mold open speed 1',
-`MoldOpenSpd2` float DEFAULT NULL COMMENT 'Mold open speed 2',
-`MoldOpenSpd3` float DEFAULT NULL COMMENT 'Mold open speed 3',
-`MoldOpenSpd4` float DEFAULT NULL COMMENT 'Mold open speed 4',
-`MoldOpenSpd5` float DEFAULT NULL COMMENT 'Mold open speed 5',
-`MoldOpenSpd6` float DEFAULT NULL COMMENT 'Mold open speed 6',
-`MoldOpenPressure1` float DEFAULT NULL COMMENT 'Mold open pressure 1',
-`MoldOpenPressure2` float DEFAULT NULL COMMENT 'Mold open pressure 2',
-`MoldOpenPressure3` float DEFAULT NULL COMMENT 'Mold open pressure 3',
-`MoldOpenPressure4` float DEFAULT NULL COMMENT 'Mold open pressure 4',
-`MoldOpenPressure5` float DEFAULT NULL COMMENT 'Mold open pressure 5',
-`MoldOpenPressure6` float DEFAULT NULL COMMENT 'Mold open pressure 6',
-`created_at` timestamp NULL DEFAULT current_timestamp(),
-`updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `id` int(11) NOT NULL,
+  `record_id` varchar(20) DEFAULT NULL COMMENT 'Links to parameter_records table',
+  `MoldOpenPos1` float DEFAULT NULL COMMENT 'Mold open position 1',
+  `MoldOpenPos2` float DEFAULT NULL COMMENT 'Mold open position 2',
+  `MoldOpenPos3` float DEFAULT NULL COMMENT 'Mold open position 3',
+  `MoldOpenPos4` float DEFAULT NULL COMMENT 'Mold open position 4',
+  `MoldOpenPos5` float DEFAULT NULL COMMENT 'Mold open position 5',
+  `MoldOpenPos6` float DEFAULT NULL COMMENT 'Mold open position 6',
+  `MoldOpenSpd1` float DEFAULT NULL COMMENT 'Mold open speed 1',
+  `MoldOpenSpd2` float DEFAULT NULL COMMENT 'Mold open speed 2',
+  `MoldOpenSpd3` float DEFAULT NULL COMMENT 'Mold open speed 3',
+  `MoldOpenSpd4` float DEFAULT NULL COMMENT 'Mold open speed 4',
+  `MoldOpenSpd5` float DEFAULT NULL COMMENT 'Mold open speed 5',
+  `MoldOpenSpd6` float DEFAULT NULL COMMENT 'Mold open speed 6',
+  `MoldOpenPressure1` float DEFAULT NULL COMMENT 'Mold open pressure 1',
+  `MoldOpenPressure2` float DEFAULT NULL COMMENT 'Mold open pressure 2',
+  `MoldOpenPressure3` float DEFAULT NULL COMMENT 'Mold open pressure 3',
+  `MoldOpenPressure4` float DEFAULT NULL COMMENT 'Mold open pressure 4',
+  `MoldOpenPressure5` float DEFAULT NULL COMMENT 'Mold open pressure 5',
+  `MoldOpenPressure6` float DEFAULT NULL COMMENT 'Mold open pressure 6',
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Mold open parameters including positions, speeds, and pressures';
+
 INSERT INTO `moldopenparameters` (`id`, `record_id`, `MoldOpenPos1`, `MoldOpenPos2`, `MoldOpenPos3`, `MoldOpenPos4`, `MoldOpenPos5`, `MoldOpenPos6`, `MoldOpenSpd1`, `MoldOpenSpd2`, `MoldOpenSpd3`, `MoldOpenSpd4`, `MoldOpenSpd5`, `MoldOpenSpd6`, `MoldOpenPressure1`, `MoldOpenPressure2`, `MoldOpenPressure3`, `MoldOpenPressure4`, `MoldOpenPressure5`, `MoldOpenPressure6`, `created_at`, `updated_at`) VALUES
+
 CREATE TABLE IF NOT EXISTS `moldoperationspecs` (
-`id` int(11) NOT NULL,
-`record_id` varchar(20) DEFAULT NULL,
-`MoldCode` varchar(255) DEFAULT NULL,
-`ClampingForce` varchar(255) DEFAULT NULL,
-`OperationType` varchar(255) DEFAULT NULL,
-`CoolingMedia` varchar(255) DEFAULT NULL,
-`HeatingMedia` varchar(255) DEFAULT NULL,
-`StationaryCoolingMediaRemarks` text DEFAULT NULL,
-`MovableCoolingMediaRemarks` text DEFAULT NULL,
-`StationaryCoolingMedia` varchar(255) DEFAULT NULL COMMENT 'Stationary cooling media type',
-`MovableCoolingMedia` varchar(255) DEFAULT NULL COMMENT 'Movable cooling media type',
-`CoolingMediaRemarks` text DEFAULT NULL COMMENT 'Additional remarks about cooling media'
+  `id` int(11) NOT NULL,
+  `record_id` varchar(20) DEFAULT NULL,
+  `MoldCode` varchar(255) DEFAULT NULL,
+  `ClampingForce` varchar(255) DEFAULT NULL,
+  `OperationType` varchar(255) DEFAULT NULL,
+  `CoolingMedia` varchar(255) DEFAULT NULL,
+  `HeatingMedia` varchar(255) DEFAULT NULL,
+  `StationaryCoolingMediaRemarks` text DEFAULT NULL,
+  `MovableCoolingMediaRemarks` text DEFAULT NULL,
+  `StationaryCoolingMedia` varchar(255) DEFAULT NULL COMMENT 'Stationary cooling media type',
+  `MovableCoolingMedia` varchar(255) DEFAULT NULL COMMENT 'Movable cooling media type',
+  `CoolingMediaRemarks` text DEFAULT NULL COMMENT 'Additional remarks about cooling media'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 INSERT INTO `moldoperationspecs` (`id`, `record_id`, `MoldCode`, `ClampingForce`, `OperationType`, `CoolingMedia`, `HeatingMedia`, `StationaryCoolingMediaRemarks`, `MovableCoolingMediaRemarks`, `StationaryCoolingMedia`, `MovableCoolingMedia`, `CoolingMediaRemarks`) VALUES
 (1, 'PARAM_20240701_001', 'MC101', '50 tons', 'automatic', 'Chilled Water', 'Hot Oil', NULL, NULL, 'Chilled Water', 'Chilled Water', NULL),
 (2, 'PARAM_20240702_002', 'MC202', '75 tons', 'automatic', 'Chilled Water', 'Electrical', NULL, NULL, 'Chilled Water', 'Chilled Water', NULL),
@@ -355,40 +384,43 @@ INSERT INTO `moldoperationspecs` (`id`, `record_id`, `MoldCode`, `ClampingForce`
 (41, 'PARAM_20250718_1fe34', '3269', '99', 'semi-automatic', 'Chilled', 'MHC', NULL, NULL, 'Chilled', 'Chilled', NULL),
 (42, 'PARAM_20250721_15806', '4125', '85@55', 'semi-automatic', 'Normal', 'MHC', NULL, NULL, 'Normal', 'Normal', NULL),
 (43, 'PARAM_20250721_73997', '4125', '85@55', 'semi-automatic', 'Normal', 'MHC', NULL, NULL, 'Normal', 'Normal', NULL);
+
 CREATE TABLE IF NOT EXISTS `parameters_submissions` (
-`id` int(11) NOT NULL,
-`productmachineinfo_id` int(11) NOT NULL,
-`productdetails_id` int(11) NOT NULL,
-`materialcomposition_id` int(11) NOT NULL,
-`colorantdetails_id` int(11) NOT NULL,
-`moldoperationspecs_id` int(11) NOT NULL,
-`timerparameters_id` int(11) NOT NULL,
-`barrelheatertemperatures_id` int(11) NOT NULL,
-`moldheatertemperatures_id` int(11) NOT NULL,
-`plasticizingparameters_id` int(11) NOT NULL,
-`injectionparameters_id` int(11) NOT NULL,
-`ejectionparameters_id` int(11) NOT NULL,
-`corepullsettings_id` int(11) NOT NULL,
-`additionalinformation_id` int(11) NOT NULL,
-`personnel_id` int(11) NOT NULL,
-`approval_status` enum('pending','approved','declined') NOT NULL DEFAULT 'pending',
-`qa_reviewer` varchar(255) DEFAULT NULL,
-`supervisor_reviewer` varchar(255) DEFAULT NULL,
-`created_at` timestamp NULL DEFAULT current_timestamp(),
-`updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `id` int(11) NOT NULL,
+  `productmachineinfo_id` int(11) NOT NULL,
+  `productdetails_id` int(11) NOT NULL,
+  `materialcomposition_id` int(11) NOT NULL,
+  `colorantdetails_id` int(11) NOT NULL,
+  `moldoperationspecs_id` int(11) NOT NULL,
+  `timerparameters_id` int(11) NOT NULL,
+  `barrelheatertemperatures_id` int(11) NOT NULL,
+  `moldheatertemperatures_id` int(11) NOT NULL,
+  `plasticizingparameters_id` int(11) NOT NULL,
+  `injectionparameters_id` int(11) NOT NULL,
+  `ejectionparameters_id` int(11) NOT NULL,
+  `corepullsettings_id` int(11) NOT NULL,
+  `additionalinformation_id` int(11) NOT NULL,
+  `personnel_id` int(11) NOT NULL,
+  `approval_status` enum('pending','approved','declined') NOT NULL DEFAULT 'pending',
+  `qa_reviewer` varchar(255) DEFAULT NULL,
+  `supervisor_reviewer` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 CREATE TABLE IF NOT EXISTS `parameter_records` (
-`record_id` varchar(20) NOT NULL,
-`submission_date` timestamp NULL DEFAULT current_timestamp(),
-`status` enum('active','archived','deleted') DEFAULT 'active',
-`review_status` enum('pending','reviewed','approved','needs_attention') DEFAULT 'pending',
-`first_reviewed_date` datetime DEFAULT NULL,
-`last_reviewed_date` datetime DEFAULT NULL,
-`reviewer_count` int(11) DEFAULT 0,
-`submitted_by` varchar(100) DEFAULT NULL,
-`title` varchar(255) DEFAULT NULL,
-`description` text DEFAULT NULL
+  `record_id` varchar(20) NOT NULL,
+  `submission_date` timestamp NULL DEFAULT current_timestamp(),
+  `status` enum('active','archived','deleted') DEFAULT 'active',
+  `review_status` enum('pending','reviewed','approved','needs_attention') DEFAULT 'pending',
+  `first_reviewed_date` datetime DEFAULT NULL,
+  `last_reviewed_date` datetime DEFAULT NULL,
+  `reviewer_count` int(11) DEFAULT 0,
+  `submitted_by` varchar(100) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 INSERT INTO `parameter_records` (`record_id`, `submission_date`, `status`, `review_status`, `first_reviewed_date`, `last_reviewed_date`, `reviewer_count`, `submitted_by`, `title`, `description`) VALUES
 ('PARAM_20250522_988df', '2025-05-22 06:36:59', 'active', 'pending', NULL, NULL, 0, 'Jessie Mallorca Castro', 'CLF 750B - Plastic Container', 'Production run completed with standard parameters. All quality checks passed. Material batch: MB-3604'),
 ('PARAM_20250718_1333e', '2025-07-18 03:06:22', 'active', 'pending', NULL, NULL, 0, 'Romart Canda', 'CLF 750A - CM-5', ''),
@@ -396,15 +428,18 @@ INSERT INTO `parameter_records` (`record_id`, `submission_date`, `status`, `revi
 ('PARAM_20250718_1fe34', '2025-07-18 09:42:21', 'active', 'pending', NULL, NULL, 0, 'Jade Eduardo Derramas', 'TOS 850B - CNS-3C', '2 GATES ONLY DUE TO GAS TRAP.'),
 ('PARAM_20250718_210a5', '2025-07-18 03:22:56', 'active', 'pending', NULL, NULL, 0, 'Romart Canda', 'CLF 750B - 8oz Shell Plastic Crate (PEPSI)', ''),
 ('PARAM_20250718_634d7', '2025-07-18 06:04:37', 'active', 'pending', NULL, NULL, 0, 'Romart Canda', 'TOS 850B - 1L Shell Plastic Crate (Pepsi)', ''),
+
 ('PARAM_20250718_dd40b', '2025-07-18 03:49:14', 'active', 'pending', NULL, NULL, 0, 'Romart Canda', 'CLF 750B - 8oz Shell Plastic Crate (PEPSI)', 'W/ HPP'),
 ('PARAM_20250721_15806', '2025-07-21 02:44:59', 'active', 'pending', NULL, NULL, 0, 'Kaishu San Jose', 'MIT 650D - UTILITY BIN 10L RECTANGULAR', 'AIR BLOW CONNECTED TO THE CORE SEQUENCE \r\nAn air line is connected to the Mold cavity; it blows air due to the mold open.\r\nCore mold \r\n1 1 - 1 3.0 7 - 1 2.0\r\n'),
 ('PARAM_20250721_73997', '2025-07-21 02:46:43', 'active', 'pending', NULL, NULL, 0, 'Kaishu San Jose', 'MIT 650D - UTILITY BIN 10L RECTANGULAR', 'AIR BLOW CONNECTED TO THE CORE SEQUENCE \r\nAn air line is connected to the Mold cavity; it blows air due to the mold open.\r\nCore mold \r\n1 1 - 1 3.0 7 - 1 2.0\r\n');
+
 CREATE TABLE IF NOT EXISTS `personnel` (
-`id` int(11) NOT NULL,
-`record_id` varchar(20) DEFAULT NULL,
-`AdjusterName` varchar(255) DEFAULT NULL,
-`QAEName` varchar(255) DEFAULT NULL
+  `id` int(11) NOT NULL,
+  `record_id` varchar(20) DEFAULT NULL,
+  `AdjusterName` varchar(255) DEFAULT NULL,
+  `QAEName` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 INSERT INTO `personnel` (`id`, `record_id`, `AdjusterName`, `QAEName`) VALUES
 (13, 'PARAM_20250522_988df', 'Jessie Mallorca Castro', 'QA Robert Brown'),
 (20, 'PARAM_20250718_1333e', 'Romart Canda', ''),
@@ -415,26 +450,28 @@ INSERT INTO `personnel` (`id`, `record_id`, `AdjusterName`, `QAEName`) VALUES
 (27, 'PARAM_20250718_1fe34', 'Jade Eduardo Derramas', 'Carl Francisco'),
 (28, 'PARAM_20250721_15806', 'Kaishu San Jose', 'Ian ilustresimo'),
 (29, 'PARAM_20250721_73997', 'Kaishu San Jose', 'Ian ilustresimo');
+
 CREATE TABLE IF NOT EXISTS `plasticizingparameters` (
-`id` int(11) NOT NULL,
-`record_id` varchar(20) DEFAULT NULL,
-`ScrewRPM1` float DEFAULT NULL,
-`ScrewRPM2` float DEFAULT NULL,
-`ScrewRPM3` float DEFAULT NULL,
-`ScrewSpeed1` float DEFAULT NULL,
-`ScrewSpeed2` float DEFAULT NULL,
-`ScrewSpeed3` float DEFAULT NULL,
-`PlastPressure1` float DEFAULT NULL,
-`PlastPressure2` float DEFAULT NULL,
-`PlastPressure3` float DEFAULT NULL,
-`PlastPosition1` float DEFAULT NULL,
-`PlastPosition2` float DEFAULT NULL,
-`PlastPosition3` float DEFAULT NULL,
-`BackPressure1` float DEFAULT NULL,
-`BackPressure2` float DEFAULT NULL,
-`BackPressure3` float DEFAULT NULL,
-`BackPressureStartPosition` float DEFAULT NULL
+  `id` int(11) NOT NULL,
+  `record_id` varchar(20) DEFAULT NULL,
+  `ScrewRPM1` float DEFAULT NULL,
+  `ScrewRPM2` float DEFAULT NULL,
+  `ScrewRPM3` float DEFAULT NULL,
+  `ScrewSpeed1` float DEFAULT NULL,
+  `ScrewSpeed2` float DEFAULT NULL,
+  `ScrewSpeed3` float DEFAULT NULL,
+  `PlastPressure1` float DEFAULT NULL,
+  `PlastPressure2` float DEFAULT NULL,
+  `PlastPressure3` float DEFAULT NULL,
+  `PlastPosition1` float DEFAULT NULL,
+  `PlastPosition2` float DEFAULT NULL,
+  `PlastPosition3` float DEFAULT NULL,
+  `BackPressure1` float DEFAULT NULL,
+  `BackPressure2` float DEFAULT NULL,
+  `BackPressure3` float DEFAULT NULL,
+  `BackPressureStartPosition` float DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 INSERT INTO `plasticizingparameters` (`id`, `record_id`, `ScrewRPM1`, `ScrewRPM2`, `ScrewRPM3`, `ScrewSpeed1`, `ScrewSpeed2`, `ScrewSpeed3`, `PlastPressure1`, `PlastPressure2`, `PlastPressure3`, `PlastPosition1`, `PlastPosition2`, `PlastPosition3`, `BackPressure1`, `BackPressure2`, `BackPressure3`, `BackPressureStartPosition`) VALUES
 (14, 'PARAM_20250522_988df', 106.4, 147.4, 81.7, 63.1, 55.1, 37.2, 62.9, 107.3, 49.4, 77.13, 80.12, 73.69, 101.5, 55.1, 75, 180.6),
 (29, 'PARAM_20250718_1333e', 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0),
@@ -445,17 +482,19 @@ INSERT INTO `plasticizingparameters` (`id`, `record_id`, `ScrewRPM1`, `ScrewRPM2
 (36, 'PARAM_20250718_1fe34', 0, 0, 0, 45, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (37, 'PARAM_20250721_15806', 0, 0, 0, 55, 55, 55, 0, 0, 0, 0, 20, 60, 0, 3, 3, 65),
 (38, 'PARAM_20250721_73997', 0, 0, 0, 55, 55, 55, 0, 0, 0, 0, 20, 60, 0, 3, 3, 65);
+
 CREATE TABLE IF NOT EXISTS `productdetails` (
-`id` int(11) NOT NULL,
-`record_id` varchar(20) DEFAULT NULL,
-`ProductName` varchar(255) DEFAULT NULL,
-`Color` varchar(255) DEFAULT NULL,
-`MoldName` varchar(255) DEFAULT NULL,
-`ProductNumber` varchar(255) DEFAULT NULL,
-`CavityActive` int(11) DEFAULT NULL,
-`GrossWeight` float DEFAULT NULL,
-`NetWeight` float DEFAULT NULL
+  `id` int(11) NOT NULL,
+  `record_id` varchar(20) DEFAULT NULL,
+  `ProductName` varchar(255) DEFAULT NULL,
+  `Color` varchar(255) DEFAULT NULL,
+  `MoldName` varchar(255) DEFAULT NULL,
+  `ProductNumber` varchar(255) DEFAULT NULL,
+  `CavityActive` int(11) DEFAULT NULL,
+  `GrossWeight` float DEFAULT NULL,
+  `NetWeight` float DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 INSERT INTO `productdetails` (`id`, `record_id`, `ProductName`, `Color`, `MoldName`, `ProductNumber`, `CavityActive`, `GrossWeight`, `NetWeight`) VALUES
 (1, 'PARAM_20240701_001', 'Plastic Container', 'Clear', 'MOLD-C101', 'PC-100', 4, 120.5, 115),
 (2, 'PARAM_20240702_002', 'Bottle Cap', 'Blue', 'MOLD-C202', 'BC-200', 8, 15.2, 14.8),
@@ -484,18 +523,20 @@ INSERT INTO `productdetails` (`id`, `record_id`, `ProductName`, `Color`, `MoldNa
 (41, 'PARAM_20250718_1fe34', 'CNS-3C', 'BLUE', 'CNS-3C', '02', 1, 0, 0),
 (42, 'PARAM_20250721_15806', 'UTILITY BIN 10L RECTANGULAR', 'Light Gray', 'UTILITY BIN', '', 1, 447, 440),
 (43, 'PARAM_20250721_73997', 'UTILITY BIN 10L RECTANGULAR', 'Light Gray', 'UTILITY BIN', '', 1, 447, 440);
+
 CREATE TABLE IF NOT EXISTS `productmachineinfo` (
-`id` int(11) NOT NULL,
-`record_id` varchar(20) DEFAULT NULL,
-`Date` date NOT NULL,
-`Time` time NOT NULL,
-`startTime` time DEFAULT NULL,
-`endTime` time DEFAULT NULL,
-`MachineName` varchar(255) DEFAULT NULL,
-`RunNumber` varchar(255) DEFAULT NULL,
-`Category` varchar(255) DEFAULT NULL,
-`IRN` varchar(255) DEFAULT NULL
+  `id` int(11) NOT NULL,
+  `record_id` varchar(20) DEFAULT NULL,
+  `Date` date NOT NULL,
+  `Time` time NOT NULL,
+  `startTime` time DEFAULT NULL,
+  `endTime` time DEFAULT NULL,
+  `MachineName` varchar(255) DEFAULT NULL,
+  `RunNumber` varchar(255) DEFAULT NULL,
+  `Category` varchar(255) DEFAULT NULL,
+  `IRN` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 INSERT INTO `productmachineinfo` (`id`, `record_id`, `Date`, `Time`, `startTime`, `endTime`, `MachineName`, `RunNumber`, `Category`, `IRN`) VALUES
 (1, 'PARAM_20240701_001', '2024-07-01', '08:30:00', NULL, NULL, 'ARB 50', 'RN1001', 'Containers', 'IRN10234'),
 (2, 'PARAM_20240702_002', '2024-07-02', '10:15:00', NULL, NULL, 'SUM 350', 'RN1002', 'Caps', 'IRN10235'),
@@ -524,25 +565,29 @@ INSERT INTO `productmachineinfo` (`id`, `record_id`, `Date`, `Time`, `startTime`
 (41, 'PARAM_20250718_1fe34', '2025-07-18', '17:42:00', '15:30:00', '17:30:00', 'TOS 850B', '', 'Mass Production', 'T8BMP-00324-20'),
 (42, 'PARAM_20250721_15806', '2025-07-21', '10:44:00', '10:08:00', '10:31:00', 'MIT 650D', '', 'Mass Production', 'M6DMP-00201-20'),
 (43, 'PARAM_20250721_73997', '2025-07-21', '10:45:00', '10:08:00', '10:31:00', 'MIT 650D', '', 'Mass Production', 'M6DMP-00201-20');
+
 CREATE TABLE IF NOT EXISTS `supervisor_reviews` (
-`id` int(11) NOT NULL,
-`record_id` varchar(50) NOT NULL,
-`supervisor_name` varchar(100) NOT NULL,
-`supervisor_role` varchar(50) DEFAULT 'Supervisor',
-`review_date` datetime DEFAULT current_timestamp(),
-`review_notes` text DEFAULT NULL
+  `id` int(11) NOT NULL,
+  `record_id` varchar(50) NOT NULL,
+  `supervisor_name` varchar(100) NOT NULL,
+  `supervisor_role` varchar(50) DEFAULT 'Supervisor',
+  `review_date` datetime DEFAULT current_timestamp(),
+  `review_notes` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 INSERT INTO `supervisor_reviews` (`id`, `record_id`, `supervisor_name`, `supervisor_role`, `review_date`, `review_notes`) VALUES
+
 CREATE TABLE IF NOT EXISTS `timerparameters` (
-`id` int(11) NOT NULL,
-`record_id` varchar(20) DEFAULT NULL,
-`FillingTime` float DEFAULT NULL,
-`HoldingTime` float DEFAULT NULL,
-`MoldOpenCloseTime` float DEFAULT NULL,
-`ChargingTime` float DEFAULT NULL,
-`CoolingTime` float DEFAULT NULL,
-`CycleTime` float DEFAULT NULL
+  `id` int(11) NOT NULL,
+  `record_id` varchar(20) DEFAULT NULL,
+  `FillingTime` float DEFAULT NULL,
+  `HoldingTime` float DEFAULT NULL,
+  `MoldOpenCloseTime` float DEFAULT NULL,
+  `ChargingTime` float DEFAULT NULL,
+  `CoolingTime` float DEFAULT NULL,
+  `CycleTime` float DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 INSERT INTO `timerparameters` (`id`, `record_id`, `FillingTime`, `HoldingTime`, `MoldOpenCloseTime`, `ChargingTime`, `CoolingTime`, `CycleTime`) VALUES
 (1, 'PARAM_20240701_001', 2.5, 5, 3, 1.5, 8, 20),
 (2, 'PARAM_20240702_002', 1, 3, 2, 1, 5, 12),
@@ -571,120 +616,149 @@ INSERT INTO `timerparameters` (`id`, `record_id`, `FillingTime`, `HoldingTime`, 
 (41, 'PARAM_20250718_1fe34', 6.04, 5.96, 0, 30.73, 65, 107.7),
 (42, 'PARAM_20250721_15806', 3.27, 3, 14.77, 15.25, 35, 74.59),
 (43, 'PARAM_20250721_73997', 3.27, 3, 14.77, 15.25, 35, 74.59);
+
 CREATE TABLE IF NOT EXISTS `user_activity` (
-`id` int(11) NOT NULL,
-`user_id_number` varchar(10) DEFAULT NULL,
-`full_name` varchar(255) DEFAULT NULL,
-`activity_type` varchar(100) DEFAULT NULL,
-`record_id` varchar(50) DEFAULT NULL,
-`session_data` text DEFAULT NULL,
-`additional_info` text DEFAULT NULL,
-`ip_address` varchar(45) DEFAULT NULL,
-`user_agent` text DEFAULT NULL,
-`created_at` timestamp NULL DEFAULT current_timestamp()
+  `id` int(11) NOT NULL,
+  `user_id_number` varchar(10) DEFAULT NULL,
+  `full_name` varchar(255) DEFAULT NULL,
+  `activity_type` varchar(100) DEFAULT NULL,
+  `record_id` varchar(50) DEFAULT NULL,
+  `session_data` text DEFAULT NULL,
+  `additional_info` text DEFAULT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 INSERT INTO `user_activity` (`id`, `user_id_number`, `full_name`, `activity_type`, `record_id`, `session_data`, `additional_info`, `ip_address`, `user_agent`, `created_at`) VALUES
+
 ALTER TABLE `additionalinformation`
-ADD PRIMARY KEY (`id`),
-ADD KEY `idx_record_id_additionalinformation` (`record_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_record_id_additionalinformation` (`record_id`);
+
 ALTER TABLE `attachments`
-ADD PRIMARY KEY (`id`),
-ADD KEY `idx_record_id_attachments` (`record_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_record_id_attachments` (`record_id`);
+
 ALTER TABLE `barrelheatertemperatures`
-ADD PRIMARY KEY (`id`),
-ADD KEY `idx_record_id_barrelheatertemperatures` (`record_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_record_id_barrelheatertemperatures` (`record_id`);
+
 ALTER TABLE `colorantdetails`
-ADD PRIMARY KEY (`id`),
-ADD KEY `idx_record_id_colorantdetails` (`record_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_record_id_colorantdetails` (`record_id`);
+
 ALTER TABLE `corepullsettings`
-ADD PRIMARY KEY (`id`),
-ADD KEY `idx_record_id_corepullsettings` (`record_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_record_id_corepullsettings` (`record_id`);
+
 ALTER TABLE `ejectionparameters`
-ADD PRIMARY KEY (`id`),
-ADD KEY `idx_record_id_ejectionparameters` (`record_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_record_id_ejectionparameters` (`record_id`);
+
 ALTER TABLE `injectionparameters`
-ADD PRIMARY KEY (`id`),
-ADD KEY `idx_record_id_injectionparameters` (`record_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_record_id_injectionparameters` (`record_id`);
+
 ALTER TABLE `materialcomposition`
-ADD PRIMARY KEY (`id`),
-ADD KEY `idx_record_id_materialcomposition` (`record_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_record_id_materialcomposition` (`record_id`);
+
 ALTER TABLE `moldcloseparameters`
-ADD PRIMARY KEY (`id`),
-ADD KEY `idx_record_id_moldclose` (`record_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_record_id_moldclose` (`record_id`);
+
 ALTER TABLE `moldheatertemperatures`
-ADD PRIMARY KEY (`id`),
-ADD KEY `idx_record_id_moldheatertemperatures` (`record_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_record_id_moldheatertemperatures` (`record_id`);
+
 ALTER TABLE `moldopenparameters`
-ADD PRIMARY KEY (`id`),
-ADD KEY `idx_record_id_moldopen` (`record_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_record_id_moldopen` (`record_id`);
+
 ALTER TABLE `moldoperationspecs`
-ADD PRIMARY KEY (`id`),
-ADD KEY `idx_record_id_moldoperationspecs` (`record_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_record_id_moldoperationspecs` (`record_id`);
+
 ALTER TABLE `parameters_submissions`
-ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
+
 ALTER TABLE `parameter_records`
-ADD PRIMARY KEY (`record_id`),
-ADD KEY `idx_review_status` (`review_status`);
+  ADD PRIMARY KEY (`record_id`),
+  ADD KEY `idx_review_status` (`review_status`);
+
 ALTER TABLE `personnel`
-ADD PRIMARY KEY (`id`),
-ADD KEY `idx_record_id_personnel` (`record_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_record_id_personnel` (`record_id`);
+
 ALTER TABLE `plasticizingparameters`
-ADD PRIMARY KEY (`id`),
-ADD KEY `idx_record_id_plasticizingparameters` (`record_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_record_id_plasticizingparameters` (`record_id`);
+
 ALTER TABLE `productdetails`
-ADD PRIMARY KEY (`id`),
-ADD KEY `idx_record_id_productdetails` (`record_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_record_id_productdetails` (`record_id`);
+
 ALTER TABLE `productmachineinfo`
-ADD PRIMARY KEY (`id`),
-ADD KEY `idx_record_id_productmachineinfo` (`record_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_record_id_productmachineinfo` (`record_id`);
+
 ALTER TABLE `supervisor_reviews`
-ADD PRIMARY KEY (`id`),
-ADD KEY `idx_record_id` (`record_id`),
-ADD KEY `idx_supervisor` (`supervisor_name`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_record_id` (`record_id`),
+  ADD KEY `idx_supervisor` (`supervisor_name`);
+
 ALTER TABLE `timerparameters`
-ADD PRIMARY KEY (`id`),
-ADD KEY `idx_record_id_timerparameters` (`record_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_record_id_timerparameters` (`record_id`);
+
 ALTER TABLE `user_activity`
-ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
+
 ALTER TABLE `additionalinformation`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+
 ALTER TABLE `attachments`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
+
 ALTER TABLE `barrelheatertemperatures`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
+
 ALTER TABLE `colorantdetails`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
+
 ALTER TABLE `corepullsettings`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=192;
+
 ALTER TABLE `ejectionparameters`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
+
 ALTER TABLE `injectionparameters`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
+
 ALTER TABLE `materialcomposition`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
+
 ALTER TABLE `moldcloseparameters`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+
 ALTER TABLE `moldheatertemperatures`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=71;
+
 ALTER TABLE `moldopenparameters`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+
 ALTER TABLE `moldoperationspecs`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
+
 ALTER TABLE `parameters_submissions`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
 ALTER TABLE `personnel`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+
 ALTER TABLE `plasticizingparameters`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
+
 ALTER TABLE `productdetails`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
+
 ALTER TABLE `productmachineinfo`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
+
 ALTER TABLE `supervisor_reviews`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
 ALTER TABLE `timerparameters`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
+
 ALTER TABLE `user_activity`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+
 ALTER TABLE `supervisor_reviews`
-ADD CONSTRAINT `supervisor_reviews_ibfk_1` FOREIGN KEY (`record_id`) REFERENCES `parameter_records` (`record_id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `supervisor_reviews_ibfk_1` FOREIGN KEY (`record_id`) REFERENCES `parameter_records` (`record_id`) ON DELETE CASCADE;
+
+;
+;
+;
