@@ -7,15 +7,14 @@ if (!isset($_SESSION['full_name'])) {
     exit();
 }
 
-// Database connection
-$servername = "localhost";
-$username = "root";
-$password = "injectionadmin123";
-$dbname = "injectionmoldingparameters";
+// Load centralized database configuration
+require_once __DIR__ . '/../includes/database.php';
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Get database connection
+try {
+    $conn = DatabaseManager::getConnection('sentinel_main');
+} catch (Exception $e) {
+    die("Database connection failed: " . $e->getMessage());
 }
 
 // Get the search term from the request

@@ -1,16 +1,12 @@
 <?php
-// Database connection details
-$servername = "localhost"; // replace with your server name
-$username = "root"; // replace with your MySQL username
-$password = "Admin123@plvil"; // replace with your MySQL password
-$dbname = "dailymonitoringsheet"; // replace with your database name
+// Load centralized database configuration
+require_once __DIR__ . '/includes/database.php';
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Get database connection
+try {
+    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+} catch (Exception $e) {
+    die("Database connection failed: " . $e->getMessage());
 }
 
 $recordCreated = false;

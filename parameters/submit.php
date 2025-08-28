@@ -66,14 +66,15 @@ if (!isset($_SESSION['full_name']) || empty(trim($_SESSION['full_name']))) {
 //print_r($_POST);
 //echo "</pre>";
 
-// Database connection details
-$servername = "localhost";
-$username = "root";
-$password = "injectionadmin123";
-$dbname = "injectionmoldingparameters";
+// Load centralized database configuration
+require_once __DIR__ . '/../includes/database.php';
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+// Get database connection
+try {
+    $conn = DatabaseManager::getConnection('sentinel_main');
+} catch (Exception $e) {
+    die("Database connection failed: " . $e->getMessage());
+}
 
 // Set MySQL timezone to Philippine Time (UTC+8)
 $conn->query("SET time_zone = '+08:00'");

@@ -4,14 +4,15 @@ if (!isset($_SESSION['full_name'])) {
     http_response_code(403);
     exit();
 }
-$servername = "localhost";
-$username = "root";
-$password = "injectionadmin123";
-$dbname = "dailymonitoringsheet";
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Load centralized database configuration
+require_once __DIR__ . '/includes/database.php';
+
+// Get database connection
+try {
+    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+} catch (Exception $e) {
+    die("Database connection failed: " . $e->getMessage());
 }
 
 $sqlCycleChart = "SELECT DATE(`date`) as day, AVG(cycle_time_actual) as avg_cycle_time 

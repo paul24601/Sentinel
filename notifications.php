@@ -1,17 +1,15 @@
 <?php
 header('Content-Type: application/json');
 
-// Database connection details
-$servername = "localhost";
-$username   = "root";
-$password   = "injectionadmin123";
-$dbname     = "dailymonitoringsheet";
+// Load centralized database configuration
+require_once __DIR__ . '/includes/database.php';
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
+// Get database connection
+try {
+    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+} catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Database connection failed: ' . $conn->connect_error]);
+    echo json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]);
     exit();
 }
 

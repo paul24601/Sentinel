@@ -16,16 +16,14 @@ if (!isset($_GET['record_id']) || empty($_GET['record_id'])) {
 
 $record_id = $_GET['record_id'];
 
-// Database connection
-$servername = "localhost";
-$username = "root";
-$password = "injectionadmin123";
-$dbname = "injectionmoldingparameters";
+// Load centralized database configuration
+require_once __DIR__ . '/../includes/database.php';
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Get database connection
+try {
+    $conn = DatabaseManager::getConnection('sentinel_main');
+} catch (Exception $e) {
+    die("Database connection failed: " . $e->getMessage());
 }
 
 // Start transaction

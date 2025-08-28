@@ -15,16 +15,14 @@ require '../PHPMailer/src/SMTP.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-// Database connection details
-$servername = "localhost";
-$username = "root";
-$password = "injectionadmin123";
-$dbname = "admin_sentinel";
+// Load centralized database configuration
+require_once __DIR__ . '/../includes/database.php';
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Get database connection
+try {
+    $conn = DatabaseManager::getConnection('sentinel_admin');
+} catch (Exception $e) {
+    die("Database connection failed: " . $e->getMessage());
 }
 
 $message = "";
