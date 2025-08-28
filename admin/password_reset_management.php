@@ -212,112 +212,324 @@ $requests_result = $conn->query($requests_sql);
 ?>
 
 <?php include '../includes/navbar.php'; ?>
-            <main>
-                <div class="container-fluid px-4">
-                    <h1 class="mt-4">Password Reset Management</h1>
-                    <ol class="breadcrumb mb-4">
-                        <li class="breadcrumb-item"><a href="../index.php">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Password Reset Management</li>
-                    </ol>
 
-                    <style>
-                        .status-pending { color: #ffc107; }
-                        .status-approved { color: #28a745; }
-                        .status-denied { color: #dc3545; }
-                        .card-header {
-                            background: linear-gradient(135deg, #005bea, #00c6fb);
-                            color: white;
-                        }
-                    </style>
+<style>
+    .status-pending { color: #ffc107; font-weight: bold; }
+    .status-approved { color: #28a745; font-weight: bold; }
+    .status-denied { color: #dc3545; font-weight: bold; }
+    
+    .card-header {
+        background: linear-gradient(135deg, #005bea, #00c6fb);
+        color: white;
+    }
+    
+    /* Statistics Cards */
+    .stats-cards {
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        border-radius: 10px;
+        transition: transform 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stat-icon {
+        font-size: 2rem;
+        margin-right: 1rem;
+    }
+    
+    /* Table Improvements */
+    .table-container {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .search-bar {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .action-buttons .btn {
+        margin: 2px;
+    }
+    
+    /* DataTable custom styling */
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        padding: 6px;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0.375rem 0.75rem;
+        margin-left: 0.25rem;
+        border-radius: 0.25rem;
+    }
+    
+    .dataTables_wrapper .dataTables_filter input {
+        margin-left: 0.5rem;
+    }
+    
+    /* Responsive table improvements */
+    @media (max-width: 768px) {
+        .table-responsive {
+            font-size: 0.875rem;
+        }
+        
+        .action-buttons .btn {
+            display: block;
+            width: 100%;
+            margin: 2px 0;
+        }
+        
+        .stats-cards .col-xl-3 {
+            margin-bottom: 1rem;
+        }
+    }
+    
+    /* Main content area fix */
+    #layoutSidenav_content {
+        width: 100%;
+        overflow-x: hidden;
+    }
+    
+    #layoutSidenav_content main {
+        flex: 1 0 auto;
+        width: 100%;
+    }
+    
+    .container-fluid {
+        max-width: 100%;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+    
+    /* Empty state styling */
+    .empty-state {
+        padding: 3rem 2rem;
+    }
+    
+    .empty-state i {
+        opacity: 0.5;
+    }
+</style>
 
-                    <?php echo $message; ?>
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Password Reset Management</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="../index.php">Dashboard</a></li>
+            <li class="breadcrumb-item active">Password Reset Management</li>
+        </ol>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="mb-0">
-                                <i class="fas fa-key"></i> Password Reset Requests
-                            </h3>
-                        </div>
-                        <div class="card-body">
+        <?php echo $message; ?>
 
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Employee ID</th>
-                                        <th>Full Name</th>
-                                        <th>Role</th>
-                                        <th>Request Date</th>
-                                        <th>Reason</th>
-                                        <th>Status</th>
-                                        <th>Admin Response</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if ($requests_result && $requests_result->num_rows > 0): ?>
-                                        <?php while ($row = $requests_result->fetch_assoc()): ?>
-                                            <tr>
-                                                <td><?php echo $row['id']; ?></td>
-                                                <td><strong><?php echo htmlspecialchars($row['id_number']); ?></strong></td>
-                                                <td><?php echo htmlspecialchars($row['full_name']); ?></td>
-                                                <td>
-                                                    <span class="badge bg-secondary">
-                                                        <?php echo htmlspecialchars($row['role'] ?? 'Unknown'); ?>
-                                                    </span>
-                                                </td>
-                                                <td><?php echo date('M j, Y g:i A', strtotime($row['request_date'])); ?></td>
-                                                <td>
-                                                    <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
-                                                        <?php echo htmlspecialchars(substr($row['request_reason'], 0, 100)); ?>
-                                                        <?php if (strlen($row['request_reason']) > 100) echo '...'; ?>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <span class="status-<?php echo $row['status']; ?>">
-                                                        <i class="fas fa-<?php echo $row['status'] === 'pending' ? 'clock' : ($row['status'] === 'approved' ? 'check-circle' : 'times-circle'); ?>"></i>
-                                                        <?php echo ucfirst($row['status']); ?>
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <?php if ($row['admin_response_date']): ?>
-                                                        <small>
-                                                            <?php echo date('M j, Y', strtotime($row['admin_response_date'])); ?>
-                                                            <br>by: <?php echo htmlspecialchars($row['admin_id']); ?>
-                                                        </small>
-                                                    <?php else: ?>
-                                                        <small class="text-muted">Pending</small>
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td>
-                                                    <?php if ($row['status'] === 'pending'): ?>
-                                                        <button class="btn btn-sm btn-success me-1" 
-                                                                onclick="showActionModal(<?php echo $row['id']; ?>, 'approve', '<?php echo htmlspecialchars($row['full_name']); ?>')">
-                                                            <i class="fas fa-check"></i> Approve
-                                                        </button>
-                                                        <button class="btn btn-sm btn-danger" 
-                                                                onclick="showActionModal(<?php echo $row['id']; ?>, 'deny', '<?php echo htmlspecialchars($row['full_name']); ?>')">
-                                                            <i class="fas fa-times"></i> Deny
-                                                        </button>
-                                                    <?php else: ?>
-                                                        <span class="text-muted">Processed</span>
-                                                    <?php endif; ?>
-                                                </td>
-                                            </tr>
-                                        <?php endwhile; ?>
-                                    <?php else: ?>
-                                        <tr>
-                                            <td colspan="9" class="text-center">No password reset requests found.</td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
+        <!-- Statistics Cards -->
+        <div class="row stats-cards">
+            <?php
+            // Calculate statistics
+            $total_requests = $requests_result->num_rows;
+            $pending_count = 0;
+            $approved_count = 0;
+            $denied_count = 0;
+            
+            if ($requests_result) {
+                $requests_result->data_seek(0); // Reset result pointer
+                while ($row = $requests_result->fetch_assoc()) {
+                    switch ($row['status']) {
+                        case 'pending': $pending_count++; break;
+                        case 'approved': $approved_count++; break;
+                        case 'denied': $denied_count++; break;
+                    }
+                }
+                $requests_result->data_seek(0); // Reset again for table display
+            }
+            ?>
+            
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card bg-primary text-white mb-4">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="fas fa-list stat-icon"></i>
+                        <div>
+                            <div class="h4 mb-0"><?php echo $total_requests; ?></div>
+                            <div>Total Requests</div>
                         </div>
                     </div>
                 </div>
-            </main>
+            </div>
+            
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card bg-warning text-white mb-4">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="fas fa-clock stat-icon"></i>
+                        <div>
+                            <div class="h4 mb-0"><?php echo $pending_count; ?></div>
+                            <div>Pending</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card bg-success text-white mb-4">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="fas fa-check-circle stat-icon"></i>
+                        <div>
+                            <div class="h4 mb-0"><?php echo $approved_count; ?></div>
+                            <div>Approved</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card bg-danger text-white mb-4">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="fas fa-times-circle stat-icon"></i>
+                        <div>
+                            <div class="h4 mb-0"><?php echo $denied_count; ?></div>
+                            <div>Denied</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Table -->
+        <div class="table-container">
+            <div class="card-header">
+                <h3 class="mb-0">
+                    <i class="fas fa-key"></i> Password Reset Requests
+                </h3>
+            </div>
+            
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table id="passwordResetTable" class="table table-striped table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Employee ID</th>
+                                <th>Full Name</th>
+                                <th>Role</th>
+                                <th>Request Date</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Admin Response</th>
+                                <th width="180">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ($requests_result && $requests_result->num_rows > 0): ?>
+                                <?php while ($row = $requests_result->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><?php echo $row['id']; ?></td>
+                                        <td><span class="badge bg-info"><?php echo htmlspecialchars($row['id_number']); ?></span></td>
+                                        <td>
+                                            <div class="fw-bold"><?php echo htmlspecialchars($row['full_name']); ?></div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">
+                                                <?php echo htmlspecialchars($row['role'] ?? 'Unknown'); ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="small">
+                                                <?php echo date('M j, Y', strtotime($row['request_date'])); ?>
+                                                <br><span class="text-muted"><?php echo date('g:i A', strtotime($row['request_date'])); ?></span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="max-width: 200px;">
+                                                <span title="<?php echo htmlspecialchars($row['request_reason']); ?>" 
+                                                      data-bs-toggle="tooltip" data-bs-placement="top">
+                                                    <?php echo htmlspecialchars(substr($row['request_reason'], 0, 50)); ?>
+                                                    <?php if (strlen($row['request_reason']) > 50) echo '...'; ?>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <?php
+                                            $statusClass = '';
+                                            $statusIcon = '';
+                                            switch($row['status']) {
+                                                case 'pending':
+                                                    $statusClass = 'warning';
+                                                    $statusIcon = 'clock';
+                                                    break;
+                                                case 'approved':
+                                                    $statusClass = 'success';
+                                                    $statusIcon = 'check-circle';
+                                                    break;
+                                                case 'denied':
+                                                    $statusClass = 'danger';
+                                                    $statusIcon = 'times-circle';
+                                                    break;
+                                            }
+                                            ?>
+                                            <span class="badge bg-<?php echo $statusClass; ?>">
+                                                <i class="fas fa-<?php echo $statusIcon; ?> me-1"></i>
+                                                <?php echo ucfirst($row['status']); ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <?php if ($row['admin_response_date']): ?>
+                                                <div class="small">
+                                                    <div class="fw-bold"><?php echo date('M j, Y', strtotime($row['admin_response_date'])); ?></div>
+                                                    <div class="text-muted">by: <?php echo htmlspecialchars($row['admin_id']); ?></div>
+                                                </div>
+                                            <?php else: ?>
+                                                <span class="badge bg-light text-dark">Pending</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <?php if ($row['status'] === 'pending'): ?>
+                                                    <button class="btn btn-sm btn-success" 
+                                                            onclick="showActionModal(<?php echo $row['id']; ?>, 'approve', '<?php echo htmlspecialchars($row['full_name']); ?>')"
+                                                            data-bs-toggle="tooltip" title="Approve Request">
+                                                        <i class="fas fa-check"></i> Approve
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger" 
+                                                            onclick="showActionModal(<?php echo $row['id']; ?>, 'deny', '<?php echo htmlspecialchars($row['full_name']); ?>')"
+                                                            data-bs-toggle="tooltip" title="Deny Request">
+                                                        <i class="fas fa-times"></i> Deny
+                                                    </button>
+                                                <?php else: ?>
+                                                    <span class="badge bg-secondary">
+                                                        <i class="fas fa-check-double me-1"></i>Processed
+                                                    </span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="9" class="text-center py-5">
+                                        <div class="empty-state">
+                                            <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                                            <h5 class="text-muted">No password reset requests found</h5>
+                                            <p class="text-muted mb-0">When users submit password reset requests, they will appear here.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
+</main>
 
     <!-- Action Modal -->
     <div class="modal fade" id="actionModal" tabindex="-1">
@@ -349,10 +561,62 @@ $requests_result = $conn->query($requests_sql);
         </div>
     </div>
 
+    <!-- Include DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
     <script>
+        // Initialize DataTable
+        $(document).ready(function() {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            $('#passwordResetTable').DataTable({
+                responsive: true,
+                pageLength: 25,
+                order: [[0, 'desc']], // Sort by ID descending (newest first)
+                columnDefs: [
+                    { 
+                        targets: [8], // Actions column
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        targets: [5], // Reason column
+                        orderable: false
+                    }
+                ],
+                language: {
+                    search: "Search requests:",
+                    lengthMenu: "Show _MENU_ requests per page",
+                    info: "Showing _START_ to _END_ of _TOTAL_ password reset requests",
+                    infoEmpty: "No requests available",
+                    emptyTable: "No password reset requests found",
+                    paginate: {
+                        previous: "Previous",
+                        next: "Next"
+                    }
+                },
+                dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                     "<'row'<'col-sm-12'tr>>" +
+                     "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                initComplete: function() {
+                    // Add custom styling to search box
+                    $('.dataTables_filter input').addClass('form-control').attr('placeholder', 'Search requests...');
+                    $('.dataTables_length select').addClass('form-select');
+                }
+            });
+        });
+
         function showActionModal(requestId, action, userName) {
             document.getElementById('actionRequestId').value = requestId;
             document.getElementById('actionType').value = action;
+            document.getElementById('admin_comment').value = ''; // Clear previous comment
             
             const modal = document.getElementById('actionModal');
             const title = document.getElementById('actionModalTitle');
@@ -361,18 +625,73 @@ $requests_result = $conn->query($requests_sql);
             
             if (action === 'approve') {
                 title.textContent = 'Approve Password Reset';
-                message.innerHTML = `Are you sure you want to approve the password reset request for <strong>${userName}</strong>?<br><small class="text-muted">A new temporary password will be generated and sent to the user.</small>`;
+                message.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        Are you sure you want to approve the password reset request for <strong>${userName}</strong>?
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <small>The user's password will be reset to the default password "injection".</small>
+                    </div>
+                `;
                 submitBtn.className = 'btn btn-success';
                 submitBtn.innerHTML = '<i class="fas fa-check"></i> Approve Request';
             } else {
                 title.textContent = 'Deny Password Reset';
-                message.innerHTML = `Are you sure you want to deny the password reset request for <strong>${userName}</strong>?`;
+                message.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-times-circle"></i>
+                        Are you sure you want to deny the password reset request for <strong>${userName}</strong>?
+                    </div>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <small>Please consider adding a comment explaining why the request was denied.</small>
+                    </div>
+                `;
                 submitBtn.className = 'btn btn-danger';
                 submitBtn.innerHTML = '<i class="fas fa-times"></i> Deny Request';
             }
             
             new bootstrap.Modal(modal).show();
         }
+
+        // Add some animation and feedback
+        $(document).ready(function() {
+            // Animate statistics cards on load
+            $('.stat-card').each(function(index) {
+                $(this).delay(index * 100).animate({
+                    opacity: 1
+                }, 500);
+            });
+
+            // Add hover effects to action buttons
+            $('.action-buttons .btn').hover(
+                function() {
+                    $(this).removeClass('btn-sm').addClass('btn-md');
+                },
+                function() {
+                    $(this).removeClass('btn-md').addClass('btn-sm');
+                }
+            );
+
+            // Auto-refresh table every 5 minutes
+            setInterval(function() {
+                location.reload();
+            }, 300000); // 5 minutes
+        });
+
+        // Add loading state to form submission
+        $('form').on('submit', function() {
+            const submitBtn = $('#actionSubmitBtn');
+            const originalText = submitBtn.html();
+            submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Processing...').prop('disabled', true);
+            
+            // Re-enable after 3 seconds in case of slow response
+            setTimeout(function() {
+                submitBtn.html(originalText).prop('disabled', false);
+            }, 3000);
+        });
     </script>
 
 <?php include '../includes/navbar_close.php'; ?>

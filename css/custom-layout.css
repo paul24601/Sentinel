@@ -1,0 +1,199 @@
+/* Custom CSS to fix layout issues in Sentinel */
+
+/* Fix main layout structure */
+#layoutSidenav {
+    display: flex;
+    min-height: 100vh;
+}
+
+#layoutSidenav_nav {
+    width: 225px;
+    flex-shrink: 0;
+}
+
+#layoutSidenav_content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0; /* Prevents overflow */
+    overflow-x: hidden; /* Prevents horizontal scroll */
+}
+
+#layoutSidenav_content main {
+    flex: 1;
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Fix container fluid width issues */
+.container-fluid {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+/* Fix table responsive issues */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Improve table styling */
+.table-container {
+    margin-bottom: 2rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+/* DataTables wrapper improvements */
+.dataTables_wrapper {
+    padding: 1rem;
+}
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter {
+    margin-bottom: 1rem;
+}
+
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    margin-top: 1rem;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .sb-nav-fixed #layoutSidenav #layoutSidenav_content {
+        padding-left: 0;
+    }
+    
+    .container-fluid {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+    
+    .action-buttons .btn {
+        display: block;
+        width: 100%;
+        margin-bottom: 5px;
+    }
+}
+
+/* Statistics cards styling */
+.stats-cards .stat-card {
+    transition: all 0.3s ease;
+    border: none;
+    opacity: 0;
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.stats-cards .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Action buttons improvements */
+.action-buttons {
+    white-space: nowrap;
+}
+
+.action-buttons .btn {
+    margin: 2px;
+    font-size: 0.875rem;
+}
+
+/* Status indicators */
+.status-pending {
+    color: #ffc107 !important;
+    font-weight: 600;
+}
+
+.status-approved {
+    color: #198754 !important;
+    font-weight: 600;
+}
+
+.status-denied {
+    color: #dc3545 !important;
+    font-weight: 600;
+}
+
+/* Badge improvements */
+.badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Modal improvements */
+.modal-content {
+    border-radius: 0.5rem;
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    border-bottom: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+}
+
+/* Form improvements */
+.form-control:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Footer improvements */
+footer {
+    margin-top: auto;
+    flex-shrink: 0;
+}
+
+/* Print styles */
+@media print {
+    .sb-sidenav,
+    .sb-topnav,
+    .action-buttons,
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_paginate {
+        display: none !important;
+    }
+    
+    #layoutSidenav_content {
+        padding-left: 0 !important;
+    }
+    
+    .container-fluid {
+        padding: 0 !important;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .table-container {
+        background-color: #2d3748;
+        color: #e2e8f0;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #2d3748, #4a5568) !important;
+    }
+}
