@@ -40,18 +40,28 @@ $basePath = getBasePath();
     <meta name="description" content="" />
     <meta name="author" content="" />
     <title>Sentinel Digitization</title>
-    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
-    <link href="<?php echo $basePath; ?>css/styles.css" rel="stylesheet" />
-    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-    <!-- Bootstrap CSS -->
+    
+    <!-- Bootstrap CSS - Load FIRST to allow custom overrides -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- DataTables CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    
+    <!-- Custom Styles - Load AFTER Bootstrap to override defaults -->
+    <link href="<?php echo $basePath; ?>css/styles.css" rel="stylesheet" />
+    
+    <!-- Icon Libraries -->
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
     <!-- jQuery and jQuery UI for Autocomplete -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <!-- Custom CSS for layout fixes -->
@@ -59,6 +69,26 @@ $basePath = getBasePath();
     
     <!-- Custom CSS to restore original sidebar design -->
     <style>
+        /* UNIVERSAL CARD HEADER FIX FOR ALL PAGES */
+        .card-header,
+        div.card-header,
+        .card .card-header {
+            background: linear-gradient(135deg, #007bff, #0056b3) !important;
+            background-color: #007bff !important;
+            color: white !important;
+            border: none !important;
+            font-weight: 600 !important;
+        }
+        
+        .card-header.bg-primary { background: linear-gradient(135deg, #007bff, #0056b3) !important; color: white !important; }
+        .card-header.bg-success { background: linear-gradient(135deg, #28a745, #1e7e34) !important; color: white !important; }
+        .card-header.bg-info { background: linear-gradient(135deg, #17a2b8, #138496) !important; color: white !important; }
+        .card-header.bg-warning { background: linear-gradient(135deg, #ffc107, #e0a800) !important; color: #212529 !important; }
+        .card-header.bg-danger { background: linear-gradient(135deg, #dc3545, #c82333) !important; color: white !important; }
+        .card-header.bg-dark { background: linear-gradient(135deg, #343a40, #23272b) !important; color: white !important; }
+        .card-header.bg-light { background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important; color: #212529 !important; }
+        .card-header.bg-secondary { background: linear-gradient(135deg, #6c757d, #5a6268) !important; color: white !important; }
+        
         /* Remove border-radius from sidebar nav-links to restore sharp corners */
         .sb-sidenav .sb-sidenav-menu .nav .nav-link {
             border-radius: 0 !important;

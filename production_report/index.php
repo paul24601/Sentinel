@@ -35,8 +35,11 @@
             min-width: 120px;
         }
         .card-header {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
+            background: linear-gradient(135deg, #007bff, #0056b3) !important;
+            background-color: #007bff !important;
+            color: white !important;
+            border: none !important;
+            font-weight: 600 !important;
         }
         .time-input {
             width: 80px !important;

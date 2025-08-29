@@ -112,7 +112,37 @@ while ($row = $result->fetch_assoc()) {
 
 ?>
 <?php include '../includes/navbar.php'; ?>
-            <main>
+
+<!-- CSS for Analytics page styling -->
+<style>
+    .stat-card {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border: none;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #495057;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    
+    .card {
+        border: none;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    }
+</style>
+
+<main>
                 <div class="container-fluid px-4">
                     <h1 class="mt-4">Parameter Analytics Dashboard</h1>
                     <ol class="breadcrumb mb-4">

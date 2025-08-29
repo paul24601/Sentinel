@@ -193,7 +193,34 @@ footer {
         color: #e2e8f0;
     }
     
+    /* Keep our blue gradient for card headers even in dark mode */
     .card-header {
-        background: linear-gradient(135deg, #2d3748, #4a5568) !important;
+        background: linear-gradient(135deg, #007bff, #0056b3) !important;
+        color: white !important;
+    }
+    
+    .card-header.bg-primary {
+        background: linear-gradient(135deg, #007bff, #0056b3) !important;
+        color: white !important;
+    }
+    
+    .card-header.bg-success {
+        background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+        color: white !important;
+    }
+    
+    .card-header.bg-info {
+        background: linear-gradient(135deg, #17a2b8, #138496) !important;
+        color: white !important;
+    }
+    
+    .card-header.bg-warning {
+        background: linear-gradient(135deg, #ffc107, #e0a800) !important;
+        color: #212529 !important;
+    }
+    
+    .card-header.bg-danger {
+        background: linear-gradient(135deg, #dc3545, #c82333) !important;
+        color: white !important;
     }
 }

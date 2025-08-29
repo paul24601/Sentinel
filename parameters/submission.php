@@ -69,7 +69,51 @@ if ($selectedRecordId) {
 
 ?>
 <?php include '../includes/navbar.php'; ?>
-            <main>
+
+<!-- CSS for Submission page styling -->
+<style>
+    /* Ultra-specific card header override - Force blue gradient */
+    div.card div.card-header,
+    .card .card-header,
+    .card-header {
+        background: linear-gradient(135deg, #007bff, #0056b3) !important;
+        background-color: #007bff !important;
+        color: white !important;
+        border: none !important;
+        font-weight: 600 !important;
+    }
+    
+    div.card div.card-header.bg-primary,
+    .card .card-header.bg-primary,
+    .card-header.bg-primary {
+        background: linear-gradient(135deg, #007bff, #0056b3) !important;
+        background-color: #007bff !important;
+        color: white !important;
+    }
+    
+    .card {
+        border: none;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    }
+    
+    .table-responsive {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .btn-outline-primary {
+        color: #007bff;
+        border-color: #007bff;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: #007bff;
+        border-color: #007bff;
+        transform: translateY(-1px);
+    }
+</style>
+
+<main>
                 <div class="container-fluid px-4">
                     <h1 class="mt-4">Parameters Records</h1>
                     <ol class="breadcrumb mb-4">
@@ -85,7 +129,7 @@ if ($selectedRecordId) {
                         </div>
 
                         <div class="card mb-4">
-                            <div class="card-header bg-primary text-white">
+                            <div class="card-header bg-primary text-white" style="background: linear-gradient(135deg, #007bff, #0056b3) !important; background-color: #007bff !important; color: white !important;">
                                 <div class="d-flex justify-content-between">
                                     <h5><?= htmlspecialchars($recordDetails['title']) ?></h5>
                                     <span>Record ID: <?= htmlspecialchars($selectedRecordId) ?></span>
@@ -150,7 +194,7 @@ if ($selectedRecordId) {
                     <?php else: ?>
                         <!-- Records List View -->
                         <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
+                            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                                 <div>
                                     <i class="fas fa-table me-1"></i>
                                     Parameters Records (<?= $parameterRecords->num_rows ?>)
@@ -224,7 +268,6 @@ if ($selectedRecordId) {
                         </div>
                     <?php endif; ?>
                 </div>
-            </main>
 
     <script>
         $(document).ready(function() {

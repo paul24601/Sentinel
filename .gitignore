@@ -1,0 +1,88 @@
+# Development and Debug Files
+debug_*.php
+test_*.php
+*_debug.php
+migration_*.php
+navigation_demo.php
+recovery_script.php
+
+# SQL Backup and Variant Files
+*_backup.sql
+*_cleaned.sql
+*_fixed.sql
+*_manual_import.sql
+*_production.sql
+*_remote_fixed.sql
+*_final_clean.sql
+
+# Setup and Deployment Scripts (except main setup_database.php)
+deploy_*.php
+setup_admin_*.php
+setup_notifications_*.php
+setup_password_*.php
+clean_sql_*.php
+comprehensive_sql_*.php
+final_sql_*.php
+final_validator.php
+fix_sql_*.php
+ultimate_sql_*.php
+
+# Database Update Scripts
+database_schema_updates_*.sql
+database_updates_*.sql
+parameters_form_updates.sql
+forgot_password_setup.sql
+production_data.sql
+
+# Documentation and Analysis Files
+*_GUIDE.md
+*_FIX.md
+*_UPDATE*.md
+*_ANALYSIS.md
+*_COMPLETE.md
+*_INSTRUCTIONS.md
+*_MESSAGES.md
+Cost_Benefit_*.md
+Production_Report_Sprint_*.md
+
+# Environment Files
+.env.local
+.env.backup
+
+# IDE and Editor Files
+.vscode/settings.json
+*.swp
+*.swo
+*~
+
+# Temporary Files
+*.tmp
+*.temp
+*.log
+
+# System Files
+Thumbs.db
+.DS_Store
+
+# Backup Files
+*.bak
+backup_*
+
+# Password Reset Reports
+password_reset_system_report.php
+
+# Parameters Folder Backup/Test Files
+parameters/*_backup.php
+parameters/*_corrupted*.php
+parameters/*_old*.php
+parameters/*_clean.php
+parameters/*_new.php
+parameters/simple_test.html
+parameters/create_recordid.sql
+parameters/supervisor_review_system.sql
+
+# DMS Folder Backup/Test Files
+dms/*_backup.php
+dms/*_broken.php
+dms/*_fixed.php
+dms/*_temp.php

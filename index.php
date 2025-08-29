@@ -393,6 +393,26 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
 ?>
 <?php include 'includes/navbar.php'; ?>
 <style>
+    /* DASHBOARD CARD HEADER FIX */
+    .card-header,
+    div.card-header,
+    .card .card-header {
+        background: linear-gradient(135deg, #007bff, #0056b3) !important;
+        background-color: #007bff !important;
+        color: white !important;
+        border: none !important;
+        font-weight: 600 !important;
+    }
+    
+    .card-header.bg-primary { background: linear-gradient(135deg, #007bff, #0056b3) !important; color: white !important; }
+    .card-header.bg-success { background: linear-gradient(135deg, #28a745, #1e7e34) !important; color: white !important; }
+    .card-header.bg-info { background: linear-gradient(135deg, #17a2b8, #138496) !important; color: white !important; }
+    .card-header.bg-warning { background: linear-gradient(135deg, #ffc107, #e0a800) !important; color: #212529 !important; }
+    .card-header.bg-danger { background: linear-gradient(135deg, #dc3545, #c82333) !important; color: white !important; }
+    .card-header.bg-dark { background: linear-gradient(135deg, #343a40, #23272b) !important; color: white !important; }
+    .card-header.bg-light { background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important; color: #212529 !important; }
+    .card-header.bg-secondary { background: linear-gradient(135deg, #6c757d, #5a6268) !important; color: white !important; }
+    
     .dropdown-menu.scrollable {
         max-height: 300px;
         overflow-y: auto;
@@ -569,12 +589,12 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                     <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 mb-4">
                         <!-- Card 5: Parameter Records -->
                         <div class="col mb-4">
-                            <div class="card bg-secondary text-white h-100" style="cursor:pointer;" onclick="window.location.href='parameters/submission.php'">
-                                <div class="card-body text-center">
+                            <div class="card border-0 shadow-sm h-100" style="cursor:pointer; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" onclick="window.location.href='parameters/submission.php'">
+                                <div class="card-body text-center text-white">
                                     <h2 class="mb-0"><?php echo $totalParameters; ?></h2>
                                     <small>Parameter Records</small>
                                 </div>
-                                <div class="card-footer d-flex align-items-center justify-content-between">
+                                <div class="card-footer bg-transparent border-0 d-flex align-items-center justify-content-between">
                                     <a class="small text-white stretched-link" href="parameters/submission.php">View Records</a>
                                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                                 </div>
@@ -583,12 +603,12 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
 
                         <!-- Card 6: Production Reports -->
                         <div class="col mb-4">
-                            <div class="card bg-dark text-white h-100" style="cursor:pointer;" onclick="window.location.href='production_report/index.php'">
-                                <div class="card-body text-center">
+                            <div class="card border-0 shadow-sm h-100" style="cursor:pointer; background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);" onclick="window.location.href='production_report/index.php'">
+                                <div class="card-body text-center text-white">
                                     <h2 class="mb-0"><?php echo $totalProduction; ?></h2>
                                     <small>Production Reports</small>
                                 </div>
-                                <div class="card-footer d-flex align-items-center justify-content-between">
+                                <div class="card-footer bg-transparent border-0 d-flex align-items-center justify-content-between">
                                     <a class="small text-white stretched-link" href="production_report/index.php">View Reports</a>
                                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                                 </div>
@@ -597,9 +617,9 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
 
                         <!-- Card 7: Recent Activity - Enhanced -->
                         <div class="col mb-4">
-                            <div class="card bg-danger text-white h-100" data-bs-toggle="modal"
-                                data-bs-target="#activityModal" style="cursor:pointer;">
-                                <div class="card-body text-center">
+                            <div class="card border-0 shadow-sm h-100" data-bs-toggle="modal"
+                                data-bs-target="#activityModal" style="cursor:pointer; background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+                                <div class="card-body text-center text-white">
                                     <h2 class="mb-0"><?php echo $recentDetails['total_week']; ?></h2>
                                     <small>Recent Activity (7 days)</small>
                                     <div class="mt-2">
@@ -609,7 +629,7 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                                         </small>
                                     </div>
                                 </div>
-                                <div class="card-footer d-flex align-items-center justify-content-between">
+                                <div class="card-footer bg-transparent border-0 d-flex align-items-center justify-content-between">
                                     <a class="small text-white stretched-link" href="#" data-bs-toggle="modal"
                                         data-bs-target="#activityModal">View Details</a>
                                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
@@ -619,13 +639,13 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
 
                         <!-- Card 8: Machine Utilization -->
                         <div class="col mb-4">
-                            <div class="card bg-gradient-primary text-white h-100" data-bs-toggle="modal"
-                                data-bs-target="#machineUtilModal" style="cursor:pointer; background: linear-gradient(45deg, #6f42c1, #e83e8c);">
-                                <div class="card-body text-center">
+                            <div class="card border-0 shadow-sm h-100" data-bs-toggle="modal"
+                                data-bs-target="#machineUtilModal" style="cursor:pointer; background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
+                                <div class="card-body text-center text-white">
                                     <h2 class="mb-0"><?php echo count($machineUtilization); ?></h2>
                                     <small>Active Machines</small>
                                 </div>
-                                <div class="card-footer d-flex align-items-center justify-content-between">
+                                <div class="card-footer bg-transparent border-0 d-flex align-items-center justify-content-between">
                                     <a class="small text-white stretched-link" href="#" data-bs-toggle="modal"
                                         data-bs-target="#machineUtilModal">View Utilization</a>
                                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
