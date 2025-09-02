@@ -1796,7 +1796,7 @@ progress {
 .table-striped > tbody > tr:nth-of-type(odd) > * {
   --bs-table-accent-bg: var(--bs-table-striped-bg);
   color: var(--bs-table-striped-color);
-}
+}D
 
 .table-striped-columns > :not(caption) > tr > :nth-child(even) {
   --bs-table-accent-bg: var(--bs-table-striped-bg);
@@ -11353,7 +11353,8 @@ html body .card-header,
     color: white !important;
   }
 }
- 
+
+ 
  
 /* GLOBAL CARD HEADER FIX - Applied to all pages */
 .card-header,
