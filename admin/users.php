@@ -18,6 +18,113 @@ try {
     die("Database connection failed: " . $e->getMessage());
 }
 
+// Handle form submissions for adding users, updating access, etc.
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['add_user'])) {
+        // Add new user logic
+        $id_number = $_POST['id_number'];
+        $first_name = trim($_POST['first_name']);
+        $middle_name = trim($_POST['middle_name']);
+        $last_name = trim($_POST['last_name']);
+        
+        // Construct full name
+        $full_name = $first_name;
+        if (!empty($middle_name)) {
+            $full_name .= ' ' . $middle_name;
+        }
+        $full_name .= ' ' . $last_name;
+        
+        $role = $_POST['role'];
+        $password = !empty($_POST['password']) ? password_hash($_POST['password'], PASSWORD_DEFAULT) : password_hash('injection', PASSWORD_DEFAULT);
+        $departments = isset($_POST['departments']) ? $_POST['departments'] : [];
+        
+        // Insert user
+        $sql = "INSERT INTO users (id_number, full_name, password, role, password_changed) VALUES (?, ?, ?, ?, 0)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ssss", $id_number, $full_name, $password, $role);
+        
+        if ($stmt->execute()) {
+            // Insert department associations
+            if (!empty($departments)) {
+                foreach ($departments as $dept_id) {
+                    $dept_sql = "INSERT INTO user_departments (user_id_number, department_id) VALUES (?, ?)";
+                    $dept_stmt = $conn->prepare($dept_sql);
+                    $dept_stmt->bind_param("si", $id_number, $dept_id);
+                    $dept_stmt->execute();
+                }
+            }
+            echo "<script>alert('User added successfully!'); window.location.href='users.php';</script>";
+        } else {
+            echo "<script>alert('Error adding user: " . $conn->error . "');</script>";
+        }
+    }
+    
+    if (isset($_POST['update_user_access'])) {
+        // Update user department access
+        $user_id = $_POST['user_id'];
+        $departments = isset($_POST['user_departments']) ? $_POST['user_departments'] : [];
+        
+        // Delete existing department associations
+        $delete_sql = "DELETE FROM user_departments WHERE user_id_number = ?";
+        $delete_stmt = $conn->prepare($delete_sql);
+        $delete_stmt->bind_param("s", $user_id);
+        $delete_stmt->execute();
+        
+        // Insert new department associations
+        if (!empty($departments)) {
+            foreach ($departments as $dept_id) {
+                $insert_sql = "INSERT INTO user_departments (user_id_number, department_id) VALUES (?, ?)";
+                $insert_stmt = $conn->prepare($insert_sql);
+                $insert_stmt->bind_param("si", $user_id, $dept_id);
+                $insert_stmt->execute();
+            }
+        }
+        
+        echo "<script>alert('User access updated successfully!'); window.location.href='users.php';</script>";
+    }
+    
+    if (isset($_POST['reset_user_password_changed'])) {
+        // Reset password_changed flag
+        $user_id = $_POST['user_id'];
+        $sql = "UPDATE users SET password_changed = 0 WHERE id_number = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $user_id);
+        
+        if ($stmt->execute()) {
+            echo "<script>alert('Password reset flag updated successfully!'); window.location.href='users.php';</script>";
+        } else {
+            echo "<script>alert('Error updating password reset flag: " . $conn->error . "');</script>";
+        }
+    }
+}
+
+// Fetch all users from the database
+$sql = "SELECT * FROM users ORDER BY full_name";
+$result = $conn->query($sql);
+
+// Fetch all departments
+$dept_sql = "SELECT * FROM departments ORDER BY name";
+$dept_result = $conn->query($dept_sql);
+$departments = [];
+if ($dept_result && $dept_result->num_rows > 0) {
+    while ($dept_row = $dept_result->fetch_assoc()) {
+        $departments[] = $dept_row;
+    }
+}
+
+// Fetch user-department mappings
+$user_dept_sql = "SELECT ud.user_id_number, d.name as department_name 
+                  FROM user_departments ud 
+                  JOIN departments d ON ud.department_id = d.id 
+                  ORDER BY ud.user_id_number, d.name";
+$user_dept_result = $conn->query($user_dept_sql);
+$user_departments_map = [];
+if ($user_dept_result && $user_dept_result->num_rows > 0) {
+    while ($ud_row = $user_dept_result->fetch_assoc()) {
+        $user_departments_map[$ud_row['user_id_number']][] = $ud_row['department_name'];
+    }
+}
+
 // Include centralized navbar
 include '../includes/navbar.php';
 ?>
@@ -151,7 +258,7 @@ include '../includes/navbar.php';
                                                     </tr>";
                                                 }
                                             } else {
-                                                echo "<tr><td colspan='5' class='text-center'>No users found</td></tr>";
+                                                echo "<tr><td colspan='6' class='text-center'>No users found</td></tr>";
                                             }
                                             ?>
                                         </tbody>
