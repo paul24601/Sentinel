@@ -24,11 +24,11 @@ class DatabaseManager {
     public static function getConnection($database = 'sentinel_main') {
         // Return existing connection if available
         if (isset(self::$connections[$database])) {
-            // Check if connection is still alive
-            if (self::$connections[$database]->ping()) {
+            // Simple check - if connection exists and is a mysqli object, return it
+            if (self::$connections[$database] instanceof mysqli) {
                 return self::$connections[$database];
             } else {
-                // Remove dead connection
+                // Remove invalid connection
                 unset(self::$connections[$database]);
             }
         }
@@ -163,9 +163,13 @@ class DatabaseManager {
      * Close all connections
      */
     public static function closeAllConnections() {
-        foreach (self::$connections as $conn) {
+        foreach (self::$connections as $key => $conn) {
             if ($conn instanceof mysqli) {
-                $conn->close();
+                try {
+                    @$conn->close(); // Suppress warnings for already closed connections
+                } catch (Exception $e) {
+                    // Ignore errors on close
+                }
             }
         }
         self::$connections = [];

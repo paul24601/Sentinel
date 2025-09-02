@@ -1,3 +1,44 @@
+<?php
+session_start();
+
+// Load centralized database configuration
+require_once __DIR__ . '/../includes/database.php';
+require_once __DIR__ . '/../includes/admin_notifications.php';
+
+// Check if user is logged in
+if (!isset($_SESSION['full_name'])) {
+    header("Location: ../login.html");
+    exit();
+}
+
+// Initialize variables to prevent undefined variable warnings
+$pending_count = 0;
+$pending_submissions = [];
+
+// Get database connection and notifications
+try {
+    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+    
+    // Get admin notifications for current user
+    $admin_notifications = getAdminNotifications($_SESSION['id_number'], $_SESSION['role']);
+    $notification_count = getUnviewedNotificationCount($_SESSION['id_number'], $_SESSION['full_name']);
+    
+    // Get pending submissions for notifications
+    $pending_sql = "SELECT id, product_name, date FROM injectionmoldingparameters WHERE status = 'pending' ORDER BY date DESC LIMIT 10";
+    $pending_result = $conn->query($pending_sql);
+    if ($pending_result && $pending_result->num_rows > 0) {
+        $pending_submissions = $pending_result->fetch_all(MYSQLI_ASSOC);
+        $pending_count = count($pending_submissions);
+    }
+} catch (Exception $e) {
+    error_log("Database connection failed: " . $e->getMessage());
+    // Initialize empty values on error
+    $pending_count = 0;
+    $pending_submissions = [];
+    $admin_notifications = [];
+    $notification_count = 0;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 

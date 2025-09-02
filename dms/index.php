@@ -57,7 +57,6 @@ $notification_count = getUnviewedNotificationCount($_SESSION['id_number'], $_SES
         border: none !important;
         font-weight: 600 !important;
     }
-</style>
     
     .btn-success {
         background: linear-gradient(135deg, #28a745, #20c997);
@@ -76,11 +75,6 @@ $notification_count = getUnviewedNotificationCount($_SESSION['id_number'], $_SES
     main {
         padding-bottom: 100px; /* Add space for footer */
         min-height: calc(100vh - 200px); /* Ensure minimum height */
-    }
-    
-    .card {
-        border: none;
-        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
     }
 </style>
 
