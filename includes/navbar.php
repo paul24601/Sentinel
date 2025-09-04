@@ -67,6 +67,9 @@ $basePath = getBasePath();
     <!-- Custom CSS for layout fixes -->
     <link href="<?php echo $basePath; ?>css/custom-layout.css" rel="stylesheet">
     
+    <!-- Responsive Design Fixes -->
+    <link href="<?php echo $basePath; ?>css/responsive-fixes.css" rel="stylesheet">
+    
     <!-- Custom CSS to restore original sidebar design -->
     <style>
         /* UNIVERSAL CARD HEADER FIX FOR ALL PAGES */
@@ -273,7 +276,7 @@ $userRole = $_SESSION['role'];
         <!-- Navbar Brand-->
         <a class="navbar-brand ps-3" href="<?php echo $basePath; ?>index.php">Sentinel Digitization</a>
         <!-- Sidebar Toggle-->
-        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0 sb-sidenav-toggle" id="sidebarToggle" href="#!">
             <i class="fas fa-bars"></i>
         </button>
         <!-- Navbar Search-->

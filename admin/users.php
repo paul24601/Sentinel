@@ -191,7 +191,7 @@ include '../includes/navbar.php';
                                         <label class="form-label">Departments (select one or more):</label>
                                         <div class="row">
                                             <?php foreach ($departments as $dept): ?>
-                                                <div class="col-md-3">
+                                                <div class="col-12 col-sm-6 col-md-3">
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="checkbox" name="departments[]" value="<?= $dept['id'] ?>" id="dept<?= $dept['id'] ?>">
                                                         <label class="form-check-label" for="dept<?= $dept['id'] ?>">

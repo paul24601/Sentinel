@@ -488,22 +488,22 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                         </div>
                         <div class="card-body">
                             <div class="row g-2">
-                                <div class="col-lg-3 col-md-6">
+                                <div class="col-12 col-sm-6 col-lg-3">
                                             <a href="dms/submission.php" class="btn btn-primary btn-sm w-100">
                                                 <i class="fas fa-plus me-1"></i>New DMS Entry
                                             </a>
                                         </div>
-                                        <div class="col-lg-3 col-md-6">
+                                        <div class="col-12 col-sm-6 col-lg-3">
                                             <a href="parameters/submission.php" class="btn btn-success btn-sm w-100">
                                                 <i class="fas fa-cogs me-1"></i>Add Parameters
                                             </a>
                                         </div>
-                                        <div class="col-lg-3 col-md-6">
+                                        <div class="col-12 col-sm-6 col-lg-3">
                                             <a href="production_report/submit.php" class="btn btn-info btn-sm w-100">
                                                 <i class="fas fa-chart-line me-1"></i>Production Report
                                             </a>
                                         </div>
-                                        <div class="col-lg-3 col-md-6">
+                                        <div class="col-12 col-sm-6 col-lg-3">
                                             <a href="quality_control.php" class="btn btn-warning btn-sm w-100">
                                                 <i class="fas fa-check-circle me-1"></i>Quality Control
                                             </a>

@@ -225,13 +225,13 @@ $notification_count = getUnviewedNotificationCount($_SESSION['id_number'], $_SES
                     <div class="mb-4">
                         <h5 class="mb-3">Cycle Time</h5>
                         <div class="row g-3">
-                            <div class="col-md-6">
+                            <div class="col-12 col-sm-6 col-md-6">
                                 <label for="cycle-time-target" class="form-label">Target</label>
                                 <input required type="number" class="form-control"
                                     id="cycle_time_target" name="cycle_time_target"
                                     placeholder="Enter target cycle time" min="0" required>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-12 col-sm-6 col-md-6">
                                 <label for="cycle-time-actual" class="form-label">Actual</label>
                                 <div class="input-group">
                                     <select required class="form-control" id="cycle_time_actual" name="cycle_time_actual" required>
@@ -250,19 +250,19 @@ $notification_count = getUnviewedNotificationCount($_SESSION['id_number'], $_SES
                     <div class="mb-4">
                         <h5 class="mb-3">WEIGHT (grams/pc)</h5>
                         <div class="row g-3">
-                            <div class="col-md-4">
+                            <div class="col-12 col-sm-6 col-md-4">
                                 <label for="weight-standard" class="form-label">Standard</label>
                                 <input required type="number" step="0.01" class="form-control"
                                     id="weight_standard" name="weight_standard"
                                     placeholder="Enter standard weight" min="0" required>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-12 col-sm-6 col-md-4">
                                 <label for="weight-gross" class="form-label">Gross</label>
                                 <input required type="number" step="0.01" class="form-control"
                                     id="weight_gross" name="weight_gross"
                                     placeholder="Enter gross weight" min="0" required>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-12 col-sm-12 col-md-4">
                                 <label for="weight-net" class="form-label">Net</label>
                                 <input required type="number" step="0.01" class="form-control"
                                     id="weight_net" name="weight_net" placeholder="Enter net weight"
@@ -274,13 +274,13 @@ $notification_count = getUnviewedNotificationCount($_SESSION['id_number'], $_SES
                     <div class="mb-4">
                         <h5 class="mb-3">Number of Cavity</h5>
                         <div class="row g-3">
-                            <div class="col-md-6">
+                            <div class="col-12 col-sm-6 col-md-6">
                                 <label for="cavity-designed" class="form-label">Designed</label>
                                 <input required type="number" class="form-control" id="cavity_designed"
                                     name="cavity_designed"
                                     placeholder="Enter designed number of cavities" min="0" required>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-12 col-sm-6 col-md-6">
                                 <label for="cavity-active" class="form-label">Active</label>
                                 <input required type="number" class="form-control" id="cavity_active"
                                     name="cavity_active" placeholder="Enter active number of cavities"

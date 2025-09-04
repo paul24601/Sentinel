@@ -2044,7 +2044,7 @@ include '../includes/navbar.php';
                                     <div class="collapse show" id="collapseAttachments">
                                         <div class="row mb-3">
                                             <!-- Image Upload -->
-                                            <div class="col-md-6">
+                                            <div class="col-12 col-sm-6 col-md-6">
                                                 <label for="uploadImages" class="form-label">Upload Images</label>
                                                 <input class="form-control" type="file" id="uploadImages"
                                                     name="uploadImages[]" accept="image/jpeg, image/png, image/gif"
@@ -2053,7 +2053,7 @@ include '../includes/navbar.php';
                                             </div>
 
                                             <!-- Video Upload -->
-                                            <div class="col-md-6">
+                                            <div class="col-12 col-sm-6 col-md-6">
                                                 <label for="uploadVideos" class="form-label">Upload Videos</label>
                                                 <input class="form-control" type="file" id="uploadVideos"
                                                     name="uploadVideos[]" accept="video/mp4, video/avi, video/mkv"
@@ -2064,10 +2064,10 @@ include '../includes/navbar.php';
 
                                         <!-- Preview Containers -->
                                         <div class="row">
-                                            <div class="col-md-6">
+                                            <div class="col-12 col-sm-6 col-md-6">
                                                 <div id="imagePreviews" class="d-flex flex-wrap gap-2 mb-3"></div>
                                             </div>
-                                            <div class="col-md-6">
+                                            <div class="col-12 col-sm-6 col-md-6">
                                                 <div id="videoPreviews" class="d-flex flex-wrap gap-2 mb-3"></div>
                                             </div>
                                         </div>

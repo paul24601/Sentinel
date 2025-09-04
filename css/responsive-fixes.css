@@ -1,0 +1,654 @@
+/* ==========================================
+   SENTINEL RESPONSIVE DESIGN FIXES
+   ========================================== */
+
+/* ==========================================
+   1. MOBILE-FIRST VIEWPORT AND BASE STYLES
+   ========================================== */
+/* Ensure proper viewport handling */
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+body {
+    overflow-x: hidden;
+    font-size: 0.9rem;
+}
+
+/* ==========================================
+   2. SIDEBAR AND NAVIGATION RESPONSIVE FIXES - COMPLETE OVERRIDE
+   ========================================== */
+/* FORCE hide sidebar on ALL screens smaller than 992px (including medium screens) */
+@media (max-width: 991.98px) {
+    /* COMPLETELY override SB Admin default behavior */
+    .sb-nav-fixed #layoutSidenav #layoutSidenav_nav {
+        position: fixed !important;
+        left: -225px !important;
+        width: 225px !important;
+        z-index: 1031 !important;
+        transition: left 0.3s ease-in-out !important;
+        height: 100vh !important;
+        top: 56px !important; /* Account for top navbar */
+        transform: none !important;
+    }
+    
+    /* Show sidebar ONLY when toggled with button */
+    .sb-nav-fixed.sb-sidenav-toggled #layoutSidenav #layoutSidenav_nav {
+        left: 0 !important;
+        transform: none !important;
+    }
+    
+    /* Ensure content takes full width on mobile and medium screens */
+    .sb-nav-fixed #layoutSidenav #layoutSidenav_content {
+        margin-left: 0 !important;
+        width: 100% !important;
+        transition: none !important;
+        padding-left: 0 !important;
+    }
+    
+    /* Content area margin when sidebar is toggled - ensure it stays at 0 */
+    .sb-nav-fixed.sb-sidenav-toggled #layoutSidenav #layoutSidenav_content {
+        margin-left: 0 !important;
+    }
+    
+    /* ALWAYS show the mobile toggle button on screens < 992px */
+    .sb-sidenav-toggle {
+        display: block !important;
+        font-size: 1.25rem;
+        padding: 0.25rem 0.5rem;
+    }
+    
+    /* Mobile navbar adjustments */
+    .sb-topnav {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+}
+
+/* Large desktop behavior - restore normal sidebar */
+@media (min-width: 992px) {
+    .sb-nav-fixed #layoutSidenav #layoutSidenav_nav {
+        position: fixed !important;
+        left: 0 !important;
+        width: 225px !important;
+        z-index: 1031 !important;
+        height: 100vh !important;
+        top: 56px !important;
+        transition: none !important;
+    }
+    
+    .sb-nav-fixed #layoutSidenav #layoutSidenav_content {
+        margin-left: 225px !important;
+        transition: none !important;
+    }
+    
+    .sb-nav-fixed.sb-sidenav-toggled #layoutSidenav #layoutSidenav_content {
+        margin-left: 0 !important;
+    }
+    
+    .sb-nav-fixed.sb-sidenav-toggled #layoutSidenav #layoutSidenav_nav {
+        left: -225px !important;
+    }
+}
+
+/* ==========================================
+   3. CONTAINER AND LAYOUT RESPONSIVE FIXES
+   ========================================== */
+/* Main content area responsive */
+main {
+    padding-bottom: 60px !important; /* Reduced for mobile */
+    min-height: calc(100vh - 120px);
+}
+
+/* Container fluid responsive padding */
+.container-fluid {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+@media (min-width: 576px) {
+    .container-fluid {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .container-fluid {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+    
+    main {
+        padding-bottom: 100px !important;
+        min-height: calc(100vh - 200px);
+    }
+}
+
+/* ==========================================
+   4. CARD AND FORM RESPONSIVE FIXES
+   ========================================== */
+/* Card responsive improvements */
+.card {
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 768px) {
+    .card {
+        margin-bottom: 2rem;
+    }
+}
+
+/* Card body responsive padding */
+.card-body {
+    padding: 1rem;
+}
+
+@media (min-width: 576px) {
+    .card-body {
+        padding: 1.25rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .card-body {
+        padding: 1.5rem;
+    }
+}
+
+/* Form group responsive spacing */
+.mb-3, .mb-4 {
+    margin-bottom: 1rem !important;
+}
+
+@media (min-width: 768px) {
+    .mb-3 {
+        margin-bottom: 1rem !important;
+    }
+    
+    .mb-4 {
+        margin-bottom: 1.5rem !important;
+    }
+}
+
+/* ==========================================
+   5. BOOTSTRAP GRID RESPONSIVE ENHANCEMENTS
+   ========================================== */
+/* Responsive column stacking */
+@media (max-width: 767.98px) {
+    /* Force full width on mobile for better readability */
+    .col-md-6,
+    .col-md-4,
+    .col-md-3,
+    .col-lg-6,
+    .col-lg-4,
+    .col-lg-3 {
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin-bottom: 0.75rem;
+    }
+    
+    /* Cycle time and weight sections mobile optimization */
+    .row.g-3 > .col-md-6,
+    .row.g-3 > .col-md-4 {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 575.98px) {
+    .row.g-3 {
+        --bs-gutter-x: 0.5rem;
+        --bs-gutter-y: 0.75rem;
+    }
+}
+
+/* ==========================================
+   6. FORM CONTROLS RESPONSIVE IMPROVEMENTS
+   ========================================== */
+/* Form control responsive sizing */
+.form-control,
+.form-select {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+}
+
+@media (min-width: 768px) {
+    .form-control,
+    .form-select {
+        font-size: 1rem;
+        padding: 0.375rem 0.75rem;
+    }
+}
+
+/* Input group responsive */
+.input-group {
+    flex-wrap: nowrap;
+}
+
+@media (max-width: 575.98px) {
+    .input-group .btn {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* ==========================================
+   7. BUTTON RESPONSIVE IMPROVEMENTS
+   ========================================== */
+/* Button responsive sizing */
+.btn {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
+@media (min-width: 768px) {
+    .btn {
+        font-size: 1rem;
+        padding: 0.75rem 1.5rem;
+    }
+}
+
+/* Submit button mobile optimization */
+.d-grid .btn {
+    padding: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+@media (min-width: 768px) {
+    .d-grid .btn {
+        padding: 1rem;
+        font-size: 1.1rem;
+    }
+}
+
+/* ==========================================
+   8. TABLE RESPONSIVE IMPROVEMENTS
+   ========================================== */
+/* Enhanced table responsiveness */
+.table-responsive {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+@media (max-width: 767.98px) {
+    .table-responsive {
+        font-size: 0.8rem;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.4rem;
+        vertical-align: middle;
+    }
+    
+    /* Action buttons in tables */
+    .action-buttons .btn {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        margin: 1px;
+    }
+}
+
+/* ==========================================
+   9. DATATABLES RESPONSIVE FIXES
+   ========================================== */
+/* DataTables wrapper mobile improvements */
+@media (max-width: 767.98px) {
+    .dataTables_wrapper {
+        padding: 0.5rem;
+    }
+    
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 0.75rem;
+    }
+    
+    .dataTables_wrapper .dataTables_filter input {
+        width: 100% !important;
+        margin-left: 0 !important;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate {
+        text-align: center;
+        margin-top: 1rem;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0.25rem 0.5rem;
+        margin: 0 2px;
+    }
+}
+
+/* ==========================================
+   10. BREADCRUMB RESPONSIVE IMPROVEMENTS
+   ========================================== */
+@media (max-width: 575.98px) {
+    .breadcrumb {
+        font-size: 0.8rem;
+        padding: 0.5rem 0;
+        margin-bottom: 1rem;
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        padding-right: 0.25rem;
+        padding-left: 0.25rem;
+    }
+}
+
+/* ==========================================
+   11. HEADING RESPONSIVE IMPROVEMENTS
+   ========================================== */
+/* Page headings responsive */
+h1.mt-4 {
+    font-size: 1.5rem;
+    margin-top: 1rem !important;
+    margin-bottom: 0.75rem;
+}
+
+@media (min-width: 576px) {
+    h1.mt-4 {
+        font-size: 1.75rem;
+        margin-top: 1.5rem !important;
+    }
+}
+
+@media (min-width: 768px) {
+    h1.mt-4 {
+        font-size: 2rem;
+        margin-top: 2rem !important;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Section headings in forms */
+h5.mb-3 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem !important;
+}
+
+@media (min-width: 768px) {
+    h5.mb-3 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem !important;
+    }
+}
+
+/* ==========================================
+   12. FOOTER RESPONSIVE IMPROVEMENTS
+   ========================================== */
+/* Footer responsive */
+footer {
+    padding: 1rem 0;
+    font-size: 0.8rem;
+}
+
+@media (min-width: 768px) {
+    footer {
+        padding: 1.5rem 0;
+        font-size: 0.9rem;
+    }
+}
+
+/* ==========================================
+   13. MODAL RESPONSIVE IMPROVEMENTS
+   ========================================== */
+/* Modal responsive improvements */
+@media (max-width: 575.98px) {
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: none;
+        width: calc(100% - 1rem);
+    }
+    
+    .modal-content {
+        border-radius: 0.5rem;
+    }
+    
+    .modal-header {
+        padding: 0.75rem;
+    }
+    
+    .modal-body {
+        padding: 0.75rem;
+    }
+    
+    .modal-footer {
+        padding: 0.75rem;
+    }
+}
+
+/* ==========================================
+   14. STATISTICS CARDS RESPONSIVE
+   ========================================== */
+/* Stats cards responsive grid */
+@media (max-width: 767.98px) {
+    .stats-cards .stat-card {
+        margin-bottom: 0.75rem;
+    }
+    
+    .stats-cards .card-body {
+        padding: 1rem;
+        text-align: center;
+    }
+}
+
+/* ==========================================
+   15. NOTIFICATION SYSTEM RESPONSIVE
+   ========================================== */
+/* Notification badges responsive */
+@media (max-width: 575.98px) {
+    .navbar .badge {
+        font-size: 0.65rem;
+        padding: 0.2em 0.4em;
+    }
+}
+
+/* ==========================================
+   16. PRINT MEDIA RESPONSIVE
+   ========================================== */
+@media print {
+    /* Hide navigation and non-essential elements */
+    .sb-sidenav,
+    .sb-topnav,
+    .breadcrumb,
+    .action-buttons,
+    .btn:not(.btn-print),
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        display: none !important;
+    }
+    
+    /* Adjust layout for print */
+    #layoutSidenav_content {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .container-fluid {
+        padding: 0 !important;
+        max-width: 100% !important;
+    }
+    
+    main {
+        padding: 0 !important;
+    }
+    
+    /* Optimize table printing */
+    .table {
+        font-size: 0.8rem;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.25rem !important;
+    }
+}
+
+/* ==========================================
+   17. ACCESSIBILITY IMPROVEMENTS
+   ========================================== */
+/* Focus improvements for mobile */
+.form-control:focus,
+.form-select:focus,
+.btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    outline: none;
+}
+
+/* Touch-friendly targets */
+@media (pointer: coarse) {
+    .btn,
+    .form-control,
+    .form-select {
+        min-height: 44px; /* Ensure minimum touch target size */
+    }
+    
+    .pagination .page-link {
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* ==========================================
+   18. LANDSCAPE MOBILE OPTIMIZATION
+   ========================================== */
+@media (max-width: 767.98px) and (orientation: landscape) {
+    /* Reduce vertical spacing in landscape mode */
+    .mb-3, .mb-4 {
+        margin-bottom: 0.75rem !important;
+    }
+    
+    .card-body {
+        padding: 0.75rem;
+    }
+    
+    h1.mt-4 {
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.5rem;
+        font-size: 1.25rem;
+    }
+    
+    h5.mb-3 {
+        margin-bottom: 0.5rem !important;
+        font-size: 0.95rem;
+    }
+}
+
+/* ==========================================
+   19. CUSTOM UTILITY CLASSES
+   ========================================== */
+/* Responsive spacing utilities */
+@media (max-width: 575.98px) {
+    .mobile-mt-2 { margin-top: 0.5rem !important; }
+    .mobile-mb-2 { margin-bottom: 0.5rem !important; }
+    .mobile-p-2 { padding: 0.5rem !important; }
+    .mobile-text-sm { font-size: 0.8rem !important; }
+}
+
+/* Quick responsive text sizing */
+.responsive-text {
+    font-size: 0.9rem;
+}
+
+@media (min-width: 768px) {
+    .responsive-text {
+        font-size: 1rem;
+    }
+}
+
+/* ==========================================
+   20. PERFORMANCE OPTIMIZATIONS & JAVASCRIPT HELPERS
+   ========================================== */
+/* Hardware acceleration for smooth transitions */
+.sb-sidenav,
+.modal,
+.dropdown-menu {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+/* Smooth scrolling optimization */
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ==========================================
+   21. ENHANCED MOBILE SIDEBAR BEHAVIOR - COMPLETELY FIXED
+   ========================================== */
+/* Mobile sidebar without any blocking overlays */
+@media (max-width: 991.98px) {
+    /* Ensure sidebar appears properly on mobile */
+    #layoutSidenav_nav {
+        z-index: 1031 !important;
+        position: fixed !important;
+    }
+    
+    /* COMPLETELY REMOVE ALL OVERLAYS - NO MORE BLOCKING */
+    .sb-sidenav-toggled::before,
+    .sb-sidenav-toggled::after,
+    .sb-nav-fixed.sb-sidenav-toggled::before,
+    .sb-nav-fixed.sb-sidenav-toggled::after,
+    body.sb-sidenav-toggled::before,
+    body.sb-sidenav-toggled::after {
+        display: none !important;
+        content: none !important;
+        pointer-events: none !important;
+    }
+    
+    /* Ensure content area doesn't interfere */
+    #layoutSidenav_content {
+        z-index: 1000;
+        pointer-events: auto !important;
+    }
+    
+    /* Ensure sidebar navigation is fully clickable */
+    .sb-sidenav {
+        z-index: 1031 !important;
+        pointer-events: auto !important;
+    }
+    
+    /* Ensure all sidebar nav links are clickable */
+    .sb-sidenav .nav-link {
+        pointer-events: auto !important;
+        z-index: 1032 !important;
+        position: relative;
+    }
+    
+    /* Allow page interaction when sidebar is open */
+    .sb-nav-fixed.sb-sidenav-toggled {
+        overflow: auto !important;
+    }
+    
+    /* Remove any problematic z-index blocking */
+    * {
+        z-index: auto;
+    }
+    
+    /* Restore proper z-index for sidebar elements only */
+    .sb-sidenav,
+    .sb-sidenav * {
+        z-index: 1031 !important;
+    }
+}
