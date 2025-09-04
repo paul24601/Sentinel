@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
     // Load centralized database configuration
     require_once __DIR__ . '/../includes/database.php';
     require_once __DIR__ . '/../includes/admin_notifications.php';
-    
+
     // Get database connection
     try {
         $conn = DatabaseManager::getConnection('sentinel_main');
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
             $stmt->bind_param("s", $recordId);
             $stmt->execute();
             $result = $stmt->get_result();
-            
+
             while ($row = $result->fetch_assoc()) {
                 $section = $row['Section'];
                 // Map the section name to field prefixes
@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
                     default:
                         continue 2; // Skip unknown sections
                 }
-                
+
                 // Add the fields with proper prefixes
                 $clonedData[$fieldPrefix . 'Sequence'] = $row['Sequence'];
                 $clonedData[$fieldPrefix . 'Pressure'] = $row['Pressure'];
@@ -123,123 +123,6 @@ include '../includes/navbar.php';
 ?>
 
 <!-- CSS for Parameters styling -->
-<style>
-    /* COMPLETE LAYOUT RESET AND FIX */
-    * {
-        box-sizing: border-box !important;
-    }
-    
-    html, body {
-        margin: 0 !important;
-        padding: 0 !important;
-        overflow-x: hidden !important;
-        width: 100% !important;
-        height: 100% !important;
-    }
-    
-    html body.sb-nav-fixed #layoutSidenav {
-        display: block !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    html body.sb-nav-fixed #layoutSidenav #layoutSidenav_nav {
-        position: fixed !important;
-        top: 56px !important;
-        left: 0 !important;
-        width: 225px !important;
-        height: calc(100vh - 56px) !important;
-        z-index: 1031 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    html body.sb-nav-fixed #layoutSidenav #layoutSidenav_nav .sb-sidenav {
-        margin: 0 !important;
-        padding: 0 !important;
-        border: none !important;
-    }
-    
-    html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content {
-        margin-left: 225px !important;
-        padding: 0 !important;
-        width: calc(100% - 225px) !important;
-        min-height: calc(100vh - 56px) !important;
-    }
-    
-    html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content main {
-        padding: 0 !important;
-        margin: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-    
-    .container, .container-fluid, .row, .col {
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-    }
-    
-    #layoutSidenav_content .container-fluid {
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-        margin: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-    
-    .sb-topnav {
-        margin: 0 !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        width: 100% !important;
-    }
-    
-    @media (max-width: 991.98px) {
-        html body.sb-nav-fixed #layoutSidenav #layoutSidenav_nav {
-            left: -225px !important;
-        }
-        
-        html body.sb-nav-fixed.sb-sidenav-toggled #layoutSidenav #layoutSidenav_nav {
-            left: 0 !important;
-        }
-        
-        html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content {
-            margin-left: 0 !important;
-            width: 100% !important;
-        }
-    }
-
-    .form-control:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    }
-    
-    .card {
-        border: none;
-        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-    }
-    
-    .progress-container {
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-    
-    .btn-primary {
-        background: linear-gradient(135deg, #007bff, #0056b3);
-        border: none;
-        font-weight: 600;
-    }
-    
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #0056b3, #004085);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-</style>
 
                 <div class="container-fluid px-4">
                     <h1 class="mt-4">Parameters Data Entry</h1>
@@ -2168,7 +2051,6 @@ include '../includes/navbar.php';
                                     <button type="button" id="autofillButton" class="btn btn-secondary mt-4"
                                         disabled>Autofill</button>
 
-
                                     <!-- Submit Button -->
                                     <button type="submit" class="btn btn-primary mt-4">Submit</button>
 
@@ -2176,7 +2058,6 @@ include '../includes/navbar.php';
                             </div>
                         </div>
                     </div>
-
 
                 </div>
 
@@ -2448,17 +2329,17 @@ include '../includes/navbar.php';
 
         // AUTOMATIC TIMING AND DATE SYSTEM - Completely invisible, no UI impact
         let formStartTime = null;
-        
+
         // Function to get Philippine time
         function getPhilippineTime() {
             return new Date().toLocaleString("en-US", {timeZone: "Asia/Manila"});
         }
-        
+
         // Function to format time for database
         function formatTimeForDB(date) {
             return date.toTimeString().split(' ')[0]; // HH:MM:SS format
         }
-        
+
         // Function to format date for database
         function formatDateForDB(date) {
             const year = date.getFullYear();
@@ -2466,45 +2347,45 @@ include '../includes/navbar.php';
             const day = String(date.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
         }
-        
+
         // Set start time and date when page loads (automatic)
         document.addEventListener('DOMContentLoaded', function() {
             formStartTime = new Date();
             const startTimeString = formatTimeForDB(formStartTime);
             const dateString = formatDateForDB(formStartTime);
-            
+
             // Set hidden fields automatically
             const dateField = document.getElementById('Date');
             const timeField = document.getElementById('Time');
             const startTimeField = document.getElementById('startTime');
             const timestampField = document.getElementById('formStartTimestamp');
-            
+
             if (dateField) dateField.value = dateString;
             if (timeField) timeField.value = startTimeString;
             if (startTimeField) startTimeField.value = startTimeString;
             if (timestampField) timestampField.value = formStartTime.getTime();
-            
+
             console.log('Automatic date and timing started:', dateString, startTimeString);
         });
-        
+
         // Handle form submission with automatic end time
         document.querySelector('form').addEventListener('submit', function (e) {
             console.log('=== AUTOMATIC TIMING SYSTEM ===');
-            
+
             const endTimeField = document.getElementById('endTime');
-            
+
             // Set end time to empty - server will automatically set current time
             if (endTimeField) {
                 endTimeField.value = '';  // Server handles end time automatically
                 console.log('End time will be set automatically by server');
             }
-            
+
             // Log timing info for debugging
             if (formStartTime) {
                 const duration = (new Date() - formStartTime) / 1000; // seconds
                 console.log('Form completion time:', Math.round(duration), 'seconds');
             }
-            
+
             console.log('All time fields configured for server-side processing');
             showNotification('Submitting... Server will set end time automatically', 'info');
         });
@@ -2773,7 +2654,7 @@ include '../includes/navbar.php';
             const now = getCurrentPhilippineTime();
             const timeString = formatTime(now);
             const endTimeField = document.getElementById('endTime');
-            
+
             if (endTimeField) {
                 console.log('Setting endTime field to:', timeString);
                 endTimeField.value = timeString;
@@ -2782,7 +2663,7 @@ include '../includes/navbar.php';
             } else {
                 console.error('ERROR: endTime field not found in setEndTime()!');
             }
-            
+
             return timeString;
         }
 
@@ -2790,14 +2671,14 @@ include '../includes/navbar.php';
         document.addEventListener('DOMContentLoaded', function() {
             console.log('=== PAGE LOAD - FIXED TIME FIELDS ===');
             updateDateTime();
-            
+
             // Check if time fields exist
             let timeField = document.getElementById('Time');
             let startTimeField = document.getElementById('startTime');
             let endTimeField = document.getElementById('endTime');
             let startTimeDisplay = document.getElementById('startTimeDisplay');
             let endTimeDisplay = document.getElementById('endTimeDisplay');
-            
+
             console.log('Time fields on load:', {
                 timeField: !!timeField,
                 startTimeField: !!startTimeField,
@@ -2805,10 +2686,10 @@ include '../includes/navbar.php';
                 startTimeDisplay: !!startTimeDisplay,
                 endTimeDisplay: !!endTimeDisplay
             });
-            
+
             // Create missing hidden fields if needed
             const form = document.querySelector('form');
-            
+
             if (!timeField) {
                 console.log('Creating missing Time hidden field');
                 timeField = document.createElement('input');
@@ -2817,7 +2698,7 @@ include '../includes/navbar.php';
                 timeField.name = 'Time';
                 form.appendChild(timeField);
             }
-            
+
             if (!startTimeField) {
                 console.log('Creating missing startTime hidden field');
                 startTimeField = document.createElement('input');
@@ -2826,7 +2707,7 @@ include '../includes/navbar.php';
                 startTimeField.name = 'startTime';
                 form.appendChild(startTimeField);
             }
-            
+
             if (!endTimeField) {
                 console.log('Creating missing endTime hidden field');
                 endTimeField = document.createElement('input');
@@ -2835,7 +2716,7 @@ include '../includes/navbar.php';
                 endTimeField.name = 'endTime';
                 form.appendChild(endTimeField);
             }
-            
+
             console.log('=== Automatic timing system initialized ===');
         });
         });
@@ -3022,7 +2903,7 @@ include '../includes/navbar.php';
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-        
+
         /* Autocomplete styling */
         .ui-autocomplete {
             max-height: 200px;
@@ -3034,29 +2915,29 @@ include '../includes/navbar.php';
             background-color: #fff;
             z-index: 9999;
         }
-        
+
         .ui-menu-item {
             padding: 0.5rem 1rem;
             border-bottom: 1px solid #f8f9fa;
             cursor: pointer;
             font-size: 0.875rem;
         }
-        
+
         .ui-menu-item:last-child {
             border-bottom: none;
         }
-        
+
         .ui-menu-item:hover,
         .ui-menu-item.ui-state-focus {
             background-color: #e9ecef;
             color: #495057;
         }
-        
+
         .ui-menu-item.ui-state-active {
             background-color: #0d6efd;
             color: #fff;
         }
-        
+
         .ui-helper-hidden-accessible {
             display: none;
         }
@@ -3367,7 +3248,7 @@ include '../includes/navbar.php';
                         debugInfo.excluded.push(field);
                         continue;
                     }
-                    
+
                     // Track null/empty values but still try to process some important fields
                     if (value === null || value === '') {
                         // For core pull, ejector, and injection fields, still try to process them even if null
@@ -3397,14 +3278,14 @@ include '../includes/navbar.php';
 
                         // For Zone fields, we need to determine which table they came from
                         // by checking if barrel heater or mold heater table has more data
-                        
+
                         // Extract zone number (e.g., "Zone0" -> "0", "Zone1" -> "1")
                         const zoneNumber = field.replace('Zone', '');
-                        
+
                         // Try barrel heater field first (Zone0 -> barrelHeaterZone0)
                         const barrelHeaterFieldName = 'barrelHeaterZone' + zoneNumber;
                         const barrelInput = document.querySelector(`[name="${barrelHeaterFieldName}"]`);
-                        
+
                         // Try mold heater field (Zone1 -> Zone1, note: mold heater doesn't have Zone0)
                         const moldHeaterFieldName = field;
                         const moldInput = document.querySelector(`[name="${moldHeaterFieldName}"]`);
@@ -3416,14 +3297,14 @@ include '../includes/navbar.php';
                             fieldsApplied++;
                             console.log(`Applied ${field} = ${value} to barrel heater field: ${barrelHeaterFieldName}`);
                         }
-                        
+
                         if (moldInput && zoneNumber !== '0') { // Mold heater doesn't have Zone0
                             moldInput.value = value;
                             $(moldInput).trigger('change');
                             fieldsApplied++;
                             console.log(`Applied ${field} = ${value} to mold heater field: ${moldHeaterFieldName}`);
                         }
-                        
+
                         continue; // Skip the normal processing for Zone fields
                     } else {
                         // Get the form field name (use mapping if available, otherwise use original field name)
@@ -3471,13 +3352,13 @@ include '../includes/navbar.php';
                         } else {
                             // Try alternative selectors for fields that might have different casing or structure
                             let alternativeInput = null;
-                            
+
                             // Try with ID selector (case insensitive)
                             alternativeInput = document.querySelector(`#${formFieldName}`);
                             if (!alternativeInput) {
                                 alternativeInput = document.querySelector(`#${formFieldName.toLowerCase()}`);
                             }
-                            
+
                             // Try general field patterns with exact database field name
                             if (!alternativeInput) {
                                 const generalPatterns = [
@@ -3492,7 +3373,7 @@ include '../includes/navbar.php';
                                     `[name*="${formFieldName.toLowerCase()}"]`,
                                     `[id*="${formFieldName.toLowerCase()}"]`
                                 ];
-                                
+
                                 for (const pattern of generalPatterns) {
                                     alternativeInput = document.querySelector(pattern);
                                     if (alternativeInput && alternativeInput.type !== "file") {
@@ -3502,7 +3383,7 @@ include '../includes/navbar.php';
                                     alternativeInput = null;
                                 }
                             }
-                            
+
                             // For ejector fields, try specific patterns
                             if (!alternativeInput && field.includes('Ejector')) {
                                 const ejectorPatterns = [
@@ -3529,7 +3410,7 @@ include '../includes/navbar.php';
                                     }
                                 }
                             }
-                            
+
                             // For injection fields (ScrewPosition, InjectionSpeed, InjectionPressure), try specific patterns
                             if (!alternativeInput && (field.includes('ScrewPosition') || field.includes('InjectionSpeed') || field.includes('InjectionPressure') || field.includes('Screw') || field.includes('Injection'))) {
                                 const injectionPatterns = [
@@ -3558,7 +3439,7 @@ include '../includes/navbar.php';
                                     }
                                 }
                             }
-                            
+
                             // For core pull fields, try specific patterns with more variations
                             if (!alternativeInput && (field.includes('core') || field.includes('Core'))) {
                                 const corePatterns = [
@@ -3587,7 +3468,7 @@ include '../includes/navbar.php';
                                     }
                                 }
                             }
-                            
+
                             if (alternativeInput && alternativeInput.type !== "file") {
                                 // Set value even if it's null (for important fields like injection/ejector)
                                 if (value !== null) {
@@ -3599,7 +3480,7 @@ include '../includes/navbar.php';
                                     alternativeInput.value = '';
                                     console.log(`Set null field to empty: ${field} -> ${formFieldName}`);
                                 }
-                                
+
                                 $(alternativeInput).trigger('change');
                                 fieldsApplied++;
                                 debugInfo.applied.push(`${field} -> ${formFieldName} = ${value} (alternative selector)`);
@@ -3700,15 +3581,15 @@ include '../includes/navbar.php';
                 formStartTime = new Date();
                 const startTimeString = formatTimeForDB(formStartTime);
                 const dateString = formatDateForDB(formStartTime);
-                
+
                 const dateField = document.getElementById('Date');
                 const timeField = document.getElementById('Time');
                 const startTimeField = document.getElementById('startTime');
-                
+
                 if (dateField) dateField.value = dateString;
                 if (timeField) timeField.value = startTimeString;
                 if (startTimeField) startTimeField.value = startTimeString;
-                
+
                 console.log('Automatic date and timing reset for new session:', dateString, startTimeString);
 
                 // Clear end time field to ensure clean session
@@ -3763,7 +3644,7 @@ include '../includes/navbar.php';
                                 newBadge.remove();
                             }
                         }
-                        
+
                         // Update the notification count
                         updateNotificationCount();
                     }

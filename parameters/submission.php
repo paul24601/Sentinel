@@ -55,7 +55,7 @@ if ($selectedRecordId) {
     $stmt->bind_param("s", $selectedRecordId);
     $stmt->execute();
     $recordDetails = $stmt->get_result()->fetch_assoc();
-    
+
     // Fetch related data tables
     $productMachineInfo = fetchData($conn, "productmachineinfo WHERE record_id = '$selectedRecordId'");
     $barrelHeaterTemp = fetchData($conn, "barrelheatertemperatures WHERE record_id = '$selectedRecordId'");
@@ -71,134 +71,6 @@ if ($selectedRecordId) {
 <?php include '../includes/navbar.php'; ?>
 
 <!-- CSS for Submission page styling -->
-<style>
-    /* COMPLETE LAYOUT RESET AND FIX */
-    * {
-        box-sizing: border-box !important;
-    }
-    
-    html, body {
-        margin: 0 !important;
-        padding: 0 !important;
-        overflow-x: hidden !important;
-        width: 100% !important;
-        height: 100% !important;
-    }
-    
-    html body.sb-nav-fixed #layoutSidenav {
-        display: block !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    html body.sb-nav-fixed #layoutSidenav #layoutSidenav_nav {
-        position: fixed !important;
-        top: 56px !important;
-        left: 0 !important;
-        width: 225px !important;
-        height: calc(100vh - 56px) !important;
-        z-index: 1031 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    html body.sb-nav-fixed #layoutSidenav #layoutSidenav_nav .sb-sidenav {
-        margin: 0 !important;
-        padding: 0 !important;
-        border: none !important;
-    }
-    
-    html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content {
-        margin-left: 225px !important;
-        padding: 0 !important;
-        width: calc(100% - 225px) !important;
-        min-height: calc(100vh - 56px) !important;
-    }
-    
-    html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content main {
-        padding: 0 !important;
-        margin: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-    
-    .container, .container-fluid, .row, .col {
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-    }
-    
-    #layoutSidenav_content .container-fluid {
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-        margin: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-    
-    .sb-topnav {
-        margin: 0 !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        width: 100% !important;
-    }
-    
-    @media (max-width: 991.98px) {
-        html body.sb-nav-fixed #layoutSidenav #layoutSidenav_nav {
-            left: -225px !important;
-        }
-        
-        html body.sb-nav-fixed.sb-sidenav-toggled #layoutSidenav #layoutSidenav_nav {
-            left: 0 !important;
-        }
-        
-        html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content {
-            margin-left: 0 !important;
-            width: 100% !important;
-        }
-    }
-
-    /* Ultra-specific card header override - Force blue gradient */
-    div.card div.card-header,
-    .card .card-header,
-    .card-header {
-        background: linear-gradient(135deg, #007bff, #0056b3) !important;
-        background-color: #007bff !important;
-        color: white !important;
-        border: none !important;
-        font-weight: 600 !important;
-    }
-    
-    div.card div.card-header.bg-primary,
-    .card .card-header.bg-primary,
-    .card-header.bg-primary {
-        background: linear-gradient(135deg, #007bff, #0056b3) !important;
-        background-color: #007bff !important;
-        color: white !important;
-    }
-    
-    .card {
-        border: none;
-        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-    }
-    
-    .table-responsive {
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    
-    .btn-outline-primary {
-        color: #007bff;
-        border-color: #007bff;
-    }
-    
-    .btn-outline-primary:hover {
-        background-color: #007bff;
-        border-color: #007bff;
-        transform: translateY(-1px);
-    }
-</style>
 
                 <div class="container-fluid px-4">
                     <h1 class="mt-4">Parameters Records</h1>

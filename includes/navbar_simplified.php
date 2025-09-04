@@ -77,11 +77,13 @@ $userRole = $_SESSION['role'];
     
     <!-- DataTables CSS -->
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
     
-    <!-- jQuery UI CSS -->
+    <!-- FontAwesome -->
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    
+    <!-- jQuery for basic functionality -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
     
     <!-- Chart.js -->
@@ -95,7 +97,7 @@ $userRole = $_SESSION['role'];
         <a class="navbar-brand ps-3" href="<?php echo $basePath; ?>index.php">Sentinel Digitization</a>
         
         <!-- Sidebar Toggle-->
-        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!" aria-label="Toggle navigation">
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
             <i class="fas fa-bars"></i>
         </button>
         
@@ -103,7 +105,7 @@ $userRole = $_SESSION['role'];
         <ul class="navbar-nav ms-auto me-0 me-md-3 my-2 my-md-0">
             <!-- Notification Dropdown -->
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" id="notificationDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fas fa-bell"></i>
                     <?php if ($notification_count > 0): ?>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -111,7 +113,7 @@ $userRole = $_SESSION['role'];
                         </span>
                     <?php endif; ?>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown">
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <?php if (!empty($admin_notifications)): ?>
                         <li><h6 class="dropdown-header">Recent Notifications</h6></li>
                         <?php foreach ($admin_notifications as $notification): ?>
@@ -133,10 +135,10 @@ $userRole = $_SESSION['role'];
             
             <!-- User Dropdown -->
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" id="userDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fas fa-user fa-fw"></i>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li><a class="dropdown-item" href="<?php echo $basePath; ?>change_password.php">Change Password</a></li>
                     <li><hr class="dropdown-divider" /></li>
                     <li><a class="dropdown-item" href="<?php echo $basePath; ?>logout.php">Logout</a></li>
@@ -248,3 +250,30 @@ $userRole = $_SESSION['role'];
         </div>
         <div id="layoutSidenav_content">
             <main>
+
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- SB Admin Scripts -->
+<script src="<?php echo $basePath; ?>js/scripts.js"></script>
+
+<!-- Simple notification management -->
+<script>
+function markAsViewed(notificationId) {
+    fetch('<?php echo $basePath; ?>includes/mark_notification_viewed.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'notification_id=' + notificationId
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Simple refresh approach - more reliable
+            location.reload();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>

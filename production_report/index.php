@@ -18,11 +18,11 @@ $pending_submissions = [];
 // Get database connection and notifications
 try {
     $conn = DatabaseManager::getConnection('sentinel_monitoring');
-    
+
     // Get admin notifications for current user
     $admin_notifications = getAdminNotifications($_SESSION['id_number'], $_SESSION['role']);
     $notification_count = getUnviewedNotificationCount($_SESSION['id_number'], $_SESSION['full_name']);
-    
+
     // Get pending submissions for notifications
     $pending_sql = "SELECT id, product_name, date FROM injectionmoldingparameters WHERE status = 'pending' ORDER BY date DESC LIMIT 10";
     $pending_result = $conn->query($pending_sql);
@@ -53,49 +53,7 @@ try {
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"></nav>
     <!-- Add custom CSS -->
-    <style>
-        .form-section {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .table-section {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            overflow-x: auto;
-        }
-        .form-floating > label {
-            padding-left: 20px;
-        }
-        .btn-action {
-            min-width: 120px;
-        }
-        .card-header {
-            background: linear-gradient(135deg, #007bff, #0056b3) !important;
-            background-color: #007bff !important;
-            color: white !important;
-            border: none !important;
-            font-weight: 600 !important;
-        }
-        .time-input {
-            width: 80px !important;
-            min-width: 80px;
-        }
-        .table > :not(caption) > * > * {
-            padding: 0.75rem;
-        }
-        .floating-add-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 1000;
-        }
-    </style>
+
 </head>
 
 <body class="sb-nav fixed">
@@ -576,7 +534,7 @@ try {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/scripts.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
-    
+
     <script>
         $(document).ready(function() {
             // Add row to quality table

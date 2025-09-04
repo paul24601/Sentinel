@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $isUrgent = isset($_POST['is_urgent']) ? 1 : 0;
                 $expiresAt = !empty($_POST['expires_at']) ? $_POST['expires_at'] : null;
                 $createdBy = $_SESSION['full_name'];
-                
+
                 if (createAdminNotification($title, $messageText, $type, $targetRoles, $isUrgent, $expiresAt, $createdBy)) {
                     $message = "Notification created successfully!";
                     $messageType = "success";
@@ -34,11 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $messageType = "danger";
                 }
                 break;
-                
+
             case 'toggle_status':
                 $id = intval($_POST['notification_id']);
                 $isActive = intval($_POST['is_active']);
-                
+
                 if (updateNotificationStatus($id, $isActive)) {
                     $message = "Notification status updated successfully!";
                     $messageType = "success";
@@ -47,10 +47,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $messageType = "danger";
                 }
                 break;
-                
+
             case 'delete':
                 $id = intval($_POST['notification_id']);
-                
+
                 if (deleteNotification($id)) {
                     $message = "Notification deleted successfully!";
                     $messageType = "success";
@@ -80,94 +80,7 @@ $availableRoles = [
 // Include centralized navbar
 include '../includes/navbar.php';
 ?>
-<style>
-/* COMPLETE LAYOUT RESET AND FIX */
-* {
-    box-sizing: border-box !important;
-}
 
-html, body {
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow-x: hidden !important;
-    width: 100% !important;
-    height: 100% !important;
-}
-
-html body.sb-nav-fixed #layoutSidenav {
-    display: block !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-html body.sb-nav-fixed #layoutSidenav #layoutSidenav_nav {
-    position: fixed !important;
-    top: 56px !important;
-    left: 0 !important;
-    width: 225px !important;
-    height: calc(100vh - 56px) !important;
-    z-index: 1031 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-html body.sb-nav-fixed #layoutSidenav #layoutSidenav_nav .sb-sidenav {
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-}
-
-html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content {
-    margin-left: 225px !important;
-    padding: 0 !important;
-    width: calc(100% - 225px) !important;
-    min-height: calc(100vh - 56px) !important;
-}
-
-html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content main {
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-}
-
-.container, .container-fluid, .row, .col {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-}
-
-#layoutSidenav_content .container-fluid {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-    margin: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-}
-
-.sb-topnav {
-    margin: 0 !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: 100% !important;
-}
-
-@media (max-width: 991.98px) {
-    html body.sb-nav-fixed #layoutSidenav #layoutSidenav_nav {
-        left: -225px !important;
-    }
-    
-    html body.sb-nav-fixed.sb-sidenav-toggled #layoutSidenav #layoutSidenav_nav {
-        left: 0 !important;
-    }
-    
-    html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content {
-        margin-left: 0 !important;
-        width: 100% !important;
-    }
-}
-</style>
                 <div class="container-fluid px-4">
                     <h1 class="mt-4">Notification Management</h1>
                     <ol class="breadcrumb mb-4">
@@ -191,7 +104,7 @@ html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content main {
                         <div class="card-body">
                             <form method="POST">
                                 <input type="hidden" name="action" value="create">
-                                
+
                                 <div class="row">
                                     <div class="col-md-8">
                                         <div class="mb-3">
@@ -241,7 +154,7 @@ html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content main {
                                             <input type="datetime-local" class="form-control" id="expires_at" name="expires_at">
                                             <small class="form-text text-muted">Leave empty for no expiration</small>
                                         </div>
-                                        
+
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" id="is_urgent" name="is_urgent">
                                             <label class="form-check-label" for="is_urgent">
@@ -329,7 +242,7 @@ html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content main {
                                                                 <?php echo $notification['is_active'] ? 'Active' : 'Inactive'; ?>
                                                             </span>
                                                         </small>
-                                                        
+
                                                         <div class="btn-group btn-group-sm">
                                                             <!-- Toggle Status -->
                                                             <form method="POST" class="d-inline">
@@ -340,7 +253,7 @@ html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content main {
                                                                     <i class="fas <?php echo $notification['is_active'] ? 'fa-pause' : 'fa-play'; ?>"></i>
                                                                 </button>
                                                             </form>
-                                                            
+
                                                             <!-- Delete -->
                                                             <form method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this notification?')">
                                                                 <input type="hidden" name="action" value="delete">

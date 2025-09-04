@@ -26,23 +26,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $first_name = trim($_POST['first_name']);
         $middle_name = trim($_POST['middle_name']);
         $last_name = trim($_POST['last_name']);
-        
+
         // Construct full name
         $full_name = $first_name;
         if (!empty($middle_name)) {
             $full_name .= ' ' . $middle_name;
         }
         $full_name .= ' ' . $last_name;
-        
+
         $role = $_POST['role'];
         $password = !empty($_POST['password']) ? password_hash($_POST['password'], PASSWORD_DEFAULT) : password_hash('injection', PASSWORD_DEFAULT);
         $departments = isset($_POST['departments']) ? $_POST['departments'] : [];
-        
+
         // Insert user
         $sql = "INSERT INTO users (id_number, full_name, password, role, password_changed) VALUES (?, ?, ?, ?, 0)";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ssss", $id_number, $full_name, $password, $role);
-        
+
         if ($stmt->execute()) {
             // Insert department associations
             if (!empty($departments)) {
@@ -58,18 +58,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo "<script>alert('Error adding user: " . $conn->error . "');</script>";
         }
     }
-    
+
     if (isset($_POST['update_user_access'])) {
         // Update user department access
         $user_id = $_POST['user_id'];
         $departments = isset($_POST['user_departments']) ? $_POST['user_departments'] : [];
-        
+
         // Delete existing department associations
         $delete_sql = "DELETE FROM user_departments WHERE user_id_number = ?";
         $delete_stmt = $conn->prepare($delete_sql);
         $delete_stmt->bind_param("s", $user_id);
         $delete_stmt->execute();
-        
+
         // Insert new department associations
         if (!empty($departments)) {
             foreach ($departments as $dept_id) {
@@ -79,17 +79,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $insert_stmt->execute();
             }
         }
-        
+
         echo "<script>alert('User access updated successfully!'); window.location.href='users.php';</script>";
     }
-    
+
     if (isset($_POST['reset_user_password_changed'])) {
         // Reset password_changed flag
         $user_id = $_POST['user_id'];
         $sql = "UPDATE users SET password_changed = 0 WHERE id_number = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $user_id);
-        
+
         if ($stmt->execute()) {
             echo "<script>alert('Password reset flag updated successfully!'); window.location.href='users.php';</script>";
         } else {
@@ -128,94 +128,7 @@ if ($user_dept_result && $user_dept_result->num_rows > 0) {
 // Include centralized navbar
 include '../includes/navbar.php';
 ?>
-<style>
-/* COMPLETE LAYOUT RESET AND FIX */
-* {
-    box-sizing: border-box !important;
-}
 
-html, body {
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow-x: hidden !important;
-    width: 100% !important;
-    height: 100% !important;
-}
-
-html body.sb-nav-fixed #layoutSidenav {
-    display: block !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-html body.sb-nav-fixed #layoutSidenav #layoutSidenav_nav {
-    position: fixed !important;
-    top: 56px !important;
-    left: 0 !important;
-    width: 225px !important;
-    height: calc(100vh - 56px) !important;
-    z-index: 1031 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-html body.sb-nav-fixed #layoutSidenav #layoutSidenav_nav .sb-sidenav {
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-}
-
-html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content {
-    margin-left: 225px !important;
-    padding: 0 !important;
-    width: calc(100% - 225px) !important;
-    min-height: calc(100vh - 56px) !important;
-}
-
-html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content main {
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-}
-
-.container, .container-fluid, .row, .col {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-}
-
-#layoutSidenav_content .container-fluid {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-    margin: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-}
-
-.sb-topnav {
-    margin: 0 !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: 100% !important;
-}
-
-@media (max-width: 991.98px) {
-    html body.sb-nav-fixed #layoutSidenav #layoutSidenav_nav {
-        left: -225px !important;
-    }
-    
-    html body.sb-nav-fixed.sb-sidenav-toggled #layoutSidenav #layoutSidenav_nav {
-        left: 0 !important;
-    }
-    
-    html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content {
-        margin-left: 0 !important;
-        width: 100% !important;
-    }
-}
-</style>
                 <div class="container-fluid p-4">
                     <h1 class="">Users</h1>
                     <ol class="breadcrumb mb-4">
@@ -230,12 +143,12 @@ html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content main {
                             <div class="card-body">
                                 <form method="POST" action="">
                                     <input type="hidden" name="add_user" value="1">
-                                    
+
                                     <div class="mb-3">
                                         <label for="id_number" class="form-label">ID Number:</label>
                                         <input required type="text" class="form-control" name="id_number">
                                     </div>
-                                    
+
                                     <!-- Split Full Name into First, Middle, Last -->
                                     <div class="mb-3">
                                         <label for="first_name" class="form-label">First Name:</label>
@@ -408,9 +321,6 @@ html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content main {
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
     <script>
         $(document).ready(function () {
@@ -428,24 +338,24 @@ html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content main {
 
         // Store departments data for the modal
         const departments = <?php echo json_encode($departments); ?>;
-        
+
         // Store current user departments for loading into modal
         const userDepartments = <?php echo json_encode($user_departments_map); ?>;
 
         function editUserAccess(userId, userName) {
             document.getElementById('edit_user_id').value = userId;
             document.getElementById('edit_user_name').textContent = userName;
-            
+
             // Clear and populate departments list
             const departmentsList = document.getElementById('departments_list');
             departmentsList.innerHTML = '';
-            
+
             // Get current user's departments
             const currentUserDepts = userDepartments[userId] || [];
-            
+
             departments.forEach(dept => {
                 const isChecked = currentUserDepts.includes(dept.name) ? 'checked' : '';
-                
+
                 const checkboxHtml = `
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="user_departments[]" 
@@ -457,7 +367,7 @@ html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content main {
                 `;
                 departmentsList.innerHTML += checkboxHtml;
             });
-            
+
             new bootstrap.Modal(document.getElementById('editUserAccessModal')).show();
         }
 
