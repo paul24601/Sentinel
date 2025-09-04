@@ -421,6 +421,7 @@ $userRole = $_SESSION['role'];
             </nav>
         </div>
         <div id="layoutSidenav_content">
+            <main>
 
 <!-- Notification Modal -->
 <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">

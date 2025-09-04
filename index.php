@@ -393,6 +393,112 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
 ?>
 <?php include 'includes/navbar.php'; ?>
 <style>
+    /* COMPLETE LAYOUT RESET AND FIX */
+    * {
+        box-sizing: border-box !important;
+    }
+    
+    html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow-x: hidden !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+    
+    /* Remove any possible Bootstrap/SB Admin margins */
+    .container, .container-fluid, .row, .col {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    /* Specific fix for container-fluid in main content */
+    #layoutSidenav_content .container-fluid {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* EMERGENCY LAYOUT FIX FOR INDEX PAGE - HIGHEST PRIORITY */
+    html body.sb-nav-fixed #layoutSidenav {
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    html body.sb-nav-fixed #layoutSidenav #layoutSidenav_nav {
+        position: fixed !important;
+        top: 56px !important;
+        left: 0 !important;
+        width: 225px !important;
+        height: calc(100vh - 56px) !important;
+        z-index: 1031 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Force sidebar to absolute left edge */
+    html body.sb-nav-fixed #layoutSidenav #layoutSidenav_nav .sb-sidenav {
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+    }
+    
+    html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content {
+        margin-left: 225px !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        width: calc(100% - 225px) !important;
+        min-height: calc(100vh - 56px) !important;
+    }
+    
+    html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content main {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* Remove any container padding that might interfere */
+    .container, .container-fluid {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+    
+    /* Top navbar should also be flush */
+    .sb-topnav {
+        margin: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+    }
+    
+    /* Navbar brand positioning */
+    .sb-topnav .navbar-brand {
+        padding-left: 1rem !important;
+    }
+    
+    @media (max-width: 991.98px) {
+        html body.sb-nav-fixed #layoutSidenav #layoutSidenav_nav {
+            left: -225px !important;
+        }
+        
+        html body.sb-nav-fixed.sb-sidenav-toggled #layoutSidenav #layoutSidenav_nav {
+            left: 0 !important;
+        }
+        
+        html body.sb-nav-fixed #layoutSidenav #layoutSidenav_content {
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
+    }
+    
     /* DASHBOARD CARD HEADER FIX */
     .card-header,
     div.card-header,
@@ -470,8 +576,6 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
     }
 </style>
 
-<!-- Main Content -->
-            <main>
                 <div class="container-fluid px-4">
                     <h1 class="mt-4">Dashboard</h1>
                     <ol class="breadcrumb mb-4">
