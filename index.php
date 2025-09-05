@@ -1169,7 +1169,7 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                                                 </div>
                                                 <div class="card-body">
                                                     <div class="table-responsive">
-                                                        <table class="table table-sm table-striped">
+                                                        <table id="activeUsersTable" class="table table-sm table-striped">
                                                             <thead>
                                                                 <tr>
                                                                     <th>User</th>
@@ -1277,7 +1277,7 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                                 <div class="container">
                                     <h4 class="mb-3">Machine Usage Statistics</h4>
                                     <div class="table-responsive">
-                                        <table class="table table-striped">
+                                        <table id="machineUsageTable" class="table table-striped">
                                             <thead>
                                                 <tr>
                                                     <th>Machine</th>
@@ -1324,38 +1324,8 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
     <script>
-        // Initialize DataTable for the visits log
-        document.addEventListener("DOMContentLoaded", event => {
-            const datatablesSimple = document.getElementById("datatablesSimple");
-            if (datatablesSimple) {
-                new simpleDatatables.DataTable(datatablesSimple, {
-                    order: [[0, "desc"]],
-                    perPage: 15,
-                    perPageSelect: [10, 15, 25, 50],
-                    searchable: true,
-                    sortable: true,
-                    fixedHeight: true,
-                    labels: {
-                        placeholder: "Search activity logs...",
-                        perPage: "entries per page",
-                        noRows: "No activity found",
-                        info: "Showing {start} to {end} of {rows} entries"
-                    },
-                    columns: [
-                        {
-                            select: 0,
-                            type: "number"
-                        },
-                        {
-                            select: 3,
-                            type: "date",
-                            format: "YYYY-MM-DD HH:mm:ss"
-                        }
-                    ]
-                });
-            }
-        });
-
+        // DataTable will be initialized by universal script
+        
         // Add some interactive features
         document.addEventListener("DOMContentLoaded", function() {
             // Animate cards on page load

@@ -412,24 +412,7 @@ window.onload = toggleFilters; // Call on load to set initial visibility
                         // Initialize
                         filterDataByProduct('all');
 
-                        // Initialize DataTables when DOM is ready
-                        $(document).ready(function() {
-                            $('#cycleTimeVarianceTable').DataTable({
-                                responsive: true,
-                                paging: true,
-                                searching: true,
-                                ordering: true,
-                                pageLength: 25
-                            });
-
-                            $('#remarksTable').DataTable({
-                                responsive: true,
-                                paging: true,
-                                searching: true,
-                                ordering: true,
-                                pageLength: 25
-                            });
-                        });
+                        // DataTables will be initialized by universal script
                     </script>
                 </div>
             </main>

@@ -154,16 +154,33 @@ $result = $conn->query($sql);
 
     <script>
         $(document).ready(function () {
+            // Use standard DataTable configuration
             $('#submissionTable').DataTable({
-                pageLength: 10,
-                responsive: true,
-                order: [[0, 'desc']],
-                language: {
-                    search: "Search records:",
-                    lengthMenu: "Show _MENU_ entries",
-                    info: "Showing _START_ to _END_ of _TOTAL_ entries"
+                "pageLength": 10,
+                "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                "responsive": true,
+                "searching": true,
+                "ordering": true,
+                "paging": true,
+                "info": true,
+                "autoWidth": false,
+                "order": [[0, 'desc']],
+                "language": {
+                    "search": "Search:",
+                    "lengthMenu": "Show _MENU_ entries",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "emptyTable": "No data available in table",
+                    "zeroRecords": "No matching records found"
                 }
-            }); // Initialize DataTables
+            });
         });
 
         <?php if ($recordCreated): ?>

@@ -221,29 +221,9 @@ $result = $conn->query($sql);
                     </div>
                 </div>
 
-                <!-- DataTables initialization -->
+                <!-- Success Modal Script -->
                 <script>
                     $(document).ready(function() {
-                        $('#submissionTable').DataTable({
-                            responsive: true,
-                            paging: true,
-                            searching: true,
-                            ordering: true,
-                            pageLength: 25,
-                            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
-                            dom: 'Bfrtip',
-                            buttons: [
-                                'copy', 'csv', 'excel', 'pdf', 'print'
-                            ],
-                            language: {
-                                search: "Search records:",
-                                lengthMenu: "Show _MENU_ records per page",
-                                info: "Showing _START_ to _END_ of _TOTAL_ records",
-                                infoEmpty: "No records available",
-                                infoFiltered: "(filtered from _MAX_ total records)"
-                            }
-                        });
-
                         // Show success modal if record was created
                         <?php if ($recordCreated): ?>
                             $('#successModal').modal('show');

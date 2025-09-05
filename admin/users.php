@@ -324,20 +324,10 @@ include '../includes/navbar.php';
 
     <script>
         $(document).ready(function () {
-            $('#usersTable').DataTable({
-                pageLength: 10,
-                responsive: true,
-                order: [[0, 'asc']],
-                language: {
-                    search: "Search users:",
-                    lengthMenu: "Show _MENU_ users",
-                    info: "Showing _START_ to _END_ of _TOTAL_ users"
-                }
-            });
-        });
-
-        // Store departments data for the modal
-        const departments = <?php echo json_encode($departments); ?>;
+            // DataTables will be initialized by universal script
+            
+            // Store departments data for the modal
+            const departments = <?php echo json_encode($departments); ?>;
 
         // Store current user departments for loading into modal
         const userDepartments = <?php echo json_encode($user_departments_map); ?>;

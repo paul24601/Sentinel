@@ -1,0 +1,109 @@
+/* ==========================================
+   SENTINEL LAYOUT DEBUG FIXES
+   Resolving sidebar/navbar padding conflicts
+   ========================================== */
+
+/* Reset any problematic margins/padding on the main layout */
+#layoutSidenav_content {
+    position: relative;
+}
+
+/* Fix container padding conflicts */
+#layoutSidenav_content .container-fluid {
+    /* Reduce excessive padding that conflicts with sidebar spacing */
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+/* Ensure proper spacing for main content */
+#layoutSidenav_content main {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+/* Desktop layout fixes */
+@media (min-width: 992px) {
+    /* When sidebar is visible */
+    .sb-nav-fixed #layoutSidenav #layoutSidenav_content {
+        margin-left: 225px;
+        padding-left: 0 !important;
+    }
+    
+    /* When sidebar is toggled off */
+    .sb-nav-fixed.sb-sidenav-toggled #layoutSidenav #layoutSidenav_content {
+        margin-left: 0;
+        padding-left: 0 !important;
+    }
+    
+    /* Container should have standard padding on desktop */
+    #layoutSidenav_content .container-fluid {
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+}
+
+/* Mobile layout fixes */
+@media (max-width: 991.98px) {
+    /* Ensure content takes full width on mobile */
+    .sb-nav-fixed #layoutSidenav #layoutSidenav_content {
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+        width: 100% !important;
+    }
+    
+    /* Reduced padding on mobile for better space utilization */
+    #layoutSidenav_content .container-fluid {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+    
+    /* Hide sidebar by default on mobile */
+    .sb-nav-fixed #layoutSidenav #layoutSidenav_nav {
+        position: fixed !important;
+        left: -225px !important;
+        top: 56px !important;
+        width: 225px !important;
+        height: calc(100vh - 56px) !important;
+        z-index: 1031 !important;
+        transition: left 0.3s ease-in-out !important;
+    }
+    
+    /* Show sidebar when toggled */
+    .sb-nav-fixed.sb-sidenav-toggled #layoutSidenav #layoutSidenav_nav {
+        left: 0 !important;
+    }
+}
+
+/* Card and component spacing improvements */
+.card {
+    margin-bottom: 1.5rem;
+}
+
+.row.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+/* Fix any overflow issues */
+.container-fluid {
+    overflow-x: hidden;
+}
+
+/* Breadcrumb spacing */
+.breadcrumb {
+    margin-bottom: 1rem;
+}
+
+/* Debug helper - remove in production */
+.debug-layout {
+    border: 1px solid red !important;
+}
+
+/* Ensure navbar doesn't interfere with content spacing */
+.sb-topnav {
+    z-index: 1030;
+}
+
+/* Fix footer spacing */
+footer {
+    margin-top: 2rem;
+}

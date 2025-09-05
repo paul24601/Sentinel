@@ -75,6 +75,12 @@ $userRole = $_SESSION['role'];
     <!-- Custom layout fixes - minimal and clean -->
     <link href="<?php echo $basePath; ?>css/custom-layout.css" rel="stylesheet">
     
+    <!-- Responsive fixes for mobile/tablet -->
+    <link href="<?php echo $basePath; ?>css/responsive-fixes.css" rel="stylesheet">
+    
+    <!-- Layout debug fixes -->
+    <link href="<?php echo $basePath; ?>css/layout-debug-fix.css" rel="stylesheet">
+    
     <!-- DataTables CSS -->
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">

@@ -121,7 +121,7 @@ if ($selectedRecordId) {
                             <div class="card mb-4">
                                 <div class="card-header bg-primary text-white">Product Machine Info</div>
                                 <div class="card-body table-responsive">
-                                    <table class="table table-bordered table-hover">
+                                    <table id="productMachineInfoTable" class="table table-bordered table-hover">
                                         <thead class="table-light">
                                             <tr>
                                                 <th>Date</th>
@@ -229,15 +229,8 @@ if ($selectedRecordId) {
 
     <script>
         $(document).ready(function() {
-            $('#parametersTable').DataTable({
-                "pageLength": 25,
-                "order": [[ 3, "desc" ]], // Sort by date column descending
-                "columnDefs": [
-                    { "orderable": false, "targets": 5 } // Disable sorting on Actions column
-                ],
-                "responsive": true
-            });
-
+            // DataTables will be initialized by universal script
+            
             // Print record handler
             $('.print-record').click(function () {
                 const recordId = $(this).data('record-id');

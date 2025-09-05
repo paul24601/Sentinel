@@ -460,7 +460,8 @@ $requests_result = $conn->query($requests_sql);
 
             $('#passwordResetTable').DataTable({
                 responsive: true,
-                pageLength: 25,
+                pageLength: 10,
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
                 order: [[0, 'desc']], // Sort by ID descending (newest first)
                 columnDefs: [
                     { 

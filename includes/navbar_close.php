@@ -123,6 +123,9 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
+    <!-- Universal DataTables Configuration -->
+    <script src="<?php echo $basePath; ?>js/datatables-universal.js"></script>
+    
     <!-- Enhanced initialization script -->
     <script>
     // Wait for DOM to be fully loaded
