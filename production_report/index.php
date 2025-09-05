@@ -50,9 +50,217 @@ try {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
     <link href="../css/styles.css" rel="stylesheet" />
+    <!-- jQuery UI CSS -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/ui-lightness/jquery-ui.css">
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"></nav>
     <!-- Add custom CSS -->
+    <style>
+        .form-check-label {
+            cursor: pointer;
+            padding: 20px;
+            border: 2px solid #e3e6f0;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            display: block;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .form-check-input:checked + .form-check-label {
+            border-color: #4e73df;
+            background-color: rgba(78, 115, 223, 0.15);
+            box-shadow: 0 4px 8px rgba(78, 115, 223, 0.3);
+        }
+        
+        .form-check-label:hover {
+            border-color: #4e73df;
+            background-color: rgba(78, 115, 223, 0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .injection-section, .finishing-section {
+            transition: all 0.5s ease;
+        }
+        
+        .form-section {
+            margin-bottom: 2.5rem;
+            border: 1px solid #e3e6f0;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .form-section .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px;
+            font-weight: 600;
+        }
+        
+        .form-section .card-body {
+            padding: 25px;
+            background-color: #fafbfc;
+        }
+        
+        .table-section {
+            margin-bottom: 2.5rem;
+            border: 1px solid #e3e6f0;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .table-section .card-header {
+            background: linear-gradient(135deg, #36d1dc 0%, #5b86e5 100%);
+            color: white;
+            border: none;
+            padding: 20px;
+            font-weight: 600;
+        }
+        
+        .form-floating {
+            margin-bottom: 1rem;
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid #e3e6f0;
+            border-radius: 8px;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+        
+        .btn-action {
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .autocomplete-container {
+            position: relative;
+        }
+        
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 9999;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .autocomplete-search {
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .autocomplete-items {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .autocomplete-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s ease;
+        }
+        
+        .autocomplete-item:hover,
+        .autocomplete-item.selected {
+            background-color: #f8f9fa;
+        }
+        
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-toggle-custom {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6c757d;
+        }
+        
+        .shift-hours-display {
+            background-color: #e9ecef;
+            border: 2px solid #e3e6f0;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .report-type-card {
+            background: white;
+            color: #333;
+            margin-bottom: 2rem;
+            border: 1px solid #e3e6f0;
+        }
+        
+        .report-type-card .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+        }
+
+        /* jQuery UI Autocomplete Styling */
+        .ui-autocomplete {
+            max-height: 200px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            background: white;
+            box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+            z-index: 10000 !important;
+            font-family: inherit;
+        }
+
+        .ui-menu-item {
+            padding: 0;
+        }
+
+        .ui-menu-item-wrapper {
+            padding: 8px 12px;
+            border: none;
+            font-size: 0.875rem;
+            cursor: pointer;
+            color: #212529;
+        }
+
+        .ui-menu-item-wrapper:hover,
+        .ui-state-active {
+            background-color: #e9ecef;
+            border: none;
+            color: #212529;
+        }
+
+        .finishing-section, .injection-section, .injection-machine-section {
+            transition: all 0.3s ease;
+        }
+    </style>
 
 </head>
 
@@ -244,41 +452,93 @@ try {
                         </button>
                     </div>
 
+                    <!-- Report Type Selection -->
+                    <div class="card mb-4 report-type-card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Select Report Type</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="reportTypeSelection" id="finishingReport" value="finishing" checked>
+                                        <label class="form-check-label" for="finishingReport">
+                                            <i class="fas fa-tools fa-2x mb-2 d-block"></i>
+                                            <strong>Finishing Report</strong>
+                                            <br><small>For finishing operations and assembly processes</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="reportTypeSelection" id="injectionReport" value="injection">
+                                        <label class="form-check-label" for="injectionReport">
+                                            <i class="fas fa-cogs fa-2x mb-2 d-block"></i>
+                                            <strong>Injection Report</strong>
+                                            <br><small>For injection molding operations and processes</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <form id="qualityControlForm" method="POST" action="submit.php" class="needs-validation" novalidate>
+                        <input type="hidden" name="reportType" id="selectedReportType" value="finishing">
                         <!-- Header Information -->
                         <div class="form-section">
                             <div class="card-header py-3">
-                                <h5 class="mb-0">Basic Information</h5>
+                                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Basic Information</h5>
                             </div>
                             <div class="card-body">
-                                <div class="row g-3">
-                                    <div class="col-md-3">
-                                        <div class="form-floating">
-                                            <input type="text" class="form-control" id="plant" name="plant" required>
-                                            <label for="plant">Plant</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
+                                <div class="row g-4">
+                                    <div class="col-md-4">
                                         <div class="form-floating">
                                             <input type="date" class="form-control" id="date" name="date" required>
                                             <label for="date">Date</label>
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <div class="form-floating">
                                             <select class="form-select" id="shift" name="shift" required>
                                                 <option value="">Select Shift</option>
-                                                <option value="Morning">Morning</option>
-                                                <option value="Afternoon">Afternoon</option>
-                                                <option value="Night">Night</option>
+                                                <option value="1st-8hr">1st Shift (8 Hours)</option>
+                                                <option value="2nd-8hr">2nd Shift (8 Hours)</option>
+                                                <option value="3rd-8hr">3rd Shift (8 Hours)</option>
+                                                <option value="1st-12hr">1st Shift (12 Hours)</option>
+                                                <option value="2nd-12hr">2nd Shift (12 Hours)</option>
+                                                <option value="custom">Custom Hours</option>
                                             </select>
                                             <label for="shift">Shift</label>
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <div class="form-floating">
-                                            <input type="text" class="form-control" id="shiftHours" name="shiftHours" required>
-                                            <label for="shiftHours">Shift Hours</label>
+                                            <div class="shift-hours-display" id="totalHoursDisplay">
+                                                Select shift to see hours
+                                            </div>
+                                            <input type="hidden" id="shiftHours" name="shiftHours">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row g-4 mt-2">
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="time" class="form-control" id="shiftStart" name="shiftStart" required>
+                                            <label for="shiftStart">Shift Start Time</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="time" class="form-control" id="shiftEnd" name="shiftEnd" required>
+                                            <label for="shiftEnd">Shift End Time</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <div class="shift-hours-display" id="calculatedHours">
+                                                Enter times to calculate
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -288,13 +548,13 @@ try {
                         <!-- Product Information -->
                         <div class="form-section">
                             <div class="card-header py-3">
-                                <h5 class="mb-0">Product Details</h5>
+                                <h5 class="mb-0"><i class="fas fa-box me-2"></i>Product Details</h5>
                             </div>
                             <div class="card-body">
-                                <div class="row g-3">
+                                <div class="row g-4">
                                     <div class="col-md-4">
                                         <div class="form-floating">
-                                            <input type="text" class="form-control" id="productName" name="productName" required>
+                                            <input type="text" class="form-control" id="productName" name="productName" required autocomplete="off">
                                             <label for="productName">Product Name</label>
                                         </div>
                                     </div>
@@ -314,13 +574,125 @@ try {
                             </div>
                         </div>
 
+                        <!-- Injection-Specific Parameters (only shown for Injection reports) -->
+                        <div class="form-section injection-section" style="display: none;">
+                            <div class="card-header py-3">
+                                <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Injection Molding Parameters</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-4">
+                                    <div class="col-md-3">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="injectionPressure" name="injectionPressure" step="0.1">
+                                            <label for="injectionPressure">Injection Pressure (MPa)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="moldingTemp" name="moldingTemp">
+                                            <label for="moldingTemp">Molding Temperature (°C)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="cycleTime" name="cycleTime" step="0.1">
+                                            <label for="cycleTime">Cycle Time (seconds)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="cavityCount" name="cavityCount">
+                                            <label for="cavityCount">Cavity Count</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row g-4 mt-2">
+                                    <div class="col-md-3">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="coolingTime" name="coolingTime" step="0.1">
+                                            <label for="coolingTime">Cooling Time (seconds)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="holdingPressure" name="holdingPressure" step="0.1">
+                                            <label for="holdingPressure">Holding Pressure (MPa)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="materialType" name="materialType">
+                                            <label for="materialType">Material Type</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="shotSize" name="shotSize" step="0.1">
+                                            <label for="shotSize">Shot Size (g)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Finishing-Specific Parameters (only shown for Finishing reports) -->
+                        <div class="form-section finishing-section">
+                            <div class="card-header py-3">
+                                <h5 class="mb-0"><i class="fas fa-tools me-2"></i>Finishing Process Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-4">
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <select class="form-select" id="finishingProcess" name="finishingProcess">
+                                                <option value="">Select Process</option>
+                                                <option value="Assembly">Assembly</option>
+                                                <option value="Painting">Painting</option>
+                                                <option value="Polishing">Polishing</option>
+                                                <option value="Packaging">Packaging</option>
+                                                <option value="Quality Check">Quality Check</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                            <label for="finishingProcess">Finishing Process</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="stationNumber" name="stationNumber">
+                                            <label for="stationNumber">Station Number</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="workOrder" name="workOrder">
+                                            <label for="workOrder">Work Order #</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row g-4 mt-2">
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="finishingTools" name="finishingTools">
+                                            <label for="finishingTools">Tools/Equipment Used</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="qualityStandard" name="qualityStandard">
+                                            <label for="qualityStandard">Quality Standard</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- ID Numbers Section -->
                         <div class="form-section">
                             <div class="card-header py-3">
-                                <h5 class="mb-0">ID Information</h5>
+                                <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>ID Information</h5>
                             </div>
                             <div class="card-body">
-                                <div class="row g-3">
+                                <div class="row g-4">
                                     <div class="col-md-3">
                                         <div class="form-floating">
                                             <input type="text" class="form-control" id="idNumber1" name="idNumber1">
@@ -349,22 +721,32 @@ try {
                             </div>
                         </div>
 
-                        <!-- Assembly Line Section -->
-                        <div class="form-section">
+                        <!-- Assembly Line Section - Only for Finishing Reports -->
+                        <div class="form-section finishing-section" style="display: none;">
                             <div class="card-header py-3">
-                                <h5 class="mb-0">Assembly Line Information</h5>
+                                <h5 class="mb-0"><i class="fas fa-industry me-2"></i>Assembly Line Information</h5>
                             </div>
                             <div class="card-body">
-                                <div class="row g-3">
+                                <div class="row g-4">
                                     <div class="col-md-4">
                                         <div class="form-floating">
-                                            <input type="text" class="form-control" id="assemblyLine" name="assemblyLine" required>
+                                            <select class="form-select" id="assemblyLine" name="assemblyLine">
+                                                <option value="">Select Table</option>
+                                                <option value="Table 1">Table 1</option>
+                                                <option value="Table 2">Table 2</option>
+                                                <option value="Table 3">Table 3</option>
+                                                <option value="Table 4">Table 4</option>
+                                                <option value="Table 5">Table 5</option>
+                                                <option value="Table 6">Table 6</option>
+                                                <option value="Table 7">Table 7</option>
+                                                <option value="Table 8">Table 8</option>
+                                            </select>
                                             <label for="assemblyLine">Assembly Line # / Table #</label>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-floating">
-                                            <input type="number" class="form-control" id="manpower" name="manpower" required>
+                                            <input type="number" class="form-control" id="manpower" name="manpower">
                                             <label for="manpower">Manpower Allocation</label>
                                         </div>
                                     </div>
@@ -384,11 +766,58 @@ try {
                             </div>
                         </div>
 
+                        <!-- Machine Information Section - Only for Injection Reports -->
+                        <div class="form-section injection-machine-section" style="display: none;">
+                            <div class="card-header py-3">
+                                <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Machine Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-4">
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="machine" name="machine">
+                                            <label for="machine">Machine</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <select class="form-select" id="robotArm" name="robotArm">
+                                                <option value="">Select Option</option>
+                                                <option value="Yes">Yes</option>
+                                                <option value="No">No</option>
+                                            </select>
+                                            <label for="robotArm">With Robot Arm</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="manpowerInjection" name="manpower">
+                                            <label for="manpowerInjection">Manpower Allocation</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row g-4 mt-2">
+                                    <div class="col-md-3">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="regInjection" name="reg">
+                                            <label for="regInjection">REG</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="otInjection" name="ot">
+                                            <label for="otInjection">OT</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Quality Control Table -->
                         <div class="table-section">
                             <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">Quality Control Records</h5>
-                                <button type="button" class="btn btn-primary btn-sm" id="addRow">
+                                <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Quality Control Records</h5>
+                                <button type="button" class="btn btn-light btn-sm" id="addRow">
                                     <i class="fas fa-plus me-2"></i>Add Row
                                 </button>
                             </div>
@@ -396,53 +825,42 @@ try {
                                 <table class="table table-bordered table-hover" id="qualityTable">
                                     <thead class="table-light">
                                         <tr>
-                                            <th style="min-width: 200px;">Part Name</th>
-                                            <th style="min-width: 200px;">Defect</th>
-                                            <th colspan="8" class="text-center">Time</th>
-                                            <th style="min-width: 100px;">Total</th>
-                                            <th style="width: 50px;">Action</th>
+                                            <th rowspan="2" style="min-width: 200px; vertical-align: middle;">Part Name</th>
+                                            <th rowspan="2" style="min-width: 200px; vertical-align: middle;">Defect</th>
+                                            <th colspan="8" class="text-center" id="timeHeaderSpan">Time (Hours)</th>
+                                            <th rowspan="2" style="min-width: 100px; vertical-align: middle;">Total</th>
+                                        </tr>
+                                        <tr id="timeSubHeaders">
+                                            <!-- Time column headers will be generated dynamically -->
                                         </tr>
                                     </thead>
                                     <tbody id="qualityTableBody">
                                         <tr>
                                             <td><input type="text" class="form-control" name="partName[]"></td>
                                             <td><input type="text" class="form-control" name="defect[]"></td>
-                                            <td><input type="number" class="form-control time-input" name="time1[]"></td>
-                                            <td><input type="number" class="form-control time-input" name="time2[]"></td>
-                                            <td><input type="number" class="form-control time-input" name="time3[]"></td>
-                                            <td><input type="number" class="form-control time-input" name="time4[]"></td>
-                                            <td><input type="number" class="form-control time-input" name="time5[]"></td>
-                                            <td><input type="number" class="form-control time-input" name="time6[]"></td>
-                                            <td><input type="number" class="form-control time-input" name="time7[]"></td>
-                                            <td><input type="number" class="form-control time-input" name="time8[]"></td>
+                                            <!-- Time input columns will be generated dynamically -->
+                                            <td class="time-columns-container"></td>
                                             <td><input type="number" class="form-control total" name="total[]" readonly></td>
-                                            <td>
-                                                <button type="button" class="btn btn-danger btn-sm delete-row">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
                                         </tr>
                                     </tbody>
                                     <tfoot class="table-light">
                                         <tr>
                                             <td colspan="2" class="fw-bold">Total Reject</td>
-                                            <td colspan="8">
-                                                <input type="number" class="form-control" id="totalReject" name="totalReject" readonly>
+                                            <td colspan="8" id="totalRejectColumns" class="time-totals-container">
+                                                <!-- Time total inputs will be generated dynamically -->
                                             </td>
                                             <td>
                                                 <input type="number" class="form-control" id="totalRejectSum" name="totalRejectSum" readonly>
                                             </td>
-                                            <td></td>
                                         </tr>
                                         <tr>
                                             <td colspan="2" class="fw-bold">Total Good</td>
-                                            <td colspan="8">
-                                                <input type="number" class="form-control" id="totalGood" name="totalGood">
+                                            <td colspan="8" id="totalGoodColumns" class="time-totals-container">
+                                                <!-- Time total inputs will be generated dynamically -->
                                             </td>
                                             <td>
                                                 <input type="number" class="form-control" id="totalGoodSum" name="totalGoodSum" readonly>
                                             </td>
-                                            <td></td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -452,8 +870,8 @@ try {
                         <!-- Downtime Section -->
                         <div class="table-section">
                             <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">Downtime Records</h5>
-                                <button type="button" class="btn btn-primary btn-sm" id="addDowntimeRow">
+                                <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Downtime Records</h5>
+                                <button type="button" class="btn btn-light btn-sm" id="addDowntimeRow">
                                     <i class="fas fa-plus me-2"></i>Add Downtime
                                 </button>
                             </div>
@@ -491,11 +909,11 @@ try {
                         <!-- Remarks Section -->
                         <div class="form-section">
                             <div class="card-header py-3">
-                                <h5 class="mb-0">Additional Information</h5>
+                                <h5 class="mb-0"><i class="fas fa-comment-alt me-2"></i>Additional Information</h5>
                             </div>
                             <div class="card-body">
                                 <div class="form-floating mb-3">
-                                    <textarea class="form-control" id="remarks" name="remarks" style="height: 100px"></textarea>
+                                    <textarea class="form-control" id="remarks" name="remarks" style="height: 120px"></textarea>
                                     <label for="remarks">Remarks</label>
                                 </div>
                             </div>
@@ -531,15 +949,221 @@ try {
 
     <!-- Add this JavaScript code at the end of the file -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/scripts.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
 
     <script>
         $(document).ready(function() {
+            // Shift time mappings
+            const shiftTimes = {
+                '1st-8hr': { start: '06:00', end: '14:00', hours: 8 },
+                '2nd-8hr': { start: '14:00', end: '22:00', hours: 8 },
+                '3rd-8hr': { start: '22:00', end: '06:00', hours: 8 },
+                '1st-12hr': { start: '06:00', end: '18:00', hours: 12 },
+                '2nd-12hr': { start: '18:00', end: '06:00', hours: 12 },
+                'custom': { start: '', end: '', hours: 0 }
+            };
+
+            // Initialize jQuery UI autocomplete for product names
+            $('#productName').autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: 'get_product_names.php',
+                        data: { search: request.term },
+                        dataType: 'json',
+                        success: function(data) {
+                            response(data);
+                        }
+                    });
+                },
+                minLength: 1,
+                select: function(event, ui) {
+                    $(this).val(ui.item);
+                    return false;
+                }
+            });
+
+            // Initialize jQuery UI autocomplete for machines (injection only)
+            $('#machine').autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: 'get_machines.php',
+                        data: { term: request.term },
+                        dataType: 'json',
+                        success: function(data) {
+                            response(data);
+                        }
+                    });
+                },
+                minLength: 0,
+                select: function(event, ui) {
+                    $(this).val(ui.item.value);
+                    return false;
+                }
+            }).focus(function() {
+                // Show all machines when focused with no value
+                if ($(this).val() === '') {
+                    $(this).autocomplete('search', '');
+                }
+            });
+
+            // ID number formatting
+            $('#idNumber1, #idNumber2, #idNumber3').on('blur', function() {
+                let value = $(this).val().replace(/\D/g, ''); // Remove non-digits
+                if (value.length > 0) {
+                    value = value.padStart(6, '0'); // Pad with zeros to make 6 digits
+                    $(this).val(value);
+                }
+            });
+
+            // Handle shift selection
+            $('#shift').change(function() {
+                const selectedShift = $(this).val();
+                if (selectedShift && shiftTimes[selectedShift]) {
+                    const times = shiftTimes[selectedShift];
+                    if (selectedShift !== 'custom') {
+                        $('#shiftStart').val(times.start);
+                        $('#shiftEnd').val(times.end);
+                        updateShiftHours();
+                        $('#totalHoursDisplay').text(`${selectedShift}: ${times.start} - ${times.end} (${times.hours} hours)`);
+                        generateTimeColumns(times.start, times.end);
+                    } else {
+                        $('#totalHoursDisplay').text('Custom shift - enter start and end times');
+                        $('#shiftStart').val('');
+                        $('#shiftEnd').val('');
+                    }
+                } else {
+                    $('#totalHoursDisplay').text('Select shift to see hours');
+                    $('#shiftStart').val('');
+                    $('#shiftEnd').val('');
+                    $('#calculatedHours').text('Enter times to calculate');
+                }
+            });
+
+            // Generate time columns based on shift hours
+            function generateTimeColumns(startTime, endTime) {
+                if (!startTime || !endTime) return;
+
+                const start = new Date(`2000-01-01 ${startTime}`);
+                let end = new Date(`2000-01-01 ${endTime}`);
+                
+                // Handle overnight shifts
+                if (end <= start) {
+                    end.setDate(end.getDate() + 1);
+                }
+                
+                const diffMs = end - start;
+                const totalHours = diffMs / (1000 * 60 * 60);
+                
+                // Generate time column headers
+                let timeHeaders = '';
+                let currentTime = new Date(start);
+                
+                for (let i = 0; i < totalHours; i++) {
+                    const fromTime = formatTime(currentTime);
+                    currentTime.setHours(currentTime.getHours() + 1);
+                    const toTime = formatTime(currentTime);
+                    
+                    timeHeaders += `<th style="min-width: 80px; text-align: center;">${fromTime}-${toTime}</th>`;
+                }
+                
+                // Update table headers
+                $('#timeHeaderSpan').attr('colspan', totalHours);
+                $('#timeSubHeaders').html(timeHeaders);
+                
+                // Generate time input columns for each row
+                generateTimeInputs(totalHours);
+                
+                // Generate total reject and total good time columns
+                generateTimeTotals(totalHours);
+                
+                // Update footer colspan
+                $('#totalRejectColumns, #totalGoodColumns').attr('colspan', totalHours);
+            }
+
+            function generateTimeInputs(totalHours) {
+                $('#qualityTableBody tr').each(function() {
+                    let timeInputs = '';
+                    for (let i = 0; i < totalHours; i++) {
+                        timeInputs += `<td><input type="number" class="form-control time-input" name="time${i+1}[]" style="width: 70px;" min="0"></td>`;
+                    }
+                    
+                    // Replace the time-columns-container
+                    const $row = $(this);
+                    const partNameCell = $row.find('td:eq(0)');
+                    const defectCell = $row.find('td:eq(1)');
+                    const totalCell = $row.find('td:last()');
+                    
+                    $row.html('');
+                    $row.append(partNameCell);
+                    $row.append(defectCell);
+                    $row.append(timeInputs);
+                    $row.append(totalCell);
+                });
+            }
+
+            function generateTimeTotals(totalHours) {
+                let rejectTotals = '';
+                let goodTotals = '';
+                
+                for (let i = 0; i < totalHours; i++) {
+                    rejectTotals += `<td><input type="number" class="form-control time-total-reject" id="timeReject${i+1}" readonly style="width: 70px;"></td>`;
+                    goodTotals += `<td><input type="number" class="form-control time-total-good" name="timeGood${i+1}" style="width: 70px;" min="0"></td>`;
+                }
+                
+                $('#totalRejectColumns').html(rejectTotals);
+                $('#totalGoodColumns').html(goodTotals);
+            }
+
+            function formatTime(date) {
+                return date.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: false 
+                }).substring(0, 5);
+            }
+
+            // Calculate shift hours
+            function updateShiftHours() {
+                const startTime = $('#shiftStart').val();
+                const endTime = $('#shiftEnd').val();
+                
+                if (startTime && endTime) {
+                    const start = new Date(`2000-01-01 ${startTime}`);
+                    let end = new Date(`2000-01-01 ${endTime}`);
+                    
+                    // Handle overnight shifts
+                    if (end <= start) {
+                        end.setDate(end.getDate() + 1);
+                    }
+                    
+                    const diffMs = end - start;
+                    const diffHours = diffMs / (1000 * 60 * 60);
+                    
+                    $('#shiftHours').val(diffHours);
+                    $('#calculatedHours').text(`${diffHours} hours`);
+                    
+                    // Generate time columns for custom shifts
+                    if ($('#shift').val() === 'custom') {
+                        generateTimeColumns(startTime, endTime);
+                    }
+                } else {
+                    $('#calculatedHours').text('Enter times to calculate');
+                    $('#shiftHours').val('');
+                }
+            }
+
+            // Handle manual time changes
+            $('#shiftStart, #shiftEnd').change(function() {
+                updateShiftHours();
+            });
+
             // Add row to quality table
             $('#addRow').click(function() {
-                const newRow = $('#qualityTableBody tr:first').clone();
+                const firstRow = $('#qualityTableBody tr:first');
+                const newRow = firstRow.clone();
                 newRow.find('input').val('');
                 $('#qualityTableBody').append(newRow);
             });
@@ -584,6 +1208,7 @@ try {
                     total += parseInt($(this).val()) || 0;
                 });
                 row.find('.total').val(total);
+                calculateColumnTotals();
             }
 
             function calculateTotals() {
@@ -591,9 +1216,35 @@ try {
                 $('#qualityTableBody tr').each(function() {
                     totalReject += parseInt($(this).find('.total').val()) || 0;
                 });
-                $('#totalReject').val(totalReject);
                 $('#totalRejectSum').val(totalReject);
+                
+                // Calculate total good sum
+                let totalGood = 0;
+                $('.time-total-good').each(function() {
+                    totalGood += parseInt($(this).val()) || 0;
+                });
+                $('#totalGoodSum').val(totalGood);
             }
+
+            function calculateColumnTotals() {
+                // Calculate totals for each time column (reject totals)
+                $('.time-total-reject').each(function(index) {
+                    let columnTotal = 0;
+                    $('#qualityTableBody tr').each(function() {
+                        const timeInput = $(this).find('.time-input').eq(index);
+                        columnTotal += parseInt(timeInput.val()) || 0;
+                    });
+                    $(this).val(columnTotal);
+                });
+                
+                // Recalculate main totals
+                calculateTotals();
+            }
+
+            // Calculate totals when time-total-good inputs change
+            $(document).on('input', '.time-total-good', function() {
+                calculateTotals();
+            });
 
             function calculateDowntimeTotal() {
                 let total = 0;
@@ -606,7 +1257,21 @@ try {
             // Form validation
             const form = document.getElementById('qualityControlForm');
             form.addEventListener('submit', function(event) {
-                if (!form.checkValidity()) {
+                // Validate ID numbers
+                const idFields = ['#idNumber1', '#idNumber2', '#idNumber3'];
+                let isValid = true;
+                
+                idFields.forEach(field => {
+                    const value = $(field).val();
+                    if (value && value.length !== 6) {
+                        isValid = false;
+                        $(field).addClass('is-invalid');
+                    } else {
+                        $(field).removeClass('is-invalid');
+                    }
+                });
+
+                if (!form.checkValidity() || !isValid) {
                     event.preventDefault();
                     event.stopPropagation();
                 }
@@ -615,13 +1280,59 @@ try {
 
             // Auto-fill test data
             $('#autoFillTest').click(function() {
-                // Add your auto-fill logic here
-                $('#plant').val('Plant A');
                 $('#date').val('2024-03-20');
-                $('#shift').val('Morning');
-                $('#shiftHours').val('8');
-                // ... add more auto-fill fields as needed
+                $('#shift').val('1st-8hr').trigger('change');
+                $('#productName').val('ASSY FOG LAMP LH TUNDRA');
+                $('#color').val('Black');
+                $('#partNo').val('FL-001-LH');
+                $('#assemblyLine').val('Table 1');
+                $('#manpower').val('8');
+                $('#idNumber1').val('123456');
+                $('#idNumber2').val('789012');
             });
+
+            // Handle report type selection
+            $('input[name="reportTypeSelection"]').change(function() {
+                const selectedType = $(this).val();
+                $('#selectedReportType').val(selectedType);
+                
+                if (selectedType === 'injection') {
+                    $('.injection-section').show();
+                    $('.injection-machine-section').show();
+                    $('.finishing-section').hide();
+                    // Set required fields for injection
+                    $('#machine').prop('required', true);
+                    $('#robotArm').prop('required', true);
+                    $('#assemblyLine').prop('required', false);
+                } else {
+                    $('.injection-section').hide();
+                    $('.injection-machine-section').hide();
+                    $('.finishing-section').show();
+                    // Set required fields for finishing
+                    $('#assemblyLine').prop('required', true);
+                    $('#machine').prop('required', false);
+                    $('#robotArm').prop('required', false);
+                }
+            });
+
+            // Initialize report type on page load
+            const initialType = $('input[name="reportTypeSelection"]:checked').val();
+            $('#selectedReportType').val(initialType);
+            if (initialType === 'injection') {
+                $('.injection-section').show();
+                $('.injection-machine-section').show();
+                $('.finishing-section').hide();
+                $('#machine').prop('required', true);
+                $('#robotArm').prop('required', true);
+                $('#assemblyLine').prop('required', false);
+            } else {
+                $('.injection-section').hide();
+                $('.injection-machine-section').hide();
+                $('.finishing-section').show();
+                $('#assemblyLine').prop('required', true);
+                $('#machine').prop('required', false);
+                $('#robotArm').prop('required', false);
+            }
         });
     </script>
 </body>
