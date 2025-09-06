@@ -166,11 +166,116 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Simple refresh approach - more reliable
-                location.reload();
+                // Update notification badge
+                updateNotificationBadge();
+                
+                // Remove the "New" badge from the notification item
+                const notificationItem = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                if (notificationItem) {
+                    const newBadge = notificationItem.querySelector('.badge');
+                    if (newBadge) {
+                        newBadge.remove();
+                    }
+                }
             }
         })
         .catch(error => console.error('Error:', error));
+    }
+
+    // Show notification modal with specific notification details
+    function showNotificationModal(notificationId) {
+        // Mark as viewed first
+        markAsViewed(notificationId);
+        
+        // Fetch notification details and show modal
+        fetch('<?php echo $basePath; ?>includes/get_notification_details.php?id=' + notificationId)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const notification = data.notification;
+                
+                // Update modal content
+                document.getElementById('notificationsModalLabel').innerHTML = 
+                    `<i class="${getNotificationIconClass(notification.notification_type)} me-2"></i>${notification.title}`;
+                
+                document.getElementById('notificationsList').innerHTML = `
+                    <div class="notification-detail">
+                        <div class="d-flex align-items-start mb-3">
+                            <div class="me-3">
+                                <i class="${getNotificationIconClass(notification.notification_type)} fa-2x"></i>
+                                ${notification.is_urgent ? '<span class="badge bg-danger ms-2">Urgent</span>' : ''}
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="mb-2">${notification.title}</h5>
+                                <div class="notification-message">
+                                    ${notification.message.replace(/\n/g, '<br>')}
+                                </div>
+                                <div class="mt-3">
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>
+                                        ${formatDateTime(notification.created_at)}
+                                    </small>
+                                    <small class="text-muted ms-3">
+                                        <i class="fas fa-user me-1"></i>
+                                        Created by: ${notification.created_by}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('notificationsModal'));
+                modal.show();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Fallback to showing all notifications modal
+            showAllNotifications();
+        });
+    }
+
+    // Show all notifications modal
+    function showAllNotifications() {
+        const modal = new bootstrap.Modal(document.getElementById('notificationsModal'));
+        modal.show();
+    }
+
+    // Helper functions
+    function getNotificationIconClass(type) {
+        switch (type) {
+            case 'warning': return 'fas fa-exclamation-triangle text-warning';
+            case 'danger': return 'fas fa-exclamation-circle text-danger';
+            case 'success': return 'fas fa-check-circle text-success';
+            case 'info':
+            default: return 'fas fa-info-circle text-primary';
+        }
+    }
+
+    function formatDateTime(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString() + ' at ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+
+    function updateNotificationBadge() {
+        // Simple badge update - refresh count
+        fetch('<?php echo $basePath; ?>includes/get_notification_count.php')
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.querySelector('#notificationDropdown .badge');
+            if (data.count > 0) {
+                if (badge) {
+                    badge.textContent = data.count;
+                }
+            } else {
+                if (badge) {
+                    badge.remove();
+                }
+            }
+        })
+        .catch(error => console.error('Error updating badge:', error));
     }
     </script>
     

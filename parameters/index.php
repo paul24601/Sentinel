@@ -116,6 +116,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clone_record_id'])) {
             $stmt->close();
         }
     }
+    
+    // Debug: Show clone results if in debug mode
+    if (isset($_GET['debug']) || isset($_POST['debug'])) {
+        echo "<div style='position: fixed; top: 10px; right: 10px; background: #f8f9fa; border: 2px solid #007bff; padding: 15px; border-radius: 8px; z-index: 9999; max-width: 400px; font-family: monospace; font-size: 12px;'>";
+        echo "<strong>Clone Debug Info:</strong><br>";
+        echo "Record ID: " . htmlspecialchars($recordId) . "<br>";
+        echo "Total fields collected: " . count($clonedData) . "<br>";
+        if (count($clonedData) > 0) {
+            echo "<strong>Sample fields:</strong><br>";
+            $count = 0;
+            foreach ($clonedData as $key => $value) {
+                if ($count++ >= 5) break;
+                $displayValue = is_null($value) ? 'NULL' : (strlen($value) > 20 ? substr($value, 0, 20) . '...' : $value);
+                echo "$key = $displayValue<br>";
+            }
+        } else {
+            echo "<span style='color: red;'>No data found!</span><br>";
+        }
+        echo "<button onclick='this.parentElement.style.display=\"none\"' style='margin-top: 10px; padding: 5px;'>Close</button>";
+        echo "</div>";
+    }
 }
 
 // Include centralized navbar
@@ -2421,6 +2442,121 @@ include '../includes/navbar.php';
                 setTimeout(() => notification.remove(), 150);
             }, 5000);
         }
+
+        // Enhanced detailed notification function for clone operations
+        function showDetailedNotification(message, type, details) {
+            // Create a more sophisticated notification modal
+            const modalId = 'cloneNotificationModal';
+            
+            // Remove existing modal if present
+            const existingModal = document.getElementById(modalId);
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            // Create the modal HTML
+            const modalHTML = `
+                <div class="modal fade" id="${modalId}" tabindex="-1" aria-labelledby="${modalId}Label" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-success text-white">
+                                <h5 class="modal-title" id="${modalId}Label">
+                                    <i class="fas fa-clone me-2"></i>Record Cloned Successfully
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div style="white-space: pre-line; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                            ${message.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card bg-light">
+                                            <div class="card-header">
+                                                <h6 class="mb-0"><i class="fas fa-chart-pie me-1"></i>Statistics</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row g-2">
+                                                    <div class="col-6">
+                                                        <div class="text-center p-2 bg-success text-white rounded">
+                                                            <div class="fs-4 fw-bold">${details.fieldsApplied}</div>
+                                                            <small>Applied</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="text-center p-2 bg-secondary text-white rounded">
+                                                            <div class="fs-4 fw-bold">${details.fieldsSkipped}</div>
+                                                            <small>Skipped</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="text-center p-2 bg-warning text-dark rounded">
+                                                            <div class="fs-4 fw-bold">${details.fieldsExcluded}</div>
+                                                            <small>Excluded</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="text-center p-2 bg-info text-white rounded">
+                                                            <div class="fs-4 fw-bold">${details.totalFieldsInRecord}</div>
+                                                            <small>Total</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mt-3">
+                                                    <div class="progress" style="height: 8px;">
+                                                        <div class="progress-bar bg-success" role="progressbar" 
+                                                             style="width: ${(details.fieldsApplied / details.totalFieldsInRecord * 100).toFixed(1)}%"
+                                                             aria-valuenow="${details.fieldsApplied}" 
+                                                             aria-valuemin="0" 
+                                                             aria-valuemax="${details.totalFieldsInRecord}">
+                                                        </div>
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        ${(details.fieldsApplied / details.totalFieldsInRecord * 100).toFixed(1)}% of fields applied
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-1"></i>Close
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="scrollToTop();" data-bs-dismiss="modal">
+                                    <i class="fas fa-edit me-1"></i>Start Editing Form
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Add modal to document
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById(modalId));
+            modal.show();
+
+            // Auto-dismiss after 10 seconds
+            setTimeout(() => {
+                modal.hide();
+            }, 10000);
+
+            // Clean up modal after it's hidden
+            document.getElementById(modalId).addEventListener('hidden.bs.modal', function () {
+                this.remove();
+            });
+        }
+
+        // Helper function to scroll to top of form
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     </script>
 
     <script>
@@ -2971,9 +3107,34 @@ include '../includes/navbar.php';
     </script>
 
     <script>
-        $(document).ready(function () {
+        // Clone functionality - moved to bottom after jQuery is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if jQuery is available
+            if (typeof $ === 'undefined') {
+                console.error('jQuery is not loaded! Clone functionality requires jQuery.');
+                return;
+            }
+            
             <?php if (!empty($clonedData)): ?>
-                const clonedData = <?= json_encode($clonedData) ?>;
+                // Safely encode JSON data
+                const clonedDataJson = <?= json_encode($clonedData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+                
+                if (!clonedDataJson) {
+                    console.error('Failed to parse cloned data JSON');
+                    return;
+                }
+                
+                const clonedData = clonedDataJson;
+                
+                // Debug: Log cloned data to console
+                console.log('Cloned data received:', clonedData);
+                console.log('Total fields to process:', Object.keys(clonedData).length);
+                
+                // Enhanced debugging for field population
+                console.log('Starting field population process...');
+
+                // Show loading notification during clone process
+                showNotification('🔄 Cloning record data... Please wait.', 'info');
 
                 // Define fields to exclude from cloning (unique fields that shouldn't be copied)
                 const excludedFields = [
@@ -3241,6 +3402,11 @@ include '../includes/navbar.php';
 
                 for (const field in clonedData) {
                     const value = clonedData[field];
+                    
+                    // Debug: Log each field being processed
+                    if (fieldsApplied < 10) { // Only log first 10 to avoid spam
+                        console.log(`Processing field: ${field} = ${value}`);
+                    }
 
                     // Skip excluded fields
                     if (excludedFields.includes(field)) {
@@ -3349,7 +3515,19 @@ include '../includes/navbar.php';
                             $(input).trigger('change');
                             fieldsApplied++;
                             debugInfo.applied.push(`${field} -> ${formFieldName} = ${value}`);
+                            
+                            // Debug: Log successful field population
+                            if (fieldsApplied <= 5) {
+                                console.log(`✅ Successfully applied: ${field} -> ${formFieldName} = ${value}`);
+                            }
                         } else {
+                            debugInfo.notFound.push(`${field} -> ${formFieldName}`);
+                            
+                            // Debug: Log missing fields
+                            if (debugInfo.notFound.length <= 5) {
+                                console.log(`❌ Field not found: ${field} -> ${formFieldName}`);
+                            }
+                            
                             // Try alternative selectors for fields that might have different casing or structure
                             let alternativeInput = null;
 
@@ -3499,8 +3677,21 @@ include '../includes/navbar.php';
                     totalFields: Object.keys(clonedData).length,
                     appliedFields: fieldsApplied,
                     skippedFields: fieldsSkipped,
-                    excludedFieldsCount: excludedFields.length
+                    excludedFieldsCount: excludedFields.length,
+                    notFoundCount: debugInfo.notFound.length,
+                    nullOrEmptyCount: debugInfo.nullOrEmpty.length
                 });
+                
+                // Enhanced debugging
+                console.log('Debug Info Details:', {
+                    excluded: debugInfo.excluded.slice(0, 5),
+                    notFound: debugInfo.notFound.slice(0, 10),
+                    applied: debugInfo.applied.slice(0, 10),
+                    nullOrEmpty: debugInfo.nullOrEmpty.slice(0, 5)
+                });
+
+                // Show quick toast notification with basic stats
+                showNotification(`✅ Clone complete! Applied ${fieldsApplied} fields from record. Opening details...`, 'success');
 
                 // Debug: Show core pull data specifically
                 const corePullFields = Object.keys(clonedData).filter(key => 
@@ -3618,11 +3809,49 @@ include '../includes/navbar.php';
                     console.log('DEBUG: Adjuster field available for reset');
                 }
 
-                // Show success message
-                showNotification(`Form data successfully applied from selected record. Applied ${fieldsApplied} fields, skipped ${fieldsSkipped} fields. Date, start/end times, adjuster name, attachments, and other unique fields were not copied. New session started.`, 'success');
+                // Show detailed success notification with comprehensive information
+                const cloneDetails = {
+                    recordId: '<?= htmlspecialchars($recordId ?? '') ?>',
+                    totalFieldsInRecord: Object.keys(clonedData).length,
+                    fieldsApplied: fieldsApplied,
+                    fieldsSkipped: fieldsSkipped,
+                    fieldsExcluded: debugInfo.excluded.length,
+                    fieldsNotFound: debugInfo.notFound.length,
+                    fieldsNullOrEmpty: debugInfo.nullOrEmpty.length
+                };
+
+                // Create detailed notification message
+                let notificationMessage = `🎉 **Record Cloned Successfully!**\n\n`;
+                notificationMessage += `📋 **Source Record:** ${cloneDetails.recordId}\n`;
+                notificationMessage += `📊 **Clone Summary:**\n`;
+                notificationMessage += `  ✅ Fields Applied: **${cloneDetails.fieldsApplied}**\n`;
+                notificationMessage += `  ⏭️ Fields Skipped: ${cloneDetails.fieldsSkipped}\n`;
+                notificationMessage += `  🚫 Excluded Fields: ${cloneDetails.fieldsExcluded}\n`;
+                notificationMessage += `  ❓ Fields Not Found: ${cloneDetails.fieldsNotFound}\n`;
+                notificationMessage += `  💨 Empty Fields: ${cloneDetails.fieldsNullOrEmpty}\n\n`;
+                notificationMessage += `📝 **What was cloned:**\n`;
+                notificationMessage += `  • Product & Machine Information\n`;
+                notificationMessage += `  • Material Composition & Colorants\n`;
+                notificationMessage += `  • Temperature Settings (Barrel & Mold)\n`;
+                notificationMessage += `  • Process Parameters & Timers\n`;
+                notificationMessage += `  • Injection & Ejection Settings\n`;
+                notificationMessage += `  • Core Pull Configurations\n\n`;
+                notificationMessage += `⚠️ **What was NOT cloned:**\n`;
+                notificationMessage += `  • Date/Time (current session)\n`;
+                notificationMessage += `  • Adjuster name (current user)\n`;
+                notificationMessage += `  • File attachments\n`;
+                notificationMessage += `  • Record IDs (new unique IDs)\n\n`;
+                notificationMessage += `🚀 **Ready to customize and submit!**`;
+
+                // Show enhanced notification
+                showDetailedNotification(notificationMessage, 'success', cloneDetails);
 
             <?php endif; ?>
+        });
+    </script>
 
+    <script>
+        $(document).ready(function () {
             // Notification functions
             window.markAsViewed = function(notificationId) {
                 fetch('../includes/mark_notification_viewed.php', {

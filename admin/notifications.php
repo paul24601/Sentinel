@@ -59,6 +59,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $messageType = "danger";
                 }
                 break;
+
+            case 'edit':
+                $id = intval($_POST['notification_id']);
+                $title = trim($_POST['title']);
+                $messageText = trim($_POST['message']);
+                $type = $_POST['notification_type'];
+                $targetRoles = isset($_POST['target_roles']) ? $_POST['target_roles'] : [];
+                $isUrgent = isset($_POST['is_urgent']) ? 1 : 0;
+                $expiresAt = !empty($_POST['expires_at']) ? $_POST['expires_at'] : null;
+
+                if (updateNotification($id, $title, $messageText, $type, $targetRoles, $isUrgent, $expiresAt)) {
+                    $message = "Notification updated successfully!";
+                    $messageType = "success";
+                } else {
+                    $message = "Error updating notification.";
+                    $messageType = "danger";
+                }
+                break;
         }
     }
 }
@@ -244,6 +262,21 @@ include '../includes/navbar.php';
                                                         </small>
 
                                                         <div class="btn-group btn-group-sm">
+                                                            <!-- Edit -->
+                                                            <button type="button" class="btn btn-outline-secondary btn-sm" 
+                                                                    data-bs-toggle="modal" 
+                                                                    data-bs-target="#editNotificationModal" 
+                                                                    data-id="<?php echo $notification['id']; ?>"
+                                                                    data-title="<?php echo htmlspecialchars($notification['title']); ?>"
+                                                                    data-message="<?php echo htmlspecialchars($notification['message']); ?>"
+                                                                    data-type="<?php echo $notification['notification_type']; ?>"
+                                                                    data-urgent="<?php echo $notification['is_urgent']; ?>"
+                                                                    data-expires="<?php echo $notification['expires_at']; ?>"
+                                                                    data-roles="<?php echo htmlspecialchars(json_encode($notification['target_roles'])); ?>"
+                                                                    title="Edit">
+                                                                <i class="fas fa-edit"></i>
+                                                            </button>
+
                                                             <!-- Toggle Status -->
                                                             <form method="POST" class="d-inline">
                                                                 <input type="hidden" name="action" value="toggle_status">
@@ -277,6 +310,97 @@ include '../includes/navbar.php';
         </div>
     </div>
 
+    <!-- Edit Notification Modal -->
+    <div class="modal fade" id="editNotificationModal" tabindex="-1" aria-labelledby="editNotificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editNotificationModalLabel">
+                        <i class="fas fa-edit me-2"></i>Edit Notification
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" id="editNotificationForm">
+                    <input type="hidden" name="action" value="edit">
+                    <input type="hidden" name="notification_id" id="edit_notification_id">
+                    
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="edit_title" class="form-label">Title *</label>
+                                    <input type="text" class="form-control" id="edit_title" name="title" required maxlength="255">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="edit_notification_type" class="form-label">Type *</label>
+                                    <select class="form-control" id="edit_notification_type" name="notification_type" required>
+                                        <option value="info">Info</option>
+                                        <option value="success">Success</option>
+                                        <option value="warning">Warning</option>
+                                        <option value="danger">Critical</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="edit_message" class="form-label">Message *</label>
+                            <textarea class="form-control" id="edit_message" name="message" rows="4" required></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Target Roles *</label>
+                                    <div class="row">
+                                        <?php foreach ($availableRoles as $roleKey => $roleName): ?>
+                                            <div class="col-md-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="target_roles[]" value="<?php echo $roleKey; ?>" id="edit_role_<?php echo $roleKey; ?>">
+                                                    <label class="form-check-label" for="edit_role_<?php echo $roleKey; ?>">
+                                                        <?php echo $roleName; ?>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="edit_expires_at" class="form-label">Expires At (Optional)</label>
+                                    <input type="datetime-local" class="form-control" id="edit_expires_at" name="expires_at">
+                                    <small class="form-text text-muted">Leave empty for no expiration</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="edit_is_urgent" name="is_urgent" value="1">
+                                        <label class="form-check-label" for="edit_is_urgent">
+                                            <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                                            Mark as Urgent
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Update Notification
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Auto-dismiss alerts after 5 seconds
         document.addEventListener('DOMContentLoaded', function() {
@@ -287,6 +411,56 @@ include '../includes/navbar.php';
                     bsAlert.close();
                 });
             }, 5000);
+
+            // Handle edit modal population
+            const editModal = document.getElementById('editNotificationModal');
+            editModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                
+                // Extract data from button attributes
+                const id = button.getAttribute('data-id');
+                const title = button.getAttribute('data-title');
+                const message = button.getAttribute('data-message');
+                const type = button.getAttribute('data-type');
+                const urgent = button.getAttribute('data-urgent');
+                const expires = button.getAttribute('data-expires');
+                const roles = JSON.parse(button.getAttribute('data-roles') || '[]');
+                
+                // Populate form fields
+                document.getElementById('edit_notification_id').value = id;
+                document.getElementById('edit_title').value = title;
+                document.getElementById('edit_message').value = message;
+                document.getElementById('edit_notification_type').value = type;
+                document.getElementById('edit_is_urgent').checked = urgent == '1';
+                
+                // Handle expires date
+                if (expires && expires !== 'null') {
+                    // Convert MySQL datetime to local datetime-local format
+                    const date = new Date(expires);
+                    const localISOTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+                    document.getElementById('edit_expires_at').value = localISOTime;
+                } else {
+                    document.getElementById('edit_expires_at').value = '';
+                }
+                
+                // Reset all checkboxes first
+                const roleCheckboxes = document.querySelectorAll('input[name="target_roles[]"]');
+                roleCheckboxes.forEach(checkbox => {
+                    if (checkbox.id.startsWith('edit_role_')) {
+                        checkbox.checked = false;
+                    }
+                });
+                
+                // Check the appropriate roles
+                if (roles && Array.isArray(roles)) {
+                    roles.forEach(role => {
+                        const checkbox = document.getElementById('edit_role_' + role);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                        }
+                    });
+                }
+            });
         });
     </script>
 

@@ -122,17 +122,32 @@ $userRole = $_SESSION['role'];
                         <li><h6 class="dropdown-header">Recent Notifications</h6></li>
                         <?php foreach ($admin_notifications as $notification): ?>
                             <li>
-                                <a class="dropdown-item" href="#" onclick="markAsViewed(<?php echo $notification['id']; ?>)">
-                                    <small><?php echo htmlspecialchars(substr($notification['title'], 0, 50)); ?>...</small>
+                                <a class="dropdown-item notification-item" href="#" 
+                                   onclick="showNotificationModal(<?php echo $notification['id']; ?>); return false;"
+                                   data-notification-id="<?php echo $notification['id']; ?>">
+                                    <div class="d-flex align-items-start">
+                                        <div class="me-2">
+                                            <i class="<?php echo getNotificationIcon($notification['notification_type'] ?? 'info'); ?> text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold"><?php echo htmlspecialchars(substr($notification['title'], 0, 40)); ?>...</div>
+                                            <small class="text-muted"><?php echo htmlspecialchars(substr($notification['message'], 0, 60)); ?>...</small>
+                                            <?php if (!$notification['is_viewed']): ?>
+                                                <span class="badge bg-primary ms-1">New</span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
                                 </a>
                             </li>
                         <?php endforeach; ?>
                         <li><hr class="dropdown-divider" /></li>
-                        <?php if ($_SESSION['role'] === 'admin'): ?>
-                            <li><a class="dropdown-item" href="<?php echo $basePath; ?>admin/notifications.php">Manage Notifications</a></li>
-                        <?php endif; ?>
+                        <li>
+                            <a class="dropdown-item text-center" href="#" onclick="showAllNotifications(); return false;">
+                                <i class="fas fa-list me-1"></i>View All Notifications
+                            </a>
+                        </li>
                     <?php else: ?>
-                        <li><a class="dropdown-item" href="#">No new notifications</a></li>
+                        <li><a class="dropdown-item text-center text-muted" href="#">No new notifications</a></li>
                     <?php endif; ?>
                 </ul>
             </li>
@@ -207,22 +222,20 @@ $userRole = $_SESSION['role'];
                         </div>
                         <?php endif; ?>
                         
-                        <!-- Production Report -->
-                        <?php if ($userRole !== 'Quality Control Inspection'): ?>
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseProduction" aria-expanded="false" aria-controls="collapseProduction">
-                            <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
-                            Production Report
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                        </a>
-                        <div class="collapse" id="collapseProduction" aria-labelledby="headingThree" data-bs-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" href="<?php echo $basePath; ?>production_report/index.php">Data Entry</a>
-                                <a class="nav-link" href="<?php echo $basePath; ?>production_report/submit.php">Submit Report</a>
-                            </nav>
-                        </div>
-                        <?php endif; ?>
-                        
-                        <!-- Admin Section -->
+        <!-- Production Report -->
+        <?php if ($userRole !== 'Quality Control Inspection'): ?>
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseProduction" aria-expanded="false" aria-controls="collapseProduction">
+            <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+            Production Report
+            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+        </a>
+        <div class="collapse" id="collapseProduction" aria-labelledby="headingThree" data-bs-parent="#sidenavAccordion">
+            <nav class="sb-sidenav-menu-nested nav">
+                <a class="nav-link" href="<?php echo $basePath; ?>production_report/index.php">Create Report</a>
+                <a class="nav-link" href="<?php echo $basePath; ?>production_report/records.php">View Records</a>
+            </nav>
+        </div>
+        <?php endif; ?>                        <!-- Admin Section -->
                         <?php if (in_array($userRole, ['admin', 'supervisor', 'manager'])): ?>
                         <div class="sb-sidenav-menu-heading">Admin</div>
                         <a class="nav-link" href="<?php echo $basePath; ?>admin/users.php">

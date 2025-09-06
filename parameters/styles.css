@@ -47,6 +47,51 @@ a.collapsed .bi-chevron-down {
     font-weight: bold;
 }
 
+/* Compact button styles for records table */
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.775rem;
+    line-height: 1.2;
+    border-radius: 0.2rem;
+}
+
+.btn-group-sm .btn i {
+    font-size: 0.75rem;
+}
+
+/* Compact table for records */
+.table-records {
+    font-size: 0.875rem;
+}
+
+.table-records td {
+    padding: 0.5rem 0.75rem;
+    vertical-align: middle;
+}
+
+.table-records .btn-group {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.table-records .btn-group .btn {
+    flex: 0 0 auto;
+    min-width: 32px;
+    padding: 0.25rem 0.4rem;
+}
+
+/* Actions column width */
+.table-records th:last-child,
+.table-records td:last-child {
+    width: 120px;
+    text-align: center;
+}
+
+/* Ensure buttons stay on one line */
+.table-records .btn-group form {
+    margin: 0;
+}
+
 .table-responsive {
     overflow-x: auto;
 }

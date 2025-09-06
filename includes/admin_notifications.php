@@ -121,6 +121,41 @@ function deleteNotification($id) {
 }
 
 /**
+ * Update notification details
+ */
+function updateNotification($id, $title, $message, $type, $targetRoles, $isUrgent, $expiresAt) {
+    $conn = getAdminDbConnection();
+    $sql = "UPDATE admin_notifications 
+            SET title = ?, message = ?, notification_type = ?, target_roles = ?, is_urgent = ?, expires_at = ?
+            WHERE id = ?";
+    
+    $stmt = $conn->prepare($sql);
+    $targetRolesJson = $targetRoles ? json_encode($targetRoles) : null;
+    $stmt->bind_param("ssssisi", $title, $message, $type, $targetRolesJson, $isUrgent, $expiresAt, $id);
+    
+    return $stmt->execute();
+}
+
+/**
+ * Get notification by ID
+ */
+function getNotificationById($id) {
+    $conn = getAdminDbConnection();
+    $sql = "SELECT * FROM admin_notifications WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $notification = $result->fetch_assoc();
+    if ($notification && $notification['target_roles']) {
+        $notification['target_roles'] = json_decode($notification['target_roles'], true);
+    }
+    
+    return $notification;
+}
+
+/**
  * Get all notifications for admin management
  */
 function getAllNotificationsForAdmin() {

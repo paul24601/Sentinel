@@ -103,14 +103,33 @@ try {
     $totalParameters = 0;
 }
 
-// Total Production Reports (connect to production database)
+// Total Production Reports (using monitoring database where production_reports table exists)
 try {
-    $prodConn = DatabaseManager::getConnection('sentinel_production');
     $sqlTotalProduction = "SELECT COUNT(*) as total FROM production_reports";
-    $resultTotalProduction = $prodConn->query($sqlTotalProduction);
+    $resultTotalProduction = $conn->query($sqlTotalProduction);
     $totalProduction = $resultTotalProduction ? $resultTotalProduction->fetch_assoc()['total'] : 0;
+    
+    // Get production report breakdown
+    $sqlProductionBreakdown = "SELECT 
+        report_type,
+        COUNT(*) as count,
+        COUNT(CASE WHEN DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) THEN 1 END) as recent_count
+        FROM production_reports 
+        GROUP BY report_type";
+    $resultProductionBreakdown = $conn->query($sqlProductionBreakdown);
+    $productionBreakdown = [];
+    $recentProductionCount = 0;
+    
+    if ($resultProductionBreakdown && $resultProductionBreakdown->num_rows > 0) {
+        while ($row = $resultProductionBreakdown->fetch_assoc()) {
+            $productionBreakdown[] = $row;
+            $recentProductionCount += $row['recent_count'];
+        }
+    }
 } catch (Exception $e) {
     $totalProduction = 0;
+    $productionBreakdown = [];
+    $recentProductionCount = 0;
 }
 
 // Recent Activity (last 7 days)
@@ -524,13 +543,19 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
 
                         <!-- Card 6: Production Reports -->
                         <div class="col mb-4">
-                            <div class="card border-0 shadow-sm h-100" style="cursor:pointer; background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);" onclick="window.location.href='production_report/records.php'">
+                            <div class="card border-0 shadow-sm h-100" data-bs-toggle="modal" data-bs-target="#productionReportsModal" style="cursor:pointer; background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);">
                                 <div class="card-body text-center text-white">
                                     <h2 class="mb-0"><?php echo $totalProduction; ?></h2>
                                     <small>Production Reports</small>
+                                    <div class="mt-2">
+                                        <i class="fas fa-industry"></i>
+                                        <small class="d-block mt-1">
+                                            <?php echo $recentProductionCount; ?> reports this week
+                                        </small>
+                                    </div>
                                 </div>
                                 <div class="card-footer bg-transparent border-0 d-flex align-items-center justify-content-between">
-                                    <a class="small text-white stretched-link" href="production_report/records.php">View Reports</a>
+                                    <a class="small text-white stretched-link" href="#" data-bs-toggle="modal" data-bs-target="#productionReportsModal">View Details</a>
                                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                                 </div>
                             </div>
@@ -1313,6 +1338,87 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Production Reports Modal -->
+                <div class="modal fade" id="productionReportsModal" tabindex="-1" aria-labelledby="productionReportsModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="productionReportsModalLabel">
+                                    <i class="fas fa-industry me-2"></i>Production Reports Overview
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container">
+                                    <div class="row mb-4">
+                                        <div class="col-12">
+                                            <div class="alert alert-info">
+                                                <h6><i class="fas fa-info-circle me-2"></i>Production Reports Summary</h6>
+                                                <p class="mb-1"><strong>Total Reports:</strong> <?php echo $totalProduction; ?> production reports recorded</p>
+                                                <p class="mb-0"><strong>Recent Activity:</strong> <?php echo $recentProductionCount; ?> reports created in the last 7 days</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <h4 class="mb-3">Report Breakdown by Type</h4>
+                                    <div class="row">
+                                        <?php if (!empty($productionBreakdown)): ?>
+                                            <?php foreach ($productionBreakdown as $type): ?>
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="card">
+                                                        <div class="card-header <?php echo $type['report_type'] === 'finishing' ? 'bg-success' : 'bg-primary'; ?> text-white">
+                                                            <h6 class="mb-0">
+                                                                <i class="fas <?php echo $type['report_type'] === 'finishing' ? 'fa-check-circle' : 'fa-cogs'; ?> me-2"></i>
+                                                                <?php echo ucfirst($type['report_type']); ?> Reports
+                                                            </h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <h3 class="text-center mb-2"><?php echo $type['count']; ?></h3>
+                                                            <p class="text-center text-muted mb-1">Total Reports</p>
+                                                            <div class="text-center">
+                                                                <small class="badge <?php echo $type['report_type'] === 'finishing' ? 'bg-success' : 'bg-primary'; ?>">
+                                                                    <?php echo $type['recent_count']; ?> this week
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <div class="col-12">
+                                                <div class="alert alert-warning">
+                                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                                    No production report breakdown data available.
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                    
+                                    <div class="row mt-4">
+                                        <div class="col-12">
+                                            <h5>Quick Actions</h5>
+                                            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                                                <a href="production_report/index.php" class="btn btn-primary">
+                                                    <i class="fas fa-plus me-2"></i>Create New Report
+                                                </a>
+                                                <a href="production_report/records.php" class="btn btn-outline-primary">
+                                                    <i class="fas fa-list me-2"></i>View All Records
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <a href="production_report/records.php" class="btn btn-primary">View All Reports</a>
                             </div>
                         </div>
                     </div>

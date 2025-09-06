@@ -35,11 +35,18 @@ $notification_count = getUnviewedNotificationCount($_SESSION['id_number'], $_SES
 <?php include '../includes/navbar.php'; ?>
 
     <div class="container-fluid px-4">
-        <h1 class="mt-4">Data Entry</h1>
-        <ol class="breadcrumb mb-4">
-            <li class="breadcrumb-item"><a href="../index.php">Dashboard</a></li>
-            <li class="breadcrumb-item active">Injection Department</li>
-        </ol>
+        <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+            <div>
+                <h1>DMS Data Entry</h1>
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="../index.php">Dashboard</a></li>
+                    <li class="breadcrumb-item active">DMS - Data Entry</li>
+                </ol>
+            </div>
+            <a href="submission.php" class="btn btn-outline-primary">
+                <i class="fas fa-list me-2"></i>View Records
+            </a>
+        </div>
     </div>
 
     <!--FORMS-->
