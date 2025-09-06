@@ -12,14 +12,22 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Include database connection
-require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/database.php';
 
 // Debug: Log the POST data
 error_log("POST Data: " . print_r($_POST, true));
 
 // Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['id_number'])) {
     echo json_encode(['success' => false, 'message' => 'User not logged in']);
+    exit;
+}
+
+// Get database connection
+try {
+    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'message' => 'Database connection failed: ' . $e->getMessage()]);
     exit;
 }
 
@@ -29,13 +37,14 @@ try {
 
     // Validate required fields based on report type
     $reportType = $_POST['reportType'] ?? '';
-    $required_fields = ['reportType', 'date', 'shift', 'shiftHours', 'productName', 'color', 'partNo', 'manpower'];
+    $required_fields = ['reportType', 'date', 'shift', 'shiftHours', 'productName', 'color', 'partNo'];
     
     if ($reportType === 'injection') {
         $required_fields[] = 'machine';
         $required_fields[] = 'robotArm';
     } else {
         $required_fields[] = 'assemblyLine';
+        $required_fields[] = 'manpower'; // Only required for finishing reports
     }
     
     foreach ($required_fields as $field) {
@@ -77,7 +86,7 @@ try {
     $assemblyLine = $_POST['assemblyLine'] ?? null;
     $machine = $_POST['machine'] ?? null;
     $robotArm = $_POST['robotArm'] ?? null;
-    $manpower = $_POST['manpower'];
+    $manpower = $_POST['manpower'] ?? null;
     $reg = $_POST['reg'] ?? null;
     $ot = $_POST['ot'] ?? null;
     $totalRejectSum = $_POST['totalRejectSum'] ?? 0;
@@ -96,10 +105,10 @@ try {
     $finishingTools = $_POST['finishingTools'] ?? null;
     $qualityStandard = $_POST['qualityStandard'] ?? null;
     $remarks = $_POST['remarks'] ?? null;
-    $userId = $_SESSION['user_id'];
+    $userId = $_SESSION['id_number'];
 
     $stmt->bind_param(
-        "sssssssssssssssissiiddddsdssssssi",
+        "ssssssssssssssissiiddddddsdsssssss",
         $reportType, $date, $shift, $shiftHours,
         $productName, $color, $partNo,
         $idNumber1, $idNumber2, $idNumber3, $ejo,
@@ -116,86 +125,6 @@ try {
     }
     
     $report_id = $conn->insert_id;
-
-    // Insert quality control entries
-    if (isset($_POST['partName']) && is_array($_POST['partName'])) {
-        $sql = "INSERT INTO quality_control_entries (
-            report_id, part_name, defect,
-            time1, time2, time3, time4,
-            time5, time6, time7, time8,
-            total
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-        $stmt = $conn->prepare($sql);
-        if (!$stmt) {
-            throw new Exception("Prepare failed for quality entries: " . $conn->error);
-        }
-
-        for ($i = 0; $i < count($_POST['partName']); $i++) {
-            if (empty($_POST['partName'][$i]) && empty($_POST['defect'][$i])) {
-                continue; // Skip empty rows
-            }
-
-            // Assign variables for binding
-            $partName = $_POST['partName'][$i];
-            $defect = $_POST['defect'][$i];
-            $time1 = $_POST['time1'][$i] ?? 0;
-            $time2 = $_POST['time2'][$i] ?? 0;
-            $time3 = $_POST['time3'][$i] ?? 0;
-            $time4 = $_POST['time4'][$i] ?? 0;
-            $time5 = $_POST['time5'][$i] ?? 0;
-            $time6 = $_POST['time6'][$i] ?? 0;
-            $time7 = $_POST['time7'][$i] ?? 0;
-            $time8 = $_POST['time8'][$i] ?? 0;
-            $total = $_POST['total'][$i] ?? 0;
-
-            $stmt->bind_param(
-                "issiiiiiiiii",
-                $report_id,
-                $partName, $defect,
-                $time1, $time2, $time3, $time4,
-                $time5, $time6, $time7, $time8,
-                $total
-            );
-            
-            if (!$stmt->execute()) {
-                throw new Exception("Execute failed for quality entry: " . $stmt->error);
-            }
-        }
-    }
-
-    // Insert downtime entries
-    if (isset($_POST['downtimeDesc']) && is_array($_POST['downtimeDesc'])) {
-        $sql = "INSERT INTO downtime_entries (
-            report_id, description, minutes
-        ) VALUES (?, ?, ?)";
-
-        $stmt = $conn->prepare($sql);
-        if (!$stmt) {
-            throw new Exception("Prepare failed for downtime entries: " . $conn->error);
-        }
-
-        for ($i = 0; $i < count($_POST['downtimeDesc']); $i++) {
-            if (empty($_POST['downtimeDesc'][$i])) {
-                continue; // Skip empty rows
-            }
-
-            // Assign variables for binding
-            $downtimeDesc = $_POST['downtimeDesc'][$i];
-            $downtimeMinutes = $_POST['downtimeMinutes'][$i] ?? 0;
-
-            $stmt->bind_param(
-                "isi",
-                $report_id,
-                $downtimeDesc,
-                $downtimeMinutes
-            );
-            
-            if (!$stmt->execute()) {
-                throw new Exception("Execute failed for downtime entry: " . $stmt->error);
-            }
-        }
-    }
 
     // Commit transaction
     $conn->commit();

@@ -405,18 +405,17 @@ try {
                             </div>
 
                             <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
-                                data-bs-target="#collapseProduction" aria-expanded="false"
+                                data-bs-target="#collapseProduction" aria-expanded="true"
                                 aria-controls="collapseProduction">
-                                <div class="sb-nav-link-icon"><i class="fas fa-sheet-plastic"></i></div>
-                                Production
+                                <div class="sb-nav-link-icon"><i class="fas fa-industry"></i></div>
+                                Production Reports
                                 <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                             </a>
-                            <div class="collapse" id="collapseProduction" aria-labelledby="headingOne"
+                            <div class="collapse show" id="collapseProduction" aria-labelledby="headingOne"
                                 data-bs-parent="#sidenavAccordion">
                                 <nav class="sb-sidenav-menu-nested nav">
-                                    <a class="nav-link" href="#">Data Entry</a>
-                                    <a class="nav-link" href="#">Data Visualization</a>
-                                    <a class="nav-link" href="#">Data Analytics</a>
+                                    <a class="nav-link active" href="index.php">Create Report</a>
+                                    <a class="nav-link" href="records.php">View Records</a>
                                 </nav>
                             </div>
 
@@ -746,7 +745,7 @@ try {
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-floating">
-                                            <input type="number" class="form-control" id="manpower" name="manpower">
+                                            <input type="number" class="form-control" id="manpower" name="manpower" required>
                                             <label for="manpower">Manpower Allocation</label>
                                         </div>
                                     </div>
@@ -787,12 +786,6 @@ try {
                                                 <option value="No">No</option>
                                             </select>
                                             <label for="robotArm">With Robot Arm</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" id="manpowerInjection" name="manpower">
-                                            <label for="manpowerInjection">Manpower Allocation</label>
                                         </div>
                                     </div>
                                 </div>
@@ -1280,15 +1273,99 @@ try {
 
             // Auto-fill test data
             $('#autoFillTest').click(function() {
+                const reportType = $('input[name="reportTypeSelection"]:checked').val();
+                
+                // Fill common fields
                 $('#date').val('2024-03-20');
                 $('#shift').val('1st-8hr').trigger('change');
-                $('#productName').val('ASSY FOG LAMP LH TUNDRA');
-                $('#color').val('Black');
-                $('#partNo').val('FL-001-LH');
-                $('#assemblyLine').val('Table 1');
-                $('#manpower').val('8');
-                $('#idNumber1').val('123456');
-                $('#idNumber2').val('789012');
+                
+                // Wait for shift change to process, then fill remaining fields
+                setTimeout(function() {
+                    // Fill product information
+                    $('#productName').val('ASSY FOG LAMP LH TUNDRA');
+                    $('#color').val('Black');
+                    $('#partNo').val('FL-001-LH');
+                    
+                    // Fill ID Information
+                    $('#idNumber1').val('123456');
+                    $('#idNumber2').val('789012');
+                    $('#idNumber3').val('345678');
+                    $('#ejo').val('EJO-2024-001');
+                    
+                    // Fill time columns with realistic sample data
+                    const baseGood = 35;
+                    const baseReject = 2;
+                    for (let i = 1; i <= 12; i++) {
+                        const variance = Math.floor(Math.random() * 10) - 5; // -5 to +5 variance
+                        $(`#good${i}`).val(Math.max(0, baseGood + variance));
+                        $(`#reject${i}`).val(Math.max(0, baseReject + Math.floor(Math.random() * 3)));
+                    }
+                    
+                    // Fill remarks
+                    $('#remarks').val('Test data - sample production report for testing purposes. All parameters within normal operating ranges.');
+                    
+                    if (reportType === 'injection') {
+                        // Fill injection-specific fields
+                        $('#machine').val('IM-001');
+                        $('#robotArm').val('Yes');
+                        $('#regInjection').val('8');
+                        $('#otInjection').val('0');
+                        
+                        // Fill all injection parameters
+                        $('#injectionPressure').val('85.5');
+                        $('#moldingTemp').val('220');
+                        $('#cycleTime').val('45.2');
+                        $('#cavityCount').val('4');
+                        $('#coolingTime').val('15.8');
+                        $('#holdingPressure').val('65.3');
+                        $('#materialType').val('ABS');
+                        $('#shotSize').val('28.5');
+                        
+                        // Clear finishing fields to avoid confusion
+                        $('#assemblyLine').val('');
+                        $('#manpower').val('');
+                        $('#reg').val('');
+                        $('#ot').val('');
+                        $('#finishingProcess').val('');
+                        $('#stationNumber').val('');
+                        $('#workOrder').val('');
+                        $('#finishingTools').val('');
+                        $('#qualityStandard').val('');
+                    } else {
+                        // Fill finishing-specific fields
+                        $('#assemblyLine').val('Table 1');
+                        $('#manpower').val('8');
+                        $('#reg').val('8');
+                        $('#ot').val('0');
+                        
+                        // Fill all finishing parameters
+                        $('#finishingProcess').val('Assembly');
+                        $('#stationNumber').val('ST-001');
+                        $('#workOrder').val('WO-2024-001');
+                        $('#finishingTools').val('Screwdriver, Wrench Set, Torque Gun, Air Compressor');
+                        $('#qualityStandard').val('ISO 9001:2015');
+                        
+                        // Clear injection fields to avoid confusion
+                        $('#machine').val('');
+                        $('#robotArm').val('');
+                        $('#regInjection').val('');
+                        $('#otInjection').val('');
+                        $('#injectionPressure').val('');
+                        $('#moldingTemp').val('');
+                        $('#cycleTime').val('');
+                        $('#cavityCount').val('');
+                        $('#coolingTime').val('');
+                        $('#holdingPressure').val('');
+                        $('#materialType').val('');
+                        $('#shotSize').val('');
+                    }
+                    
+                    // Trigger calculation update
+                    calculateTotals();
+                    
+                    // Show success message
+                    console.log('Auto-fill completed for ' + reportType + ' report');
+                }, 500); // Wait 500ms for shift change to complete
             });
 
             // Handle report type selection
@@ -1304,6 +1381,7 @@ try {
                     $('#machine').prop('required', true);
                     $('#robotArm').prop('required', true);
                     $('#assemblyLine').prop('required', false);
+                    $('#manpower').prop('required', false); // Manpower not required for injection
                 } else {
                     $('.injection-section').hide();
                     $('.injection-machine-section').hide();
@@ -1312,6 +1390,7 @@ try {
                     $('#assemblyLine').prop('required', true);
                     $('#machine').prop('required', false);
                     $('#robotArm').prop('required', false);
+                    $('#manpower').prop('required', true); // Manpower required for finishing
                 }
             });
 
@@ -1325,6 +1404,7 @@ try {
                 $('#machine').prop('required', true);
                 $('#robotArm').prop('required', true);
                 $('#assemblyLine').prop('required', false);
+                $('#manpower').prop('required', false); // Manpower not required for injection
             } else {
                 $('.injection-section').hide();
                 $('.injection-machine-section').hide();
@@ -1332,6 +1412,7 @@ try {
                 $('#assemblyLine').prop('required', true);
                 $('#machine').prop('required', false);
                 $('#robotArm').prop('required', false);
+                $('#manpower').prop('required', true); // Manpower required for finishing
             }
         });
     </script>

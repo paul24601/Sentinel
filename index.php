@@ -420,7 +420,7 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                                             </a>
                                         </div>
                                         <div class="col-12 col-sm-6 col-lg-3">
-                                            <a href="production_report/submit.php" class="btn btn-info btn-sm w-100">
+                                            <a href="production_report/index.php" class="btn btn-info btn-sm w-100">
                                                 <i class="fas fa-chart-line me-1"></i>Production Report
                                             </a>
                                         </div>
@@ -524,13 +524,13 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
 
                         <!-- Card 6: Production Reports -->
                         <div class="col mb-4">
-                            <div class="card border-0 shadow-sm h-100" style="cursor:pointer; background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);" onclick="window.location.href='production_report/index.php'">
+                            <div class="card border-0 shadow-sm h-100" style="cursor:pointer; background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);" onclick="window.location.href='production_report/records.php'">
                                 <div class="card-body text-center text-white">
                                     <h2 class="mb-0"><?php echo $totalProduction; ?></h2>
                                     <small>Production Reports</small>
                                 </div>
                                 <div class="card-footer bg-transparent border-0 d-flex align-items-center justify-content-between">
-                                    <a class="small text-white stretched-link" href="production_report/index.php">View Reports</a>
+                                    <a class="small text-white stretched-link" href="production_report/records.php">View Reports</a>
                                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                                 </div>
                             </div>
