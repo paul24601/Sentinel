@@ -200,6 +200,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit();
 }
 
-$conn->close();
-$user_conn->close();
+// Connections will be closed automatically by DatabaseManager
 ?>

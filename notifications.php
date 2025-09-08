@@ -42,5 +42,5 @@ if ($result->num_rows > 0) {
 }
 
 echo json_encode($notifications);
-$conn->close();
+// Connection will be closed automatically by DatabaseManager
 ?>

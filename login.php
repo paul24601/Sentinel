@@ -56,7 +56,6 @@ if ($result->num_rows > 0) {
     exit();
 }
 
-// Close the statement and connection
+// Close the statement - connection will be closed automatically by DatabaseManager
 $stmt->close();
-$conn->close();
 ?>

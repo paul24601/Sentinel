@@ -164,9 +164,9 @@ class DatabaseManager {
      */
     public static function closeAllConnections() {
         foreach (self::$connections as $key => $conn) {
-            if ($conn instanceof mysqli) {
+            if ($conn instanceof mysqli && $conn->ping()) {
                 try {
-                    @$conn->close(); // Suppress warnings for already closed connections
+                    $conn->close();
                 } catch (Exception $e) {
                     // Ignore errors on close
                 }
@@ -181,7 +181,14 @@ class DatabaseManager {
      */
     public static function closeConnection($database) {
         if (isset(self::$connections[$database])) {
-            self::$connections[$database]->close();
+            $conn = self::$connections[$database];
+            if ($conn instanceof mysqli && $conn->ping()) {
+                try {
+                    $conn->close();
+                } catch (Exception $e) {
+                    // Ignore errors on close
+                }
+            }
             unset(self::$connections[$database]);
         }
     }

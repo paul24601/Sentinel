@@ -38,5 +38,5 @@ try {
     echo json_encode(['error' => 'Failed to fetch notifications']);
 }
 
-$conn->close();
+// Connection will be closed automatically by DatabaseManager
 ?>
