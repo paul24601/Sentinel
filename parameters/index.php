@@ -175,6 +175,9 @@ include '../includes/navbar.php';
                         <div class="card shadow">
                             <div class="card-body">
                                 <div class="mb-3">
+                                    <a href="mobile_wizard.php" class="btn btn-primary me-2">
+                                        <i class="bi bi-phone"></i> Mobile Wizard
+                                    </a>
                                     <button type="button" class="btn btn-outline-secondary me-2" id="expandAll">
                                         <i class="fas fa-expand-alt"></i> Expand All
                                     </button>
@@ -186,7 +189,7 @@ include '../includes/navbar.php';
                                     <!-- Section 1: Product and Machine Information -->
                                     <h4>
                                         <a class="text-decoration-none" data-bs-toggle="collapse"
-                                            href="#collapseProductMachine" role="button" aria-expanded="false"
+                                            href="#collapseProductMachine" role="button" aria-expanded="true"
                                             aria-controls="collapseProductMachine">
                                             Product and Machine Information
                                             <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
@@ -258,7 +261,7 @@ include '../includes/navbar.php';
                                     <!-- Section 2: Product Details -->
                                     <h4>
                                         <a class="text-decoration-none" data-bs-toggle="collapse"
-                                            href="#collapseProductDetails" role="button" aria-expanded="false"
+                                            href="#collapseProductDetails" role="button" aria-expanded="true"
                                             aria-controls="collapseProductDetails">
                                             Product Details
                                             <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
@@ -310,7 +313,7 @@ include '../includes/navbar.php';
                                     <!-- Section 3: Material Composition -->
                                     <h4>
                                         <a class="text-decoration-none" data-bs-toggle="collapse"
-                                            href="#collapseMaterialComposition" role="button" aria-expanded="false"
+                                            href="#collapseMaterialComposition" role="button" aria-expanded="true"
                                             aria-controls="collapseMaterialComposition">
                                             Material Composition
                                             <i class="bi bi-chevron-down float-end"></i>
@@ -430,7 +433,7 @@ include '../includes/navbar.php';
                                     <!-- Section 4: Colorant Details (Optional) -->
                                     <h4>
                                         <a class="text-decoration-none" data-bs-toggle="collapse"
-                                            href="#collapseColorantDetails" role="button" aria-expanded="false"
+                                            href="#collapseColorantDetails" role="button" aria-expanded="true"
                                             aria-controls="collapseColorantDetails">
                                             Colorant Details
                                             <i class="bi bi-chevron-down float-end"></i>
@@ -478,7 +481,7 @@ include '../includes/navbar.php';
                                     <!-- Section 5: Mold and Operation Specifications -->
                                     <h4>
                                         <a class="text-decoration-none" data-bs-toggle="collapse"
-                                            href="#collapseMoldandOperationSpecs" role="button" aria-expanded="false"
+                                            href="#collapseMoldandOperationSpecs" role="button" aria-expanded="true"
                                             aria-controls="collapseMoldandOperationSpecs">
                                             Mold and Operation Specifications
                                             <i class="bi bi-chevron-down float-end"></i>
@@ -558,7 +561,7 @@ include '../includes/navbar.php';
                                     <!-- Section 6: Timer Parameters -->
                                     <h4>
                                         <a class="text-decoration-none" data-bs-toggle="collapse"
-                                            href="#collapseCycleTime" role="button" aria-expanded="false"
+                                            href="#collapseCycleTime" role="button" aria-expanded="true"
                                             aria-controls="collapseCycleTime">
                                             Timer Parameters
                                             <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
@@ -609,7 +612,7 @@ include '../includes/navbar.php';
                                     <!-- Section 7: Temperature Settings -->
                                     <h4>
                                         <a class="text-decoration-none" data-bs-toggle="collapse"
-                                            href="#collapseTempSettings" role="button" aria-expanded="false"
+                                            href="#collapseTempSettings" role="button" aria-expanded="true"
                                             aria-controls="collapseTempSettings">
                                             Temperature Settings
                                             <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
@@ -881,7 +884,7 @@ include '../includes/navbar.php';
                                     <!-- Section 8: Molding Settings -->
                                     <h4>
                                         <a class="text-decoration-none" data-bs-toggle="collapse"
-                                            href="#collapseMoldingSettings" role="button" aria-expanded="false"
+                                            href="#collapseMoldingSettings" role="button" aria-expanded="true"
                                             aria-controls="collapseMoldingSettings">
                                             Molding Settings
                                             <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
@@ -1151,7 +1154,7 @@ include '../includes/navbar.php';
                                     <!-- Section 9: Plasticizing Parameters -->
                                     <h4>
                                         <a class="text-decoration-none" data-bs-toggle="collapse"
-                                            href="#collapsePlasticizingParams" role="button" aria-expanded="false"
+                                            href="#collapsePlasticizingParams" role="button" aria-expanded="true"
                                             aria-controls="collapsePlasticizingParams">
                                             Plasticizing Parameters
                                             <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
@@ -1270,7 +1273,7 @@ include '../includes/navbar.php';
                                     <!-- Section 10: Injection Parameters -->
                                     <h4>
                                         <a class="text-decoration-none" data-bs-toggle="collapse"
-                                            href="#collapseInjectionParams" role="button" aria-expanded="false"
+                                            href="#collapseInjectionParams" role="button" aria-expanded="true"
                                             aria-controls="collapseInjectionParams">
                                             Injection Parameters
                                             <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
@@ -1531,7 +1534,7 @@ include '../includes/navbar.php';
                                     <!-- Section 11: Ejection Parameters -->
                                     <h4>
                                         <a class="text-decoration-none" data-bs-toggle="collapse"
-                                            href="#collapseEjectionParams" role="button" aria-expanded="false"
+                                            href="#collapseEjectionParams" role="button" aria-expanded="true"
                                             aria-controls="collapseEjectionParams">
                                             Ejection Parameters
                                             <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
@@ -1731,7 +1734,7 @@ include '../includes/navbar.php';
                                     <!-- Section 12: Core Settings -->
                                     <h4>
                                         <a class="text-decoration-none" data-bs-toggle="collapse"
-                                            href="#collapseCorePull" role="button" aria-expanded="false"
+                                            href="#collapseCorePull" role="button" aria-expanded="true"
                                             aria-controls="collapseCorePull">
                                             Core Pull Settings
                                             <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
@@ -1974,7 +1977,7 @@ include '../includes/navbar.php';
                                     <!-- Section 13: Additional Information -->
                                     <h4>
                                         <a class="text-decoration-none" data-bs-toggle="collapse"
-                                            href="#collapseAdditionalInfo" role="button" aria-expanded="false"
+                                            href="#collapseAdditionalInfo" role="button" aria-expanded="true"
                                             aria-controls="collapseAdditionalInfo">
                                             Additional Information
                                             <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
@@ -1994,7 +1997,7 @@ include '../includes/navbar.php';
                                     <!-- Section 14: Personnel -->
                                     <h4>
                                         <a class="text-decoration-none" data-bs-toggle="collapse"
-                                            href="#collapsePersonnel" role="button" aria-expanded="false"
+                                            href="#collapsePersonnel" role="button" aria-expanded="true"
                                             aria-controls="collapsePersonnel">
                                             Personnel
                                             <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
@@ -2028,7 +2031,7 @@ include '../includes/navbar.php';
                                     <!-- Section 15: Attachments --><!-- Section: Attachments -->
                                     <h4>
                                         <a class="text-decoration-none" data-bs-toggle="collapse"
-                                            href="#collapseAttachments" role="button" aria-expanded="false"
+                                            href="#collapseAttachments" role="button" aria-expanded="true"
                                             aria-controls="collapseAttachments">
                                             Attachments
                                             <i class="bi bi-chevron-down float-end"></i> <!-- Chevron icon -->
@@ -3094,19 +3097,6 @@ include '../includes/navbar.php';
     </script>
 
     <script>
-        $(document).ready(function () {
-            // Only expand/collapse the collapsible sections inside the form
-            $('#expandAll').on('click', function () {
-                $('form .collapse').collapse('show');
-            });
-
-            $('#collapseAll').on('click', function () {
-                $('form .collapse').collapse('hide');
-            });
-        });
-    </script>
-
-    <script>
         // Clone functionality - moved to bottom after jQuery is loaded
         document.addEventListener('DOMContentLoaded', function() {
             // Check if jQuery is available
@@ -3913,6 +3903,136 @@ include '../includes/navbar.php';
     </script>
 
 <?php include '../includes/navbar_close.php'; ?>
+
+<!-- Expand/Collapse functionality - placed after jQuery is loaded -->
+<script>
+    $(document).ready(function () {
+        console.log('Initializing expand/collapse functionality...');
+        
+        // Simplified and more reliable approach
+        $('#expandAll').on('click', function (e) {
+            e.preventDefault();
+            console.log('Expand All clicked');
+            
+            // Target all main section collapse divs
+            $('.collapse').each(function() {
+                const $collapse = $(this);
+                const collapseId = $collapse.attr('id');
+                
+                // Only target main sections (exclude sub-sections)
+                const mainSectionIds = [
+                    'collapseProductMachine', 'collapseProductDetails', 'collapseMaterialComposition',
+                    'collapseColorantDetails', 'collapseMoldandOperationSpecs', 'collapseCycleTime',
+                    'collapseTempSettings', 'collapseMoldingSettings', 'collapsePlasticizingParams',
+                    'collapseInjectionParams', 'collapseEjectionParams', 'collapseCorePull',
+                    'collapseAdditionalInfo', 'collapsePersonnel', 'collapseAttachments'
+                ];
+                
+                if (mainSectionIds.includes(collapseId)) {
+                    if (!$collapse.hasClass('show')) {
+                        console.log('Expanding section:', collapseId);
+                        $collapse.collapse('show');
+                        
+                        // Update the corresponding toggle button
+                        const $toggleBtn = $('a[href="#' + collapseId + '"]');
+                        $toggleBtn.removeClass('collapsed').attr('aria-expanded', 'true');
+                        $toggleBtn.find('.bi-chevron-down').css('transform', 'rotate(0deg)');
+                        $toggleBtn.parent('h4').addClass('section-active');
+                    }
+                }
+            });
+            
+            // Temporary button feedback
+            $(this).html('<i class="fas fa-check"></i> Expanded!');
+            setTimeout(() => {
+                $(this).html('<i class="fas fa-expand-alt"></i> Expand All');
+            }, 1500);
+        });
+
+        $('#collapseAll').on('click', function (e) {
+            e.preventDefault();
+            console.log('Collapse All clicked');
+            
+            // Target all main section collapse divs
+            $('.collapse').each(function() {
+                const $collapse = $(this);
+                const collapseId = $collapse.attr('id');
+                
+                // Only target main sections (exclude sub-sections)
+                const mainSectionIds = [
+                    'collapseProductMachine', 'collapseProductDetails', 'collapseMaterialComposition',
+                    'collapseColorantDetails', 'collapseMoldandOperationSpecs', 'collapseCycleTime',
+                    'collapseTempSettings', 'collapseMoldingSettings', 'collapsePlasticizingParams',
+                    'collapseInjectionParams', 'collapseEjectionParams', 'collapseCorePull',
+                    'collapseAdditionalInfo', 'collapsePersonnel', 'collapseAttachments'
+                ];
+                
+                if (mainSectionIds.includes(collapseId)) {
+                    if ($collapse.hasClass('show')) {
+                        console.log('Collapsing section:', collapseId);
+                        $collapse.collapse('hide');
+                        
+                        // Update the corresponding toggle button
+                        const $toggleBtn = $('a[href="#' + collapseId + '"]');
+                        $toggleBtn.addClass('collapsed').attr('aria-expanded', 'false');
+                        $toggleBtn.find('.bi-chevron-down').css('transform', 'rotate(-90deg)');
+                        $toggleBtn.parent('h4').removeClass('section-active');
+                    }
+                }
+            });
+            
+            // Temporary button feedback
+            $(this).html('<i class="fas fa-check"></i> Collapsed!');
+            setTimeout(() => {
+                $(this).html('<i class="fas fa-compress-alt"></i> Collapse All');
+            }, 1500);
+        });
+
+        // Enhanced section header styling and behavior for individual clicks
+        $('h4 a[data-bs-toggle="collapse"]').on('click', function(e) {
+            const chevron = $(this).find('.bi-chevron-down');
+            const $header = $(this).parent('h4');
+            
+            // Handle chevron rotation and styling after the collapse animation
+            setTimeout(() => {
+                const isExpanded = $(this).attr('aria-expanded') === 'true';
+                if (isExpanded) {
+                    chevron.css('transform', 'rotate(0deg)');
+                    $header.addClass('section-active');
+                } else {
+                    chevron.css('transform', 'rotate(-90deg)');
+                    $header.removeClass('section-active');
+                }
+            }, 100);
+        });
+
+        // Initialize section headers with proper styling
+        $('h4 a[data-bs-toggle="collapse"]').each(function() {
+            const isExpanded = $(this).attr('aria-expanded') === 'true';
+            const chevron = $(this).find('.bi-chevron-down');
+            const $header = $(this).parent('h4');
+            
+            console.log('Initializing section:', $(this).attr('href'), 'Expanded:', isExpanded);
+            
+            // Set initial chevron state
+            if (isExpanded) {
+                chevron.css('transform', 'rotate(0deg)');
+                $header.addClass('section-active');
+            } else {
+                chevron.css('transform', 'rotate(-90deg)');
+                $header.removeClass('section-active');
+            }
+            
+            // Add hover effects
+            $header.hover(
+                function() { $(this).addClass('section-hover'); },
+                function() { $(this).removeClass('section-hover'); }
+            );
+        });
+
+        console.log('Expand/collapse functionality initialized successfully');
+    });
+</script>
 
 </body>
 

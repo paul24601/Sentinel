@@ -1,13 +1,147 @@
-/* Chevron when section is expanded */
+/* Enhanced Chevron Styles for Better Visual Feedback */
 a:not(.collapsed) .bi-chevron-down {
     transform: rotate(0deg);
     transition: transform 0.3s ease-in-out;
+    color: #007bff;
 }
 
 /* Chevron when section is collapsed */
 a.collapsed .bi-chevron-down {
-    transform: rotate(90deg);
+    transform: rotate(-90deg);
     transition: transform 0.3s ease-in-out;
+    color: #6c757d;
+}
+
+/* Enhanced Section Header Styles */
+h4 {
+    margin-bottom: 15px;
+    margin-top: 25px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Add section numbering */
+h4:before {
+    content: counter(section-counter);
+    counter-increment: section-counter;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #007bff;
+    color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin-left: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Reset counter for the form */
+form {
+    counter-reset: section-counter;
+}
+
+h4.section-active {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+}
+
+h4.section-active:before {
+    background: #28a745;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0% { transform: translateY(-50%) scale(1); }
+    50% { transform: translateY(-50%) scale(1.1); }
+    100% { transform: translateY(-50%) scale(1); }
+}
+
+h4.section-hover {
+    background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+h4 a {
+    display: block;
+    padding: 15px 20px 15px 65px; /* Extra left padding for section number */
+    text-decoration: none !important;
+    color: #495057;
+    font-weight: 600;
+    font-size: 1.1rem;
+    border: none;
+    background: none;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+h4 a:hover {
+    color: #007bff;
+    background: rgba(0,123,255,0.05);
+}
+
+h4 a:focus {
+    outline: 2px solid #007bff;
+    outline-offset: -2px;
+}
+
+/* Status indicator for completed sections */
+h4.section-completed:before {
+    content: "✓";
+    background: #28a745;
+    counter-increment: none;
+}
+
+/* Chevron styling */
+h4 a .bi-chevron-down {
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+/* Enhanced Section Header Styles */
+
+/* Collapse Animation Enhancement */
+.collapse {
+    transition: height 0.35s ease;
+}
+
+.collapsing {
+    transition: height 0.35s ease;
+}
+
+/* Section Content Styling */
+.collapse.show {
+    border-top: 3px solid #007bff;
+    padding-top: 20px;
+    margin-top: 5px;
+    background: #ffffff;
+    border-radius: 0 0 8px 8px;
+    box-shadow: inset 0 3px 6px rgba(0,0,0,0.05);
+}
+
+/* Button Styling for Expand/Collapse All */
+#expandAll, #collapseAll {
+    transition: all 0.3s ease;
+    border-radius: 25px;
+    font-weight: 500;
+    padding: 8px 16px;
+}
+
+#expandAll:hover, #collapseAll:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 /* Custom styles for Parameters Module */
