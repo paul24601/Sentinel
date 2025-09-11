@@ -429,12 +429,12 @@ if ($resultAnalytics && $resultAnalytics->num_rows > 0) {
                         <div class="card-body">
                             <div class="row g-2">
                                 <div class="col-12 col-sm-6 col-lg-3">
-                                            <a href="dms/submission.php" class="btn btn-primary btn-sm w-100">
+                                            <a href="dms/index.php" class="btn btn-primary btn-sm w-100">
                                                 <i class="fas fa-plus me-1"></i>New DMS Entry
                                             </a>
                                         </div>
                                         <div class="col-12 col-sm-6 col-lg-3">
-                                            <a href="parameters/submission.php" class="btn btn-success btn-sm w-100">
+                                            <a href="parameters/index.php" class="btn btn-success btn-sm w-100">
                                                 <i class="fas fa-cogs me-1"></i>Add Parameters
                                             </a>
                                         </div>

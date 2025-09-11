@@ -4,6 +4,7 @@ class MobileWizard {
         this.totalSteps = 12;
         this.formData = window.wizardData || {};
         this.autoSaveInterval = null;
+        this.saveTimeout = null;
         this.isSubmitting = false;
         
         this.init();
@@ -330,8 +331,28 @@ class MobileWizard {
     
     saveFieldData(field) {
         const $field = $(field);
-        this.formData[$field.attr('name')] = $field.val();
-        this.saveToLocalStorage();
+        const fieldName = $field.attr('name');
+        
+        if (fieldName) {
+            if ($field.attr('type') === 'checkbox') {
+                this.formData[fieldName] = $field.is(':checked');
+            } else if ($field.attr('type') === 'radio') {
+                if ($field.is(':checked')) {
+                    this.formData[fieldName] = $field.val();
+                }
+            } else {
+                this.formData[fieldName] = $field.val();
+            }
+            
+            // Save to localStorage immediately
+            this.saveToLocalStorage();
+            
+            // Debounced server save to avoid too many requests
+            clearTimeout(this.saveTimeout);
+            this.saveTimeout = setTimeout(() => {
+                this.saveToServer();
+            }, 2000); // Save to server 2 seconds after last change
+        }
     }
     
     populateFieldsFromData() {
@@ -368,8 +389,7 @@ class MobileWizard {
     
     startAutoSave() {
         this.autoSaveInterval = setInterval(() => {
-            this.saveToLocalStorage();
-            this.showAutoSaveNotification();
+            this.saveToServer();
         }, 30000); // Auto-save every 30 seconds
     }
     
@@ -381,7 +401,85 @@ class MobileWizard {
         }));
     }
     
+    saveToServer() {
+        // Save current form data before sending
+        this.collectCurrentStepData();
+        
+        const dataToSave = {
+            ...this.formData,
+            current_step: this.currentStep,
+            action: 'save'
+        };
+        
+        $.ajax({
+            url: 'autosave_wizard.php',
+            method: 'POST',
+            data: dataToSave,
+            success: (response) => {
+                if (response.success) {
+                    this.showAutoSaveNotification();
+                    // Also save to localStorage as backup
+                    this.saveToLocalStorage();
+                } else {
+                    console.error('Server autosave failed:', response.error);
+                    // Fallback to localStorage
+                    this.saveToLocalStorage();
+                }
+            },
+            error: (xhr, status, error) => {
+                console.error('Server autosave error:', error);
+                // Fallback to localStorage
+                this.saveToLocalStorage();
+            }
+        });
+    }
+    
+    collectCurrentStepData() {
+        // Collect data from current step before saving
+        $('#wizard-content input, #wizard-content select, #wizard-content textarea').each((index, element) => {
+            const $element = $(element);
+            const name = $element.attr('name');
+            if (name) {
+                if ($element.attr('type') === 'checkbox') {
+                    this.formData[name] = $element.is(':checked');
+                } else if ($element.attr('type') === 'radio') {
+                    if ($element.is(':checked')) {
+                        this.formData[name] = $element.val();
+                    }
+                } else {
+                    this.formData[name] = $element.val();
+                }
+            }
+        });
+    }
+    
     loadSavedProgress() {
+        // First try to load from server
+        $.ajax({
+            url: 'autosave_wizard.php?action=load',
+            method: 'GET',
+            success: (response) => {
+                if (response.success && response.data) {
+                    // Server has saved data
+                    if (confirm(`Found saved progress from ${response.last_saved}. Would you like to continue from where you left off?`)) {
+                        this.formData = { ...this.formData, ...response.data };
+                        this.currentStep = response.current_step || 1;
+                        this.loadStep(this.currentStep);
+                        return;
+                    }
+                }
+                
+                // Fallback to localStorage if server doesn't have data or user declined
+                this.loadFromLocalStorage();
+            },
+            error: (xhr, status, error) => {
+                console.warn('Failed to load server autosave, falling back to localStorage:', error);
+                this.loadFromLocalStorage();
+            }
+        });
+    }
+    
+    loadFromLocalStorage() {
         const saved = localStorage.getItem('wizard_progress');
         if (saved) {
             const progress = JSON.parse(saved);
@@ -389,7 +487,7 @@ class MobileWizard {
             if (Date.now() - progress.timestamp < 24 * 60 * 60 * 1000) {
                 this.formData = { ...this.formData, ...progress.data };
                 // Optionally restore to saved step
-                if (confirm('Would you like to continue from where you left off?')) {
+                if (confirm('Would you like to continue from where you left off? (Local backup)')) {
                     this.currentStep = progress.step;
                     this.loadStep(this.currentStep);
                 }
@@ -398,8 +496,16 @@ class MobileWizard {
     }
     
     showAutoSaveNotification() {
-        const toast = new bootstrap.Toast(document.getElementById('autosave-toast'));
-        toast.show();
+        const toastElement = document.getElementById('autosave-toast');
+        if (toastElement) {
+            const toast = new bootstrap.Toast(toastElement, {
+                delay: 2000 // Show for 2 seconds
+            });
+            toast.show();
+        } else {
+            // Fallback: show a temporary alert
+            this.showNotification('Progress saved automatically', 'success');
+        }
     }
     
     showNotification(message, type = 'info') {
@@ -421,21 +527,53 @@ class MobileWizard {
         this.isSubmitting = true;
         $('#submit-btn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Submitting...');
         
+        // Collect final data from current step
+        this.collectCurrentStepData();
+        
         // Prepare form data for submission
         $.ajax({
             url: 'submit_wizard_clean.php',
             method: 'POST',
             data: this.formData,
             success: (response) => {
-                this.showCompletionScreen();
-                localStorage.removeItem('wizard_progress');
+                if (response.success) {
+                    this.showCompletionScreen();
+                    // Clear both server and local autosave data
+                    this.clearAutosaveData();
+                } else {
+                    this.showNotification(response.error || 'Error submitting form. Please try again.', 'error');
+                    this.isSubmitting = false;
+                    $('#submit-btn').prop('disabled', false).html('<i class="bi bi-check-circle"></i> Submit');
+                }
             },
             error: (xhr, status, error) => {
-                this.showNotification('Error submitting form. Please try again.', 'error');
+                let errorMessage = 'Error submitting form. Please try again.';
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMessage = xhr.responseJSON.error;
+                }
+                this.showNotification(errorMessage, 'error');
                 this.isSubmitting = false;
                 $('#submit-btn').prop('disabled', false).html('<i class="bi bi-check-circle"></i> Submit');
             }
         });
+    }
+    
+    clearAutosaveData() {
+        // Clear server autosave
+        $.ajax({
+            url: 'autosave_wizard.php',
+            method: 'POST',
+            data: { action: 'clear' },
+            success: (response) => {
+                console.log('Server autosave cleared');
+            },
+            error: (xhr, status, error) => {
+                console.warn('Failed to clear server autosave:', error);
+            }
+        });
+        
+        // Clear localStorage
+        localStorage.removeItem('wizard_progress');
     }
     
     showCompletionScreen() {
