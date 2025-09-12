@@ -1,7 +1,7 @@
 class MobileWizard {
     constructor() {
         this.currentStep = 1;
-        this.totalSteps = 15; // Updated to match the actual form structure
+        this.totalSteps = 12;
         this.formData = window.wizardData || {};
         this.autoSaveInterval = null;
         this.saveTimeout = null;
@@ -52,15 +52,15 @@ class MobileWizard {
     getStepData(stepNumber) {
         const steps = {
             1: {
-                title: 'Product and Machine Information',
+                title: 'Product & Machine Information',
                 description: 'Basic product and machine details',
                 fields: [
                     { name: 'MachineName', label: 'Machine Name', type: 'select', 
-                      options: ['ARB 50', 'SUM 260C', 'SUM 350', 'MIT 650D', 'TOS 650A', 'CLF 750A', 'CLF 750B', 'CLF 750C', 'TOS 850A', 'TOS 850B', 'TOS 850C', 'CLF 950A', 'CLF 950B', 'MIT 1050B'], required: true },
-                    { name: 'RunNumber', label: 'Run Number', type: 'text', required: false },
+                      options: ['CLF 750B', 'CLF 880B', 'CLF 1100B', 'CLF 1300B', 'CLF 1600B'], required: true },
+                    { name: 'RunNumber', label: 'Run Number', type: 'text', required: true },
                     { name: 'Category', label: 'Category', type: 'select', 
-                      options: ['Colorant Testing', 'Machine Preventive Maintenance', 'Mass Production', 'Material Testing', 'Mold Preventive Maintenance', 'New Mold Testing', 'Product Improvement'], required: true },
-                    { name: 'IRN', label: 'IRN', type: 'text', required: false },
+                      options: ['Colorant Testing', 'Customer Approval', 'Formal Production', 'Material Testing', 'Mold Testing', 'Parameter Development', 'Process Optimization'], required: true },
+                    { name: 'IRN', label: 'IRN', type: 'text', required: true },
                     // Hidden fields for timestamps
                     { name: 'Date', label: '', type: 'hidden', value: new Date().toISOString().split('T')[0] },
                     { name: 'Time', label: '', type: 'hidden', value: new Date().toTimeString().split(' ')[0] },
@@ -74,17 +74,17 @@ class MobileWizard {
                 description: 'Detailed product specifications',
                 fields: [
                     { name: 'product', label: 'Product Name', type: 'text', required: true },
-                    { name: 'color', label: 'Color', type: 'text', required: false },
-                    { name: 'prodNo', label: 'Product Number', type: 'text', required: false },
-                    { name: 'mold-name', label: 'Mold Name', type: 'text', required: false },
-                    { name: 'cavity', label: 'Number of Cavity (Active)', type: 'number', required: false },
-                    { name: 'grossWeight', label: 'Gross Weight', type: 'text', required: false },
-                    { name: 'netWeight', label: 'Net Weight', type: 'text', required: false }
+                    { name: 'color', label: 'Color', type: 'text', required: true },
+                    { name: 'prodNo', label: 'Product Number', type: 'text', required: true },
+                    { name: 'mold-name', label: 'Mold Name', type: 'text', required: true },
+                    { name: 'cavity', label: 'Number of Cavity (Active)', type: 'number', required: true },
+                    { name: 'grossWeight', label: 'Gross Weight', type: 'text', required: true },
+                    { name: 'netWeight', label: 'Net Weight', type: 'text', required: true }
                 ]
             },
             3: {
                 title: 'Material Composition',
-                description: 'Material specifications and drying parameters',
+                description: 'Material specifications - at least Material 1 is required',
                 fields: [
                     { name: 'dryingtime', label: 'Drying Time (hours)', type: 'number' },
                     { name: 'dryingtemp', label: 'Drying Temperature (°C)', type: 'number' },
@@ -115,19 +115,19 @@ class MobileWizard {
                 ]
             },
             5: {
-                title: 'Mold and Operation Specifications',
+                title: 'Mold & Operation Specifications',
                 description: 'Mold and operation specifications',
                 fields: [
-                    { name: 'mold-code', label: 'Mold Code', type: 'text', required: false },
-                    { name: 'clamping-force', label: 'Clamping Force', type: 'text', required: false },
+                    { name: 'mold-code', label: 'Mold Code', type: 'text', required: true },
+                    { name: 'clamping-force', label: 'Clamping Force', type: 'text', required: true },
                     { name: 'operation-type', label: 'Operation Type', type: 'select', 
-                      options: ['semi-automatic', 'automatic', 'robot arm', 'manual'], required: false },
+                      options: ['Auto', 'Semi-Auto', 'Manual'], required: true },
                     { name: 'stationary-cooling-media', label: 'Stationary Cooling Media', type: 'select',
-                      options: ['Normal', 'Chilled', 'MTC'] },
+                      options: ['Water', 'Oil', 'Air', 'None'] },
                     { name: 'movable-cooling-media', label: 'Movable Cooling Media', type: 'select',
-                      options: ['Normal', 'Chilled', 'MTC'] },
+                      options: ['Water', 'Oil', 'Air', 'None'] },
                     { name: 'heating-media-type', label: 'Heating Media Type', type: 'select',
-                      options: ['Electric', 'Oil', 'Steam'] },
+                      options: ['Electric', 'Oil', 'Steam', 'None'] },
                     { name: 'cooling-media-remarks', label: 'Cooling Media Remarks', type: 'textarea' }
                 ]
             },
@@ -135,211 +135,86 @@ class MobileWizard {
                 title: 'Timer Parameters',
                 description: 'Cycle timing parameters',
                 fields: [
-                    { name: 'fillingTime', label: 'Filling Time (seconds)', type: 'number', required: false },
-                    { name: 'holdingTime', label: 'Holding Time (seconds)', type: 'number', required: false },
+                    { name: 'fillingTime', label: 'Filling Time (seconds)', type: 'number', required: true },
+                    { name: 'holdingTime', label: 'Holding Time (seconds)', type: 'number', required: true },
                     { name: 'moldOpenCloseTime', label: 'Mold Open/Close Time (seconds)', type: 'number' },
                     { name: 'chargingTime', label: 'Charging Time (seconds)', type: 'number' },
-                    { name: 'coolingTime', label: 'Cooling Time (seconds)', type: 'number', required: false },
-                    { name: 'cycleTime', label: 'Cycle Time (seconds)', type: 'number', required: false }
+                    { name: 'coolingTime', label: 'Cooling Time (seconds)', type: 'number', required: true },
+                    { name: 'cycleTime', label: 'Cycle Time (seconds)', type: 'number', required: true }
                 ]
             },
             7: {
-                title: 'Temperature Settings - Barrel Heater',
+                title: 'Barrel Heater Temperatures',
                 description: 'Temperature settings for barrel heaters',
                 fields: [
-                    { name: 'barrelHeaterZone0', label: 'Nozzle Temperature (°C)', type: 'number' },
-                    { name: 'barrelHeaterZone1', label: 'Barrel Heater Zone 1 (°C)', type: 'number' },
-                    { name: 'barrelHeaterZone2', label: 'Barrel Heater Zone 2 (°C)', type: 'number' },
+                    { name: 'barrelHeaterZone0', label: 'Nozzle Temperature (°C)', type: 'number', required: true },
+                    { name: 'barrelHeaterZone1', label: 'Barrel Heater Zone 1 (°C)', type: 'number', required: true },
+                    { name: 'barrelHeaterZone2', label: 'Barrel Heater Zone 2 (°C)', type: 'number', required: true },
                     { name: 'barrelHeaterZone3', label: 'Barrel Heater Zone 3 (°C)', type: 'number' },
                     { name: 'barrelHeaterZone4', label: 'Barrel Heater Zone 4 (°C)', type: 'number' },
-                    { name: 'barrelHeaterZone5', label: 'Barrel Heater Zone 5 (°C)', type: 'number' },
-                    { name: 'barrelHeaterZone6', label: 'Barrel Heater Zone 6 (°C)', type: 'number' },
-                    { name: 'barrelHeaterZone7', label: 'Barrel Heater Zone 7 (°C)', type: 'number' },
-                    { name: 'barrelHeaterZone8', label: 'Barrel Heater Zone 8 (°C)', type: 'number' },
-                    { name: 'barrelHeaterZone9', label: 'Barrel Heater Zone 9 (°C)', type: 'number' },
-                    { name: 'barrelHeaterZone10', label: 'Barrel Heater Zone 10 (°C)', type: 'number' },
-                    { name: 'barrelHeaterZone11', label: 'Barrel Heater Zone 11 (°C)', type: 'number' },
-                    { name: 'barrelHeaterZone12', label: 'Barrel Heater Zone 12 (°C)', type: 'number' },
-                    { name: 'barrelHeaterZone13', label: 'Barrel Heater Zone 13 (°C)', type: 'number' },
-                    { name: 'barrelHeaterZone14', label: 'Barrel Heater Zone 14 (°C)', type: 'number' },
-                    { name: 'barrelHeaterZone15', label: 'Barrel Heater Zone 15 (°C)', type: 'number' },
-                    { name: 'barrelHeaterZone16', label: 'Barrel Heater Zone 16 (°C)', type: 'number' }
+                    { name: 'barrelHeaterZone5', label: 'Barrel Heater Zone 5 (°C)', type: 'number' }
                 ]
             },
             8: {
-                title: 'Temperature Settings - Mold Heater', 
+                title: 'Mold Heater Temperatures', 
                 description: 'Temperature settings for mold heaters',
                 fields: [
-                    { name: 'Zone1', label: 'Mold Heater Zone 1 (°C)', type: 'number' },
-                    { name: 'Zone2', label: 'Mold Heater Zone 2 (°C)', type: 'number' },
-                    { name: 'Zone3', label: 'Mold Heater Zone 3 (°C)', type: 'number' },
-                    { name: 'Zone4', label: 'Mold Heater Zone 4 (°C)', type: 'number' },
-                    { name: 'Zone5', label: 'Mold Heater Zone 5 (°C)', type: 'number' },
-                    { name: 'Zone6', label: 'Mold Heater Zone 6 (°C)', type: 'number' },
-                    { name: 'Zone7', label: 'Mold Heater Zone 7 (°C)', type: 'number' },
-                    { name: 'Zone8', label: 'Mold Heater Zone 8 (°C)', type: 'number' },
-                    { name: 'Zone9', label: 'Mold Heater Zone 9 (°C)', type: 'number' },
-                    { name: 'Zone10', label: 'Mold Heater Zone 10 (°C)', type: 'number' },
-                    { name: 'Zone11', label: 'Mold Heater Zone 11 (°C)', type: 'number' },
-                    { name: 'Zone12', label: 'Mold Heater Zone 12 (°C)', type: 'number' },
-                    { name: 'Zone13', label: 'Mold Heater Zone 13 (°C)', type: 'number' },
-                    { name: 'Zone14', label: 'Mold Heater Zone 14 (°C)', type: 'number' },
-                    { name: 'Zone15', label: 'Mold Heater Zone 15 (°C)', type: 'number' },
-                    { name: 'Zone16', label: 'Mold Heater Zone 16 (°C)', type: 'number' },
-                    { name: 'MTCSetting', label: 'MTC Setting', type: 'number' }
+                    { name: 'moldHeaterZone1', label: 'Mold Heater Zone 1 (°C)', type: 'number' },
+                    { name: 'moldHeaterZone2', label: 'Mold Heater Zone 2 (°C)', type: 'number' },
+                    { name: 'moldHeaterZone3', label: 'Mold Heater Zone 3 (°C)', type: 'number' },
+                    { name: 'moldHeaterZone4', label: 'Mold Heater Zone 4 (°C)', type: 'number' },
+                    { name: 'moldHeaterZone5', label: 'Mold Heater Zone 5 (°C)', type: 'number' },
+                    { name: 'moldHeaterZone6', label: 'Mold Heater Zone 6 (°C)', type: 'number' }
                 ]
             },
             9: {
-                title: 'Molding Settings - Mold Open',
-                description: 'Mold opening parameters with multiple stages',
+                title: 'Injection Parameters',
+                description: 'Injection molding parameters',
                 fields: [
-                    { name: 'moldOpenPos1', label: 'Mold Open Position 1', type: 'number' },
-                    { name: 'moldOpenPos2', label: 'Mold Open Position 2', type: 'number' },
-                    { name: 'moldOpenPos3', label: 'Mold Open Position 3', type: 'number' },
-                    { name: 'moldOpenPos4', label: 'Mold Open Position 4', type: 'number' },
-                    { name: 'moldOpenPos5', label: 'Mold Open Position 5', type: 'number' },
-                    { name: 'moldOpenPos6', label: 'Mold Open Position 6', type: 'number' },
-                    { name: 'moldOpenSpd1', label: 'Mold Open Speed 1', type: 'number' },
-                    { name: 'moldOpenSpd2', label: 'Mold Open Speed 2', type: 'number' },
-                    { name: 'moldOpenSpd3', label: 'Mold Open Speed 3', type: 'number' },
-                    { name: 'moldOpenSpd4', label: 'Mold Open Speed 4', type: 'number' },
-                    { name: 'moldOpenSpd5', label: 'Mold Open Speed 5', type: 'number' },
-                    { name: 'moldOpenSpd6', label: 'Mold Open Speed 6', type: 'number' },
-                    { name: 'moldOpenPressure1', label: 'Mold Open Pressure 1', type: 'number' },
-                    { name: 'moldOpenPressure2', label: 'Mold Open Pressure 2', type: 'number' },
-                    { name: 'moldOpenPressure3', label: 'Mold Open Pressure 3', type: 'number' },
-                    { name: 'moldOpenPressure4', label: 'Mold Open Pressure 4', type: 'number' },
-                    { name: 'moldOpenPressure5', label: 'Mold Open Pressure 5', type: 'number' },
-                    { name: 'moldOpenPressure6', label: 'Mold Open Pressure 6', type: 'number' }
+                    { name: 'injectionPressure1', label: 'Injection Pressure 1 (bar)', type: 'number', required: true },
+                    { name: 'injectionVelocity1', label: 'Injection Velocity 1 (mm/s)', type: 'number', required: true },
+                    { name: 'injectionPosition1', label: 'Injection Position 1 (mm)', type: 'number' },
+                    { name: 'injectionPressure2', label: 'Injection Pressure 2 (bar)', type: 'number' },
+                    { name: 'injectionVelocity2', label: 'Injection Velocity 2 (mm/s)', type: 'number' },
+                    { name: 'injectionPosition2', label: 'Injection Position 2 (mm)', type: 'number' },
+                    { name: 'holdingPressure1', label: 'Holding Pressure 1 (bar)', type: 'number', required: true },
+                    { name: 'holdingTime1', label: 'Holding Time 1 (seconds)', type: 'number' },
+                    { name: 'holdingPressure2', label: 'Holding Pressure 2 (bar)', type: 'number' },
+                    { name: 'holdingTime2', label: 'Holding Time 2 (seconds)', type: 'number' }
                 ]
             },
             10: {
-                title: 'Molding Settings - Mold Close',
-                description: 'Mold closing parameters with multiple stages',
+                title: 'Plasticizing Parameters',
+                description: 'Plasticizing settings',
                 fields: [
-                    { name: 'moldClosePos1', label: 'Mold Close Position 1', type: 'number' },
-                    { name: 'moldClosePos2', label: 'Mold Close Position 2', type: 'number' },
-                    { name: 'moldClosePos3', label: 'Mold Close Position 3', type: 'number' },
-                    { name: 'moldClosePos4', label: 'Mold Close Position 4', type: 'number' },
-                    { name: 'moldClosePos5', label: 'Mold Close Position 5', type: 'number' },
-                    { name: 'moldClosePos6', label: 'Mold Close Position 6', type: 'number' },
-                    { name: 'moldCloseSpd1', label: 'Mold Close Speed 1', type: 'number' },
-                    { name: 'moldCloseSpd2', label: 'Mold Close Speed 2', type: 'number' },
-                    { name: 'moldCloseSpd3', label: 'Mold Close Speed 3', type: 'number' },
-                    { name: 'moldCloseSpd4', label: 'Mold Close Speed 4', type: 'number' },
-                    { name: 'moldCloseSpd5', label: 'Mold Close Speed 5', type: 'number' },
-                    { name: 'moldCloseSpd6', label: 'Mold Close Speed 6', type: 'number' },
-                    { name: 'moldClosePressure1', label: 'Mold Close Pressure 1', type: 'number' },
-                    { name: 'moldClosePressure2', label: 'Mold Close Pressure 2', type: 'number' },
-                    { name: 'moldClosePressure3', label: 'Mold Close Pressure 3', type: 'number' },
-                    { name: 'moldClosePressure4', label: 'Mold Close Pressure 4', type: 'number' },
-                    { name: 'pclorlp', label: 'Low Pressure Close', type: 'text' },
-                    { name: 'pchorhp', label: 'High Pressure Close', type: 'text' },
-                    { name: 'lowPresTimeLimit', label: 'Low Pressure Time Limit', type: 'number' }
+                    { name: 'backPressure', label: 'Back Pressure (bar)', type: 'number', required: true },
+                    { name: 'screwRPM', label: 'Screw RPM', type: 'number', required: true },
+                    { name: 'chargeStrokeLimit', label: 'Charge Stroke Limit (mm)', type: 'number' },
+                    { name: 'decompressionStroke', label: 'Decompression Stroke (mm)', type: 'number' },
+                    { name: 'cushionPosition', label: 'Cushion Position (mm)', type: 'number' }
                 ]
             },
             11: {
-                title: 'Plasticizing Parameters',
-                description: 'Plasticizing settings with multiple stages',
+                title: 'Ejection & Mold Parameters',
+                description: 'Ejection and mold operation settings',
                 fields: [
-                    { name: 'screwRPM1', label: 'Screw RPM 1', type: 'number' },
-                    { name: 'screwRPM2', label: 'Screw RPM 2', type: 'number' },
-                    { name: 'screwRPM3', label: 'Screw RPM 3', type: 'number' },
-                    { name: 'screwSpeed1', label: 'Screw Speed 1', type: 'number' },
-                    { name: 'screwSpeed2', label: 'Screw Speed 2', type: 'number' },
-                    { name: 'screwSpeed3', label: 'Screw Speed 3', type: 'number' },
-                    { name: 'plastPressure1', label: 'Plasticizing Pressure 1', type: 'number' },
-                    { name: 'plastPressure2', label: 'Plasticizing Pressure 2', type: 'number' },
-                    { name: 'plastPressure3', label: 'Plasticizing Pressure 3', type: 'number' },
-                    { name: 'plastPosition1', label: 'Plasticizing Position 1', type: 'number' },
-                    { name: 'plastPosition2', label: 'Plasticizing Position 2', type: 'number' },
-                    { name: 'plastPosition3', label: 'Plasticizing Position 3', type: 'number' },
-                    { name: 'backPressure1', label: 'Back Pressure 1', type: 'number' },
-                    { name: 'backPressure2', label: 'Back Pressure 2', type: 'number' },
-                    { name: 'backPressure3', label: 'Back Pressure 3', type: 'number' },
-                    { name: 'backPressureStartPosition', label: 'Back Pressure Start Position', type: 'number' }
+                    { name: 'ejectorForwardTime', label: 'Ejector Forward Time (seconds)', type: 'number' },
+                    { name: 'ejectorSpeed', label: 'Ejector Speed (mm/s)', type: 'number' },
+                    { name: 'ejectorPressure', label: 'Ejector Pressure (bar)', type: 'number' },
+                    { name: 'moldCloseSpeed', label: 'Mold Close Speed (mm/s)', type: 'number', required: true },
+                    { name: 'moldOpenSpeed', label: 'Mold Open Speed (mm/s)', type: 'number', required: true },
+                    { name: 'moldCloseForce', label: 'Mold Close Force (kN)', type: 'number' },
+                    { name: 'moldOpenForce', label: 'Mold Open Force (kN)', type: 'number' }
                 ]
             },
             12: {
-                title: 'Injection Parameters',
-                description: 'Injection molding parameters with multiple stages',
+                title: 'Personnel & Additional Information',
+                description: 'Personnel information and final notes',
                 fields: [
-                    { name: 'RecoveryPosition', label: 'Recovery Position', type: 'number' },
-                    { name: 'SecondStagePosition', label: 'Second Stage Position', type: 'number' },
-                    { name: 'Cushion', label: 'Cushion', type: 'number' },
-                    { name: 'ScrewPosition1', label: 'Screw Position 1', type: 'number' },
-                    { name: 'ScrewPosition2', label: 'Screw Position 2', type: 'number' },
-                    { name: 'ScrewPosition3', label: 'Screw Position 3', type: 'number' },
-                    { name: 'InjectionSpeed1', label: 'Injection Speed 1', type: 'number' },
-                    { name: 'InjectionSpeed2', label: 'Injection Speed 2', type: 'number' },
-                    { name: 'InjectionSpeed3', label: 'Injection Speed 3', type: 'number' },
-                    { name: 'InjectionPressure1', label: 'Injection Pressure 1', type: 'number' },
-                    { name: 'InjectionPressure2', label: 'Injection Pressure 2', type: 'number' },
-                    { name: 'InjectionPressure3', label: 'Injection Pressure 3', type: 'number' },
-                    { name: 'SuckBackPosition', label: 'Suck Back Position', type: 'number' },
-                    { name: 'SuckBackSpeed', label: 'Suck Back Speed', type: 'number' },
-                    { name: 'SuckBackPressure', label: 'Suck Back Pressure', type: 'number' },
-                    { name: 'ScrewPosition4', label: 'Screw Position 4', type: 'number' },
-                    { name: 'ScrewPosition5', label: 'Screw Position 5', type: 'number' },
-                    { name: 'ScrewPosition6', label: 'Screw Position 6', type: 'number' },
-                    { name: 'InjectionSpeed4', label: 'Injection Speed 4', type: 'number' },
-                    { name: 'InjectionSpeed5', label: 'Injection Speed 5', type: 'number' },
-                    { name: 'InjectionSpeed6', label: 'Injection Speed 6', type: 'number' },
-                    { name: 'InjectionPressure4', label: 'Injection Pressure 4', type: 'number' },
-                    { name: 'InjectionPressure5', label: 'Injection Pressure 5', type: 'number' },
-                    { name: 'InjectionPressure6', label: 'Injection Pressure 6', type: 'number' },
-                    { name: 'SprueBreak', label: 'Sprue Break', type: 'number' },
-                    { name: 'SprueBreakTime', label: 'Sprue Break Time', type: 'number' },
-                    { name: 'InjectionDelay', label: 'Injection Delay', type: 'number' },
-                    { name: 'HoldingPressure1', label: 'Holding Pressure 1', type: 'number' },
-                    { name: 'HoldingPressure2', label: 'Holding Pressure 2', type: 'number' },
-                    { name: 'HoldingPressure3', label: 'Holding Pressure 3', type: 'number' },
-                    { name: 'HoldingSpeed1', label: 'Holding Speed 1', type: 'number' },
-                    { name: 'HoldingSpeed2', label: 'Holding Speed 2', type: 'number' },
-                    { name: 'HoldingSpeed3', label: 'Holding Speed 3', type: 'number' },
-                    { name: 'HoldingTime1', label: 'Holding Time 1', type: 'number' },
-                    { name: 'HoldingTime2', label: 'Holding Time 2', type: 'number' },
-                    { name: 'HoldingTime3', label: 'Holding Time 3', type: 'number' }
-                ]
-            },
-            13: {
-                title: 'Ejection Parameters',
-                description: 'Ejection system parameters with multiple stages',
-                fields: [
-                    { name: 'AirBlowTimeA', label: 'Air Blow Time A', type: 'number' },
-                    { name: 'AirBlowPositionA', label: 'Air Blow Position A', type: 'number' },
-                    { name: 'AirBlowADelay', label: 'Air Blow A Delay', type: 'number' },
-                    { name: 'AirBlowTimeB', label: 'Air Blow Time B', type: 'number' },
-                    { name: 'AirBlowPositionB', label: 'Air Blow Position B', type: 'number' },
-                    { name: 'AirBlowBDelay', label: 'Air Blow B Delay', type: 'number' },
-                    { name: 'EjectorForwardPosition1', label: 'Ejector Forward Position 1', type: 'number' },
-                    { name: 'EjectorForwardPosition2', label: 'Ejector Forward Position 2', type: 'number' },
-                    { name: 'EjectorForwardSpeed1', label: 'Ejector Forward Speed 1', type: 'number' },
-                    { name: 'EjectorRetractPosition1', label: 'Ejector Retract Position 1', type: 'number' },
-                    { name: 'EjectorRetractPosition2', label: 'Ejector Retract Position 2', type: 'number' },
-                    { name: 'EjectorRetractSpeed1', label: 'Ejector Retract Speed 1', type: 'number' },
-                    { name: 'EjectorForwardPosition', label: 'Ejector Forward Position', type: 'number' },
-                    { name: 'EjectorForwardTime', label: 'Ejector Forward Time', type: 'number' },
-                    { name: 'EjectorRetractPosition', label: 'Ejector Retract Position', type: 'number' },
-                    { name: 'EjectorRetractTime', label: 'Ejector Retract Time', type: 'number' },
-                    { name: 'EjectorForwardSpeed2', label: 'Ejector Forward Speed 2', type: 'number' },
-                    { name: 'EjectorForwardPressure1', label: 'Ejector Forward Pressure 1', type: 'number' }
-                ]
-            },
-            14: {
-                title: 'Additional Information',
-                description: 'Extra notes and specifications',
-                fields: [
+                    { name: 'adjusterName', label: 'Adjuster Name', type: 'text', required: true },
+                    { name: 'qae', label: 'QAE Name', type: 'select',
+                      options: ['Adrian Gonzales', 'Angelica Agustin', 'Christine Lacsa', 'Cristina Ramos', 'Doris Villanueva', 'Gladys Repollo', 'Heriel Pelonia', 'Janrie Paredes', 'Jerome Alfano', 'John Kevin Benosa', 'Karla Ocumen', 'Keith Marquez', 'Ma. Teresa Gomez', 'Mariz Joy Macaspac', 'Mary Jean Gutierrez', 'Maverick Garcia', 'Noriel Fuellas', 'Rafael Manguiat', 'Richard Dizon', 'Romeo Agustin Jr.', 'Teresita Pena'], required: true },
                     { name: 'additionalInfo', label: 'Additional Information / Remarks', type: 'textarea' }
-                ]
-            },
-            15: {
-                title: 'Personnel',
-                description: 'Personnel information',
-                fields: [
-                    { name: 'adjuster', label: 'Adjuster Name', type: 'text', required: true },
-                    { name: 'qae', label: 'Quality Assurance Engineer Name', type: 'select',
-                      options: ['John Nero Abreu', 'Ian Ilustresimo', 'Stephanie Iris Sapno'], required: true }
                 ]
             }
         };

@@ -56,10 +56,10 @@ if (isset($_SESSION['clone_data'])) {
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
                 <h6 class="mb-0">Parameters Setup</h6>
-                <span class="badge bg-primary" id="progress-text">Step 1 of 12</span>
+                <span class="badge bg-primary" id="progress-text">Step 1 of 15</span>
             </div>
             <div class="progress mt-2" style="height: 8px;">
-                <div class="progress-bar" role="progressbar" style="width: 8.33%" id="progress-bar"></div>
+                <div class="progress-bar" role="progressbar" style="width: 6.67%" id="progress-bar"></div>
             </div>
         </div>
     </div>
