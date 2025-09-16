@@ -40,7 +40,7 @@ if ($result->num_rows === 0) {
 $report = $result->fetch_assoc();
 
 // Get quality control data if exists
-$quality_sql = "SELECT * FROM production_report_quality WHERE report_id = ? ORDER BY id";
+$quality_sql = "SELECT * FROM quality_control_entries WHERE report_id = ? ORDER BY id";
 $quality_stmt = $conn->prepare($quality_sql);
 $quality_stmt->bind_param("i", $id);
 $quality_stmt->execute();

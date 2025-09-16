@@ -129,33 +129,44 @@ try {
     // Commit transaction
     $conn->commit();
 
+    // Return success response with detailed information
     echo json_encode([
         'success' => true,
-        'message' => 'Production report saved successfully',
-        'report_id' => $report_id
+        'message' => 'Production report submitted successfully!',
+        'report_id' => $report_id,
+        'report_type' => $reportType,
+        'product_name' => $productName,
+        'timestamp' => date('Y-m-d H:i:s')
     ]);
 
 } catch (Exception $e) {
     // Rollback transaction on error
-    if (isset($conn) && $conn->ping()) {
+    if (isset($conn) && method_exists($conn, 'thread_id') && $conn->thread_id) {
         $conn->rollback();
     }
     
-    // Log the error
+    // Log the error for debugging
     error_log("Production report error: " . $e->getMessage());
     error_log("Stack trace: " . $e->getTraceAsString());
     
+    // Provide user-friendly error messages
+    $userMessage = 'An error occurred while saving the production report.';
+    
+    // Check for common error types
+    if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
+        $userMessage = 'A report with this information already exists. Please check your data and try again.';
+    } elseif (strpos($e->getMessage(), 'Data too long') !== false) {
+        $userMessage = 'One or more fields contain too much data. Please reduce the length and try again.';
+    } elseif (strpos($e->getMessage(), 'Connection') !== false) {
+        $userMessage = 'Database connection error. Please try again in a moment.';
+    } elseif (strpos($e->getMessage(), 'Required field missing') !== false) {
+        $userMessage = $e->getMessage();
+    }
+    
     echo json_encode([
         'success' => false,
-        'message' => 'Error saving production report: ' . $e->getMessage(),
-        'debug' => [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]
+        'message' => $userMessage,
+        'error_code' => 'SUBMISSION_ERROR',
+        'timestamp' => date('Y-m-d H:i:s')
     ]);
 }
-
-// Close connection
-if (isset($conn)) {
-    $conn->close();
-} 

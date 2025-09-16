@@ -962,7 +962,6 @@ if (empty($errors)) {
     exit();
 }
 
-$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">

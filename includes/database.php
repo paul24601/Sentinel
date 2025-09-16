@@ -164,11 +164,15 @@ class DatabaseManager {
      */
     public static function closeAllConnections() {
         foreach (self::$connections as $key => $conn) {
-            if ($conn instanceof mysqli && $conn->ping()) {
+            if ($conn instanceof mysqli) {
                 try {
-                    $conn->close();
+                    // Check if connection is still active before attempting to close
+                    // Note: ping() is deprecated in PHP 8.4, using thread_id as alternative check
+                    if (method_exists($conn, 'thread_id') && $conn->thread_id) {
+                        $conn->close();
+                    }
                 } catch (Exception $e) {
-                    // Ignore errors on close
+                    // Ignore errors on close - connection might already be closed
                 }
             }
         }
@@ -182,11 +186,15 @@ class DatabaseManager {
     public static function closeConnection($database) {
         if (isset(self::$connections[$database])) {
             $conn = self::$connections[$database];
-            if ($conn instanceof mysqli && $conn->ping()) {
+            if ($conn instanceof mysqli) {
                 try {
-                    $conn->close();
+                    // Check if connection is still active before attempting to close
+                    // Note: ping() is deprecated in PHP 8.4, using thread_id as alternative check
+                    if (method_exists($conn, 'thread_id') && $conn->thread_id) {
+                        $conn->close();
+                    }
                 } catch (Exception $e) {
-                    // Ignore errors on close
+                    // Ignore errors on close - connection might already be closed
                 }
             }
             unset(self::$connections[$database]);

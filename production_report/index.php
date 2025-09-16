@@ -260,6 +260,81 @@ try {
         .finishing-section, .injection-section, .injection-machine-section {
             transition: all 0.3s ease;
         }
+        
+        /* Enhanced Button Styles */
+        .btn-action {
+            padding: 12px 24px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .btn-action:disabled {
+            transform: none;
+            cursor: not-allowed;
+        }
+        
+        /* Loading spinner animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+        
+        /* Toast Notifications */
+        .toast {
+            min-width: 300px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .toast-header {
+            border-bottom: none;
+            font-weight: 600;
+        }
+        
+        .toast-body {
+            font-size: 14px;
+            padding: 15px;
+        }
+        
+        /* Form enhancement */
+        .form-control:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+        
+        .was-validated .form-control:valid {
+            border-color: #28a745;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='m2.3 6.73.5-.5.5.5L4.5 6l.5.5.5-.5L6.5 6l.5.5.5-.5L8 5.5l-.5-.5-.5.5-.5-.5-.5.5-.5-.5-.5.5L4 5l-.5.5-.5-.5L2 5l-.5.5-.5-.5L0 4.5l.5-.5.5.5.5-.5.5.5.5-.5.5.5L3 4l.5-.5.5.5.5-.5.5.5z'/%3e%3c/svg%3e");
+        }
+        
+        /* Success animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translate3d(0, 40px, 0);
+            }
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+        
+        .toast.show {
+            animation: fadeInUp 0.3s ease;
+        }
     </style>
 
 </head>
@@ -917,11 +992,42 @@ try {
                             <button type="button" class="btn btn-secondary btn-action" onclick="window.history.back()">
                                 <i class="fas fa-arrow-left me-2"></i>Cancel
                             </button>
-                            <button type="submit" class="btn btn-primary btn-action">
-                                <i class="fas fa-save me-2"></i>Submit Form
+                            <button type="submit" class="btn btn-primary btn-action" id="submitBtn">
+                                <span class="btn-text">
+                                    <i class="fas fa-save me-2"></i>Submit Form
+                                </span>
+                                <span class="btn-loading d-none">
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    Submitting...
+                                </span>
                             </button>
                         </div>
                     </form>
+                    
+                    <!-- Success/Error Notifications -->
+                    <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+                        <div id="successToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+                            <div class="toast-header bg-success text-white">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <strong class="me-auto">Success</strong>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                            <div class="toast-body" id="successMessage">
+                                Production report submitted successfully!
+                            </div>
+                        </div>
+                        
+                        <div id="errorToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="7000">
+                            <div class="toast-header bg-danger text-white">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <strong class="me-auto">Error</strong>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                            <div class="toast-body" id="errorMessage">
+                                There was an error submitting the form.
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </main>
 
@@ -1247,9 +1353,11 @@ try {
                 $('#totalDowntime').val(total);
             }
 
-            // Form validation
+            // Form validation and AJAX submission
             const form = document.getElementById('qualityControlForm');
             form.addEventListener('submit', function(event) {
+                event.preventDefault(); // Always prevent default to handle with AJAX
+                
                 // Validate ID numbers
                 const idFields = ['#idNumber1', '#idNumber2', '#idNumber3'];
                 let isValid = true;
@@ -1265,11 +1373,113 @@ try {
                 });
 
                 if (!form.checkValidity() || !isValid) {
-                    event.preventDefault();
-                    event.stopPropagation();
+                    form.classList.add('was-validated');
+                    return;
                 }
-                form.classList.add('was-validated');
+                
+                // Show confirmation dialog
+                showSubmissionConfirmation();
             });
+            
+            // Confirmation dialog
+            function showSubmissionConfirmation() {
+                const reportType = $('input[name="reportTypeSelection"]:checked').val();
+                const productName = $('#productName').val();
+                const date = $('#date').val();
+                const shift = $('#shift').val();
+                
+                const confirmMessage = `Are you sure you want to submit this ${reportType} production report?
+                
+Product: ${productName}
+Date: ${date}
+Shift: ${shift}
+                
+This action cannot be undone.`;
+                
+                if (confirm(confirmMessage)) {
+                    submitFormAjax();
+                }
+            }
+            
+            // AJAX form submission function
+            function submitFormAjax() {
+                const submitBtn = $('#submitBtn');
+                const btnText = submitBtn.find('.btn-text');
+                const btnLoading = submitBtn.find('.btn-loading');
+                
+                // Show loading state
+                submitBtn.prop('disabled', true);
+                btnText.addClass('d-none');
+                btnLoading.removeClass('d-none');
+                
+                // Prepare form data
+                const formData = new FormData(form);
+                
+                // Submit via AJAX
+                $.ajax({
+                    url: 'submit.php',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Show success notification with detailed info
+                            let successMsg = response.message;
+                            if (response.report_id) {
+                                successMsg += ` (Report ID: ${response.report_id})`;
+                            }
+                            
+                            $('#successMessage').html(`
+                                <strong>Success!</strong><br>
+                                ${successMsg}<br>
+                                <small class="text-muted">Submitted at ${response.timestamp || new Date().toLocaleString()}</small>
+                            `);
+                            new bootstrap.Toast($('#successToast')[0]).show();
+                            
+                            // Reset form after short delay
+                            setTimeout(function() {
+                                form.reset();
+                                form.classList.remove('was-validated');
+                                $('.injection-section, .finishing-section').hide();
+                                // Reset report type to default
+                                $('input[name="reportTypeSelection"]:first').prop('checked', true).trigger('change');
+                            }, 2000);
+                        } else {
+                            // Show error notification
+                            $('#errorMessage').html(`
+                                <strong>Error!</strong><br>
+                                ${response.message || 'An error occurred while submitting the form.'}
+                            `);
+                            new bootstrap.Toast($('#errorToast')[0]).show();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // Show error notification
+                        let errorMessage = 'Network error occurred. Please check your connection and try again.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        } else if (xhr.status === 500) {
+                            errorMessage = 'Server error occurred. Please contact the administrator if this persists.';
+                        } else if (xhr.status === 0) {
+                            errorMessage = 'Network connection lost. Please check your internet connection.';
+                        }
+                        
+                        $('#errorMessage').html(`
+                            <strong>Network Error!</strong><br>
+                            ${errorMessage}
+                        `);
+                        new bootstrap.Toast($('#errorToast')[0]).show();
+                    },
+                    complete: function() {
+                        // Reset button state
+                        submitBtn.prop('disabled', false);
+                        btnText.removeClass('d-none');
+                        btnLoading.addClass('d-none');
+                    }
+                });
+            }
 
             // Auto-fill test data
             $('#autoFillTest').click(function() {
