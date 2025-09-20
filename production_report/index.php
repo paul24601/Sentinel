@@ -80,7 +80,7 @@ try {
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         
-        .injection-section, .finishing-section {
+        .finishing-section {
             transition: all 0.5s ease;
         }
         
@@ -257,8 +257,16 @@ try {
             color: #212529;
         }
 
-        .finishing-section, .injection-section, .injection-machine-section {
+        .finishing-section, .injection-machine-section {
             transition: all 0.3s ease;
+        }
+        
+        /* Helper text styles */
+        .finishing-only {
+            display: none;
+            color: #6c757d;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
         }
         
         /* Enhanced Button Styles */
@@ -648,67 +656,6 @@ try {
                             </div>
                         </div>
 
-                        <!-- Injection-Specific Parameters (only shown for Injection reports) -->
-                        <div class="form-section injection-section" style="display: none;">
-                            <div class="card-header py-3">
-                                <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Injection Molding Parameters</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row g-4">
-                                    <div class="col-md-3">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" id="injectionPressure" name="injectionPressure" step="0.1">
-                                            <label for="injectionPressure">Injection Pressure (MPa)</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" id="moldingTemp" name="moldingTemp">
-                                            <label for="moldingTemp">Molding Temperature (°C)</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" id="cycleTime" name="cycleTime" step="0.1">
-                                            <label for="cycleTime">Cycle Time (seconds)</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" id="cavityCount" name="cavityCount">
-                                            <label for="cavityCount">Cavity Count</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row g-4 mt-2">
-                                    <div class="col-md-3">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" id="coolingTime" name="coolingTime" step="0.1">
-                                            <label for="coolingTime">Cooling Time (seconds)</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" id="holdingPressure" name="holdingPressure" step="0.1">
-                                            <label for="holdingPressure">Holding Pressure (MPa)</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-floating">
-                                            <input type="text" class="form-control" id="materialType" name="materialType">
-                                            <label for="materialType">Material Type</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" id="shotSize" name="shotSize" step="0.1">
-                                            <label for="shotSize">Shot Size (g)</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Finishing-Specific Parameters (only shown for Finishing reports) -->
                         <div class="form-section finishing-section">
                             <div class="card-header py-3">
@@ -788,15 +735,15 @@ try {
                                     <div class="col-md-3">
                                         <div class="form-floating">
                                             <input type="text" class="form-control" id="ejo" name="ejo">
-                                            <label for="ejo">EJO #</label>
+                                            <label for="ejo" id="ejoLabel">EJO #</label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Assembly Line Section - Only for Finishing Reports -->
-                        <div class="form-section finishing-section" style="display: none;">
+                        <!-- Assembly Line Section - For both Finishing and Injection Reports -->
+                        <div class="form-section">
                             <div class="card-header py-3">
                                 <h5 class="mb-0"><i class="fas fa-industry me-2"></i>Assembly Line Information</h5>
                             </div>
@@ -820,8 +767,9 @@ try {
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-floating">
-                                            <input type="number" class="form-control" id="manpower" name="manpower" required>
+                                            <input type="number" class="form-control" id="manpower" name="manpower">
                                             <label for="manpower">Manpower Allocation</label>
+                                            <small class="form-text text-muted finishing-only">Required for finishing reports</small>
                                         </div>
                                     </div>
                                     <div class="col-md-2">
@@ -1442,7 +1390,7 @@ This action cannot be undone.`;
                             setTimeout(function() {
                                 form.reset();
                                 form.classList.remove('was-validated');
-                                $('.injection-section, .finishing-section').hide();
+                                $('.finishing-section').hide();
                                 // Reset report type to default
                                 $('input[name="reportTypeSelection"]:first').prop('checked', true).trigger('change');
                             }, 2000);
@@ -1500,7 +1448,12 @@ This action cannot be undone.`;
                     $('#idNumber1').val('123456');
                     $('#idNumber2').val('789012');
                     $('#idNumber3').val('345678');
-                    $('#ejo').val('EJO-2024-001');
+                    
+                    if (reportType === 'injection') {
+                        $('#ejo').val('EJO-2024-001');
+                    } else {
+                        $('#ejo').val('FJO-2024-001');
+                    }
                     
                     // Fill time columns with realistic sample data
                     const baseGood = 35;
@@ -1584,23 +1537,27 @@ This action cannot be undone.`;
                 $('#selectedReportType').val(selectedType);
                 
                 if (selectedType === 'injection') {
-                    $('.injection-section').show();
                     $('.injection-machine-section').show();
-                    $('.finishing-section').hide();
+                    $('.finishing-section').show();
+                    // Update EJO label to EJO for injection
+                    $('#ejoLabel').text('EJO #');
                     // Set required fields for injection
                     $('#machine').prop('required', true);
                     $('#robotArm').prop('required', true);
-                    $('#assemblyLine').prop('required', false);
+                    $('#assemblyLine').prop('required', true);
                     $('#manpower').prop('required', false); // Manpower not required for injection
+                    $('.finishing-only').show();
                 } else {
-                    $('.injection-section').hide();
                     $('.injection-machine-section').hide();
                     $('.finishing-section').show();
+                    // Update EJO label to FJO for finishing
+                    $('#ejoLabel').text('FJO #');
                     // Set required fields for finishing
                     $('#assemblyLine').prop('required', true);
                     $('#machine').prop('required', false);
                     $('#robotArm').prop('required', false);
                     $('#manpower').prop('required', true); // Manpower required for finishing
+                    $('.finishing-only').hide();
                 }
             });
 
@@ -1608,21 +1565,23 @@ This action cannot be undone.`;
             const initialType = $('input[name="reportTypeSelection"]:checked').val();
             $('#selectedReportType').val(initialType);
             if (initialType === 'injection') {
-                $('.injection-section').show();
                 $('.injection-machine-section').show();
-                $('.finishing-section').hide();
+                $('.finishing-section').show();
+                $('#ejoLabel').text('EJO #');
                 $('#machine').prop('required', true);
                 $('#robotArm').prop('required', true);
-                $('#assemblyLine').prop('required', false);
+                $('#assemblyLine').prop('required', true);
                 $('#manpower').prop('required', false); // Manpower not required for injection
+                $('.finishing-only').show();
             } else {
-                $('.injection-section').hide();
                 $('.injection-machine-section').hide();
                 $('.finishing-section').show();
+                $('#ejoLabel').text('FJO #');
                 $('#assemblyLine').prop('required', true);
                 $('#machine').prop('required', false);
                 $('#robotArm').prop('required', false);
                 $('#manpower').prop('required', true); // Manpower required for finishing
+                $('.finishing-only').hide();
             }
         });
     </script>
