@@ -13,7 +13,7 @@ if (!isset($_SESSION['full_name'])) {
 
 // Get database connection and notifications
 try {
-    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+    $conn = DatabaseManager::getConnection('sentinel_production');
     $admin_notifications = getAdminNotifications($_SESSION['id_number'], $_SESSION['role']);
     $notification_count = getUnviewedNotificationCount($_SESSION['id_number'], $_SESSION['full_name']);
 } catch (Exception $e) {
@@ -32,14 +32,15 @@ $params = [];
 $types = '';
 
 if (!empty($search)) {
-    $where_conditions[] = "(product_name LIKE ? OR part_no LIKE ? OR assembly_line LIKE ? OR machine LIKE ?)";
+    $where_conditions[] = "(product_name LIKE ? OR part_no LIKE ? OR assembly_line LIKE ? OR plant LIKE ?)";
     $search_param = "%$search%";
     $params = array_merge($params, [$search_param, $search_param, $search_param, $search_param]);
     $types .= 'ssss';
 }
 
+// Remove report_type filter since it doesn't exist in the database, use plant instead
 if (!empty($report_type)) {
-    $where_conditions[] = "report_type = ?";
+    $where_conditions[] = "plant = ?";
     $params[] = $report_type;
     $types .= 's';
 }
@@ -237,11 +238,11 @@ $result = $stmt->get_result();
                                 <input type="text" class="form-control" name="search" value="<?php echo htmlspecialchars($search); ?>" placeholder="Product, Part No, Assembly Line...">
                             </div>
                             <div class="col-md-2">
-                                <label class="form-label">Report Type</label>
+                                <label class="form-label">Plant</label>
                                 <select class="form-select" name="report_type">
-                                    <option value="">All Types</option>
-                                    <option value="finishing" <?php echo $report_type === 'finishing' ? 'selected' : ''; ?>>Finishing</option>
-                                    <option value="injection" <?php echo $report_type === 'injection' ? 'selected' : ''; ?>>Injection</option>
+                                    <option value="">All Plants</option>
+                                    <option value="Plant A" <?php echo $report_type === 'Plant A' ? 'selected' : ''; ?>>Plant A</option>
+                                    <option value="Plant B" <?php echo $report_type === 'Plant B' ? 'selected' : ''; ?>>Plant B</option>
                                 </select>
                             </div>
                             <div class="col-md-2">
@@ -284,11 +285,11 @@ $result = $stmt->get_result();
                                         <thead class="table-dark">
                                             <tr>
                                                 <th>Date</th>
-                                                <th>Type</th>
+                                                <th>Plant</th>
                                                 <th>Product Name</th>
                                                 <th>Part No</th>
                                                 <th>Shift</th>
-                                                <th>Assembly Line/Machine</th>
+                                                <th>Assembly Line</th>
                                                 <th>Total Reject</th>
                                                 <th>Total Good</th>
                                                 <th>Created</th>
@@ -300,24 +301,15 @@ $result = $stmt->get_result();
                                                 <tr>
                                                     <td><?php echo date('M d, Y', strtotime($row['report_date'])); ?></td>
                                                     <td>
-                                                        <span class="badge badge-<?php echo $row['report_type']; ?>">
-                                                            <?php echo ucfirst($row['report_type']); ?>
+                                                        <span class="badge bg-primary">
+                                                            <?php echo htmlspecialchars($row['plant']); ?>
                                                         </span>
                                                     </td>
                                                     <td class="fw-bold"><?php echo htmlspecialchars($row['product_name']); ?></td>
                                                     <td><?php echo htmlspecialchars($row['part_no']); ?></td>
                                                     <td><?php echo htmlspecialchars($row['shift']); ?></td>
                                                     <td>
-                                                        <?php 
-                                                        if ($row['report_type'] === 'finishing') {
-                                                            echo htmlspecialchars($row['assembly_line'] ?: 'N/A');
-                                                        } else {
-                                                            echo htmlspecialchars($row['machine'] ?: 'N/A');
-                                                            if ($row['robot_arm']) {
-                                                                echo '<br><small class="text-muted">Robot: ' . $row['robot_arm'] . '</small>';
-                                                            }
-                                                        }
-                                                        ?>
+                                                        <?php echo htmlspecialchars($row['assembly_line'] ?: 'N/A'); ?>
                                                     </td>
                                                     <td>
                                                         <span class="badge bg-danger"><?php echo number_format($row['total_reject']); ?></span>

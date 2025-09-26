@@ -17,7 +17,7 @@ $pending_submissions = [];
 
 // Get database connection and notifications
 try {
-    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+    $conn = DatabaseManager::getConnection('sentinel_production');
 
     // Get admin notifications for current user
     $admin_notifications = getAdminNotifications($_SESSION['id_number'], $_SESSION['role']);

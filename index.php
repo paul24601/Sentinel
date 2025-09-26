@@ -103,20 +103,21 @@ try {
     $totalParameters = 0;
 }
 
-// Total Production Reports (using monitoring database where production_reports table exists)
+// Total Production Reports (using correct production database)
 try {
+    $prodConn = DatabaseManager::getConnection('sentinel_production');
     $sqlTotalProduction = "SELECT COUNT(*) as total FROM production_reports";
-    $resultTotalProduction = $conn->query($sqlTotalProduction);
+    $resultTotalProduction = $prodConn->query($sqlTotalProduction);
     $totalProduction = $resultTotalProduction ? $resultTotalProduction->fetch_assoc()['total'] : 0;
     
-    // Get production report breakdown
+    // Get production report breakdown (note: removing report_type since it doesn't exist in DB)
     $sqlProductionBreakdown = "SELECT 
-        report_type,
+        plant,
         COUNT(*) as count,
         COUNT(CASE WHEN DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) THEN 1 END) as recent_count
         FROM production_reports 
-        GROUP BY report_type";
-    $resultProductionBreakdown = $conn->query($sqlProductionBreakdown);
+        GROUP BY plant";
+    $resultProductionBreakdown = $prodConn->query($sqlProductionBreakdown);
     $productionBreakdown = [];
     $recentProductionCount = 0;
     

@@ -19,7 +19,7 @@ if (!$id) {
 }
 
 try {
-    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+    $conn = DatabaseManager::getConnection('sentinel_production');
     
     // Fetch the specific record
     $sql = "SELECT * FROM production_reports WHERE id = ?";

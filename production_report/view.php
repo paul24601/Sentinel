@@ -1,6 +1,10 @@
 <?php
 session_start();
 
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Load centralized database configuration
 require_once __DIR__ . '/../includes/database.php';
 require_once __DIR__ . '/../includes/admin_notifications.php';
@@ -20,7 +24,7 @@ if (!$id || !is_numeric($id)) {
 
 // Get database connection
 try {
-    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+    $conn = DatabaseManager::getConnection('sentinel_production');
 } catch (Exception $e) {
     die("Database connection failed: " . $e->getMessage());
 }
@@ -33,19 +37,29 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
-    header("Location: records.php");
-    exit();
+    die("No report found with ID: $id");
 }
 
 $report = $result->fetch_assoc();
 
-// Get quality control data if exists
-$quality_sql = "SELECT * FROM quality_control_entries WHERE report_id = ? ORDER BY id";
-$quality_stmt = $conn->prepare($quality_sql);
-$quality_stmt->bind_param("i", $id);
-$quality_stmt->execute();
-$quality_result = $quality_stmt->get_result();
-$quality_data = $quality_result->fetch_all(MYSQLI_ASSOC);
+// Get quality control data if exists (with error handling)
+$quality_data = [];
+try {
+    $quality_sql = "SELECT * FROM quality_control_entries WHERE report_id = ? ORDER BY id";
+    $quality_stmt = $conn->prepare($quality_sql);
+    if ($quality_stmt) {
+        $quality_stmt->bind_param("i", $id);
+        $quality_stmt->execute();
+        $quality_result = $quality_stmt->get_result();
+        $quality_data = $quality_result->fetch_all(MYSQLI_ASSOC);
+    }
+} catch (Exception $e) {
+    // Ignore quality control errors since table might not exist
+    $quality_data = [];
+}
+
+// Debug information (remove this after testing)
+// error_log("Report data: " . print_r($report, true));
 ?>
 
 <!DOCTYPE html>
@@ -212,10 +226,10 @@ $quality_data = $quality_result->fetch_all(MYSQLI_ASSOC);
                                     <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Basic Information</h5>
                                 </div>
                                 <div class="card-body">
-                                    <div class="info-label">Report Type</div>
+                                    <div class="info-label">Plant</div>
                                     <div class="info-value">
-                                        <span class="badge badge-<?php echo $report['report_type']; ?> fs-6">
-                                            <?php echo ucfirst($report['report_type']); ?>
+                                        <span class="badge bg-primary fs-6">
+                                            <?php echo htmlspecialchars($report['plant']); ?>
                                         </span>
                                     </div>
 
@@ -273,34 +287,18 @@ $quality_data = $quality_result->fetch_all(MYSQLI_ASSOC);
                     </div>
 
                     <div class="row">
-                        <!-- Location/Machine Information -->
+                        <!-- Assembly Line Information -->
                         <div class="col-md-6">
                             <div class="card">
                                 <div class="card-header">
                                     <h5 class="mb-0">
-                                        <i class="fas fa-<?php echo $report['report_type'] === 'finishing' ? 'industry' : 'cogs'; ?> me-2"></i>
-                                        <?php echo $report['report_type'] === 'finishing' ? 'Assembly Line' : 'Machine'; ?> Information
+                                        <i class="fas fa-industry me-2"></i>
+                                        Assembly Line Information
                                     </h5>
                                 </div>
                                 <div class="card-body">
-                                    <?php if ($report['report_type'] === 'finishing'): ?>
-                                        <div class="info-label">Assembly Line</div>
-                                        <div class="info-value"><?php echo htmlspecialchars($report['assembly_line'] ?: 'N/A'); ?></div>
-                                    <?php else: ?>
-                                        <div class="info-label">Machine</div>
-                                        <div class="info-value"><?php echo htmlspecialchars($report['machine'] ?: 'N/A'); ?></div>
-
-                                        <div class="info-label">With Robot Arm</div>
-                                        <div class="info-value">
-                                            <?php if ($report['robot_arm']): ?>
-                                                <span class="badge <?php echo $report['robot_arm'] === 'Yes' ? 'bg-success' : 'bg-secondary'; ?>">
-                                                    <?php echo $report['robot_arm']; ?>
-                                                </span>
-                                            <?php else: ?>
-                                                N/A
-                                            <?php endif; ?>
-                                        </div>
-                                    <?php endif; ?>
+                                    <div class="info-label">Assembly Line</div>
+                                    <div class="info-value"><?php echo htmlspecialchars($report['assembly_line'] ?: 'N/A'); ?></div>
 
                                     <div class="info-label">Manpower Allocation</div>
                                     <div class="info-value"><?php echo number_format($report['manpower']); ?></div>
@@ -359,83 +357,16 @@ $quality_data = $quality_result->fetch_all(MYSQLI_ASSOC);
                         </div>
                     </div>
 
-                    <!-- Type-specific Parameters -->
-                    <?php if ($report['report_type'] === 'injection'): ?>
+                    <!-- Remarks Section -->
+                    <?php if ($report['remarks']): ?>
                         <div class="card">
                             <div class="card-header">
-                                <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Injection Molding Parameters</h5>
+                                <h5 class="mb-0"><i class="fas fa-comment me-2"></i>Remarks</h5>
                             </div>
                             <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="info-label">Injection Pressure</div>
-                                        <div class="info-value"><?php echo $report['injection_pressure'] ? number_format($report['injection_pressure'], 2) . ' MPa' : 'N/A'; ?></div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="info-label">Molding Temperature</div>
-                                        <div class="info-value"><?php echo $report['molding_temp'] ? $report['molding_temp'] . '°C' : 'N/A'; ?></div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="info-label">Cycle Time</div>
-                                        <div class="info-value"><?php echo $report['cycle_time'] ? number_format($report['cycle_time'], 2) . ' sec' : 'N/A'; ?></div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="info-label">Cavity Count</div>
-                                        <div class="info-value"><?php echo $report['cavity_count'] ? number_format($report['cavity_count']) : 'N/A'; ?></div>
-                                    </div>
+                                <div class="alert alert-info mb-0">
+                                    <?php echo nl2br(htmlspecialchars($report['remarks'])); ?>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="info-label">Cooling Time</div>
-                                        <div class="info-value"><?php echo $report['cooling_time'] ? number_format($report['cooling_time'], 2) . ' sec' : 'N/A'; ?></div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="info-label">Holding Pressure</div>
-                                        <div class="info-value"><?php echo $report['holding_pressure'] ? number_format($report['holding_pressure'], 2) . ' MPa' : 'N/A'; ?></div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="info-label">Material Type</div>
-                                        <div class="info-value"><?php echo htmlspecialchars($report['material_type'] ?: 'N/A'); ?></div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="info-label">Shot Size</div>
-                                        <div class="info-value"><?php echo $report['shot_size'] ? number_format($report['shot_size'], 2) . ' g' : 'N/A'; ?></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if ($report['report_type'] === 'finishing'): ?>
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="mb-0"><i class="fas fa-tools me-2"></i>Finishing Process Details</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="info-label">Finishing Process</div>
-                                        <div class="info-value"><?php echo htmlspecialchars($report['finishing_process'] ?: 'N/A'); ?></div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="info-label">Station Number</div>
-                                        <div class="info-value"><?php echo htmlspecialchars($report['station_number'] ?: 'N/A'); ?></div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="info-label">Work Order</div>
-                                        <div class="info-value"><?php echo htmlspecialchars($report['work_order'] ?: 'N/A'); ?></div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="info-label">Quality Standard</div>
-                                        <div class="info-value"><?php echo htmlspecialchars($report['quality_standard'] ?: 'N/A'); ?></div>
-                                    </div>
-                                </div>
-                                <?php if ($report['finishing_tools']): ?>
-                                    <div class="mt-3">
-                                        <div class="info-label">Finishing Tools</div>
-                                        <div class="info-value"><?php echo nl2br(htmlspecialchars($report['finishing_tools'])); ?></div>
-                                    </div>
-                                <?php endif; ?>
                             </div>
                         </div>
                     <?php endif; ?>

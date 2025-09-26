@@ -10,7 +10,7 @@ require_once __DIR__ . '/../includes/database.php';
 
 try {
     // Get database connection
-    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+    $conn = DatabaseManager::getConnection('sentinel_production');
     
     // Get search term from query parameter
     $search = $_GET['search'] ?? '';

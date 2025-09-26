@@ -1,5 +1,0 @@
-Array
-(
-    [scale_id] => WS-001
-    [action] => stop
-)

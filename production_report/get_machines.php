@@ -3,7 +3,7 @@ header('Content-Type: application/json');
 require_once '../includes/database.php';
 
 try {
-    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+    $conn = DatabaseManager::getConnection('sentinel_production');
     
     // Define standard machines from the system
     $machines = [

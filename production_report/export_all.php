@@ -11,7 +11,7 @@ if (!isset($_SESSION['id_number'])) {
 require_once __DIR__ . '/../includes/database.php';
 
 try {
-    $conn = DatabaseManager::getConnection('sentinel_monitoring');
+    $conn = DatabaseManager::getConnection('sentinel_production');
     
     // Handle search and filtering (same logic as records.php)
     $search = $_GET['search'] ?? '';
