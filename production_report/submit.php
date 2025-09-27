@@ -1,135 +1,114 @@
 <?php
-session_start();
+// MINIMAL SUBMIT HANDLER FOR DEBUGGING
+// This will help identify exactly what's causing the 500 error
 
+ob_start();
+
+// Basic error handling
+$is_production = (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'mpinternal.xyz') !== false);
+
+if ($is_production) {
+    error_reporting(E_ERROR | E_WARNING | E_PARSE);
+    ini_set('display_errors', 0);
+} else {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+}
+
+ob_clean();
 header('Content-Type: application/json');
 
-// Check if the request is POST
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'message' => 'Invalid request method']);
-    exit;
-}
-
-// Include database connection
-require_once __DIR__ . '/../includes/database.php';
-
-// Check if user is logged in
-if (!isset($_SESSION['id_number'])) {
-    echo json_encode(['success' => false, 'message' => 'User not logged in']);
-    exit;
-}
-
-// Get database connection
 try {
-    $conn = DatabaseManager::getConnection('sentinel_production');
-} catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Database connection failed: ' . $e->getMessage()]);
-    exit;
-}
+    // Step 1: Check session
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
 
-try {
-    // Start transaction
-    $conn->begin_transaction();
+    if (!isset($_SESSION['id_number'])) {
+        throw new Exception('Not logged in');
+    }
 
-    // Validate required fields
-    $required_fields = ['date', 'shift', 'shiftHours', 'productName', 'color', 'partNo'];
-    
-    foreach ($required_fields as $field) {
+    // Step 2: Check POST method
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        throw new Exception('Invalid method');
+    }
+
+    // Step 3: Check required fields
+    $required = ['productName', 'color', 'partNo', 'date', 'shift', 'shiftHours'];
+    foreach ($required as $field) {
         if (empty($_POST[$field])) {
-            throw new Exception("Required field missing: $field");
+            throw new Exception("Missing: $field");
         }
     }
 
-    // Insert main report data - matching actual database structure
+    // Step 4: Include database file
+    $db_file = __DIR__ . '/../includes/database.php';
+    if (!file_exists($db_file)) {
+        throw new Exception('Database file missing');
+    }
+    require_once $db_file;
+
+    // Step 5: Get connection
+    $conn = DatabaseManager::getConnection('sentinel_production');
+    if (!$conn) {
+        throw new Exception('DB connection failed');
+    }
+
+    // Step 6: Simple insert
     $sql = "INSERT INTO production_reports (
-        plant, report_date, shift, shift_hours, 
-        product_name, color, part_no,
-        id_number1, id_number2, id_number3, ejo_number,
-        assembly_line, manpower, reg, ot,
-        total_reject, total_good, remarks, 
-        created_by, created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+        product_name, color, part_no, report_date, shift, shift_hours, 
+        plant, assembly_line, manpower, total_reject, total_good, created_by
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
-        throw new Exception("Prepare failed: " . $conn->error);
+        throw new Exception('Prepare failed: ' . $conn->error);
     }
 
-    // Assign variables for binding (required for PHP) - matching database structure
-    $plant = $_POST['plant'] ?? 'Plant A'; // Default plant if not provided
-    $date = $_POST['date'];
-    $shift = $_POST['shift'];
-    $shiftHours = $_POST['shiftHours'];
-    $productName = $_POST['productName'];
-    $color = $_POST['color'];
-    $partNo = $_POST['partNo'];
-    $idNumber1 = $_POST['idNumber1'] ?? null;
-    $idNumber2 = $_POST['idNumber2'] ?? null;
-    $idNumber3 = $_POST['idNumber3'] ?? null;
-    $ejo = $_POST['ejo'] ?? null;
-    $assemblyLine = $_POST['assemblyLine'] ?? null;
-    $manpower = $_POST['manpower'] ?? 0;
-    $reg = $_POST['reg'] ?? null;
-    $ot = $_POST['ot'] ?? null;
-    $totalRejectSum = $_POST['totalRejectSum'] ?? 0;
-    $totalGoodSum = $_POST['totalGoodSum'] ?? 0;
-    $remarks = $_POST['remarks'] ?? null;
-    $userId = $_SESSION['id_number'];
+    $plant = $_POST['plant'] ?? 'Plant A';
+    $assemblyLine = $_POST['assemblyLine'] ?? '';
+    $manpower = (int)($_POST['manpower'] ?? 0);
+    $totalReject = (int)($_POST['totalRejectSum'] ?? 0);
+    $totalGood = (int)($_POST['totalGoodSum'] ?? 0);
 
-    $stmt->bind_param(
-        "ssssssssssssisssssi",
-        $plant, $date, $shift, $shiftHours,
-        $productName, $color, $partNo,
-        $idNumber1, $idNumber2, $idNumber3, $ejo,
-        $assemblyLine, $manpower, $reg, $ot,
-        $totalRejectSum, $totalGoodSum, $remarks, $userId
+    $stmt->bind_param('ssssssssiiis',
+        $_POST['productName'],
+        $_POST['color'], 
+        $_POST['partNo'],
+        $_POST['date'],
+        $_POST['shift'],
+        $_POST['shiftHours'],
+        $plant,
+        $assemblyLine,
+        $manpower,
+        $totalReject,
+        $totalGood,
+        $_SESSION['id_number']
     );
-    
+
     if (!$stmt->execute()) {
-        throw new Exception("Execute failed: " . $stmt->error);
+        throw new Exception('Execute failed: ' . $stmt->error);
     }
-    
-    $report_id = $conn->insert_id;
 
-    // Commit transaction
-    $conn->commit();
-
-    // Return success response with detailed information
     echo json_encode([
         'success' => true,
-        'message' => 'Production report submitted successfully!',
-        'report_id' => $report_id,
-        'product_name' => $productName,
-        'plant' => $plant,
-        'timestamp' => date('Y-m-d H:i:s')
+        'message' => 'Report submitted successfully!',
+        'report_id' => $conn->insert_id
     ]);
 
 } catch (Exception $e) {
-    // Rollback transaction on error
-    if (isset($conn) && method_exists($conn, 'thread_id') && $conn->thread_id) {
-        $conn->rollback();
-    }
-    
-    // Log the error for debugging (keep minimal logging)
-    error_log("Production report error: " . $e->getMessage());
-    
-    // Provide user-friendly error messages
-    $userMessage = 'An error occurred while saving the production report.';
-    
-    // Check for common error types
-    if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
-        $userMessage = 'A report with this information already exists. Please check your data and try again.';
-    } elseif (strpos($e->getMessage(), 'Data too long') !== false) {
-        $userMessage = 'One or more fields contain too much data. Please reduce the length and try again.';
-    } elseif (strpos($e->getMessage(), 'Connection') !== false) {
-        $userMessage = 'Database connection error. Please try again in a moment.';
-    } elseif (strpos($e->getMessage(), 'Required field missing') !== false) {
-        $userMessage = $e->getMessage();
-    }
-    
     echo json_encode([
         'success' => false,
-        'message' => $userMessage,
-        'error_code' => 'SUBMISSION_ERROR',
-        'timestamp' => date('Y-m-d H:i:s')
+        'message' => 'Error: ' . $e->getMessage(),
+        'debug' => [
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'session_exists' => isset($_SESSION['id_number']),
+            'post_method' => $_SERVER['REQUEST_METHOD'] ?? 'unknown',
+            'is_production' => $is_production
+        ]
     ]);
 }
+
+ob_end_flush();
+?>

@@ -23,8 +23,8 @@ try {
     $admin_notifications = getAdminNotifications($_SESSION['id_number'], $_SESSION['role']);
     $notification_count = getUnviewedNotificationCount($_SESSION['id_number'], $_SESSION['full_name']);
 
-    // Get pending submissions for notifications
-    $pending_sql = "SELECT id, product_name, date FROM injectionmoldingparameters WHERE status = 'pending' ORDER BY date DESC LIMIT 10";
+    // Get recent submissions for notifications (from production_reports table)
+    $pending_sql = "SELECT id, product_name, report_date as date FROM production_reports ORDER BY created_at DESC LIMIT 10";
     $pending_result = $conn->query($pending_sql);
     if ($pending_result && $pending_result->num_rows > 0) {
         $pending_submissions = $pending_result->fetch_all(MYSQLI_ASSOC);
@@ -1365,7 +1365,7 @@ This action cannot be undone.`;
                 
                 // Submit via AJAX
                 $.ajax({
-                    url: 'submit.php',
+                    url: 'submit.php', // Back to full-featured version
                     type: 'POST',
                     data: formData,
                     processData: false,
